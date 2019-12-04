@@ -1,0 +1,56 @@
+specVersion: 0.0.1
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Contract
+    network: mainnet
+    source:
+      address: "0xFBeef911Dc5821886e1dda71586d90eD28174B7d"
+      abi: Contract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.2
+      language: wasm/assemblyscript
+      entities:
+        - Purchase
+        - Minted
+        - EditionCreated
+        - Pause
+        - Unpause
+        - OwnershipRenounced
+        - OwnershipTransferred
+        - RoleAdded
+        - RoleRemoved
+        - Transfer
+        - Approval
+        - ApprovalForAll
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: Purchase(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handlePurchase
+        - event: Minted(indexed uint256,indexed uint256,indexed address)
+          handler: handleMinted
+        - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
+          handler: handleEditionCreated
+        - event: Pause()
+          handler: handlePause
+        - event: Unpause()
+          handler: handleUnpause
+        - event: OwnershipRenounced(indexed address)
+          handler: handleOwnershipRenounced
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: RoleAdded(indexed address,uint8)
+          handler: handleRoleAdded
+        - event: RoleRemoved(indexed address,uint8)
+          handler: handleRoleRemoved
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+      file: ./src/mapping.ts

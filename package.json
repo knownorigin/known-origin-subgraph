@@ -1,0 +1,16 @@
+{
+  "name": "known-origin",
+  "license": "UNLICENSED",
+  "scripts": {
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin",
+    "create-local": "graph create --node http://localhost:8020/ knownorigin/known-origin",
+    "remove-local": "graph remove --node http://localhost:8020/ knownorigin/known-origin",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 knownorigin/known-origin"
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.16.2",
+    "@graphprotocol/graph-ts": "0.16.0"
+  }
+}
