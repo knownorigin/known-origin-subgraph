@@ -15,6 +15,9 @@ graph init --from-contract 0xFBeef911Dc5821886e1dda71586d90eD28174B7d knownorigi
 
 ### Dev cycle
 
+Install
+`yarn install`
+
 If schema changes
 `yarn codegen`
 

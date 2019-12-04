@@ -1,5 +1,6 @@
 specVersion: 0.0.2
-description: KO graph
+description: KnownOrigin.io subgraph
+repository: https://github.com/knownorigin/graph-known-origin
 schema:
   file: schema.graphql
 dataSources:
