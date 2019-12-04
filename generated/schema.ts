@@ -42,6 +42,15 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    return value.toBigInt();
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
+  }
+
   get from(): Bytes {
     let value = this.get("from");
     return value.toBytes();
@@ -67,5 +76,40 @@ export class Token extends Entity {
 
   set owners(value: BigInt) {
     this.set("owners", Value.fromBigInt(value));
+  }
+
+  get editionNumber(): BigInt {
+    let value = this.get("editionNumber");
+    return value.toBigInt();
+  }
+
+  set editionNumber(value: BigInt) {
+    this.set("editionNumber", Value.fromBigInt(value));
+  }
+
+  get tokenURI(): string {
+    let value = this.get("tokenURI");
+    return value.toString();
+  }
+
+  set tokenURI(value: string) {
+    this.set("tokenURI", Value.fromString(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (value === null) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(value as string));
+    }
   }
 }

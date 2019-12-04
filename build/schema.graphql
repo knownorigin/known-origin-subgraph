@@ -1,6 +1,10 @@
 type Token @entity {
   id: ID!
+  tokenId: BigInt!
   from: Bytes! # address
   to: Bytes! # address
   owners: BigInt!
+  editionNumber: BigInt!
+  tokenURI: String!
+  name: String
 }

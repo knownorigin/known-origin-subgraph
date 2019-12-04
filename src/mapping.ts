@@ -1,4 +1,4 @@
-import {BigInt} from "@graphprotocol/graph-ts"
+import {BigInt, Bytes, ipfs, json, log, JSONValue} from "@graphprotocol/graph-ts"
 import {
     Contract,
     Purchase,
@@ -135,18 +135,25 @@ export function handleRoleRemoved(event: RoleRemoved): void {
 }
 
 export function handleTransfer(event: Transfer): void {
+    let contract = Contract.bind(event.address)
+    let _tokenData = contract.tokenData(event.params._tokenId)
+
     // Entities can be loaded from the store using a string ID; this ID
     // needs to be unique across all entities of the same type
-    let entity = Token.load(event.params._tokenId.toHex())
+    let entity = Token.load(event.params._tokenId.toString())
 
     // Entities only exist after they have been saved to the store;
     // `null` checks allow to create entities on demand
     if (entity == null) {
-        entity = new Token(event.params._tokenId.toHex())
+        entity = new Token(event.params._tokenId.toString())
 
         // Entity fields can be set using simple assignments
-        entity.owners = BigInt.fromI32(1)
+        entity.owners = BigInt.fromI32(0)
+        entity.tokenId = event.params._tokenId
+        entity.editionNumber = _tokenData.value0
     }
+
+    entity.tokenURI = _tokenData.value3
 
     // BigInt and BigDecimal math are supported
     entity.owners = entity.owners + BigInt.fromI32(1)
@@ -154,6 +161,16 @@ export function handleTransfer(event: Transfer): void {
     // Entity fields can be set based on event parameters
     entity.from = event.params._from
     entity.to = event.params._to
+
+    // FIXME - move to one time set block
+    // IPFS
+    let path:string = 'QmVLBA9YK5gjiCfJD3beTtGmkMZ2trhMFc1ujv66awjE7m'
+    let data = ipfs.cat(path)
+    if (data !== null) {
+        let jsonData: JSONValue = json.fromBytes(data as Bytes)
+        entity.name = jsonData.toObject().get('name').toString()
+        log.info("Name: {}", [entity.name])
+    }
 
     // Entities can be written to the store with `.save()`
     entity.save()
