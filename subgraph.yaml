@@ -1,4 +1,5 @@
-specVersion: 0.0.1
+specVersion: 0.0.2
+description: KO graph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,9 +9,10 @@ dataSources:
     source:
       address: "0xFBeef911Dc5821886e1dda71586d90eD28174B7d"
       abi: Contract
+      startBlock: 6270484
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.2
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
         - Purchase
