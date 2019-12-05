@@ -230,7 +230,7 @@ export function handleTransfer(event: Transfer): void {
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
     dayEntity.totalValue =  dayEntity.totalValue + event.transaction.value
     dayEntity.totalGasUsed =  dayEntity.totalGasUsed + event.transaction.gasUsed
-    dayEntity.highestValueToken = (event.transaction.value > dayEntity.highestValue) ? tokenEntity.id.toString() : null
+    dayEntity.highestValueToken = (event.transaction.value > dayEntity.highestValue) ? tokenEntity.id.toString() : dayEntity.highestValueToken
     dayEntity.highestValue = (event.transaction.value > dayEntity.highestValue) ? event.transaction.value : dayEntity.highestValue
     dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
     dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
