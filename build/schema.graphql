@@ -3,8 +3,21 @@ type Token @entity {
   tokenId: BigInt!
   from: Bytes! # address
   to: Bytes! # address
-  owners: BigInt!
+  ownerCount: BigInt!
   editionNumber: BigInt!
   tokenURI: String!
+  highestTimestamp: BigInt!
   name: String
+  description: String
+  image: String
+}
+
+type Day @entity {
+  id: ID!
+  date: String!
+  transferCount: BigInt!
+  totalValue: BigInt!
+  totalGasUsed: BigInt!
+  highestGasPrice: BigInt!
+  highestTimestamp: BigInt!
 }

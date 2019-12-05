@@ -69,13 +69,13 @@ export class Token extends Entity {
     this.set("to", Value.fromBytes(value));
   }
 
-  get owners(): BigInt {
-    let value = this.get("owners");
+  get ownerCount(): BigInt {
+    let value = this.get("ownerCount");
     return value.toBigInt();
   }
 
-  set owners(value: BigInt) {
-    this.set("owners", Value.fromBigInt(value));
+  set ownerCount(value: BigInt) {
+    this.set("ownerCount", Value.fromBigInt(value));
   }
 
   get editionNumber(): BigInt {
@@ -96,6 +96,15 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
+  get highestTimestamp(): BigInt {
+    let value = this.get("highestTimestamp");
+    return value.toBigInt();
+  }
+
+  set highestTimestamp(value: BigInt) {
+    this.set("highestTimestamp", Value.fromBigInt(value));
+  }
+
   get name(): string | null {
     let value = this.get("name");
     if (value === null) {
@@ -111,5 +120,124 @@ export class Token extends Entity {
     } else {
       this.set("name", Value.fromString(value as string));
     }
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (value === null) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(value as string));
+    }
+  }
+
+  get image(): string | null {
+    let value = this.get("image");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string | null) {
+    if (value === null) {
+      this.unset("image");
+    } else {
+      this.set("image", Value.fromString(value as string));
+    }
+  }
+}
+
+export class Day extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Day entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Day entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Day", id.toString(), this);
+  }
+
+  static load(id: string): Day | null {
+    return store.get("Day", id) as Day | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get date(): string {
+    let value = this.get("date");
+    return value.toString();
+  }
+
+  set date(value: string) {
+    this.set("date", Value.fromString(value));
+  }
+
+  get transferCount(): BigInt {
+    let value = this.get("transferCount");
+    return value.toBigInt();
+  }
+
+  set transferCount(value: BigInt) {
+    this.set("transferCount", Value.fromBigInt(value));
+  }
+
+  get totalValue(): BigInt {
+    let value = this.get("totalValue");
+    return value.toBigInt();
+  }
+
+  set totalValue(value: BigInt) {
+    this.set("totalValue", Value.fromBigInt(value));
+  }
+
+  get totalGasUsed(): BigInt {
+    let value = this.get("totalGasUsed");
+    return value.toBigInt();
+  }
+
+  set totalGasUsed(value: BigInt) {
+    this.set("totalGasUsed", Value.fromBigInt(value));
+  }
+
+  get highestGasPrice(): BigInt {
+    let value = this.get("highestGasPrice");
+    return value.toBigInt();
+  }
+
+  set highestGasPrice(value: BigInt) {
+    this.set("highestGasPrice", Value.fromBigInt(value));
+  }
+
+  get highestTimestamp(): BigInt {
+    let value = this.get("highestTimestamp");
+    return value.toBigInt();
+  }
+
+  set highestTimestamp(value: BigInt) {
+    this.set("highestTimestamp", Value.fromBigInt(value));
   }
 }

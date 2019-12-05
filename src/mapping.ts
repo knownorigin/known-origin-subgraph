@@ -14,7 +14,7 @@ import {
     Approval,
     ApprovalForAll
 } from "../generated/Contract/Contract"
-import {Token} from "../generated/schema"
+import {Token, Day} from "../generated/schema"
 
 export function handlePurchase(event: Purchase): void {
     // // Entities can be loaded from the store using a string ID; this ID
@@ -138,42 +138,88 @@ export function handleTransfer(event: Transfer): void {
     let contract = Contract.bind(event.address)
     let _tokenData = contract.tokenData(event.params._tokenId)
 
-    // Entities can be loaded from the store using a string ID; this ID
-    // needs to be unique across all entities of the same type
-    let entity = Token.load(event.params._tokenId.toString())
+    // TOKEN
+    let tokenEntity = Token.load(event.params._tokenId.toString())
+    if (tokenEntity == null) {
+        // type Token @entity {
+        //     id: ID!
+        //     tokenId: BigInt!
+        //     from: Bytes! # address
+        //     to: Bytes! # address
+        //     ownerCount: BigInt!
+        //     editionNumber: BigInt!
+        //     tokenURI: String!
+        //     name: String
+        //     description: String
+        //     image: String
+        // }
 
-    // Entities only exist after they have been saved to the store;
-    // `null` checks allow to create entities on demand
-    if (entity == null) {
-        entity = new Token(event.params._tokenId.toString())
+        tokenEntity = new Token(event.params._tokenId.toString())
 
         // Entity fields can be set using simple assignments
-        entity.owners = BigInt.fromI32(0)
-        entity.tokenId = event.params._tokenId
-        entity.editionNumber = _tokenData.value0
+        tokenEntity.ownerCount = BigInt.fromI32(0) // set up the owner count
+        tokenEntity.tokenId = event.params._tokenId
+        tokenEntity.editionNumber = _tokenData.value0
+        tokenEntity.highestTimestamp = BigInt.fromI32(0)
+
+        // IPFS - these need to be in graph's IPFS node for now
+        let ipfsParts: string[] = _tokenData.value3.split('/')
+        if (ipfsParts.length > 0) {
+
+            let path: string = ipfsParts[ipfsParts.length - 1]
+            let data = ipfs.cat(path)
+            if (data !== null) {
+                let jsonData: JSONValue = json.fromBytes(data as Bytes)
+                tokenEntity.name = jsonData.toObject().get('name').toString()
+                tokenEntity.description = jsonData.toObject().get('description').toString()
+                tokenEntity.image = jsonData.toObject().get('image').toString()
+
+                log.info("Adding [{}]", [tokenEntity.name])
+            }
+        }
+
+        tokenEntity.tokenURI = _tokenData.value3
     }
 
-    entity.tokenURI = _tokenData.value3
+    tokenEntity.ownerCount = tokenEntity.ownerCount + BigInt.fromI32(1)
+    tokenEntity.highestTimestamp = (event.block.timestamp > tokenEntity.highestTimestamp) ? event.block.timestamp : tokenEntity.highestTimestamp
 
-    // BigInt and BigDecimal math are supported
-    entity.owners = entity.owners + BigInt.fromI32(1)
+    tokenEntity.from = event.params._from
+    tokenEntity.to = event.params._to
 
-    // Entity fields can be set based on event parameters
-    entity.from = event.params._from
-    entity.to = event.params._to
+    tokenEntity.save()
 
-    // FIXME - move to one time set block
-    // IPFS
-    let path:string = 'QmVLBA9YK5gjiCfJD3beTtGmkMZ2trhMFc1ujv66awjE7m'
-    let data = ipfs.cat(path)
-    if (data !== null) {
-        let jsonData: JSONValue = json.fromBytes(data as Bytes)
-        entity.name = jsonData.toObject().get('name').toString()
-        log.info("Name: {}", [entity.name])
+    // DAY
+    log.info('KO Timestamp >> {}', [event.block.timestamp.toString()])
+    let secondsInDay =  BigInt.fromI32(86400)
+    let dayAsNumberString = event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
+    let dayEntity = Day.load(dayAsNumberString)
+    if (dayEntity == null) {
+        // type Day @entity {
+        //     id: ID!
+        //     date: String!
+        //     transferCount: BigInt!
+        //     totalValue: BigInt!
+        //     totalGasUsed: BigInt!
+        //     highestGasPrice: BigInt!
+        // }
+
+        dayEntity = new Day(dayAsNumberString)
+        dayEntity.date = dayAsNumberString
+        dayEntity.transferCount = BigInt.fromI32(0)
+        dayEntity.totalValue = BigInt.fromI32(0)
+        dayEntity.totalGasUsed = BigInt.fromI32(0)
+        dayEntity.highestGasPrice = BigInt.fromI32(0)
+        dayEntity.highestTimestamp = BigInt.fromI32(0)
     }
 
-    // Entities can be written to the store with `.save()`
-    entity.save()
+    dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
+    dayEntity.totalValue =  dayEntity.totalValue + event.transaction.value
+    dayEntity.totalGasUsed =  dayEntity.totalGasUsed + event.transaction.gasUsed
+    dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
+    dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
+
+    dayEntity.save()
 }
 
 export function handleApproval(event: Approval): void {
