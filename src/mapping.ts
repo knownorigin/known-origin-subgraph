@@ -1,4 +1,13 @@
-import {BigInt, Bytes, ipfs, json, log, JSONValue} from "@graphprotocol/graph-ts"
+import {
+    BigInt,
+    Bytes,
+    ipfs,
+    json,
+    log,
+    JSONValue,
+    Address
+} from "@graphprotocol/graph-ts"
+
 import {
     Contract,
     Purchase,
@@ -14,6 +23,7 @@ import {
     Approval,
     ApprovalForAll
 } from "../generated/Contract/Contract"
+
 import {Token, Day} from "../generated/schema"
 
 export function handlePurchase(event: Purchase): void {
@@ -173,6 +183,7 @@ export function handleTransfer(event: Transfer): void {
                 tokenEntity.name = jsonData.toObject().get('name').toString()
                 tokenEntity.description = jsonData.toObject().get('description').toString()
                 tokenEntity.image = jsonData.toObject().get('image').toString()
+                // tokenEntity.tags = jsonData.toObject().get('attributes').toObject().get('tags').toArray()
 
                 log.info("Adding [{}]", [tokenEntity.name])
             }
@@ -191,6 +202,7 @@ export function handleTransfer(event: Transfer): void {
 
     // DAY
     log.info('KO Timestamp >> {}', [event.block.timestamp.toString()])
+
     let secondsInDay =  BigInt.fromI32(86400)
     let dayAsNumberString = event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
     let dayEntity = Day.load(dayAsNumberString)
@@ -209,15 +221,26 @@ export function handleTransfer(event: Transfer): void {
         dayEntity.transferCount = BigInt.fromI32(0)
         dayEntity.totalValue = BigInt.fromI32(0)
         dayEntity.totalGasUsed = BigInt.fromI32(0)
+        dayEntity.highestValue = BigInt.fromI32(0)
         dayEntity.highestGasPrice = BigInt.fromI32(0)
         dayEntity.highestTimestamp = BigInt.fromI32(0)
+        dayEntity.sales = new Array<string>()
     }
 
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
     dayEntity.totalValue =  dayEntity.totalValue + event.transaction.value
     dayEntity.totalGasUsed =  dayEntity.totalGasUsed + event.transaction.gasUsed
+    dayEntity.highestValueToken = (event.transaction.value > dayEntity.highestValue) ? tokenEntity.id.toString() : null
+    dayEntity.highestValue = (event.transaction.value > dayEntity.highestValue) ? event.transaction.value : dayEntity.highestValue
     dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
     dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
+
+    // if a new sale add to sales
+    if (!event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
+        let sales = dayEntity.sales
+        sales.push(tokenEntity.id.toString())
+        dayEntity.sales = sales
+    }
 
     dayEntity.save()
 }

@@ -223,6 +223,32 @@ export class Day extends Entity {
     this.set("totalGasUsed", Value.fromBigInt(value));
   }
 
+  get highestValue(): BigInt {
+    let value = this.get("highestValue");
+    return value.toBigInt();
+  }
+
+  set highestValue(value: BigInt) {
+    this.set("highestValue", Value.fromBigInt(value));
+  }
+
+  get highestValueToken(): string | null {
+    let value = this.get("highestValueToken");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set highestValueToken(value: string | null) {
+    if (value === null) {
+      this.unset("highestValueToken");
+    } else {
+      this.set("highestValueToken", Value.fromString(value as string));
+    }
+  }
+
   get highestGasPrice(): BigInt {
     let value = this.get("highestGasPrice");
     return value.toBigInt();
@@ -239,5 +265,14 @@ export class Day extends Entity {
 
   set highestTimestamp(value: BigInt) {
     this.set("highestTimestamp", Value.fromBigInt(value));
+  }
+
+  get sales(): Array<string | null> {
+    let value = this.get("sales");
+    return value.toStringArray();
+  }
+
+  set sales(value: Array<string | null>) {
+    this.set("sales", Value.fromStringArray(value));
   }
 }

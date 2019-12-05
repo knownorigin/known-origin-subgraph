@@ -18,6 +18,9 @@ type Day @entity {
   transferCount: BigInt!
   totalValue: BigInt!
   totalGasUsed: BigInt!
+  highestValue: BigInt!
+  highestValueToken: Token
   highestGasPrice: BigInt!
   highestTimestamp: BigInt!
+  sales: [Token]!
 }
