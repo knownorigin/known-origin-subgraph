@@ -1,5 +1,6 @@
 import {
     BigInt,
+    BigDecimal,
     Bytes,
     ipfs,
     json,
@@ -25,6 +26,8 @@ import {
 } from "../generated/Contract/Contract"
 
 import {Token, Day} from "../generated/schema"
+
+let ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
 
 export function handlePurchase(event: Purchase): void {
     // // Entities can be loaded from the store using a string ID; this ID
@@ -171,6 +174,8 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.tokenId = event.params._tokenId
         tokenEntity.editionNumber = _tokenData.value0
         tokenEntity.highestTimestamp = BigInt.fromI32(0)
+        tokenEntity.highestValue = BigInt.fromI32(0)
+        tokenEntity.highestValueInEth =  new BigDecimal(BigInt.fromI32(0))
 
         // IPFS - these need to be in graph's IPFS node for now
         let ipfsParts: string[] = _tokenData.value3.split('/')
@@ -193,7 +198,13 @@ export function handleTransfer(event: Transfer): void {
     }
 
     tokenEntity.ownerCount = tokenEntity.ownerCount + BigInt.fromI32(1)
+
     tokenEntity.highestTimestamp = (event.block.timestamp > tokenEntity.highestTimestamp) ? event.block.timestamp : tokenEntity.highestTimestamp
+    if (event.transaction.value > tokenEntity.highestValue) {
+        tokenEntity.highestValue = event.transaction.value
+
+        tokenEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
+    }
 
     tokenEntity.from = event.params._from
     tokenEntity.to = event.params._to
@@ -222,6 +233,7 @@ export function handleTransfer(event: Transfer): void {
         dayEntity.totalValue = BigInt.fromI32(0)
         dayEntity.totalGasUsed = BigInt.fromI32(0)
         dayEntity.highestValue = BigInt.fromI32(0)
+        dayEntity.highestValueInEth =  new BigDecimal(BigInt.fromI32(0))
         dayEntity.highestGasPrice = BigInt.fromI32(0)
         dayEntity.highestTimestamp = BigInt.fromI32(0)
         dayEntity.sales = new Array<string>()
@@ -230,10 +242,16 @@ export function handleTransfer(event: Transfer): void {
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
     dayEntity.totalValue =  dayEntity.totalValue + event.transaction.value
     dayEntity.totalGasUsed =  dayEntity.totalGasUsed + event.transaction.gasUsed
-    dayEntity.highestValueToken = (event.transaction.value > dayEntity.highestValue) ? tokenEntity.id.toString() : dayEntity.highestValueToken
-    dayEntity.highestValue = (event.transaction.value > dayEntity.highestValue) ? event.transaction.value : dayEntity.highestValue
+
     dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
     dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
+
+    if (event.transaction.value > dayEntity.highestValue) {
+        dayEntity.highestValueToken =  event.params._tokenId.toString()
+        dayEntity.highestValue = event.transaction.value
+
+        dayEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
+    }
 
     // if a new sale add to sales
     if (!event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {

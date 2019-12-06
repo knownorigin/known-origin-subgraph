@@ -105,6 +105,24 @@ export class Token extends Entity {
     this.set("highestTimestamp", Value.fromBigInt(value));
   }
 
+  get highestValue(): BigInt {
+    let value = this.get("highestValue");
+    return value.toBigInt();
+  }
+
+  set highestValue(value: BigInt) {
+    this.set("highestValue", Value.fromBigInt(value));
+  }
+
+  get highestValueInEth(): BigDecimal {
+    let value = this.get("highestValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set highestValueInEth(value: BigDecimal) {
+    this.set("highestValueInEth", Value.fromBigDecimal(value));
+  }
+
   get name(): string | null {
     let value = this.get("name");
     if (value === null) {
@@ -230,6 +248,15 @@ export class Day extends Entity {
 
   set highestValue(value: BigInt) {
     this.set("highestValue", Value.fromBigInt(value));
+  }
+
+  get highestValueInEth(): BigDecimal {
+    let value = this.get("highestValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set highestValueInEth(value: BigDecimal) {
+    this.set("highestValueInEth", Value.fromBigDecimal(value));
   }
 
   get highestValueToken(): string | null {

@@ -7,6 +7,8 @@ type Token @entity {
   editionNumber: BigInt!
   tokenURI: String!
   highestTimestamp: BigInt!
+  highestValue: BigInt!
+  highestValueInEth: BigDecimal!
   name: String
   description: String
   image: String
@@ -19,6 +21,7 @@ type Day @entity {
   totalValue: BigInt!
   totalGasUsed: BigInt!
   highestValue: BigInt!
+  highestValueInEth: BigDecimal!
   highestValueToken: Token
   highestGasPrice: BigInt!
   highestTimestamp: BigInt!
