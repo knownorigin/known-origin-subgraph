@@ -5,11 +5,11 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Contract
+    name: KnownOrigin
     network: mainnet
     source:
       address: "0xFBeef911Dc5821886e1dda71586d90eD28174B7d"
-      abi: Contract
+      abi: KnownOrigin
       startBlock: 6270484
     mapping:
       kind: ethereum/events
@@ -17,10 +17,13 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - Transfer
+        - EditionCreated
       abis:
-        - name: Contract
-          file: Contract/abis/Contract.json
+        - name: KnownOrigin
+          file: KnownOrigin/abis/KnownOrigin.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: Contract/Contract.wasm
+        - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
+          handler: handleEditionCreated
+      file: KnownOrigin/KnownOrigin.wasm

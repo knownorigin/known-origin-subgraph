@@ -27,3 +27,31 @@ type Day @entity {
   highestTimestamp: BigInt!
   sales: [Token]!
 }
+
+type MetaData @entity {
+    id: ID!
+    name: String
+    description: String
+    image: String
+    scarcity: String
+    artist: String
+    tags: [String!]
+}
+
+type Edition @entity {
+  id: ID!
+  editionType: BigInt!
+  editionData: Bytes! # bytes32
+  startDate: BigInt!
+  endDate: BigInt!
+  createdTimestamp: BigInt!
+  tokenIds: [BigInt!]!
+  tokenURI: String!
+  artistAccount: Bytes! # address
+  artistCommission: BigInt!
+  priceInWei: BigInt!
+  totalSupply: BigInt!
+  totalAvailable: BigInt!
+  active: Boolean!
+  metadata: MetaData!
+}

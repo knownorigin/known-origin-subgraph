@@ -303,3 +303,285 @@ export class Day extends Entity {
     this.set("sales", Value.fromStringArray(value));
   }
 }
+
+export class MetaData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save MetaData entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save MetaData entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("MetaData", id.toString(), this);
+  }
+
+  static load(id: string): MetaData | null {
+    return store.get("MetaData", id) as MetaData | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (value === null) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(value as string));
+    }
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (value === null) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(value as string));
+    }
+  }
+
+  get image(): string | null {
+    let value = this.get("image");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string | null) {
+    if (value === null) {
+      this.unset("image");
+    } else {
+      this.set("image", Value.fromString(value as string));
+    }
+  }
+
+  get scarcity(): string | null {
+    let value = this.get("scarcity");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set scarcity(value: string | null) {
+    if (value === null) {
+      this.unset("scarcity");
+    } else {
+      this.set("scarcity", Value.fromString(value as string));
+    }
+  }
+
+  get artist(): string | null {
+    let value = this.get("artist");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set artist(value: string | null) {
+    if (value === null) {
+      this.unset("artist");
+    } else {
+      this.set("artist", Value.fromString(value as string));
+    }
+  }
+
+  get tags(): Array<string> {
+    let value = this.get("tags");
+    return value.toStringArray();
+  }
+
+  set tags(value: Array<string>) {
+    this.set("tags", Value.fromStringArray(value));
+  }
+}
+
+export class Edition extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Edition entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Edition entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Edition", id.toString(), this);
+  }
+
+  static load(id: string): Edition | null {
+    return store.get("Edition", id) as Edition | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get editionType(): BigInt {
+    let value = this.get("editionType");
+    return value.toBigInt();
+  }
+
+  set editionType(value: BigInt) {
+    this.set("editionType", Value.fromBigInt(value));
+  }
+
+  get editionData(): Bytes {
+    let value = this.get("editionData");
+    return value.toBytes();
+  }
+
+  set editionData(value: Bytes) {
+    this.set("editionData", Value.fromBytes(value));
+  }
+
+  get startDate(): BigInt {
+    let value = this.get("startDate");
+    return value.toBigInt();
+  }
+
+  set startDate(value: BigInt) {
+    this.set("startDate", Value.fromBigInt(value));
+  }
+
+  get endDate(): BigInt {
+    let value = this.get("endDate");
+    return value.toBigInt();
+  }
+
+  set endDate(value: BigInt) {
+    this.set("endDate", Value.fromBigInt(value));
+  }
+
+  get createdTimestamp(): BigInt {
+    let value = this.get("createdTimestamp");
+    return value.toBigInt();
+  }
+
+  set createdTimestamp(value: BigInt) {
+    this.set("createdTimestamp", Value.fromBigInt(value));
+  }
+
+  get tokenIds(): Array<BigInt> {
+    let value = this.get("tokenIds");
+    return value.toBigIntArray();
+  }
+
+  set tokenIds(value: Array<BigInt>) {
+    this.set("tokenIds", Value.fromBigIntArray(value));
+  }
+
+  get tokenURI(): string {
+    let value = this.get("tokenURI");
+    return value.toString();
+  }
+
+  set tokenURI(value: string) {
+    this.set("tokenURI", Value.fromString(value));
+  }
+
+  get artistAccount(): Bytes {
+    let value = this.get("artistAccount");
+    return value.toBytes();
+  }
+
+  set artistAccount(value: Bytes) {
+    this.set("artistAccount", Value.fromBytes(value));
+  }
+
+  get artistCommission(): BigInt {
+    let value = this.get("artistCommission");
+    return value.toBigInt();
+  }
+
+  set artistCommission(value: BigInt) {
+    this.set("artistCommission", Value.fromBigInt(value));
+  }
+
+  get priceInWei(): BigInt {
+    let value = this.get("priceInWei");
+    return value.toBigInt();
+  }
+
+  set priceInWei(value: BigInt) {
+    this.set("priceInWei", Value.fromBigInt(value));
+  }
+
+  get totalSupply(): BigInt {
+    let value = this.get("totalSupply");
+    return value.toBigInt();
+  }
+
+  set totalSupply(value: BigInt) {
+    this.set("totalSupply", Value.fromBigInt(value));
+  }
+
+  get totalAvailable(): BigInt {
+    let value = this.get("totalAvailable");
+    return value.toBigInt();
+  }
+
+  set totalAvailable(value: BigInt) {
+    this.set("totalAvailable", Value.fromBigInt(value));
+  }
+
+  get active(): boolean {
+    let value = this.get("active");
+    return value.toBoolean();
+  }
+
+  set active(value: boolean) {
+    this.set("active", Value.fromBoolean(value));
+  }
+
+  get metadata(): string {
+    let value = this.get("metadata");
+    return value.toString();
+  }
+
+  set metadata(value: string) {
+    this.set("metadata", Value.fromString(value));
+  }
+}

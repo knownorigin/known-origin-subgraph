@@ -10,7 +10,7 @@ import {
 } from "@graphprotocol/graph-ts"
 
 import {
-    Contract,
+    KnownOrigin,
     Purchase,
     Minted,
     EditionCreated,
@@ -23,9 +23,9 @@ import {
     Transfer,
     Approval,
     ApprovalForAll
-} from "../generated/Contract/Contract"
+} from "../generated/KnownOrigin/KnownOrigin"
 
-import {Token, Day} from "../generated/schema"
+import {Token, Day, Edition, MetaData} from "../generated/schema"
 
 let ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
 
@@ -127,6 +127,66 @@ export function handleMinted(event: Minted): void {
 }
 
 export function handleEditionCreated(event: EditionCreated): void {
+    let contract = KnownOrigin.bind(event.address)
+    let _editionData = contract.detailsOfEdition(event.params._editionNumber)
+
+    let editionEntity = Edition.load(event.params._editionNumber.toString());
+    if (editionEntity == null) {
+        editionEntity = new Edition(event.params._editionNumber.toString());
+
+        editionEntity.createdTimestamp = event.block.timestamp
+        editionEntity.editionData = event.params._editionData
+        editionEntity.editionType = event.params._editionType
+        editionEntity.startDate = _editionData.value2
+        editionEntity.endDate = _editionData.value3
+        editionEntity.artistAccount = _editionData.value4
+        editionEntity.artistCommission = _editionData.value5
+        editionEntity.priceInWei = _editionData.value6
+        editionEntity.tokenURI = _editionData.value7
+        editionEntity.totalSupply = _editionData.value8
+        editionEntity.totalAvailable = _editionData.value9
+        editionEntity.active = _editionData.value10
+
+        log.info("token URI [{}]", [_editionData.value7])
+
+        let ipfsParts: string[] = editionEntity.tokenURI.split('/')
+        let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
+        
+        let metaData: MetaData = new MetaData(ipfsHash)
+
+        if (ipfsParts.length > 0) {
+            let data = ipfs.cat(ipfsHash)
+            if (data !== null) {
+                let jsonData: JSONValue = json.fromBytes(data as Bytes)
+                metaData.name = jsonData.toObject().get('name').toString()
+                metaData.description = jsonData.toObject().get('description').toString()
+                metaData.image = jsonData.toObject().get('image').toString()
+
+                if (jsonData.toObject().isSet('scarcity')) {
+                    metaData.scarcity = jsonData.toObject().get('scarcity').toString()
+                }
+                if (jsonData.toObject().isSet('artist')) {
+                    metaData.artist = jsonData.toObject().get('artist').toString()
+                }
+                if (jsonData.toObject().isSet('attributes')) {
+                    let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
+                    if (attributes.toObject().isSet("tags")) {
+                        let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
+                        let tags: Array<string> = rawTags.map<string>((value, i, values) => {
+                            return value.toString();
+                        });
+                        metaData.tags = tags;
+                    }
+                }
+            }
+        }
+        metaData.save()
+        editionEntity.metadata = ipfsHash
+    }
+
+    editionEntity.tokenIds = new Array<BigInt>()
+    editionEntity.save()
+
 }
 
 export function handlePause(event: Pause): void {
@@ -148,7 +208,7 @@ export function handleRoleRemoved(event: RoleRemoved): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-    let contract = Contract.bind(event.address)
+    let contract = KnownOrigin.bind(event.address)
     let _tokenData = contract.tokenData(event.params._tokenId)
 
     // TOKEN
@@ -175,7 +235,7 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.editionNumber = _tokenData.value0
         tokenEntity.highestTimestamp = BigInt.fromI32(0)
         tokenEntity.highestValue = BigInt.fromI32(0)
-        tokenEntity.highestValueInEth =  new BigDecimal(BigInt.fromI32(0))
+        tokenEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
 
         // IPFS - these need to be in graph's IPFS node for now
         let ipfsParts: string[] = _tokenData.value3.split('/')
@@ -214,7 +274,7 @@ export function handleTransfer(event: Transfer): void {
     // DAY
     log.info('KO Timestamp >> {}', [event.block.timestamp.toString()])
 
-    let secondsInDay =  BigInt.fromI32(86400)
+    let secondsInDay = BigInt.fromI32(86400)
     let dayAsNumberString = event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
     let dayEntity = Day.load(dayAsNumberString)
     if (dayEntity == null) {
@@ -233,21 +293,21 @@ export function handleTransfer(event: Transfer): void {
         dayEntity.totalValue = BigInt.fromI32(0)
         dayEntity.totalGasUsed = BigInt.fromI32(0)
         dayEntity.highestValue = BigInt.fromI32(0)
-        dayEntity.highestValueInEth =  new BigDecimal(BigInt.fromI32(0))
+        dayEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
         dayEntity.highestGasPrice = BigInt.fromI32(0)
         dayEntity.highestTimestamp = BigInt.fromI32(0)
         dayEntity.sales = new Array<string>()
     }
 
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
-    dayEntity.totalValue =  dayEntity.totalValue + event.transaction.value
-    dayEntity.totalGasUsed =  dayEntity.totalGasUsed + event.transaction.gasUsed
+    dayEntity.totalValue = dayEntity.totalValue + event.transaction.value
+    dayEntity.totalGasUsed = dayEntity.totalGasUsed + event.transaction.gasUsed
 
     dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
     dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
 
     if (event.transaction.value > dayEntity.highestValue) {
-        dayEntity.highestValueToken =  event.params._tokenId.toString()
+        dayEntity.highestValueToken = event.params._tokenId.toString()
         dayEntity.highestValue = event.transaction.value
 
         dayEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH

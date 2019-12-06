@@ -287,7 +287,7 @@ export class ApprovalForAll__Params {
   }
 }
 
-export class Contract__artistCommissionResult {
+export class KnownOrigin__artistCommissionResult {
   value0: Address;
   value1: BigInt;
 
@@ -304,7 +304,7 @@ export class Contract__artistCommissionResult {
   }
 }
 
-export class Contract__purchaseDatesEditionResult {
+export class KnownOrigin__purchaseDatesEditionResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -321,7 +321,7 @@ export class Contract__purchaseDatesEditionResult {
   }
 }
 
-export class Contract__detailsOfEditionResult {
+export class KnownOrigin__detailsOfEditionResult {
   value0: Bytes;
   value1: BigInt;
   value2: BigInt;
@@ -377,7 +377,7 @@ export class Contract__detailsOfEditionResult {
   }
 }
 
-export class Contract__tokenDataResult {
+export class KnownOrigin__tokenDataResult {
   value0: BigInt;
   value1: BigInt;
   value2: Bytes;
@@ -409,7 +409,7 @@ export class Contract__tokenDataResult {
   }
 }
 
-export class Contract__purchaseDatesTokenResult {
+export class KnownOrigin__purchaseDatesTokenResult {
   value0: BigInt;
   value1: BigInt;
 
@@ -426,7 +426,7 @@ export class Contract__purchaseDatesTokenResult {
   }
 }
 
-export class Contract__editionOptionalCommissionResult {
+export class KnownOrigin__editionOptionalCommissionResult {
   value0: BigInt;
   value1: Address;
 
@@ -443,9 +443,9 @@ export class Contract__editionOptionalCommissionResult {
   }
 }
 
-export class Contract extends SmartContract {
-  static bind(address: Address): Contract {
-    return new Contract("Contract", address);
+export class KnownOrigin extends SmartContract {
+  static bind(address: Address): KnownOrigin {
+    return new KnownOrigin("KnownOrigin", address);
   }
 
   supportsInterface(_interfaceId: Bytes): boolean {
@@ -605,12 +605,14 @@ export class Contract extends SmartContract {
     return CallResult.fromValue(value[0].toBigInt());
   }
 
-  artistCommission(_editionNumber: BigInt): Contract__artistCommissionResult {
+  artistCommission(
+    _editionNumber: BigInt
+  ): KnownOrigin__artistCommissionResult {
     let result = super.call("artistCommission", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
 
-    return new Contract__artistCommissionResult(
+    return new KnownOrigin__artistCommissionResult(
       result[0].toAddress(),
       result[1].toBigInt()
     );
@@ -618,7 +620,7 @@ export class Contract extends SmartContract {
 
   try_artistCommission(
     _editionNumber: BigInt
-  ): CallResult<Contract__artistCommissionResult> {
+  ): CallResult<KnownOrigin__artistCommissionResult> {
     let result = super.tryCall("artistCommission", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
@@ -627,7 +629,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__artistCommissionResult(
+      new KnownOrigin__artistCommissionResult(
         value[0].toAddress(),
         value[1].toBigInt()
       )
@@ -831,12 +833,12 @@ export class Contract extends SmartContract {
 
   purchaseDatesEdition(
     _editionNumber: BigInt
-  ): Contract__purchaseDatesEditionResult {
+  ): KnownOrigin__purchaseDatesEditionResult {
     let result = super.call("purchaseDatesEdition", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
 
-    return new Contract__purchaseDatesEditionResult(
+    return new KnownOrigin__purchaseDatesEditionResult(
       result[0].toBigInt(),
       result[1].toBigInt()
     );
@@ -844,7 +846,7 @@ export class Contract extends SmartContract {
 
   try_purchaseDatesEdition(
     _editionNumber: BigInt
-  ): CallResult<Contract__purchaseDatesEditionResult> {
+  ): CallResult<KnownOrigin__purchaseDatesEditionResult> {
     let result = super.tryCall("purchaseDatesEdition", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
@@ -853,7 +855,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__purchaseDatesEditionResult(
+      new KnownOrigin__purchaseDatesEditionResult(
         value[0].toBigInt(),
         value[1].toBigInt()
       )
@@ -930,12 +932,12 @@ export class Contract extends SmartContract {
     return CallResult.fromValue(value[0].toBigInt());
   }
 
-  detailsOfEdition(editionNumber: BigInt): Contract__detailsOfEditionResult {
+  detailsOfEdition(editionNumber: BigInt): KnownOrigin__detailsOfEditionResult {
     let result = super.call("detailsOfEdition", [
       EthereumValue.fromUnsignedBigInt(editionNumber)
     ]);
 
-    return new Contract__detailsOfEditionResult(
+    return new KnownOrigin__detailsOfEditionResult(
       result[0].toBytes(),
       result[1].toBigInt(),
       result[2].toBigInt(),
@@ -952,7 +954,7 @@ export class Contract extends SmartContract {
 
   try_detailsOfEdition(
     editionNumber: BigInt
-  ): CallResult<Contract__detailsOfEditionResult> {
+  ): CallResult<KnownOrigin__detailsOfEditionResult> {
     let result = super.tryCall("detailsOfEdition", [
       EthereumValue.fromUnsignedBigInt(editionNumber)
     ]);
@@ -961,7 +963,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__detailsOfEditionResult(
+      new KnownOrigin__detailsOfEditionResult(
         value[0].toBytes(),
         value[1].toBigInt(),
         value[2].toBigInt(),
@@ -1317,12 +1319,12 @@ export class Contract extends SmartContract {
     return CallResult.fromValue(value[0].toBoolean());
   }
 
-  tokenData(_tokenId: BigInt): Contract__tokenDataResult {
+  tokenData(_tokenId: BigInt): KnownOrigin__tokenDataResult {
     let result = super.call("tokenData", [
       EthereumValue.fromUnsignedBigInt(_tokenId)
     ]);
 
-    return new Contract__tokenDataResult(
+    return new KnownOrigin__tokenDataResult(
       result[0].toBigInt(),
       result[1].toBigInt(),
       result[2].toBytes(),
@@ -1331,7 +1333,7 @@ export class Contract extends SmartContract {
     );
   }
 
-  try_tokenData(_tokenId: BigInt): CallResult<Contract__tokenDataResult> {
+  try_tokenData(_tokenId: BigInt): CallResult<KnownOrigin__tokenDataResult> {
     let result = super.tryCall("tokenData", [
       EthereumValue.fromUnsignedBigInt(_tokenId)
     ]);
@@ -1340,7 +1342,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__tokenDataResult(
+      new KnownOrigin__tokenDataResult(
         value[0].toBigInt(),
         value[1].toBigInt(),
         value[2].toBytes(),
@@ -1369,12 +1371,12 @@ export class Contract extends SmartContract {
     return CallResult.fromValue(value[0].toBigInt());
   }
 
-  purchaseDatesToken(_tokenId: BigInt): Contract__purchaseDatesTokenResult {
+  purchaseDatesToken(_tokenId: BigInt): KnownOrigin__purchaseDatesTokenResult {
     let result = super.call("purchaseDatesToken", [
       EthereumValue.fromUnsignedBigInt(_tokenId)
     ]);
 
-    return new Contract__purchaseDatesTokenResult(
+    return new KnownOrigin__purchaseDatesTokenResult(
       result[0].toBigInt(),
       result[1].toBigInt()
     );
@@ -1382,7 +1384,7 @@ export class Contract extends SmartContract {
 
   try_purchaseDatesToken(
     _tokenId: BigInt
-  ): CallResult<Contract__purchaseDatesTokenResult> {
+  ): CallResult<KnownOrigin__purchaseDatesTokenResult> {
     let result = super.tryCall("purchaseDatesToken", [
       EthereumValue.fromUnsignedBigInt(_tokenId)
     ]);
@@ -1391,7 +1393,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__purchaseDatesTokenResult(
+      new KnownOrigin__purchaseDatesTokenResult(
         value[0].toBigInt(),
         value[1].toBigInt()
       )
@@ -1491,12 +1493,12 @@ export class Contract extends SmartContract {
 
   editionOptionalCommission(
     _editionNumber: BigInt
-  ): Contract__editionOptionalCommissionResult {
+  ): KnownOrigin__editionOptionalCommissionResult {
     let result = super.call("editionOptionalCommission", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
 
-    return new Contract__editionOptionalCommissionResult(
+    return new KnownOrigin__editionOptionalCommissionResult(
       result[0].toBigInt(),
       result[1].toAddress()
     );
@@ -1504,7 +1506,7 @@ export class Contract extends SmartContract {
 
   try_editionOptionalCommission(
     _editionNumber: BigInt
-  ): CallResult<Contract__editionOptionalCommissionResult> {
+  ): CallResult<KnownOrigin__editionOptionalCommissionResult> {
     let result = super.tryCall("editionOptionalCommission", [
       EthereumValue.fromUnsignedBigInt(_editionNumber)
     ]);
@@ -1513,7 +1515,7 @@ export class Contract extends SmartContract {
     }
     let value = result.value;
     return CallResult.fromValue(
-      new Contract__editionOptionalCommissionResult(
+      new KnownOrigin__editionOptionalCommissionResult(
         value[0].toBigInt(),
         value[1].toAddress()
       )
