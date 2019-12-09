@@ -96,15 +96,6 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
-  get highestTimestamp(): BigInt {
-    let value = this.get("highestTimestamp");
-    return value.toBigInt();
-  }
-
-  set highestTimestamp(value: BigInt) {
-    this.set("highestTimestamp", Value.fromBigInt(value));
-  }
-
   get highestValue(): BigInt {
     let value = this.get("highestValue");
     return value.toBigInt();
@@ -232,6 +223,15 @@ export class Day extends Entity {
     this.set("totalValue", Value.fromBigInt(value));
   }
 
+  get totalValueInEth(): BigDecimal {
+    let value = this.get("totalValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set totalValueInEth(value: BigDecimal) {
+    this.set("totalValueInEth", Value.fromBigDecimal(value));
+  }
+
   get totalGasUsed(): BigInt {
     let value = this.get("totalGasUsed");
     return value.toBigInt();
@@ -285,15 +285,6 @@ export class Day extends Entity {
     this.set("highestGasPrice", Value.fromBigInt(value));
   }
 
-  get highestTimestamp(): BigInt {
-    let value = this.get("highestTimestamp");
-    return value.toBigInt();
-  }
-
-  set highestTimestamp(value: BigInt) {
-    this.set("highestTimestamp", Value.fromBigInt(value));
-  }
-
   get sales(): Array<string | null> {
     let value = this.get("sales");
     return value.toStringArray();
@@ -301,6 +292,108 @@ export class Day extends Entity {
 
   set sales(value: Array<string | null>) {
     this.set("sales", Value.fromStringArray(value));
+  }
+}
+
+export class Month extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Month entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Month entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Month", id.toString(), this);
+  }
+
+  static load(id: string): Month | null {
+    return store.get("Month", id) as Month | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get date(): string {
+    let value = this.get("date");
+    return value.toString();
+  }
+
+  set date(value: string) {
+    this.set("date", Value.fromString(value));
+  }
+
+  get transferCount(): BigInt {
+    let value = this.get("transferCount");
+    return value.toBigInt();
+  }
+
+  set transferCount(value: BigInt) {
+    this.set("transferCount", Value.fromBigInt(value));
+  }
+
+  get totalValue(): BigInt {
+    let value = this.get("totalValue");
+    return value.toBigInt();
+  }
+
+  set totalValue(value: BigInt) {
+    this.set("totalValue", Value.fromBigInt(value));
+  }
+
+  get totalValueInEth(): BigDecimal {
+    let value = this.get("totalValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set totalValueInEth(value: BigDecimal) {
+    this.set("totalValueInEth", Value.fromBigDecimal(value));
+  }
+
+  get highestValue(): BigInt {
+    let value = this.get("highestValue");
+    return value.toBigInt();
+  }
+
+  set highestValue(value: BigInt) {
+    this.set("highestValue", Value.fromBigInt(value));
+  }
+
+  get highestValueInEth(): BigDecimal {
+    let value = this.get("highestValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set highestValueInEth(value: BigDecimal) {
+    this.set("highestValueInEth", Value.fromBigDecimal(value));
+  }
+
+  get highestValueToken(): string | null {
+    let value = this.get("highestValueToken");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set highestValueToken(value: string | null) {
+    if (value === null) {
+      this.unset("highestValueToken");
+    } else {
+      this.set("highestValueToken", Value.fromString(value as string));
+    }
   }
 }
 
@@ -419,13 +512,21 @@ export class MetaData extends Entity {
     }
   }
 
-  get tags(): Array<string> {
+  get tags(): Array<string> | null {
     let value = this.get("tags");
-    return value.toStringArray();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set tags(value: Array<string>) {
-    this.set("tags", Value.fromStringArray(value));
+  set tags(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("tags");
+    } else {
+      this.set("tags", Value.fromStringArray(value as Array<string>));
+    }
   }
 }
 

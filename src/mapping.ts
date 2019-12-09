@@ -25,7 +25,7 @@ import {
     ApprovalForAll
 } from "../generated/KnownOrigin/KnownOrigin"
 
-import {Token, Day, Edition, MetaData} from "../generated/schema"
+import {Token, Day, Month, Edition, MetaData} from "../generated/schema"
 
 let ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
 
@@ -151,7 +151,7 @@ export function handleEditionCreated(event: EditionCreated): void {
 
         let ipfsParts: string[] = editionEntity.tokenURI.split('/')
         let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
-        
+
         let metaData: MetaData = new MetaData(ipfsHash)
 
         if (ipfsParts.length > 0) {
@@ -233,7 +233,6 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.ownerCount = BigInt.fromI32(0) // set up the owner count
         tokenEntity.tokenId = event.params._tokenId
         tokenEntity.editionNumber = _tokenData.value0
-        tokenEntity.highestTimestamp = BigInt.fromI32(0)
         tokenEntity.highestValue = BigInt.fromI32(0)
         tokenEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
 
@@ -259,7 +258,6 @@ export function handleTransfer(event: Transfer): void {
 
     tokenEntity.ownerCount = tokenEntity.ownerCount + BigInt.fromI32(1)
 
-    tokenEntity.highestTimestamp = (event.block.timestamp > tokenEntity.highestTimestamp) ? event.block.timestamp : tokenEntity.highestTimestamp
     if (event.transaction.value > tokenEntity.highestValue) {
         tokenEntity.highestValue = event.transaction.value
 
@@ -272,8 +270,6 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.save()
 
     // DAY
-    log.info('KO Timestamp >> {}', [event.block.timestamp.toString()])
-
     let secondsInDay = BigInt.fromI32(86400)
     let dayAsNumberString = event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
     let dayEntity = Day.load(dayAsNumberString)
@@ -291,20 +287,20 @@ export function handleTransfer(event: Transfer): void {
         dayEntity.date = dayAsNumberString
         dayEntity.transferCount = BigInt.fromI32(0)
         dayEntity.totalValue = BigInt.fromI32(0)
+        dayEntity.totalValueInEth = new BigDecimal(BigInt.fromI32(0))
         dayEntity.totalGasUsed = BigInt.fromI32(0)
         dayEntity.highestValue = BigInt.fromI32(0)
         dayEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
         dayEntity.highestGasPrice = BigInt.fromI32(0)
-        dayEntity.highestTimestamp = BigInt.fromI32(0)
         dayEntity.sales = new Array<string>()
     }
 
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
     dayEntity.totalValue = dayEntity.totalValue + event.transaction.value
+    dayEntity.totalValueInEth = dayEntity.totalValueInEth + (new BigDecimal(event.transaction.value) / ONE_ETH)
     dayEntity.totalGasUsed = dayEntity.totalGasUsed + event.transaction.gasUsed
 
     dayEntity.highestGasPrice = (event.transaction.gasPrice > dayEntity.highestGasPrice) ? event.transaction.gasPrice : dayEntity.highestGasPrice
-    dayEntity.highestTimestamp = (event.block.timestamp > dayEntity.highestTimestamp) ? event.block.timestamp : dayEntity.highestTimestamp
 
     if (event.transaction.value > dayEntity.highestValue) {
         dayEntity.highestValueToken = event.params._tokenId.toString()
@@ -314,13 +310,50 @@ export function handleTransfer(event: Transfer): void {
     }
 
     // if a new sale add to sales
-    if (!event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
+    if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         let sales = dayEntity.sales
         sales.push(tokenEntity.id.toString())
         dayEntity.sales = sales
     }
 
     dayEntity.save()
+
+    // MONTH
+    let monthAsNumberString = event.block.timestamp.div(secondsInDay * BigInt.fromI32(30)).toBigDecimal().truncate(0).toString()
+    let monthEntity = Month.load(monthAsNumberString)
+    if (monthEntity == null) {
+        // type Month @entity {
+        //     id: ID!
+        //     date: String!
+        //     transferCount: BigInt!
+        //     totalValue: BigInt!
+        //     totalValueInEth: BigDecimal!
+        //     highestValue: BigInt!
+        //     highestValueInEth: BigDecimal!
+        //     highestValueToken: Token
+        // }
+
+        monthEntity = new Month(monthAsNumberString)
+        monthEntity.date = monthAsNumberString
+        monthEntity.transferCount = BigInt.fromI32(0)
+        monthEntity.totalValue = BigInt.fromI32(0)
+        monthEntity.totalValueInEth = new BigDecimal(BigInt.fromI32(0))
+        monthEntity.highestValue = BigInt.fromI32(0)
+        monthEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
+    }
+
+    monthEntity.transferCount = monthEntity.transferCount + BigInt.fromI32(1)
+    monthEntity.totalValue = monthEntity.totalValue + event.transaction.value
+    monthEntity.totalValueInEth = monthEntity.totalValueInEth + (new BigDecimal(event.transaction.value) / ONE_ETH)
+
+    if (event.transaction.value > monthEntity.highestValue) {
+        monthEntity.highestValueToken = event.params._tokenId.toString()
+        monthEntity.highestValue = event.transaction.value
+
+        monthEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
+    }
+
+    monthEntity.save()
 }
 
 export function handleApproval(event: Approval): void {
