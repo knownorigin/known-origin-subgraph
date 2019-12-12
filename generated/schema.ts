@@ -694,6 +694,15 @@ export class Edition extends Entity {
   set metadata(value: string) {
     this.set("metadata", Value.fromString(value));
   }
+
+  get auctionEnabled(): boolean {
+    let value = this.get("auctionEnabled");
+    return value.toBoolean();
+  }
+
+  set auctionEnabled(value: boolean) {
+    this.set("auctionEnabled", Value.fromBoolean(value));
+  }
 }
 
 export class Artist extends Entity {
