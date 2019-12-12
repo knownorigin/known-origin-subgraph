@@ -24,7 +24,8 @@ type Day @entity {
   highestValueInEth: BigDecimal!
   highestValueToken: Token
   highestGasPrice: BigInt!
-  sales: [Token]!
+  sales: [Token!]!
+  editions: [Edition!]!
 }
 
 type Month @entity {

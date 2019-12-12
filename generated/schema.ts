@@ -285,13 +285,22 @@ export class Day extends Entity {
     this.set("highestGasPrice", Value.fromBigInt(value));
   }
 
-  get sales(): Array<string | null> {
+  get sales(): Array<string> {
     let value = this.get("sales");
     return value.toStringArray();
   }
 
-  set sales(value: Array<string | null>) {
+  set sales(value: Array<string>) {
     this.set("sales", Value.fromStringArray(value));
+  }
+
+  get editions(): Array<string> {
+    let value = this.get("editions");
+    return value.toStringArray();
+  }
+
+  set editions(value: Array<string>) {
+    this.set("editions", Value.fromStringArray(value));
   }
 }
 
