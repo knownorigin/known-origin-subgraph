@@ -26,10 +26,18 @@ import {
     ApprovalForAll
 } from "../generated/KnownOrigin/KnownOrigin"
 
-import {Token, Day, Month, Edition, MetaData} from "../generated/schema"
+import {Token, Day, Month, Edition, MetaData, Artist} from "../generated/schema"
+
+let ZERO = BigInt.fromI32(0)
+let ONE = BigInt.fromI32(1)
+let EMPTY_ARRAY_OF_STRING = new Array<string>()
 
 let ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
 let SECONDS_IN_DAY = BigInt.fromI32(86400)
+
+function toEther(value:BigInt): BigDecimal {
+    return new BigDecimal(value) / ONE_ETH
+}
 
 function dayNumberFromEvent(event: EthereumEvent): string {
     return event.block.timestamp.div(SECONDS_IN_DAY).toBigDecimal().truncate(0).toString()
@@ -53,6 +61,31 @@ function loadDayOrGetNewEntity(dayNumber: string): Day | null {
     }
 
     return dayEntity;
+}
+
+function loadArtistOrGetNewEntity(address: Address): Artist | null {
+    let artist: Artist | null = Artist.load(address.toString())
+
+    if (artist === null) {
+        artist = new Artist(address.toString())
+
+        artist.address = address
+
+        artist.editionCreationCount = BigInt.fromI32(0)
+        artist.salesCount = BigInt.fromI32(0)
+        artist.supply = BigInt.fromI32(0)
+
+        artist.totalValue = BigInt.fromI32(0)
+        artist.totalValueInEth = new BigDecimal(BigInt.fromI32(0))
+
+        artist.highestSaleValue = BigInt.fromI32(0)
+        artist.highestSaleValueInEth = new BigDecimal(BigInt.fromI32(0))
+
+        artist.firstEditionTimestamp = BigInt.fromI32(0)
+        artist.lastEditionTimestamp = BigInt.fromI32(0)
+    }
+
+    return artist;
 }
 
 export function handlePurchase(event: Purchase): void {
@@ -131,6 +164,21 @@ export function handleEditionCreated(event: EditionCreated): void {
     dayEntity.editions = editions
 
     dayEntity.save()
+
+    // ARTIST
+    let artist = loadArtistOrGetNewEntity(_editionData.value4)
+    artist.editionCreationCount = artist.editionCreationCount + BigInt.fromI32(1)
+    artist.supply = artist.supply + _editionData.value8
+
+    if (artist.firstEdition === null) {
+        artist.firstEdition = event.params._editionNumber.toString()
+        artist.firstEditionTimestamp = event.block.timestamp
+    }
+
+    artist.lastEdition = event.params._editionNumber.toString()
+    artist.lastEditionTimestamp = event.block.timestamp
+
+    artist.save()
 }
 
 export function handlePause(event: Pause): void {
@@ -193,7 +241,7 @@ export function handleTransfer(event: Transfer): void {
     if (event.transaction.value > tokenEntity.highestValue) {
         tokenEntity.highestValue = event.transaction.value
 
-        tokenEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
+        tokenEntity.highestValueInEth = toEther(event.transaction.value)
     }
 
     tokenEntity.from = event.params._from
@@ -219,11 +267,28 @@ export function handleTransfer(event: Transfer): void {
         dayEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
     }
 
-    // if a new sale add to sales
+    // PRIMARY SALE
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         let sales = dayEntity.sales
         sales.push(tokenEntity.id.toString())
         dayEntity.sales = sales
+
+        // ARTIST
+        let editionNumber =_tokenData.value0
+        let artist = loadArtistOrGetNewEntity(contract.artistCommission(editionNumber).value0)
+
+        artist.salesCount = artist.salesCount + BigInt.fromI32(1)
+
+        artist.totalValue = artist.totalValue + event.transaction.value
+        artist.totalValueInEth = artist.totalValueInEth + (new BigDecimal(event.transaction.value) / ONE_ETH)
+
+        if (event.transaction.value > artist.highestSaleValue) {
+            artist.highestSaleToken = event.params._tokenId.toString()
+            artist.highestSaleValue = event.transaction.value
+            artist.highestSaleValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
+        }
+
+        artist.save()
     }
 
     dayEntity.save()
@@ -249,7 +314,6 @@ export function handleTransfer(event: Transfer): void {
     if (event.transaction.value > monthEntity.highestValue) {
         monthEntity.highestValueToken = event.params._tokenId.toString()
         monthEntity.highestValue = event.transaction.value
-
         monthEntity.highestValueInEth = new BigDecimal(event.transaction.value) / ONE_ETH
     }
 

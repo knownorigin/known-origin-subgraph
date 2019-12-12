@@ -695,3 +695,192 @@ export class Edition extends Entity {
     this.set("metadata", Value.fromString(value));
   }
 }
+
+export class Artist extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Artist entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Artist entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Artist", id.toString(), this);
+  }
+
+  static load(id: string): Artist | null {
+    return store.get("Artist", id) as Artist | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (value === null) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(value as string));
+    }
+  }
+
+  get editionCreationCount(): BigInt {
+    let value = this.get("editionCreationCount");
+    return value.toBigInt();
+  }
+
+  set editionCreationCount(value: BigInt) {
+    this.set("editionCreationCount", Value.fromBigInt(value));
+  }
+
+  get salesCount(): BigInt {
+    let value = this.get("salesCount");
+    return value.toBigInt();
+  }
+
+  set salesCount(value: BigInt) {
+    this.set("salesCount", Value.fromBigInt(value));
+  }
+
+  get supply(): BigInt {
+    let value = this.get("supply");
+    return value.toBigInt();
+  }
+
+  set supply(value: BigInt) {
+    this.set("supply", Value.fromBigInt(value));
+  }
+
+  get totalValue(): BigInt {
+    let value = this.get("totalValue");
+    return value.toBigInt();
+  }
+
+  set totalValue(value: BigInt) {
+    this.set("totalValue", Value.fromBigInt(value));
+  }
+
+  get totalValueInEth(): BigDecimal {
+    let value = this.get("totalValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set totalValueInEth(value: BigDecimal) {
+    this.set("totalValueInEth", Value.fromBigDecimal(value));
+  }
+
+  get highestSaleValue(): BigInt {
+    let value = this.get("highestSaleValue");
+    return value.toBigInt();
+  }
+
+  set highestSaleValue(value: BigInt) {
+    this.set("highestSaleValue", Value.fromBigInt(value));
+  }
+
+  get highestSaleValueInEth(): BigDecimal {
+    let value = this.get("highestSaleValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set highestSaleValueInEth(value: BigDecimal) {
+    this.set("highestSaleValueInEth", Value.fromBigDecimal(value));
+  }
+
+  get highestSaleToken(): string | null {
+    let value = this.get("highestSaleToken");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set highestSaleToken(value: string | null) {
+    if (value === null) {
+      this.unset("highestSaleToken");
+    } else {
+      this.set("highestSaleToken", Value.fromString(value as string));
+    }
+  }
+
+  get firstEdition(): string | null {
+    let value = this.get("firstEdition");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set firstEdition(value: string | null) {
+    if (value === null) {
+      this.unset("firstEdition");
+    } else {
+      this.set("firstEdition", Value.fromString(value as string));
+    }
+  }
+
+  get firstEditionTimestamp(): BigInt {
+    let value = this.get("firstEditionTimestamp");
+    return value.toBigInt();
+  }
+
+  set firstEditionTimestamp(value: BigInt) {
+    this.set("firstEditionTimestamp", Value.fromBigInt(value));
+  }
+
+  get lastEdition(): string | null {
+    let value = this.get("lastEdition");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lastEdition(value: string | null) {
+    if (value === null) {
+      this.unset("lastEdition");
+    } else {
+      this.set("lastEdition", Value.fromString(value as string));
+    }
+  }
+
+  get lastEditionTimestamp(): BigInt {
+    let value = this.get("lastEditionTimestamp");
+    return value.toBigInt();
+  }
+
+  set lastEditionTimestamp(value: BigInt) {
+    this.set("lastEditionTimestamp", Value.fromBigInt(value));
+  }
+}
