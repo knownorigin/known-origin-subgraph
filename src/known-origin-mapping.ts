@@ -210,6 +210,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     }
 
     editionEntity.tokenIds = new Array<BigInt>()
+    editionEntity.auctionEnabled = false;
     editionEntity.save()
 
     // Update the day's stats

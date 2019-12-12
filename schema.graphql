@@ -65,4 +65,5 @@ type Edition @entity {
   totalAvailable: BigInt!
   active: Boolean!
   metadata: MetaData!
+  auctionEnabled: Boolean!
 }
