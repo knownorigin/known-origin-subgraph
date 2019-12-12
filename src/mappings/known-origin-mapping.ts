@@ -159,7 +159,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     // ARTIST
     let artist = loadOrCreateArtist(_editionData.value4)
     artist.editionCreationCount = artist.editionCreationCount + ONE
-    artist.supply = artist.supply + _editionData.value8
+    artist.supply = artist.supply + _editionData.value9
 
     if (artist.firstEdition === null) {
         artist.firstEdition = event.params._editionNumber.toString()
