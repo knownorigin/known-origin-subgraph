@@ -75,8 +75,9 @@ type Artist @entity {
     name: String
 
     editionCreationCount: BigInt!
-    salesCount: BigInt!
     supply: BigInt!
+    issuedCount: BigInt!
+    salesCount: BigInt!
 
     totalValue: BigInt!
     totalValueInEth: BigDecimal!

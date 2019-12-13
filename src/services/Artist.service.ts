@@ -11,6 +11,7 @@ export function loadOrCreateArtist(address: Address): Artist | null {
         artist.address = address
 
         artist.editionCreationCount = ZERO
+        artist.issuedCount = ZERO
         artist.salesCount = ZERO
         artist.supply = ZERO
 

@@ -25,7 +25,7 @@ import {loadOrCreateArtist, addEditionToArtist} from "../services/Artist.service
 import {loadOrCreateToken} from "../services/Token.service";
 import {loadOrCreateMonth} from "../services/Month.service";
 
-import {ONE} from "../constants";
+import {ONE, ZERO} from "../constants";
 import {toEther, dayNumberFromEvent, monthNumberFromEvent} from "../utils";
 
 export function handlePurchase(event: Purchase): void {
@@ -117,7 +117,12 @@ export function handleTransfer(event: Transfer): void {
         let editionNumber = tokenEntity.editionNumber
         let artist = loadOrCreateArtist(contract.artistCommission(editionNumber).value0)
 
-        artist.salesCount = artist.salesCount + ONE
+        if (event.transaction.value > ZERO) {
+            artist.salesCount = artist.salesCount + ONE
+        }
+        else {
+            artist.issuedCount = artist.issuedCount + ONE
+        }
 
         artist.totalValue = artist.totalValue + event.transaction.value
         artist.totalValueInEth = artist.totalValueInEth + toEther(event.transaction.value)
