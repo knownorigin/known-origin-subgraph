@@ -26,7 +26,7 @@ dataSources:
           handler: handleTransfer
         - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleEditionCreated
-      file: ./src/known-origin-mapping.ts
+      file: ./src/mappings/known-origin-mapping.ts
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
     network: mainnet
@@ -48,4 +48,4 @@ dataSources:
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
-      file: ./src/auction-v2-mapping.ts
+      file: ./src/mappings/auction-v2-mapping.ts

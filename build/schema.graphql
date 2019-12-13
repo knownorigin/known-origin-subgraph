@@ -1,42 +1,42 @@
 type Token @entity {
-  id: ID!
-  tokenId: BigInt!
-  from: Bytes! # address
-  to: Bytes! # address
-  ownerCount: BigInt!
-  editionNumber: BigInt!
-  tokenURI: String!
-  highestValue: BigInt!
-  highestValueInEth: BigDecimal!
-  name: String
-  description: String
-  image: String
+    id: ID!
+    tokenId: BigInt!
+    from: Bytes! # address
+    to: Bytes! # address
+    ownerCount: BigInt!
+    editionNumber: BigInt!
+    tokenURI: String!
+    highestValue: BigInt!
+    highestValueInEth: BigDecimal!
+    name: String
+    description: String
+    image: String
 }
 
 type Day @entity {
-  id: ID!
-  date: String!
-  transferCount: BigInt!
-  totalValue: BigInt!
-  totalValueInEth: BigDecimal!
-  totalGasUsed: BigInt!
-  highestValue: BigInt!
-  highestValueInEth: BigDecimal!
-  highestValueToken: Token
-  highestGasPrice: BigInt!
-  sales: [Token!]!
-  editions: [Edition!]!
+    id: ID!
+    date: String!
+    transferCount: BigInt!
+    totalValue: BigInt!
+    totalValueInEth: BigDecimal!
+    totalGasUsed: BigInt!
+    highestValue: BigInt!
+    highestValueInEth: BigDecimal!
+    highestValueToken: Token
+    highestGasPrice: BigInt!
+    sales: [Token!]!
+    editions: [Edition!]!
 }
 
 type Month @entity {
-  id: ID!
-  date: String!
-  transferCount: BigInt!
-  totalValue: BigInt!
-  totalValueInEth: BigDecimal!
-  highestValue: BigInt!
-  highestValueInEth: BigDecimal!
-  highestValueToken: Token
+    id: ID!
+    date: String!
+    transferCount: BigInt!
+    totalValue: BigInt!
+    totalValueInEth: BigDecimal!
+    highestValue: BigInt!
+    highestValueInEth: BigDecimal!
+    highestValueToken: Token
 }
 
 type MetaData @entity {
@@ -50,20 +50,45 @@ type MetaData @entity {
 }
 
 type Edition @entity {
-  id: ID!
-  editionType: BigInt!
-  editionData: Bytes! # bytes32
-  startDate: BigInt!
-  endDate: BigInt!
-  createdTimestamp: BigInt!
-  tokenIds: [BigInt!]!
-  tokenURI: String!
-  artistAccount: Bytes! # address
-  artistCommission: BigInt!
-  priceInWei: BigInt!
-  totalSupply: BigInt!
-  totalAvailable: BigInt!
-  active: Boolean!
-  metadata: MetaData!
-  auctionEnabled: Boolean!
+    id: ID!
+    editionType: BigInt!
+    editionData: Bytes! # bytes32
+    startDate: BigInt!
+    endDate: BigInt!
+    createdTimestamp: BigInt!
+    tokenIds: [BigInt!]!
+    tokenURI: String!
+    artistAccount: Bytes! # address
+    artistCommission: BigInt!
+    priceInWei: BigInt!
+    totalSupply: BigInt!
+    totalAvailable: BigInt!
+    active: Boolean!
+    metadata: MetaData!
+    auctionEnabled: Boolean!
+}
+
+type Artist @entity {
+    id: ID!
+
+    address: Bytes! # address
+    name: String
+
+    editionCreationCount: BigInt!
+    supply: BigInt!
+    issuedCount: BigInt!
+    salesCount: BigInt!
+
+    totalValue: BigInt!
+    totalValueInEth: BigDecimal!
+
+    highestSaleValue: BigInt!
+    highestSaleValueInEth: BigDecimal!
+    highestSaleToken: Token
+
+    firstEdition: Edition
+    firstEditionTimestamp: BigInt!
+
+    lastEdition: Edition
+    lastEditionTimestamp: BigInt!
 }

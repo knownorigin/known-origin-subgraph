@@ -1,30 +1,16 @@
-import {
-    Bytes,
-    ipfs,
-    json,
-    log,
-    JSONValue,
-    Address,
-} from "@graphprotocol/graph-ts"
+import {BigInt, Bytes, ipfs, json, JSONValue, log} from "@graphprotocol/graph-ts";
+import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {Edition, MetaData} from "../../generated/schema";
+import {ZERO} from "../constants";
 
-import {
-    AuctionEnabled
-} from "../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
+export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin): Edition | null {
+    let editionEntity: Edition | null = Edition.load(editionNumber.toString());
 
-import {
-    KnownOrigin,
-} from "../generated/KnownOrigin/KnownOrigin"
-import {Edition, MetaData} from "../generated/schema";
-
-export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let _editionData = contract.detailsOfEdition(event.params._editionNumber)
-
-    let editionEntity = Edition.load(event.params._editionNumber.toString());
     if (editionEntity == null) {
-        editionEntity = new Edition(event.params._editionNumber.toString());
+        editionEntity = new Edition(editionNumber.toString());
+        let _editionData = contract.detailsOfEdition(editionNumber)
 
-        editionEntity.createdTimestamp = event.block.timestamp
+        editionEntity.createdTimestamp = ZERO
         editionEntity.editionData = _editionData.value0
         editionEntity.editionType = _editionData.value1
         editionEntity.startDate = _editionData.value2
@@ -74,6 +60,5 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
         editionEntity.metadata = ipfsHash
     }
 
-    editionEntity.auctionEnabled = true
-    editionEntity.save()
+    return editionEntity;
 }
