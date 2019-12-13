@@ -6,7 +6,8 @@ import {
     json,
     log,
     JSONValue,
-    Address
+    Address,
+    EthereumEvent
 } from "@graphprotocol/graph-ts"
 
 import {
@@ -28,6 +29,30 @@ import {
 import {Token, Day, Month, Edition, MetaData} from "../generated/schema"
 
 let ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
+let secondsInDay = BigInt.fromI32(86400)
+function dayNumberFromEvent(event: EthereumEvent): string {
+    return event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
+}
+
+function loadDayOrGetNewEntity(dayNumber: string): Day | null {
+    let dayEntity: Day | null = Day.load(dayNumber)
+
+    if (dayEntity === null) {
+        dayEntity = new Day(dayNumber)
+        dayEntity.date = dayNumber
+        dayEntity.transferCount = BigInt.fromI32(0)
+        dayEntity.totalValue = BigInt.fromI32(0)
+        dayEntity.totalValueInEth = new BigDecimal(BigInt.fromI32(0))
+        dayEntity.totalGasUsed = BigInt.fromI32(0)
+        dayEntity.highestValue = BigInt.fromI32(0)
+        dayEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
+        dayEntity.highestGasPrice = BigInt.fromI32(0)
+        dayEntity.sales = new Array<string>()
+        dayEntity.editions = new Array<string>()
+    }
+
+    return dayEntity;
+}
 
 export function handlePurchase(event: Purchase): void {
     // // Entities can be loaded from the store using a string ID; this ID
@@ -185,8 +210,18 @@ export function handleEditionCreated(event: EditionCreated): void {
     }
 
     editionEntity.tokenIds = new Array<BigInt>()
+    editionEntity.auctionEnabled = false;
     editionEntity.save()
 
+    // Update the day's stats
+    let dayAsNumberString = dayNumberFromEvent(event)
+    let dayEntity = loadDayOrGetNewEntity(dayAsNumberString)
+
+    let editions = dayEntity.editions
+    editions.push(editionEntity.id.toString())
+    dayEntity.editions = editions
+
+    dayEntity.save()
 }
 
 export function handlePause(event: Pause): void {
@@ -270,30 +305,8 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.save()
 
     // DAY
-    let secondsInDay = BigInt.fromI32(86400)
-    let dayAsNumberString = event.block.timestamp.div(secondsInDay).toBigDecimal().truncate(0).toString()
-    let dayEntity = Day.load(dayAsNumberString)
-    if (dayEntity == null) {
-        // type Day @entity {
-        //     id: ID!
-        //     date: String!
-        //     transferCount: BigInt!
-        //     totalValue: BigInt!
-        //     totalGasUsed: BigInt!
-        //     highestGasPrice: BigInt!
-        // }
-
-        dayEntity = new Day(dayAsNumberString)
-        dayEntity.date = dayAsNumberString
-        dayEntity.transferCount = BigInt.fromI32(0)
-        dayEntity.totalValue = BigInt.fromI32(0)
-        dayEntity.totalValueInEth = new BigDecimal(BigInt.fromI32(0))
-        dayEntity.totalGasUsed = BigInt.fromI32(0)
-        dayEntity.highestValue = BigInt.fromI32(0)
-        dayEntity.highestValueInEth = new BigDecimal(BigInt.fromI32(0))
-        dayEntity.highestGasPrice = BigInt.fromI32(0)
-        dayEntity.sales = new Array<string>()
-    }
+    let dayAsNumberString = dayNumberFromEvent(event)
+    let dayEntity = loadDayOrGetNewEntity(dayAsNumberString)
 
     dayEntity.transferCount = dayEntity.transferCount + BigInt.fromI32(1)
     dayEntity.totalValue = dayEntity.totalValue + event.transaction.value

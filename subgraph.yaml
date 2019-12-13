@@ -26,4 +26,26 @@ dataSources:
           handler: handleTransfer
         - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleEditionCreated
-      file: ./src/mapping.ts
+      file: ./src/known-origin-mapping.ts
+  - kind: ethereum/contract
+    name: ArtistAcceptingBidsV2
+    network: mainnet
+    source:
+      address: "0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639"
+      abi: ArtistAcceptingBidsV2
+      startBlock: 7271800
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - AuctionEnabled
+      abis:
+        - name: ArtistAcceptingBidsV2
+          file: ./abis/ArtistAcceptingBidsV2.json
+        - name: KnownOrigin
+          file: ./abis/KnownOrigin.json
+      eventHandlers:
+        - event: AuctionEnabled(indexed uint256,indexed address)
+          handler: handleAuctionEnabled
+      file: ./src/auction-v2-mapping.ts
