@@ -608,6 +608,24 @@ export class Edition extends Entity {
     this.set("artistCommission", Value.fromBigInt(value));
   }
 
+  get optionalCommissionAccount(): Bytes {
+    let value = this.get("optionalCommissionAccount");
+    return value.toBytes();
+  }
+
+  set optionalCommissionAccount(value: Bytes) {
+    this.set("optionalCommissionAccount", Value.fromBytes(value));
+  }
+
+  get optionalCommissionRate(): BigInt {
+    let value = this.get("optionalCommissionRate");
+    return value.toBigInt();
+  }
+
+  set optionalCommissionRate(value: BigInt) {
+    this.set("optionalCommissionRate", Value.fromBigInt(value));
+  }
+
   get priceInWei(): BigInt {
     let value = this.get("priceInWei");
     return value.toBigInt();

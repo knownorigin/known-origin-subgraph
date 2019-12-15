@@ -48,4 +48,19 @@ dataSources:
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
+
+        - event: BidPlaced(indexed address,indexed uint256,uint256)
+          handler: handleBidPlaced
+
+        - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
+          handler: handleBidAccepted
+
+        - event: BidRejected(indexed address,indexed address,indexed uint256,uint256)
+          handler: handleBidRejected
+
+        - event: BidWithdrawn(indexed address,indexed uint256)
+          handler: handleBidWithdrawn
+
+        - event: BidIncreased(indexed address,indexed uint256,uint256)
+          handler: handleBidIncreased
       file: ./src/mappings/auction-v2-mapping.ts
