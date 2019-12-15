@@ -22,10 +22,21 @@ dataSources:
         - name: KnownOrigin
           file: ./abis/KnownOrigin.json
       eventHandlers:
+          # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+
+          # Every edition created emits one of these
         - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleEditionCreated
+
+          # Emitted on purchases from within this contract
+        - event: Purchase(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handlePurchase
+
+          # Emitted on ever token creation event regardless of purchase, gift, auction etc
+        - event: Minted(indexed uint256,indexed uint256,indexed address)
+          handler: handleMinted
       file: ./src/mappings/known-origin-mapping.ts
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2

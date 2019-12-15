@@ -31,12 +31,6 @@ import {loadOrCreateMonth} from "../services/Month.service";
 import {ONE, ZERO} from "../constants";
 import {toEther, dayNumberFromEvent, monthNumberFromEvent} from "../utils";
 
-export function handlePurchase(event: Purchase): void {
-}
-
-export function handleMinted(event: Minted): void {
-}
-
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
 
@@ -50,24 +44,6 @@ export function handleEditionCreated(event: EditionCreated): void {
     // Update artist
     let _editionData = contract.detailsOfEdition(event.params._editionNumber)
     addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
-}
-
-export function handlePause(event: Pause): void {
-}
-
-export function handleUnpause(event: Unpause): void {
-}
-
-export function handleOwnershipRenounced(event: OwnershipRenounced): void {
-}
-
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {
-}
-
-export function handleRoleAdded(event: RoleAdded): void {
-}
-
-export function handleRoleRemoved(event: RoleRemoved): void {
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -138,8 +114,23 @@ export function handleTransfer(event: Transfer): void {
     monthEntity.save()
 }
 
-export function handleApproval(event: Approval): void {
+// Direct primary "Buy it now" purchase form the website
+export function handlePurchase(event: Purchase): void {
+    let contract = KnownOrigin.bind(event.address)
+
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+
 }
 
-export function handleApprovalForAll(event: ApprovalForAll): void {
+// A token has been issued - could be purcvhase, gift, accepted offer
+export function handleMinted(event: Minted): void {
+
+    let contract = KnownOrigin.bind(event.address)
+
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    
 }

@@ -26,6 +26,10 @@ dataSources:
           handler: handleTransfer
         - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleEditionCreated
+        - event: Purchase(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handlePurchase
+        - event: Minted(indexed uint256,indexed uint256,indexed address)
+          handler: handleMinted
       file: KnownOrigin/KnownOrigin.wasm
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
