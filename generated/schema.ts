@@ -114,55 +114,13 @@ export class Token extends Entity {
     this.set("highestValueInEth", Value.fromBigDecimal(value));
   }
 
-  get name(): string | null {
-    let value = this.get("name");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get metadata(): string {
+    let value = this.get("metadata");
+    return value.toString();
   }
 
-  set name(value: string | null) {
-    if (value === null) {
-      this.unset("name");
-    } else {
-      this.set("name", Value.fromString(value as string));
-    }
-  }
-
-  get description(): string | null {
-    let value = this.get("description");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set description(value: string | null) {
-    if (value === null) {
-      this.unset("description");
-    } else {
-      this.set("description", Value.fromString(value as string));
-    }
-  }
-
-  get image(): string | null {
-    let value = this.get("image");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set image(value: string | null) {
-    if (value === null) {
-      this.unset("image");
-    } else {
-      this.set("image", Value.fromString(value as string));
-    }
+  set metadata(value: string) {
+    this.set("metadata", Value.fromString(value));
   }
 }
 

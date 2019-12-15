@@ -2,6 +2,7 @@ import {BigInt, Bytes, ipfs, json, JSONValue, log} from "@graphprotocol/graph-ts
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition, MetaData} from "../../generated/schema";
 import {ZERO} from "../constants";
+import {constructMetaData} from "./MetaData.service";
 
 export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -25,39 +26,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin
 
         log.info("token URI [{}]", [_editionData.value7])
 
-        let ipfsParts: string[] = editionEntity.tokenURI.split('/')
-        let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
-
-        let metaData: MetaData = new MetaData(ipfsHash)
-
-        if (ipfsParts.length > 0) {
-            let data = ipfs.cat(ipfsHash)
-            if (data !== null) {
-                let jsonData: JSONValue = json.fromBytes(data as Bytes)
-                metaData.name = jsonData.toObject().get('name').toString()
-                metaData.description = jsonData.toObject().get('description').toString()
-                metaData.image = jsonData.toObject().get('image').toString()
-
-                if (jsonData.toObject().isSet('scarcity')) {
-                    metaData.scarcity = jsonData.toObject().get('scarcity').toString()
-                }
-                if (jsonData.toObject().isSet('artist')) {
-                    metaData.artist = jsonData.toObject().get('artist').toString()
-                }
-                if (jsonData.toObject().isSet('attributes')) {
-                    let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
-                    if (attributes.toObject().isSet("tags")) {
-                        let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
-                        let tags: Array<string> = rawTags.map<string>((value, i, values) => {
-                            return value.toString();
-                        });
-                        metaData.tags = tags;
-                    }
-                }
-            }
-        }
+        let metaData = constructMetaData(editionEntity.tokenURI)
         metaData.save()
-        editionEntity.metadata = ipfsHash
+        editionEntity.metadata = metaData.id
     }
 
     return editionEntity;

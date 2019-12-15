@@ -8,9 +8,7 @@ type Token @entity {
     tokenURI: String!
     highestValue: BigInt!
     highestValueInEth: BigDecimal!
-    name: String
-    description: String
-    image: String
+    metadata: MetaData!
 }
 
 type Day @entity {

@@ -119,8 +119,7 @@ export function handleTransfer(event: Transfer): void {
 
         if (event.transaction.value > ZERO) {
             artist.salesCount = artist.salesCount + ONE
-        }
-        else {
+        } else {
             artist.issuedCount = artist.issuedCount + ONE
         }
 
