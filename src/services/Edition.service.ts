@@ -1,14 +1,18 @@
-import {BigInt, log} from "@graphprotocol/graph-ts";
+import {BigInt, EthereumBlock, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
 import {ZERO} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 
-export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin): Edition | null {
+export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
         editionEntity = new Edition(editionNumber.toString());
+        editionEntity.createdTimestamp = block.timestamp
+        editionEntity.tokenIds = new Array<BigInt>()
+        editionEntity.auctionEnabled = false
+
         let _editionData = contract.detailsOfEdition(editionNumber)
 
         editionEntity.createdTimestamp = ZERO
@@ -32,7 +36,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin
 
         log.info("token URI [{}]", [_editionData.value7])
 
-        let metaData = constructMetaData(editionEntity.tokenURI)
+        let metaData = constructMetaData(_editionData.value7)
         metaData.save()
         editionEntity.metadata = metaData.id
     }

@@ -19,7 +19,7 @@ import {addSaleTotalsToArtist} from "../services/Artist.service";
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
     editionEntity.save()
 }
@@ -65,7 +65,7 @@ export function handleBidPlaced(event: BidPlaced): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -92,7 +92,7 @@ export function handleBidRejected(event: BidRejected): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -104,7 +104,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {
@@ -116,7 +116,7 @@ export function handleBidIncreased(event: BidIncreased): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 }
 
 export function handleAuctionCancelled(event: AuctionCancelled): void {
@@ -126,5 +126,5 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 }

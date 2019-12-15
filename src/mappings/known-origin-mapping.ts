@@ -40,10 +40,7 @@ export function handleMinted(event: Minted): void {
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
-    editionEntity.createdTimestamp = event.block.timestamp
-    editionEntity.tokenIds = new Array<BigInt>()
-    editionEntity.auctionEnabled = false
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
     // Update the day's stats
