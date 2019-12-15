@@ -1,6 +1,6 @@
-import {BigInt, Bytes, ipfs, json, JSONValue, log} from "@graphprotocol/graph-ts";
+import {BigInt, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
-import {Edition, MetaData} from "../../generated/schema";
+import {Edition} from "../../generated/schema";
 import {ZERO} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 
@@ -25,8 +25,10 @@ export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin
         editionEntity.active = _editionData.value10
 
         let _optionalCommission = contract.editionOptionalCommission(editionNumber)
-        editionEntity.optionalCommissionRate = _optionalCommission.value0 || ZERO
-        editionEntity.optionalCommissionAccount = _optionalCommission.value1
+        if (_optionalCommission.value0 > ZERO) {
+            editionEntity.optionalCommissionRate = _optionalCommission.value0
+            editionEntity.optionalCommissionAccount = _optionalCommission.value1
+        }
 
         log.info("token URI [{}]", [_editionData.value7])
 

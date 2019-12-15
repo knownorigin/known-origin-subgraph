@@ -14,6 +14,7 @@ import {
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
+import {addSaleTotalsToArtist} from "../services/Artist.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
@@ -77,7 +78,8 @@ export function handleBidAccepted(event: BidAccepted): void {
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, contract)
+    let artistAddress = contract.artistCommission(event.params._editionNumber).value0
+    addSaleTotalsToArtist(artistAddress, event.params._tokenId, event.transaction)
 }
 
 export function handleBidRejected(event: BidRejected): void {

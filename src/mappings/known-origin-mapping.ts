@@ -21,7 +21,10 @@ import {
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {loadOrCreateDay, addEditionToDay} from "../services/Day.service";
-import {loadOrCreateArtist, addEditionToArtist} from "../services/Artist.service";
+import {
+    addEditionToArtist,
+    addSaleTotalsToArtist
+} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {loadOrCreateMonth} from "../services/Month.service";
 
@@ -115,24 +118,8 @@ export function handleTransfer(event: Transfer): void {
 
         // ARTIST
         let editionNumber = tokenEntity.editionNumber
-        let artist = loadOrCreateArtist(contract.artistCommission(editionNumber).value0)
-
-        if (event.transaction.value > ZERO) {
-            artist.salesCount = artist.salesCount + ONE
-        } else {
-            artist.issuedCount = artist.issuedCount + ONE
-        }
-
-        artist.totalValue = artist.totalValue + event.transaction.value
-        artist.totalValueInEth = artist.totalValueInEth + toEther(event.transaction.value)
-
-        if (event.transaction.value > artist.highestSaleValue) {
-            artist.highestSaleToken = event.params._tokenId.toString()
-            artist.highestSaleValue = event.transaction.value
-            artist.highestSaleValueInEth = toEther(event.transaction.value)
-        }
-
-        artist.save()
+        let artistAddress = contract.artistCommission(editionNumber).value0
+        addSaleTotalsToArtist(artistAddress, event.params._tokenId, event.transaction)
     }
 
     dayEntity.save()

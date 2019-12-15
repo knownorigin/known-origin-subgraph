@@ -1,6 +1,7 @@
-import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt, EthereumTransaction} from "@graphprotocol/graph-ts/index";
 import {Artist} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
+import {toEther} from "../utils";
 
 export function loadOrCreateArtist(address: Address): Artist | null {
     let artist: Artist | null = Artist.load(address.toHexString())
@@ -42,4 +43,27 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.lastEditionTimestamp = created
 
     artist.save()
+}
+
+export function addSaleTotalsToArtist(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
+    let artist = loadOrCreateArtist(artistAddress)
+
+    if (eventTransaction.value > ZERO) {
+        artist.salesCount = artist.salesCount + ONE
+    } else {
+        artist.issuedCount = artist.issuedCount + ONE
+    }
+
+    artist.totalValue = artist.totalValue + eventTransaction.value
+    artist.totalValueInEth = artist.totalValueInEth + toEther(eventTransaction.value)
+
+    if (eventTransaction.value > artist.highestSaleValue) {
+        artist.highestSaleToken = tokenId.toString()
+        artist.highestSaleValue = eventTransaction.value
+        artist.highestSaleValueInEth = toEther(eventTransaction.value)
+    }
+
+    artist.save()
+
+    return artist
 }
