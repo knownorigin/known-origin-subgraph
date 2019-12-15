@@ -608,22 +608,38 @@ export class Edition extends Entity {
     this.set("artistCommission", Value.fromBigInt(value));
   }
 
-  get optionalCommissionAccount(): Bytes {
+  get optionalCommissionAccount(): Bytes | null {
     let value = this.get("optionalCommissionAccount");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set optionalCommissionAccount(value: Bytes) {
-    this.set("optionalCommissionAccount", Value.fromBytes(value));
+  set optionalCommissionAccount(value: Bytes | null) {
+    if (value === null) {
+      this.unset("optionalCommissionAccount");
+    } else {
+      this.set("optionalCommissionAccount", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get optionalCommissionRate(): BigInt {
+  get optionalCommissionRate(): BigInt | null {
     let value = this.get("optionalCommissionRate");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set optionalCommissionRate(value: BigInt) {
-    this.set("optionalCommissionRate", Value.fromBigInt(value));
+  set optionalCommissionRate(value: BigInt | null) {
+    if (value === null) {
+      this.unset("optionalCommissionRate");
+    } else {
+      this.set("optionalCommissionRate", Value.fromBigInt(value as BigInt));
+    }
   }
 
   get priceInWei(): BigInt {

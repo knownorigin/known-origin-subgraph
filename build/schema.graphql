@@ -58,8 +58,8 @@ type Edition @entity {
     tokenURI: String!
     artistAccount: Bytes! # address
     artistCommission: BigInt!
-    optionalCommissionAccount: Bytes! # address
-    optionalCommissionRate: BigInt!
+    optionalCommissionAccount: Bytes # address
+    optionalCommissionRate: BigInt
     priceInWei: BigInt!
     totalSupply: BigInt!
     totalAvailable: BigInt!

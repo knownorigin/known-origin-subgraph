@@ -25,7 +25,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, contract: KnownOrigin
         editionEntity.active = _editionData.value10
 
         let _optionalCommission = contract.editionOptionalCommission(editionNumber)
-        editionEntity.optionalCommissionRate = _optionalCommission.value0
+        editionEntity.optionalCommissionRate = _optionalCommission.value0 || ZERO
         editionEntity.optionalCommissionAccount = _optionalCommission.value1
 
         log.info("token URI [{}]", [_editionData.value7])
