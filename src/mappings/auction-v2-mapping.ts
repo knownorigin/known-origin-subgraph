@@ -84,6 +84,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     addSaleTotalsToArtist(artistAddress, event.params._tokenId, event.transaction)
 
     // BidAccepted emit Transfer & Minted events
+    // HANDLED IN MINTED
     recordDayPurchase(event, event.params._tokenId)
     recordMonthPurchase(event, event.params._tokenId)
 }

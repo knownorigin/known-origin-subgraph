@@ -51,31 +51,13 @@ export class Token extends Entity {
     this.set("tokenId", Value.fromBigInt(value));
   }
 
-  get from(): Bytes {
-    let value = this.get("from");
-    return value.toBytes();
-  }
-
-  set from(value: Bytes) {
-    this.set("from", Value.fromBytes(value));
-  }
-
-  get to(): Bytes {
-    let value = this.get("to");
-    return value.toBytes();
-  }
-
-  set to(value: Bytes) {
-    this.set("to", Value.fromBytes(value));
-  }
-
-  get ownerCount(): BigInt {
-    let value = this.get("ownerCount");
+  get transferCount(): BigInt {
+    let value = this.get("transferCount");
     return value.toBigInt();
   }
 
-  set ownerCount(value: BigInt) {
-    this.set("ownerCount", Value.fromBigInt(value));
+  set transferCount(value: BigInt) {
+    this.set("transferCount", Value.fromBigInt(value));
   }
 
   get editionNumber(): BigInt {
@@ -94,24 +76,6 @@ export class Token extends Entity {
 
   set tokenURI(value: string) {
     this.set("tokenURI", Value.fromString(value));
-  }
-
-  get highestValue(): BigInt {
-    let value = this.get("highestValue");
-    return value.toBigInt();
-  }
-
-  set highestValue(value: BigInt) {
-    this.set("highestValue", Value.fromBigInt(value));
-  }
-
-  get highestValueInEth(): BigDecimal {
-    let value = this.get("highestValueInEth");
-    return value.toBigDecimal();
-  }
-
-  set highestValueInEth(value: BigDecimal) {
-    this.set("highestValueInEth", Value.fromBigDecimal(value));
   }
 
   get metadata(): string {
@@ -170,6 +134,24 @@ export class Day extends Entity {
 
   set transferCount(value: BigInt) {
     this.set("transferCount", Value.fromBigInt(value));
+  }
+
+  get salesCount(): BigInt {
+    let value = this.get("salesCount");
+    return value.toBigInt();
+  }
+
+  set salesCount(value: BigInt) {
+    this.set("salesCount", Value.fromBigInt(value));
+  }
+
+  get giftsCount(): BigInt {
+    let value = this.get("giftsCount");
+    return value.toBigInt();
+  }
+
+  set giftsCount(value: BigInt) {
+    this.set("giftsCount", Value.fromBigInt(value));
   }
 
   get totalValue(): BigInt {
@@ -252,6 +234,15 @@ export class Day extends Entity {
     this.set("sales", Value.fromStringArray(value));
   }
 
+  get gifts(): Array<string> {
+    let value = this.get("gifts");
+    return value.toStringArray();
+  }
+
+  set gifts(value: Array<string>) {
+    this.set("gifts", Value.fromStringArray(value));
+  }
+
   get editions(): Array<string> {
     let value = this.get("editions");
     return value.toStringArray();
@@ -308,6 +299,24 @@ export class Month extends Entity {
 
   set transferCount(value: BigInt) {
     this.set("transferCount", Value.fromBigInt(value));
+  }
+
+  get salesCount(): BigInt {
+    let value = this.get("salesCount");
+    return value.toBigInt();
+  }
+
+  set salesCount(value: BigInt) {
+    this.set("salesCount", Value.fromBigInt(value));
+  }
+
+  get giftsCount(): BigInt {
+    let value = this.get("giftsCount");
+    return value.toBigInt();
+  }
+
+  set giftsCount(value: BigInt) {
+    this.set("giftsCount", Value.fromBigInt(value));
   }
 
   get totalValue(): BigInt {

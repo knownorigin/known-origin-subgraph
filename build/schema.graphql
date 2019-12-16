@@ -1,13 +1,9 @@
 type Token @entity {
     id: ID!
     tokenId: BigInt!
-    from: Bytes! # address
-    to: Bytes! # address
-    ownerCount: BigInt!
+    transferCount: BigInt!
     editionNumber: BigInt!
     tokenURI: String!
-    highestValue: BigInt!
-    highestValueInEth: BigDecimal!
     metadata: MetaData!
 }
 
@@ -15,6 +11,8 @@ type Day @entity {
     id: ID!
     date: String!
     transferCount: BigInt!
+    salesCount: BigInt!
+    giftsCount: BigInt!
     totalValue: BigInt!
     totalValueInEth: BigDecimal!
     totalGasUsed: BigInt!
@@ -23,6 +21,7 @@ type Day @entity {
     highestValueToken: Token
     highestGasPrice: BigInt!
     sales: [Token!]!
+    gifts: [Token!]!
     editions: [Edition!]!
 }
 
@@ -30,6 +29,8 @@ type Month @entity {
     id: ID!
     date: String!
     transferCount: BigInt!
+    salesCount: BigInt!
+    giftsCount: BigInt!
     totalValue: BigInt!
     totalValueInEth: BigDecimal!
     highestValue: BigInt!

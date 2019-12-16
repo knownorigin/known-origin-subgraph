@@ -11,11 +11,9 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin): Token
         tokenEntity = new Token(tokenId.toString())
 
         // Entity fields can be set using simple assignments
-        tokenEntity.ownerCount = ZERO // set up the owner count
+        tokenEntity.transferCount = ZERO // set up the owner count
         tokenEntity.tokenId = tokenId
         tokenEntity.editionNumber = _tokenData.value0
-        tokenEntity.highestValue = ZERO
-        tokenEntity.highestValueInEth = new BigDecimal(ZERO)
         tokenEntity.tokenURI = _tokenData.value3
 
         let metaData = constructMetaData(_tokenData.value3);

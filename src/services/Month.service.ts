@@ -9,6 +9,8 @@ export function loadOrCreateMonth(monthAsNumber: string): Month | null {
         monthEntity = new Month(monthAsNumber)
         monthEntity.date = monthAsNumber
         monthEntity.transferCount = ZERO
+        monthEntity.salesCount = ZERO
+        monthEntity.giftsCount = ZERO
         monthEntity.totalValue = ZERO
         monthEntity.totalValueInEth = new BigDecimal(ZERO)
         monthEntity.highestValue = ZERO
