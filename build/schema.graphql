@@ -13,10 +13,9 @@ type Day @entity {
     transferCount: BigInt!
     salesCount: BigInt!
     giftsCount: BigInt!
-    totalValue: BigInt!
+    editionsCount: BigInt!
     totalValueInEth: BigDecimal!
     totalGasUsed: BigInt!
-    highestValue: BigInt!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
     highestGasPrice: BigInt!
@@ -31,9 +30,7 @@ type Month @entity {
     transferCount: BigInt!
     salesCount: BigInt!
     giftsCount: BigInt!
-    totalValue: BigInt!
     totalValueInEth: BigDecimal!
-    highestValue: BigInt!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
 }
@@ -75,15 +72,15 @@ type Artist @entity {
     address: Bytes! # address
     name: String
 
-    editionCreationCount: BigInt!
+    editionsCount: BigInt!
+
     supply: BigInt!
+
     issuedCount: BigInt!
     salesCount: BigInt!
 
-    totalValue: BigInt!
     totalValueInEth: BigDecimal!
 
-    highestSaleValue: BigInt!
     highestSaleValueInEth: BigDecimal!
     highestSaleToken: Token
 

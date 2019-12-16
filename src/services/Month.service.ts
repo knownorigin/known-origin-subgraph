@@ -11,9 +11,7 @@ export function loadOrCreateMonth(monthAsNumber: string): Month | null {
         monthEntity.transferCount = ZERO
         monthEntity.salesCount = ZERO
         monthEntity.giftsCount = ZERO
-        monthEntity.totalValue = ZERO
         monthEntity.totalValueInEth = new BigDecimal(ZERO)
-        monthEntity.highestValue = ZERO
         monthEntity.highestValueInEth = new BigDecimal(ZERO)
     }
 
@@ -32,10 +30,9 @@ export function recordMonthPurchase(event: EthereumEvent, tokenId: BigInt): Mont
     let monthAsNumberString = monthNumberFromEvent(event)
     let monthEntity = loadOrCreateMonth(monthAsNumberString)
 
-    monthEntity.totalValue = monthEntity.totalValue + event.transaction.value
     monthEntity.totalValueInEth = monthEntity.totalValueInEth + toEther(event.transaction.value)
 
-    if (event.transaction.value > monthEntity.highestValue) {
+    if (toEther(event.transaction.value) > toEther(monthEntity.highestValue)) {
         monthEntity.highestValueToken = tokenId.toString()
         monthEntity.highestValue = event.transaction.value
         monthEntity.highestValueInEth = toEther(event.transaction.value)

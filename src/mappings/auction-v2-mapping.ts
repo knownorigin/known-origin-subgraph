@@ -16,7 +16,7 @@ import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {addSaleTotalsToArtist} from "../services/Artist.service";
 import {recordMonthPurchase} from "../services/Month.service";
-import {recordDayPurchase} from "../services/Day.service";
+import {recordDayValue} from "../services/Day.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
@@ -85,8 +85,8 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // BidAccepted emit Transfer & Minted events
     // HANDLED IN MINTED
-    recordDayPurchase(event, event.params._tokenId)
-    recordMonthPurchase(event, event.params._tokenId)
+    recordDayValue(event, event.params._tokenId)
+    // recordMonthPurchase(event, event.params._tokenId)
 }
 
 export function handleBidRejected(event: BidRejected): void {

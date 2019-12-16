@@ -154,13 +154,13 @@ export class Day extends Entity {
     this.set("giftsCount", Value.fromBigInt(value));
   }
 
-  get totalValue(): BigInt {
-    let value = this.get("totalValue");
+  get editionsCount(): BigInt {
+    let value = this.get("editionsCount");
     return value.toBigInt();
   }
 
-  set totalValue(value: BigInt) {
-    this.set("totalValue", Value.fromBigInt(value));
+  set editionsCount(value: BigInt) {
+    this.set("editionsCount", Value.fromBigInt(value));
   }
 
   get totalValueInEth(): BigDecimal {
@@ -179,15 +179,6 @@ export class Day extends Entity {
 
   set totalGasUsed(value: BigInt) {
     this.set("totalGasUsed", Value.fromBigInt(value));
-  }
-
-  get highestValue(): BigInt {
-    let value = this.get("highestValue");
-    return value.toBigInt();
-  }
-
-  set highestValue(value: BigInt) {
-    this.set("highestValue", Value.fromBigInt(value));
   }
 
   get highestValueInEth(): BigDecimal {
@@ -319,15 +310,6 @@ export class Month extends Entity {
     this.set("giftsCount", Value.fromBigInt(value));
   }
 
-  get totalValue(): BigInt {
-    let value = this.get("totalValue");
-    return value.toBigInt();
-  }
-
-  set totalValue(value: BigInt) {
-    this.set("totalValue", Value.fromBigInt(value));
-  }
-
   get totalValueInEth(): BigDecimal {
     let value = this.get("totalValueInEth");
     return value.toBigDecimal();
@@ -335,15 +317,6 @@ export class Month extends Entity {
 
   set totalValueInEth(value: BigDecimal) {
     this.set("totalValueInEth", Value.fromBigDecimal(value));
-  }
-
-  get highestValue(): BigInt {
-    let value = this.get("highestValue");
-    return value.toBigInt();
-  }
-
-  set highestValue(value: BigInt) {
-    this.set("highestValue", Value.fromBigInt(value));
   }
 
   get highestValueInEth(): BigDecimal {
@@ -762,13 +735,13 @@ export class Artist extends Entity {
     }
   }
 
-  get editionCreationCount(): BigInt {
-    let value = this.get("editionCreationCount");
+  get editionsCount(): BigInt {
+    let value = this.get("editionsCount");
     return value.toBigInt();
   }
 
-  set editionCreationCount(value: BigInt) {
-    this.set("editionCreationCount", Value.fromBigInt(value));
+  set editionsCount(value: BigInt) {
+    this.set("editionsCount", Value.fromBigInt(value));
   }
 
   get supply(): BigInt {
@@ -798,15 +771,6 @@ export class Artist extends Entity {
     this.set("salesCount", Value.fromBigInt(value));
   }
 
-  get totalValue(): BigInt {
-    let value = this.get("totalValue");
-    return value.toBigInt();
-  }
-
-  set totalValue(value: BigInt) {
-    this.set("totalValue", Value.fromBigInt(value));
-  }
-
   get totalValueInEth(): BigDecimal {
     let value = this.get("totalValueInEth");
     return value.toBigDecimal();
@@ -814,15 +778,6 @@ export class Artist extends Entity {
 
   set totalValueInEth(value: BigDecimal) {
     this.set("totalValueInEth", Value.fromBigDecimal(value));
-  }
-
-  get highestSaleValue(): BigInt {
-    let value = this.get("highestSaleValue");
-    return value.toBigInt();
-  }
-
-  set highestSaleValue(value: BigInt) {
-    this.set("highestSaleValue", Value.fromBigInt(value));
   }
 
   get highestSaleValueInEth(): BigDecimal {

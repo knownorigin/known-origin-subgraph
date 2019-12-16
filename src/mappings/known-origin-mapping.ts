@@ -7,7 +7,7 @@ import {
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
-import {addEditionToDay, recordDayTransfer, recordDayPurchase} from "../services/Day.service";
+import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {
     addEditionToArtist,
     addSaleTotalsToArtist
@@ -52,14 +52,14 @@ export function handlePurchase(event: Purchase): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
 
-    // Record Purchases against the Day & Month
-    recordDayPurchase(event, event.params._tokenId)
-    recordMonthPurchase(event, event.params._tokenId)
-
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
     addSaleTotalsToArtist(artistAddress, event.params._tokenId, event.transaction)
+
+    // Record Purchases against the Day & Month
+    recordDayValue(event, event.params._tokenId)
+    // recordMonthPurchase(event, event.params._tokenId)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
@@ -68,4 +68,6 @@ export function handleMinted(event: Minted): void {
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+
+    recordDayCounts(event, event.params._tokenId)
 }

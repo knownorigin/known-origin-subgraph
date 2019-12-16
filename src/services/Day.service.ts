@@ -13,10 +13,9 @@ export function loadOrCreateDay(dayNumber: string): Day | null {
         dayEntity.transferCount = ZERO
         dayEntity.salesCount = ZERO
         dayEntity.giftsCount = ZERO
-        dayEntity.totalValue = ZERO
+        dayEntity.editionsCount = ZERO
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
         dayEntity.totalGasUsed = ZERO
-        dayEntity.highestValue = ZERO
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
         dayEntity.highestGasPrice = ZERO
         dayEntity.sales = new Array<string>()
@@ -29,6 +28,8 @@ export function loadOrCreateDay(dayNumber: string): Day | null {
 
 export function addEditionToDay(dayAsNumber: string, editionEntityId: string): Day | null {
     let dayEntity = loadOrCreateDay(dayAsNumber)
+
+    dayEntity.editionsCount = dayEntity.editionsCount + ONE
 
     let editions = dayEntity.editions
     editions.push(editionEntityId)
@@ -50,23 +51,16 @@ export function recordDayTransfer(event: EthereumEvent): Day | null {
     return dayEntity
 }
 
-export function recordDayPurchase(event: EthereumEvent, tokenId: BigInt): Day | null {
+export function recordDayValue(event: EthereumEvent, tokenId: BigInt): Day | null {
     let dayAsNumberString = dayNumberFromEvent(event)
 
     let dayEntity = loadOrCreateDay(dayAsNumberString)
-    dayEntity.totalValue = dayEntity.totalValue + event.transaction.value
     dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(event.transaction.value)
 
-    if (event.transaction.value > dayEntity.highestValue) {
+    if (toEther(event.transaction.value) > dayEntity.highestValueInEth) {
         dayEntity.highestValueToken = tokenId.toString()
-        dayEntity.highestValue = event.transaction.value
         dayEntity.highestValueInEth = toEther(event.transaction.value)
     }
-
-    // Record token as a sale
-    let sales = dayEntity.sales
-    sales.push(tokenId.toString())
-    dayEntity.sales = sales
 
     dayEntity.save()
 
@@ -77,19 +71,22 @@ export function recordDayCounts(event: EthereumEvent, tokenId: BigInt): Day | nu
     let dayAsNumberString = dayNumberFromEvent(event)
 
     let dayEntity = loadOrCreateDay(dayAsNumberString)
-    dayEntity.totalValue = dayEntity.totalValue + event.transaction.value
-    dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(event.transaction.value)
 
     if (event.transaction.value > ZERO) {
-        dayEntity.highestValueToken = tokenId.toString()
-        dayEntity.highestValue = event.transaction.value
-        dayEntity.highestValueInEth = toEther(event.transaction.value)
-    }
+        // Record token as a sale
+        let sales = dayEntity.sales
+        sales.push(tokenId.toString())
+        dayEntity.sales = sales
 
-    // Record token as a sale
-    let sales = dayEntity.sales
-    sales.push(tokenId.toString())
-    dayEntity.sales = sales
+        dayEntity.salesCount = dayEntity.salesCount + ONE
+    } else {
+        // Record token as a gift
+        let gifts = dayEntity.gifts
+        gifts.push(tokenId.toString())
+        dayEntity.gifts = gifts
+
+        dayEntity.giftsCount = dayEntity.giftsCount + ONE
+    }
 
     dayEntity.save()
 
