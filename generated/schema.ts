@@ -753,15 +753,6 @@ export class Artist extends Entity {
     this.set("supply", Value.fromBigInt(value));
   }
 
-  get issuedCount(): BigInt {
-    let value = this.get("issuedCount");
-    return value.toBigInt();
-  }
-
-  set issuedCount(value: BigInt) {
-    this.set("issuedCount", Value.fromBigInt(value));
-  }
-
   get salesCount(): BigInt {
     let value = this.get("salesCount");
     return value.toBigInt();
@@ -769,6 +760,15 @@ export class Artist extends Entity {
 
   set salesCount(value: BigInt) {
     this.set("salesCount", Value.fromBigInt(value));
+  }
+
+  get giftsCount(): BigInt {
+    let value = this.get("giftsCount");
+    return value.toBigInt();
+  }
+
+  set giftsCount(value: BigInt) {
+    this.set("giftsCount", Value.fromBigInt(value));
   }
 
   get totalValueInEth(): BigDecimal {

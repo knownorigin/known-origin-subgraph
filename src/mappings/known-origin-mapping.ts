@@ -10,7 +10,8 @@ import {loadOrCreateEdition} from "../services/Edition.service";
 import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {
     addEditionToArtist,
-    addSaleTotalsToArtist
+    recordArtistValue,
+    recordArtistCounts
 } from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {recordMonthPurchase, recordMonthTransfer} from "../services/Month.service";
@@ -55,7 +56,7 @@ export function handlePurchase(event: Purchase): void {
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
-    addSaleTotalsToArtist(artistAddress, event.params._tokenId, event.transaction)
+    recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
 
     // Record Purchases against the Day & Month
     recordDayValue(event, event.params._tokenId)
@@ -70,4 +71,8 @@ export function handleMinted(event: Minted): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
 
     recordDayCounts(event, event.params._tokenId)
+
+    let editionNumber = event.params._editionNumber
+    let artistAddress = contract.artistCommission(editionNumber).value0
+    recordArtistCounts(artistAddress, event.params._tokenId, event.transaction)
 }

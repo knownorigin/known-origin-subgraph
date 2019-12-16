@@ -76,8 +76,8 @@ type Artist @entity {
 
     supply: BigInt!
 
-    issuedCount: BigInt!
     salesCount: BigInt!
+    giftsCount: BigInt!
 
     totalValueInEth: BigDecimal!
 

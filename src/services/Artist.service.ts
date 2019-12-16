@@ -12,7 +12,7 @@ export function loadOrCreateArtist(address: Address): Artist | null {
         artist.address = address
 
         artist.editionsCount = ZERO
-        artist.issuedCount = ZERO
+        artist.giftsCount = ZERO
         artist.salesCount = ZERO
         artist.supply = ZERO
 
@@ -43,20 +43,28 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.save()
 }
 
-export function addSaleTotalsToArtist(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
+export function recordArtistValue(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
     let artist = loadOrCreateArtist(artistAddress)
-
-    if (eventTransaction.value > ZERO) {
-        artist.salesCount = artist.salesCount + ONE
-    } else {
-        artist.issuedCount = artist.issuedCount + ONE
-    }
 
     artist.totalValueInEth = artist.totalValueInEth + toEther(eventTransaction.value)
 
     if (toEther(eventTransaction.value) > artist.highestSaleValueInEth) {
         artist.highestSaleToken = tokenId.toString()
         artist.highestSaleValueInEth = toEther(eventTransaction.value)
+    }
+
+    artist.save()
+
+    return artist
+}
+
+export function recordArtistCounts(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
+    let artist = loadOrCreateArtist(artistAddress)
+
+    if (eventTransaction.value > ZERO) {
+        artist.salesCount = artist.salesCount + ONE
+    } else {
+        artist.giftsCount = artist.giftsCount + ONE
     }
 
     artist.save()
