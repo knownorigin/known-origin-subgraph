@@ -1,8 +1,7 @@
-import {Day, Month} from "../../generated/schema";
+import {Day} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {BigDecimal, BigInt, EthereumEvent} from "@graphprotocol/graph-ts/index";
-import {dayNumberFromEvent, monthNumberFromEvent, toEther} from "../utils";
-import {loadOrCreateMonth} from "./Month.service";
+import {dayNumberFromEvent, toEther} from "../utils";
 
 export function loadOrCreateDay(dayNumber: string): Day | null {
     let dayEntity: Day | null = Day.load(dayNumber)
@@ -14,10 +13,9 @@ export function loadOrCreateDay(dayNumber: string): Day | null {
         dayEntity.salesCount = ZERO
         dayEntity.giftsCount = ZERO
         dayEntity.editionsCount = ZERO
+        dayEntity.bidsAcceptedCount = ZERO
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
-        dayEntity.totalGasUsed = ZERO
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
-        dayEntity.highestGasPrice = ZERO
         dayEntity.sales = new Array<string>()
         dayEntity.gifts = new Array<string>()
         dayEntity.editions = new Array<string>()
@@ -45,6 +43,17 @@ export function recordDayTransfer(event: EthereumEvent): Day | null {
     let dayEntity = loadOrCreateDay(dayAsNumberString)
 
     dayEntity.transferCount = dayEntity.transferCount + ONE
+
+    dayEntity.save()
+
+    return dayEntity
+}
+
+export function recordDayBidAcceptedCount(event: EthereumEvent, tokenId: BigInt): Day | null {
+    let dayAsNumberString = dayNumberFromEvent(event)
+
+    let dayEntity = loadOrCreateDay(dayAsNumberString)
+    dayEntity.bidsAcceptedCount = dayEntity.bidsAcceptedCount + ONE
 
     dayEntity.save()
 

@@ -14,25 +14,13 @@ type Day @entity {
     salesCount: BigInt!
     giftsCount: BigInt!
     editionsCount: BigInt!
+    bidsAcceptedCount: BigInt!
     totalValueInEth: BigDecimal!
-    totalGasUsed: BigInt!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
-    highestGasPrice: BigInt!
     sales: [Token!]!
     gifts: [Token!]!
     editions: [Edition!]!
-}
-
-type Month @entity {
-    id: ID!
-    date: String!
-    transferCount: BigInt!
-    salesCount: BigInt!
-    giftsCount: BigInt!
-    totalValueInEth: BigDecimal!
-    highestValueInEth: BigDecimal!
-    highestValueToken: Token
 }
 
 type MetaData @entity {

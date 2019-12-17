@@ -8,13 +8,8 @@ import {
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
-import {
-    addEditionToArtist,
-    recordArtistValue,
-    recordArtistCounts
-} from "../services/Artist.service";
+import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
-import {recordMonthPurchase, recordMonthTransfer} from "../services/Month.service";
 
 import {dayNumberFromEvent} from "../utils";
 
@@ -43,7 +38,6 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.save()
 
     recordDayTransfer(event)
-    recordMonthTransfer(event)
 }
 
 // Direct primary "Buy it now" purchase form the website
@@ -60,7 +54,6 @@ export function handlePurchase(event: Purchase): void {
 
     // Record Purchases against the Day & Month
     recordDayValue(event, event.params._tokenId)
-    // recordMonthPurchase(event, event.params._tokenId)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
