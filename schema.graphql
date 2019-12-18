@@ -52,6 +52,16 @@ type Edition @entity {
     active: Boolean!
     metadata: MetaData!
     auctionEnabled: Boolean!
+    activeBid: AuctionEvent
+    biddingHistory: [AuctionEvent!]!
+}
+
+type AuctionEvent @entity {
+    id: ID!
+    name: String!
+    bidder: Bytes!
+    timestamp: BigInt!
+    ethValue: BigDecimal!
 }
 
 type Artist @entity {

@@ -17,6 +17,7 @@ class Civil {
     }
 }
 
+// Ported from http://howardhinnant.github.io/date_algorithms.html#civil_from_days
 export function civilFromEventTimestamp(event: EthereumEvent): Civil {
     let epoch: BigInt = event.block.timestamp;
     let z = epoch / SECONDS_IN_DAY;
@@ -32,10 +33,6 @@ export function civilFromEventTimestamp(event: EthereumEvent): Civil {
     let m = mp + (mp < BigInt.fromI32(10) ? BigInt.fromI32(3) : BigInt.fromI32(-9));                            // [1, 12]
 
     let year = m <= BigInt.fromI32(2) ? y + ONE : y;
-
-    if (year.equals(BigInt.fromI32(2020))) {
-        log.error("2020 is in the future!!", [])
-    }
 
     return new Civil(d, m, year);
 }

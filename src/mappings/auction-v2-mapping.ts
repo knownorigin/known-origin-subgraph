@@ -13,9 +13,13 @@ import {
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
+import {AuctionEvent} from "../../generated/schema";
+
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistValue} from "../services/Artist.service";
 import {recordDayBidAcceptedCount, recordDayValue} from "../services/Day.service";
+
+import {toEther} from "../utils";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
@@ -67,6 +71,22 @@ export function handleBidPlaced(event: BidPlaced): void {
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let timestamp = event.block.timestamp
+    let bidder = event.params._bidder.toString();
+    let editionNumber = event.params._editionNumber.toString()
+    let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
+
+    let auctionEvent = new AuctionEvent(auctionEventId);
+    auctionEvent.name = 'BidPlaced'
+    auctionEvent.bidder = event.params._bidder
+    auctionEvent.timestamp = timestamp
+    auctionEvent.ethValue = toEther(event.params._amount)
+
+    auctionEvent.save()
+
+    editionEntity.biddingHistory.push(auctionEvent.id)
+    editionEntity.save()
 }
 
 export function handleBidAccepted(event: BidAccepted): void {

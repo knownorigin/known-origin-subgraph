@@ -12,6 +12,8 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.createdTimestamp = block.timestamp
         editionEntity.tokenIds = new Array<BigInt>()
         editionEntity.auctionEnabled = false
+        editionEntity.activeBid = null
+        editionEntity.biddingHistory = new Array<string>()
 
         let _editionData = contract.detailsOfEdition(editionNumber)
 
@@ -33,8 +35,6 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
             editionEntity.optionalCommissionRate = _optionalCommission.value0
             editionEntity.optionalCommissionAccount = _optionalCommission.value1
         }
-
-        log.info("token URI [{}]", [_editionData.value7])
 
         let metaData = constructMetaData(_editionData.value7)
         metaData.save()

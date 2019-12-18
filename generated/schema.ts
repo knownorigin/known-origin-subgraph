@@ -566,6 +566,99 @@ export class Edition extends Entity {
   set auctionEnabled(value: boolean) {
     this.set("auctionEnabled", Value.fromBoolean(value));
   }
+
+  get activeBid(): string | null {
+    let value = this.get("activeBid");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set activeBid(value: string | null) {
+    if (value === null) {
+      this.unset("activeBid");
+    } else {
+      this.set("activeBid", Value.fromString(value as string));
+    }
+  }
+
+  get biddingHistory(): Array<string> {
+    let value = this.get("biddingHistory");
+    return value.toStringArray();
+  }
+
+  set biddingHistory(value: Array<string>) {
+    this.set("biddingHistory", Value.fromStringArray(value));
+  }
+}
+
+export class AuctionEvent extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save AuctionEvent entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save AuctionEvent entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("AuctionEvent", id.toString(), this);
+  }
+
+  static load(id: string): AuctionEvent | null {
+    return store.get("AuctionEvent", id) as AuctionEvent | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get name(): string {
+    let value = this.get("name");
+    return value.toString();
+  }
+
+  set name(value: string) {
+    this.set("name", Value.fromString(value));
+  }
+
+  get bidder(): Bytes {
+    let value = this.get("bidder");
+    return value.toBytes();
+  }
+
+  set bidder(value: Bytes) {
+    this.set("bidder", Value.fromBytes(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get ethValue(): BigDecimal {
+    let value = this.get("ethValue");
+    return value.toBigDecimal();
+  }
+
+  set ethValue(value: BigDecimal) {
+    this.set("ethValue", Value.fromBigDecimal(value));
+  }
 }
 
 export class Artist extends Entity {

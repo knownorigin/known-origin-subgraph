@@ -17,7 +17,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
-    addEditionToDay(event, editionEntity.id.toString());
+    addEditionToDay(event, editionEntity.id);
 
     // Update artist
     let _editionData = contract.detailsOfEdition(event.params._editionNumber)
