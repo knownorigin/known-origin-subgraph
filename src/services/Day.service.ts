@@ -1,14 +1,14 @@
 import {Day} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {BigDecimal, BigInt, EthereumEvent} from "@graphprotocol/graph-ts/index";
-import {dayNumberFromEvent, toEther} from "../utils";
+import {civilFromEventTimestamp, toEther} from "../utils";
 
-export function loadOrCreateDay(dayNumber: string): Day | null {
-    let dayEntity: Day | null = Day.load(dayNumber)
+export function loadOrCreateDay(date: string): Day | null {
+    let dayEntity: Day | null = Day.load(date)
 
     if (dayEntity === null) {
-        dayEntity = new Day(dayNumber)
-        dayEntity.date = dayNumber
+        dayEntity = new Day(date)
+        dayEntity.date = date
         dayEntity.transferCount = ZERO
         dayEntity.salesCount = ZERO
         dayEntity.giftsCount = ZERO
@@ -24,8 +24,21 @@ export function loadOrCreateDay(dayNumber: string): Day | null {
     return dayEntity;
 }
 
-export function addEditionToDay(dayAsNumber: string, editionEntityId: string): Day | null {
-    let dayEntity = loadOrCreateDay(dayAsNumber)
+export function loadDayFromEvent(event: EthereumEvent): Day | null {
+    let civil = civilFromEventTimestamp(event)
+
+    let month = civil.month.toString();
+    let day = civil.day.toString();
+    let paddedMonth = month.length === 1 ? "0".concat(month) : month;
+    let paddedDay = day.length === 1 ? "0".concat(day) : day;
+
+    let dayId = civil.year.toString().concat("/").concat(paddedMonth).concat("/").concat(paddedDay);
+
+    return loadOrCreateDay(dayId)
+}
+
+export function addEditionToDay(editionCreated: EthereumEvent, editionEntityId: string): Day | null {
+    let dayEntity = loadDayFromEvent(editionCreated)
 
     dayEntity.editionsCount = dayEntity.editionsCount + ONE
 
@@ -39,8 +52,7 @@ export function addEditionToDay(dayAsNumber: string, editionEntityId: string): D
 }
 
 export function recordDayTransfer(event: EthereumEvent): Day | null {
-    let dayAsNumberString = dayNumberFromEvent(event)
-    let dayEntity = loadOrCreateDay(dayAsNumberString)
+    let dayEntity = loadDayFromEvent(event)
 
     dayEntity.transferCount = dayEntity.transferCount + ONE
 
@@ -50,9 +62,7 @@ export function recordDayTransfer(event: EthereumEvent): Day | null {
 }
 
 export function recordDayBidAcceptedCount(event: EthereumEvent, tokenId: BigInt): Day | null {
-    let dayAsNumberString = dayNumberFromEvent(event)
-
-    let dayEntity = loadOrCreateDay(dayAsNumberString)
+    let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsAcceptedCount = dayEntity.bidsAcceptedCount + ONE
 
     dayEntity.save()
@@ -61,9 +71,7 @@ export function recordDayBidAcceptedCount(event: EthereumEvent, tokenId: BigInt)
 }
 
 export function recordDayValue(event: EthereumEvent, tokenId: BigInt): Day | null {
-    let dayAsNumberString = dayNumberFromEvent(event)
-
-    let dayEntity = loadOrCreateDay(dayAsNumberString)
+    let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(event.transaction.value)
 
     if (toEther(event.transaction.value) > dayEntity.highestValueInEth) {
@@ -77,9 +85,7 @@ export function recordDayValue(event: EthereumEvent, tokenId: BigInt): Day | nul
 }
 
 export function recordDayCounts(event: EthereumEvent, tokenId: BigInt): Day | null {
-    let dayAsNumberString = dayNumberFromEvent(event)
-
-    let dayEntity = loadOrCreateDay(dayAsNumberString)
+    let dayEntity = loadDayFromEvent(event)
 
     if (event.transaction.value > ZERO) {
         // Record token as a sale

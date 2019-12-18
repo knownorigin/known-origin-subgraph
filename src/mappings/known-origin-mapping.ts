@@ -1,5 +1,3 @@
-import {log} from "@graphprotocol/graph-ts/index";
-
 import {
     KnownOrigin,
     Purchase,
@@ -13,23 +11,13 @@ import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} fro
 import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 
-import {dayNumberFromEvent, civilFromEventTimestamp} from "../utils";
-
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
-    // Update the day's stats
-    let dayAsNumberString = dayNumberFromEvent(event)
-    addEditionToDay(dayAsNumberString, editionEntity.id.toString())
-
-    let civil = civilFromEventTimestamp(event)
-    log.info("Edition created day {}", [civil.day.toString()])
-    log.info("Edition created day of year {}", [civil.dayOfYear.toString()])
-    log.info("Edition created month {}", [civil.month.toString()])
-    log.info("Edition created year {}", [civil.year.toString()])
+    addEditionToDay(event, editionEntity.id.toString());
 
     // Update artist
     let _editionData = contract.detailsOfEdition(event.params._editionNumber)
