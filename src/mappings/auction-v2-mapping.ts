@@ -17,7 +17,13 @@ import {AuctionEvent} from "../../generated/schema";
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistValue} from "../services/Artist.service";
-import {recordDayBidAcceptedCount, recordDayBidPlacedCount, recordDayValue} from "../services/Day.service";
+
+import {
+    recordDayBidAcceptedCount,
+    recordDayBidPlacedCount,
+    recordDayBidRejectedCount,
+    recordDayValue
+} from "../services/Day.service";
 
 import {toEther} from "../utils";
 
@@ -122,6 +128,24 @@ export function handleBidRejected(event: BidRejected): void {
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let timestamp = event.block.timestamp
+    let bidder = event.params._bidder.toHexString();
+    let editionNumber = event.params._editionNumber.toString()
+    let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
+    let auctionEvent = new AuctionEvent(auctionEventId);
+
+    auctionEvent.name = 'BidRejected'
+    auctionEvent.bidder = event.params._bidder
+    auctionEvent.timestamp = timestamp
+    auctionEvent.ethValue = toEther(event.params._amount)
+
+    auctionEvent.save()
+
+    editionEntity.biddingHistory.push(auctionEventId)
+    editionEntity.save()
+
+    recordDayBidRejectedCount(event)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
