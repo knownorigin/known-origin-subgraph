@@ -2,7 +2,7 @@ import {Day} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {BigDecimal, BigInt, EthereumEvent} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
-import {civilFromEventTimestamp} from "../DateConverter";
+import {dayMonthYearFromEventTimestamp} from "../DateConverter";
 
 export function loadOrCreateDay(date: string): Day | null {
     let dayEntity: Day | null = Day.load(date)
@@ -28,14 +28,14 @@ export function loadOrCreateDay(date: string): Day | null {
 }
 
 export function loadDayFromEvent(event: EthereumEvent): Day | null {
-    let civil = civilFromEventTimestamp(event)
+    let dayMonthYear = dayMonthYearFromEventTimestamp(event)
 
-    let month = civil.month.toString();
-    let day = civil.day.toString();
+    let month = dayMonthYear.month.toString();
+    let day = dayMonthYear.day.toString();
     let paddedMonth = month.length === 1 ? "0".concat(month) : month;
     let paddedDay = day.length === 1 ? "0".concat(day) : day;
 
-    let dayId = civil.year.toString().concat("-").concat(paddedMonth).concat("-").concat(paddedDay);
+    let dayId = dayMonthYear.year.toString().concat("-").concat(paddedMonth).concat("-").concat(paddedDay);
 
     return loadOrCreateDay(dayId)
 }
@@ -85,6 +85,15 @@ export function recordDayBidPlacedCount(event: EthereumEvent): Day | null {
 export function recordDayBidRejectedCount(event: EthereumEvent): Day | null {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsRejectedCount = dayEntity.bidsRejectedCount + ONE
+
+    dayEntity.save()
+
+    return dayEntity
+}
+
+export function recordDayBidWithdrawnCount(event: EthereumEvent): Day | null {
+    let dayEntity = loadDayFromEvent(event)
+    dayEntity.bidsWithdrawnCount = dayEntity.bidsWithdrawnCount + ONE
 
     dayEntity.save()
 

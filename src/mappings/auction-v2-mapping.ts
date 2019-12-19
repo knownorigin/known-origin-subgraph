@@ -1,5 +1,6 @@
 import {
     Address,
+    BigDecimal
 } from "@graphprotocol/graph-ts"
 
 import {
@@ -22,10 +23,12 @@ import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
     recordDayBidRejectedCount,
+    recordDayBidWithdrawnCount,
     recordDayValue
 } from "../services/Day.service";
 
 import {toEther} from "../utils";
+import {ZERO} from "../constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
@@ -150,14 +153,31 @@ export function handleBidRejected(event: BidRejected): void {
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
     /*
-      event BidderRefunded(
-        uint256 indexed _editionNumber,
+      event BidWithdrawn(
         address indexed _bidder,
-        uint256 _amount
+        uint256 indexed _editionNumber
       );
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let timestamp = event.block.timestamp
+    let bidder = event.params._bidder.toHexString();
+    let editionNumber = event.params._editionNumber.toString()
+    let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
+    let auctionEvent = new AuctionEvent(auctionEventId);
+
+    auctionEvent.name = 'BidWithdrawn'
+    auctionEvent.bidder = event.params._bidder
+    auctionEvent.timestamp = timestamp
+    auctionEvent.ethValue = BigDecimal.fromString('0.0')
+
+    auctionEvent.save()
+
+    editionEntity.biddingHistory.push(auctionEventId)
+    editionEntity.save()
+
+    recordDayBidWithdrawnCount(event)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {

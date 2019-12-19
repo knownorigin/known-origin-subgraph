@@ -17,6 +17,7 @@ type Day @entity {
     bidsAcceptedCount: BigInt!
     bidsPlacedCount: BigInt!
     bidsRejectedCount: BigInt!
+    bidsWithdrawnCount: BigInt!
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
