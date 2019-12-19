@@ -15,6 +15,7 @@ type Day @entity {
     giftsCount: BigInt!
     editionsCount: BigInt!
     bidsAcceptedCount: BigInt!
+    bidsPlacedCount: BigInt!
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
@@ -59,7 +60,7 @@ type Edition @entity {
 type AuctionEvent @entity {
     id: ID!
     name: String!
-    bidder: Bytes!
+    bidder: Bytes
     timestamp: BigInt!
     ethValue: BigDecimal!
 }

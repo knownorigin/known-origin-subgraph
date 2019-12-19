@@ -172,6 +172,15 @@ export class Day extends Entity {
     this.set("bidsAcceptedCount", Value.fromBigInt(value));
   }
 
+  get bidsPlacedCount(): BigInt {
+    let value = this.get("bidsPlacedCount");
+    return value.toBigInt();
+  }
+
+  set bidsPlacedCount(value: BigInt) {
+    this.set("bidsPlacedCount", Value.fromBigInt(value));
+  }
+
   get totalValueInEth(): BigDecimal {
     let value = this.get("totalValueInEth");
     return value.toBigDecimal();
@@ -633,13 +642,21 @@ export class AuctionEvent extends Entity {
     this.set("name", Value.fromString(value));
   }
 
-  get bidder(): Bytes {
+  get bidder(): Bytes | null {
     let value = this.get("bidder");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set bidder(value: Bytes) {
-    this.set("bidder", Value.fromBytes(value));
+  set bidder(value: Bytes | null) {
+    if (value === null) {
+      this.unset("bidder");
+    } else {
+      this.set("bidder", Value.fromBytes(value as Bytes));
+    }
   }
 
   get timestamp(): BigInt {
