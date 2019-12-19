@@ -17,7 +17,7 @@ class Civil {
 // Ported from http://howardhinnant.github.io/date_algorithms.html#civil_from_days
 export function civilFromEventTimestamp(event: EthereumEvent): Civil {
     let epoch: BigInt = event.block.timestamp;
-    let z = epoch / SECONDS_IN_DAY;
+    let z = epoch / SECONDS_IN_DAY; // you can have leap seconds apparently - but this is good enough for us ;)
 
     z = z + toBigInt(719468);
     let era: BigInt = (z >= ZERO ? z : z - toBigInt(146096)) / toBigInt(146097);
