@@ -70,6 +70,15 @@ export function recordDayBidAcceptedCount(event: EthereumEvent, tokenId: BigInt)
     return dayEntity
 }
 
+export function recordDayBidPlacedCount(event: EthereumEvent): Day | null {
+    let dayEntity = loadDayFromEvent(event)
+    dayEntity.bidsPlacedCount = dayEntity.bidsPlacedCount + ONE
+
+    dayEntity.save()
+
+    return dayEntity
+}
+
 export function recordDayValue(event: EthereumEvent, tokenId: BigInt): Day | null {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(event.transaction.value)

@@ -17,7 +17,7 @@ import {AuctionEvent} from "../../generated/schema";
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistValue} from "../services/Artist.service";
-import {recordDayBidAcceptedCount, recordDayValue} from "../services/Day.service";
+import {recordDayBidAcceptedCount, recordDayBidPlacedCount, recordDayValue} from "../services/Day.service";
 
 import {toEther} from "../utils";
 
@@ -73,11 +73,11 @@ export function handleBidPlaced(event: BidPlaced): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let timestamp = event.block.timestamp
-    let bidder = event.params._bidder.toString();
+    let bidder = event.params._bidder.toHexString();
     let editionNumber = event.params._editionNumber.toString()
     let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
-
     let auctionEvent = new AuctionEvent(auctionEventId);
+
     auctionEvent.name = 'BidPlaced'
     auctionEvent.bidder = event.params._bidder
     auctionEvent.timestamp = timestamp
@@ -85,8 +85,10 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     auctionEvent.save()
 
-    editionEntity.biddingHistory.push(auctionEvent.id)
+    editionEntity.biddingHistory.push(auctionEventId)
     editionEntity.save()
+
+    recordDayBidPlacedCount(event)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
