@@ -24,11 +24,11 @@ import {
     recordDayBidPlacedCount,
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
+    recordDayBidIncreasedCount,
     recordDayValue
 } from "../services/Day.service";
 
 import {toEther} from "../utils";
-import {ZERO} from "../constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
@@ -94,7 +94,9 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     auctionEvent.save()
 
-    editionEntity.biddingHistory.push(auctionEventId)
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
     recordDayBidPlacedCount(event)
@@ -145,7 +147,9 @@ export function handleBidRejected(event: BidRejected): void {
 
     auctionEvent.save()
 
-    editionEntity.biddingHistory.push(auctionEventId)
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
     recordDayBidRejectedCount(event)
@@ -174,7 +178,9 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
 
     auctionEvent.save()
 
-    editionEntity.biddingHistory.push(auctionEventId)
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
     recordDayBidWithdrawnCount(event)
@@ -190,6 +196,26 @@ export function handleBidIncreased(event: BidIncreased): void {
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let timestamp = event.block.timestamp
+    let bidder = event.params._bidder.toHexString();
+    let editionNumber = event.params._editionNumber.toString()
+    let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
+    let auctionEvent = new AuctionEvent(auctionEventId);
+
+    auctionEvent.name = 'BidIncreased'
+    auctionEvent.bidder = event.params._bidder
+    auctionEvent.timestamp = timestamp
+    auctionEvent.ethValue = toEther(event.params._amount)
+
+    auctionEvent.save()
+
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
+    editionEntity.save()
+
+    recordDayBidIncreasedCount(event)
 }
 
 export function handleAuctionCancelled(event: AuctionCancelled): void {
@@ -200,4 +226,6 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
     */
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.auctionEnabled = false
+    editionEntity.save()
 }

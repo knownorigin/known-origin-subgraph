@@ -199,6 +199,15 @@ export class Day extends Entity {
     this.set("bidsWithdrawnCount", Value.fromBigInt(value));
   }
 
+  get bidsIncreasedCount(): BigInt {
+    let value = this.get("bidsIncreasedCount");
+    return value.toBigInt();
+  }
+
+  set bidsIncreasedCount(value: BigInt) {
+    this.set("bidsIncreasedCount", Value.fromBigInt(value));
+  }
+
   get totalValueInEth(): BigDecimal {
     let value = this.get("totalValueInEth");
     return value.toBigDecimal();
