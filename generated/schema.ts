@@ -669,21 +669,22 @@ export class AuctionEvent extends Entity {
     this.set("name", Value.fromString(value));
   }
 
-  get bidder(): Bytes | null {
+  get bidder(): Bytes {
     let value = this.get("bidder");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value.toBytes();
   }
 
-  set bidder(value: Bytes | null) {
-    if (value === null) {
-      this.unset("bidder");
-    } else {
-      this.set("bidder", Value.fromBytes(value as Bytes));
-    }
+  set bidder(value: Bytes) {
+    this.set("bidder", Value.fromBytes(value));
+  }
+
+  get caller(): Bytes {
+    let value = this.get("caller");
+    return value.toBytes();
+  }
+
+  set caller(value: Bytes) {
+    this.set("caller", Value.fromBytes(value));
   }
 
   get timestamp(): BigInt {

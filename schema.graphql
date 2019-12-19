@@ -63,7 +63,8 @@ type Edition @entity {
 type AuctionEvent @entity {
     id: ID!
     name: String!
-    bidder: Bytes
+    bidder: Bytes!
+    caller: Bytes!
     timestamp: BigInt!
     ethValue: BigDecimal!
 }

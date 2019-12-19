@@ -91,6 +91,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     auctionEvent.bidder = event.params._bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(event.params._amount)
+    auctionEvent.caller = event.transaction.from
 
     auctionEvent.save()
 
@@ -114,6 +115,27 @@ export function handleBidAccepted(event: BidAccepted): void {
     let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
     let artistAddress = contract.artistCommission(event.params._editionNumber).value0
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
+
+    let timestamp = event.block.timestamp
+    let bidder = event.params._bidder.toHexString();
+    let editionNumber = event.params._editionNumber.toString()
+    let auctionEventId = timestamp.toString().concat(bidder).concat(editionNumber)
+    let auctionEvent = new AuctionEvent(auctionEventId);
+
+    auctionEvent.name = 'BidAccepted'
+    auctionEvent.bidder = event.params._bidder
+    auctionEvent.timestamp = timestamp
+    auctionEvent.ethValue = toEther(event.params._amount)
+    auctionEvent.caller = event.transaction.from
+
+    auctionEvent.save()
+
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
+    editionEntity.save()
 
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
@@ -144,6 +166,7 @@ export function handleBidRejected(event: BidRejected): void {
     auctionEvent.bidder = event.params._bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(event.params._amount)
+    auctionEvent.caller = event.transaction.from
 
     auctionEvent.save()
 
@@ -175,6 +198,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     auctionEvent.bidder = event.params._bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = BigDecimal.fromString('0.0')
+    auctionEvent.caller = event.transaction.from
 
     auctionEvent.save()
 
@@ -207,6 +231,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     auctionEvent.bidder = event.params._bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(event.params._amount)
+    auctionEvent.caller = event.transaction.from
 
     auctionEvent.save()
 
