@@ -32,7 +32,7 @@ export function loadDayFromEvent(event: EthereumEvent): Day | null {
     let paddedMonth = month.length === 1 ? "0".concat(month) : month;
     let paddedDay = day.length === 1 ? "0".concat(day) : day;
 
-    let dayId = civil.year.toString().concat("/").concat(paddedMonth).concat("/").concat(paddedDay);
+    let dayId = civil.year.toString().concat("-").concat(paddedMonth).concat("-").concat(paddedDay);
 
     return loadOrCreateDay(dayId)
 }
