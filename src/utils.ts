@@ -20,16 +20,16 @@ class Civil {
 // Ported from http://howardhinnant.github.io/date_algorithms.html#civil_from_days
 export function civilFromEventTimestamp(event: EthereumEvent): Civil {
     let epoch: BigInt = event.block.timestamp;
-    let z = epoch / SECONDS_IN_DAY;
+    let z = epoch / SECONDS_IN_DAY; // you can have leap seconds apparently - but this is good enough for us ;)
 
     z = z + BigInt.fromI32(719468);
     let era: BigInt = (z >= ZERO ? z : z - BigInt.fromI32(146096)) / BigInt.fromI32(146097);
     let doe: BigInt = (z - era * BigInt.fromI32(146097));          // [0, 146096]
-    let yoe: BigInt = (doe - doe/BigInt.fromI32(1460) + doe/BigInt.fromI32(36524) - doe/BigInt.fromI32(146096)) / BigInt.fromI32(365);  // [0, 399]
+    let yoe: BigInt = (doe - doe / BigInt.fromI32(1460) + doe / BigInt.fromI32(36524) - doe / BigInt.fromI32(146096)) / BigInt.fromI32(365);  // [0, 399]
     let y: BigInt = yoe + (era * BigInt.fromI32(400));
-    let doy: BigInt = doe - (BigInt.fromI32(365)*yoe + yoe/BigInt.fromI32(4) - yoe/BigInt.fromI32(100));                // [0, 365]
-    let mp = (BigInt.fromI32(5)*doy + BigInt.fromI32(2))/BigInt.fromI32(153);                                   // [0, 11]
-    let d = doy - (BigInt.fromI32(153)*mp+BigInt.fromI32(2))/BigInt.fromI32(5) + BigInt.fromI32(1);                             // [1, 31]
+    let doy: BigInt = doe - (BigInt.fromI32(365) * yoe + yoe / BigInt.fromI32(4) - yoe / BigInt.fromI32(100));                // [0, 365]
+    let mp = (BigInt.fromI32(5) * doy + BigInt.fromI32(2)) / BigInt.fromI32(153);                                   // [0, 11]
+    let d = doy - (BigInt.fromI32(153) * mp + BigInt.fromI32(2)) / BigInt.fromI32(5) + BigInt.fromI32(1);                             // [1, 31]
     let m = mp + (mp < BigInt.fromI32(10) ? BigInt.fromI32(3) : BigInt.fromI32(-9));                            // [1, 12]
 
     let year = m <= BigInt.fromI32(2) ? y + ONE : y;
