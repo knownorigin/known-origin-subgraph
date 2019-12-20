@@ -111,13 +111,13 @@ export function recordDayBidIncreasedCount(event: EthereumEvent): Day | null {
     return dayEntity
 }
 
-export function recordDayValue(event: EthereumEvent, tokenId: BigInt): Day | null {
+export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: BigInt): Day | null {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(event.transaction.value)
+    dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(value)
 
-    if (toEther(event.transaction.value) > dayEntity.highestValueInEth) {
+    if (toEther(value) > dayEntity.highestValueInEth) {
         dayEntity.highestValueToken = tokenId.toString()
-        dayEntity.highestValueInEth = toEther(event.transaction.value)
+        dayEntity.highestValueInEth = toEther(value)
     }
 
     dayEntity.save()

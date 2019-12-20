@@ -139,7 +139,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
-    recordDayValue(event, event.params._tokenId)
+    recordDayValue(event, event.params._tokenId, event.params._amount)
 
     recordDayBidAcceptedCount(event, event.params._tokenId)
 }

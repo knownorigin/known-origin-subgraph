@@ -49,7 +49,7 @@ export function handlePurchase(event: Purchase): void {
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
 
     // Record Purchases against the Day & Month
-    recordDayValue(event, event.params._tokenId)
+    recordDayValue(event, event.params._tokenId, event.transaction.value)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
