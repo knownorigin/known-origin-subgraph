@@ -21,6 +21,8 @@ dataSources:
         - name: KnownOriginV1
           file: KnownOriginV1/abis/KnownOriginV1.json
       eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
         - event: PurchasedWithEther(indexed uint256,indexed address)
           handler: handlePurchase
       file: KnownOriginV1/KnownOriginV1.wasm

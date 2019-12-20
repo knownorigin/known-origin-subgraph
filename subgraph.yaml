@@ -22,6 +22,9 @@ dataSources:
         - name: KnownOriginV1
           file: ./abis/KnownOriginV1.json
       eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+
         - event: PurchasedWithEther(indexed uint256,indexed address)
           handler: handlePurchase
       file: ./src/mappings/known-origin-v1-mapping.ts
