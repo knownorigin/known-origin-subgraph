@@ -26,6 +26,8 @@ export function handlePurchase(event: PurchasedWithEther): void {
     dayEntity.sales = sales
 
     dayEntity.salesCount = dayEntity.salesCount + ONE
+
+    dayEntity.save()
 }
 
 export function handleTransfer(event: Transfer): void {
