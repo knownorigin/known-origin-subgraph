@@ -43,7 +43,7 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.save()
 }
 
-export function recordArtistValue(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
+export function recordArtistValue(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): void {
     let artist = loadOrCreateArtist(artistAddress)
 
     artist.totalValueInEth = artist.totalValueInEth + toEther(eventTransaction.value)
@@ -54,11 +54,9 @@ export function recordArtistValue(artistAddress: Address, tokenId: BigInt, event
     }
 
     artist.save()
-
-    return artist
 }
 
-export function recordArtistCounts(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): Artist | null {
+export function recordArtistCounts(artistAddress: Address, eventTransaction: EthereumTransaction): void {
     let artist = loadOrCreateArtist(artistAddress)
 
     if (eventTransaction.value > ZERO) {
@@ -68,6 +66,4 @@ export function recordArtistCounts(artistAddress: Address, tokenId: BigInt, even
     }
 
     artist.save()
-
-    return artist
 }

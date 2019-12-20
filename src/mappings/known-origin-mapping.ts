@@ -63,5 +63,5 @@ export function handleMinted(event: Minted): void {
 
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
-    recordArtistCounts(artistAddress, event.params._tokenId, event.transaction)
+    recordArtistCounts(artistAddress, event.transaction)
 }

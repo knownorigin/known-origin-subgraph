@@ -12,6 +12,7 @@ import {
     BidIncreased,
     AuctionCancelled,
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
+
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
 import {AuctionEvent} from "../../generated/schema";
@@ -30,8 +31,11 @@ import {
 
 import {toEther} from "../utils";
 
+import {KODA_MAINNET} from "../constants";
+
+
 export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
@@ -78,7 +82,7 @@ export function handleBidPlaced(event: BidPlaced): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let timestamp = event.block.timestamp
@@ -112,7 +116,7 @@ export function handleBidAccepted(event: BidAccepted): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let artistAddress = contract.artistCommission(event.params._editionNumber).value0
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
 
@@ -141,7 +145,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     // COUNTS HANDLED IN MINTED
     recordDayValue(event, event.params._tokenId, event.params._amount)
 
-    recordDayBidAcceptedCount(event, event.params._tokenId)
+    recordDayBidAcceptedCount(event)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -153,7 +157,7 @@ export function handleBidRejected(event: BidRejected): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let timestamp = event.block.timestamp
@@ -185,7 +189,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let timestamp = event.block.timestamp
@@ -218,7 +222,7 @@ export function handleBidIncreased(event: BidIncreased): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let timestamp = event.block.timestamp
@@ -249,7 +253,7 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString("0xFBeef911Dc5821886e1dda71586d90eD28174B7d"))
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
     editionEntity.save()
