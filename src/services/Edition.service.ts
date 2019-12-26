@@ -43,3 +43,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
 
     return editionEntity;
 }
+
+export function loadEdition(editionNumber: BigInt): Edition | null {
+    return Edition.load(editionNumber.toString())
+}

@@ -96,6 +96,9 @@ dataSources:
 
         - event: BidIncreased(indexed address,indexed uint256,indexed uint256)
           handler: handleBidIncreased
+
+        - event: AuctionCancelled(indexed uint256)
+          handler: handleAuctionCancelled
       file: ./src/mappings/auction-v1-mapping.ts
 
   ## Auctions V2 (Current)
