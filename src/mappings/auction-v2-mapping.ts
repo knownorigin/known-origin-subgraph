@@ -1,6 +1,5 @@
 import {
     Address,
-    BigDecimal
 } from "@graphprotocol/graph-ts"
 
 import {
@@ -10,6 +9,7 @@ import {
     BidRejected,
     BidWithdrawn,
     BidIncreased,
+    BidderRefunded,
     AuctionCancelled,
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
 
@@ -212,6 +212,11 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayBidIncreasedCount(event)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+}
+
+export function handleBidderRefunded(event: BidderRefunded): void {
+    // We know if monies are being sent back then there cannot be an open bid on the edition
+    removeActiveBidOnEdition(event.params._editionNumber)
 }
 
 export function handleAuctionCancelled(event: AuctionCancelled): void {

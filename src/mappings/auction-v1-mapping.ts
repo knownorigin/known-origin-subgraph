@@ -1,6 +1,5 @@
 import {
     Address,
-    BigDecimal
 } from "@graphprotocol/graph-ts"
 
 import {
@@ -8,7 +7,8 @@ import {
     BidAccepted,
     BidWithdrawn,
     BidIncreased,
-    AuctionCancelled
+    AuctionCancelled,
+    BidderRefunded
 } from "../../generated/ArtistAcceptingBidsV1/ArtistAcceptingBidsV1";
 
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
@@ -23,8 +23,6 @@ import {
     recordDayBidIncreasedCount,
     recordDayValue
 } from "../services/Day.service";
-
-import {toEther} from "../utils";
 
 import {KODA_MAINNET} from "../constants";
 import {recordActiveEditionBid, removeActiveBidOnEdition} from "../services/AuctionEvent.service";
@@ -108,6 +106,11 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayBidIncreasedCount(event)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+}
+
+export function handleBidderRefunded(event: BidderRefunded): void {
+    // We know if monies are being sent back then there cannot be an open bid on the edition
+    removeActiveBidOnEdition(event.params._editionNumber)
 }
 
 export function handleAuctionCancelled(event: AuctionCancelled): void {
