@@ -9,7 +9,7 @@ export function recordActiveEditionBid(editionNumber: BigInt, auctionEvent: Auct
 }
 
 export function removeActiveBidOnEdition(editionNumber: BigInt): void {
-    log.error("Removing active edition bid for edition {}", [editionNumber.toString()]);
+    log.warning("Removing active edition bid for edition {}", [editionNumber.toString()]);
     let edition = loadEdition(editionNumber);
     edition.activeBid = null;
     edition.save();

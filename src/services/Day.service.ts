@@ -19,6 +19,7 @@ export function loadOrCreateDay(date: string): Day | null {
         dayEntity.bidsRejectedCount = ZERO
         dayEntity.bidsWithdrawnCount = ZERO
         dayEntity.bidsIncreasedCount = ZERO
+        dayEntity.totalValuePlaceInBids = new BigDecimal(ZERO)
         dayEntity.totalValueCycledInBids = new BigDecimal(ZERO)
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
