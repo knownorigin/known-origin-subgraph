@@ -106,6 +106,8 @@ dataSources:
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
+        - event: AuctionCancelled(indexed uint256)
+          handler: handleAuctionCancelled
         - event: BidPlaced(indexed address,indexed uint256,uint256)
           handler: handleBidPlaced
         - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
@@ -118,6 +120,4 @@ dataSources:
           handler: handleBidIncreased
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
-        - event: AuctionCancelled(indexed uint256)
-          handler: handleAuctionCancelled
       file: ArtistAcceptingBidsV2/ArtistAcceptingBidsV2.wasm

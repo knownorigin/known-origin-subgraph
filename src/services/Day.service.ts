@@ -19,6 +19,7 @@ export function loadOrCreateDay(date: string): Day | null {
         dayEntity.bidsRejectedCount = ZERO
         dayEntity.bidsWithdrawnCount = ZERO
         dayEntity.bidsIncreasedCount = ZERO
+        dayEntity.totalValueCycledInBids = new BigDecimal(ZERO)
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
         dayEntity.sales = new Array<string>()
@@ -72,6 +73,20 @@ export function recordDayBidAcceptedCount(event: EthereumEvent): void {
 export function recordDayBidPlacedCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsPlacedCount = dayEntity.bidsPlacedCount + ONE
+
+    dayEntity.save()
+}
+
+export function recordDayTotalValueCycledInBids(event: EthereumEvent, value:BigInt): void {
+    let dayEntity = loadDayFromEvent(event)
+    dayEntity.totalValueCycledInBids = dayEntity.totalValueCycledInBids + toEther(value)
+
+    dayEntity.save()
+}
+
+export function recordDayTotalValuePlaceInBids(event: EthereumEvent, value:BigInt): void {
+    let dayEntity = loadDayFromEvent(event)
+    dayEntity.totalValuePlaceInBids = dayEntity.totalValuePlaceInBids + toEther(value)
 
     dayEntity.save()
 }

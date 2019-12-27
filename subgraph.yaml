@@ -127,6 +127,9 @@ dataSources:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
 
+        - event: AuctionCancelled(indexed uint256)
+          handler: handleAuctionCancelled
+
         - event: BidPlaced(indexed address,indexed uint256,uint256)
           handler: handleBidPlaced
 
@@ -144,7 +147,4 @@ dataSources:
 
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
-
-        - event: AuctionCancelled(indexed uint256)
-          handler: handleAuctionCancelled
       file: ./src/mappings/auction-v2-mapping.ts

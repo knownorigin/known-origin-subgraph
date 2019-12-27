@@ -15,8 +15,6 @@ import {
 
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
-import {AuctionEvent} from "../../generated/schema";
-
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistValue} from "../services/Artist.service";
 
@@ -26,10 +24,8 @@ import {
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
     recordDayBidIncreasedCount,
-    recordDayValue
+    recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids
 } from "../services/Day.service";
-
-import {toEther} from "../utils";
 
 import {KODA_MAINNET} from "../constants";
 import {
@@ -45,14 +41,6 @@ import {
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
 
-
-export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.auctionEnabled = true
-    editionEntity.save()
-}
 
 // Bidding flow works like this:
 // Edition is added to Action Contracts = AuctionEnabled
@@ -86,6 +74,28 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
 // * total rejected ETH against an Edition
 // * total numbers of offers made
 
+export function handleAuctionEnabled(event: AuctionEnabled): void {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.auctionEnabled = true
+    editionEntity.save()
+}
+
+export function handleAuctionCancelled(event: AuctionCancelled): void {
+    /*
+      event AuctionCancelled(
+        uint256 indexed _editionNumber
+      );
+    */
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.auctionEnabled = false
+    editionEntity.save()
+
+    removeActiveBidOnEdition(event.params._editionNumber)
+}
+
 export function handleBidPlaced(event: BidPlaced): void {
     /*
       event BidPlaced(
@@ -106,6 +116,9 @@ export function handleBidPlaced(event: BidPlaced): void {
     editionEntity.save()
 
     recordDayBidPlacedCount(event)
+
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
 }
@@ -139,6 +152,8 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     recordDayBidAcceptedCount(event)
 
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+
     removeActiveBidOnEdition(event.params._editionNumber)
 }
 
@@ -163,6 +178,8 @@ export function handleBidRejected(event: BidRejected): void {
     editionEntity.save()
 
     recordDayBidRejectedCount(event)
+
+    recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
 }
@@ -210,25 +227,14 @@ export function handleBidIncreased(event: BidIncreased): void {
     editionEntity.save()
 
     recordDayBidIncreasedCount(event)
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
 }
 
 export function handleBidderRefunded(event: BidderRefunded): void {
     // We know if monies are being sent back then there cannot be an open bid on the edition
-    removeActiveBidOnEdition(event.params._editionNumber)
-}
-
-export function handleAuctionCancelled(event: AuctionCancelled): void {
-    /*
-      event AuctionCancelled(
-        uint256 indexed _editionNumber
-      );
-    */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.auctionEnabled = false
-    editionEntity.save()
-
-    removeActiveBidOnEdition(event.params._editionNumber)
+    // TODO disabled for now, this event is sent on almost all others so dont want to double process in some form
+    // removeActiveBidOnEdition(event.params._editionNumber)
 }

@@ -136,24 +136,6 @@ export class Day extends Entity {
     this.set("transferCount", Value.fromBigInt(value));
   }
 
-  get salesCount(): BigInt {
-    let value = this.get("salesCount");
-    return value.toBigInt();
-  }
-
-  set salesCount(value: BigInt) {
-    this.set("salesCount", Value.fromBigInt(value));
-  }
-
-  get giftsCount(): BigInt {
-    let value = this.get("giftsCount");
-    return value.toBigInt();
-  }
-
-  set giftsCount(value: BigInt) {
-    this.set("giftsCount", Value.fromBigInt(value));
-  }
-
   get editionsCount(): BigInt {
     let value = this.get("editionsCount");
     return value.toBigInt();
@@ -206,6 +188,42 @@ export class Day extends Entity {
 
   set bidsIncreasedCount(value: BigInt) {
     this.set("bidsIncreasedCount", Value.fromBigInt(value));
+  }
+
+  get totalValuePlaceInBids(): BigDecimal {
+    let value = this.get("totalValuePlaceInBids");
+    return value.toBigDecimal();
+  }
+
+  set totalValuePlaceInBids(value: BigDecimal) {
+    this.set("totalValuePlaceInBids", Value.fromBigDecimal(value));
+  }
+
+  get totalValueCycledInBids(): BigDecimal {
+    let value = this.get("totalValueCycledInBids");
+    return value.toBigDecimal();
+  }
+
+  set totalValueCycledInBids(value: BigDecimal) {
+    this.set("totalValueCycledInBids", Value.fromBigDecimal(value));
+  }
+
+  get salesCount(): BigInt {
+    let value = this.get("salesCount");
+    return value.toBigInt();
+  }
+
+  set salesCount(value: BigInt) {
+    this.set("salesCount", Value.fromBigInt(value));
+  }
+
+  get giftsCount(): BigInt {
+    let value = this.get("giftsCount");
+    return value.toBigInt();
+  }
+
+  set giftsCount(value: BigInt) {
+    this.set("giftsCount", Value.fromBigInt(value));
   }
 
   get totalValueInEth(): BigDecimal {

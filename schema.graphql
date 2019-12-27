@@ -11,14 +11,18 @@ type Day @entity {
     id: ID!
     date: String!
     transferCount: BigInt!
-    salesCount: BigInt!
-    giftsCount: BigInt!
     editionsCount: BigInt!
+    # Bid/offer counts and values
     bidsAcceptedCount: BigInt!
     bidsPlacedCount: BigInt!
     bidsRejectedCount: BigInt!
     bidsWithdrawnCount: BigInt!
     bidsIncreasedCount: BigInt!
+    totalValuePlaceInBids: BigDecimal!
+    totalValueCycledInBids: BigDecimal!
+    # Sales/gifting counts and values
+    salesCount: BigInt!
+    giftsCount: BigInt!
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
@@ -56,7 +60,7 @@ type Edition @entity {
     active: Boolean!
     metadata: MetaData!
     auctionEnabled: Boolean!
-    activeBid: AuctionEvent
+    activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
 }
 
