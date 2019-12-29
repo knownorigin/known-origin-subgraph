@@ -3,13 +3,14 @@ import {
     Purchase,
     Minted,
     EditionCreated,
-    Transfer,
+    Transfer, KnownOrigin__detailsOfEditionResult,
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
+import {CallResult, log} from "@graphprotocol/graph-ts/index";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -20,8 +21,13 @@ export function handleEditionCreated(event: EditionCreated): void {
     addEditionToDay(event, editionEntity.id);
 
     // Update artist
-    let _editionData = contract.detailsOfEdition(event.params._editionNumber)
-    addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
+    let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
+    if (!_editionDataResult.reverted) {
+        let _editionData = _editionDataResult.value;
+        addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
+    } else {
+        log.error("Handled reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
+    }
 }
 
 export function handleTransfer(event: Transfer): void {
