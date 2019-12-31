@@ -678,6 +678,15 @@ export class AuctionEvent extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get edition(): string {
+    let value = this.get("edition");
+    return value.toString();
+  }
+
+  set edition(value: string) {
+    this.set("edition", Value.fromString(value));
+  }
+
   get name(): string {
     let value = this.get("name");
     return value.toString();

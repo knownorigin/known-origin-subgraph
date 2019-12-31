@@ -23,6 +23,7 @@ export function createBidPlacedEvent(
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidPlaced'
+    auctionEvent.edition = editionNumber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -43,6 +44,7 @@ export function createBidAccepted(
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidAccepted'
+    auctionEvent.edition = editionNumber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -63,6 +65,7 @@ export function createBidRejected(
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidRejected'
+    auctionEvent.edition = editionNumber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -82,6 +85,7 @@ export function createBidWithdrawn(
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidWithdrawn'
+    auctionEvent.edition = editionNumber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = BigDecimal.fromString('0.0')
@@ -102,6 +106,7 @@ export function createBidIncreased(
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidIncreased'
+    auctionEvent.edition = editionNumber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)

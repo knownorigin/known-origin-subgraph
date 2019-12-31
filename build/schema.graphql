@@ -66,6 +66,7 @@ type Edition @entity {
 
 type AuctionEvent @entity {
     id: ID!
+    edition: Edition!
     name: String!
     bidder: Bytes!
     caller: Bytes!
