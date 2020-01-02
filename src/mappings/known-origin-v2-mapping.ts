@@ -3,14 +3,16 @@ import {
     Purchase,
     Minted,
     EditionCreated,
-    Transfer, KnownOrigin__detailsOfEditionResult,
+    Transfer,
+    KnownOrigin__detailsOfEditionResult,
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
-import {CallResult, log} from "@graphprotocol/graph-ts/index";
+import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
+import {toEther} from "../utils";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -34,8 +36,13 @@ export function handleTransfer(event: Transfer): void {
     let contract = KnownOrigin.bind(event.address)
 
     // TOKEN
-    // TODO how does this work with Purchase/BidAccepted?
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+
+    // set birth on Token
+    if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
+        tokenEntity.birthTimestamp = event.block.timestamp
+        tokenEntity.primaryValueInEth = toEther(event.transaction.value)
+    }
 
     tokenEntity.save()
 

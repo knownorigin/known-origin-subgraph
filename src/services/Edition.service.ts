@@ -10,7 +10,6 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
 
     if (editionEntity == null) {
         editionEntity = new Edition(editionNumber.toString());
-        editionEntity.createdTimestamp = block.timestamp
         editionEntity.tokenIds = new Array<BigInt>()
         editionEntity.auctionEnabled = false
         editionEntity.activeBid = null
@@ -19,7 +18,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
-            editionEntity.createdTimestamp = ZERO
+            editionEntity.createdTimestamp = block.timestamp
             editionEntity.editionData = _editionData.value0
             editionEntity.editionType = _editionData.value1
             editionEntity.startDate = _editionData.value2

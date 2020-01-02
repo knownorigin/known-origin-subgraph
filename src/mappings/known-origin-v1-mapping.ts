@@ -7,6 +7,9 @@ import {
 import {loadDayFromEvent, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {recordArtistValue} from "../services/Artist.service";
 import {ONE} from "../constants";
+import {Address} from "@graphprotocol/graph-ts/index";
+import {loadOrCreateToken} from "../services/Token.service";
+import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 
 export function handlePurchase(event: PurchasedWithEther): void {
     let contract = KnownOriginV1.bind(event.address)
@@ -31,5 +34,15 @@ export function handlePurchase(event: PurchasedWithEther): void {
 }
 
 export function handleTransfer(event: Transfer): void {
+    // let contract = KnownOrigin.bind(event.address)
+    //
+    // // TOKEN
+    // let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    //
+    // // set birth on Token
+    // if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
+    //     tokenEntity.birthTimestamp = event.block.timestamp
+    // }
+
     recordDayTransfer(event)
 }

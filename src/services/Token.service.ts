@@ -16,6 +16,9 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin): Token
         tokenEntity.editionNumber = _tokenData.value0
         tokenEntity.tokenURI = _tokenData.value3
 
+        tokenEntity.birthTimestamp = ZERO
+        tokenEntity.lastTransferTimestamp = ZERO
+
         let metaData = constructMetaData(_tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id

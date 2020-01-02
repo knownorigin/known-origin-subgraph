@@ -86,6 +86,33 @@ export class Token extends Entity {
   set metadata(value: string) {
     this.set("metadata", Value.fromString(value));
   }
+
+  get birthTimestamp(): BigInt {
+    let value = this.get("birthTimestamp");
+    return value.toBigInt();
+  }
+
+  set birthTimestamp(value: BigInt) {
+    this.set("birthTimestamp", Value.fromBigInt(value));
+  }
+
+  get primaryValueInEth(): BigDecimal {
+    let value = this.get("primaryValueInEth");
+    return value.toBigDecimal();
+  }
+
+  set primaryValueInEth(value: BigDecimal) {
+    this.set("primaryValueInEth", Value.fromBigDecimal(value));
+  }
+
+  get lastTransferTimestamp(): BigInt {
+    let value = this.get("lastTransferTimestamp");
+    return value.toBigInt();
+  }
+
+  set lastTransferTimestamp(value: BigInt) {
+    this.set("lastTransferTimestamp", Value.fromBigInt(value));
+  }
 }
 
 export class Day extends Entity {

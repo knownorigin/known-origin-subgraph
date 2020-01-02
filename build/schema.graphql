@@ -5,6 +5,9 @@ type Token @entity {
     editionNumber: BigInt!
     tokenURI: String!
     metadata: MetaData!
+    birthTimestamp: BigInt!
+    primaryValueInEth: BigDecimal!
+    lastTransferTimestamp: BigInt!
 }
 
 type Day @entity {
