@@ -43,14 +43,14 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.save()
 }
 
-export function recordArtistValue(artistAddress: Address, tokenId: BigInt, eventTransaction: EthereumTransaction): void {
+export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt): void {
     let artist = loadOrCreateArtist(artistAddress)
 
-    artist.totalValueInEth = artist.totalValueInEth + toEther(eventTransaction.value)
+    artist.totalValueInEth = artist.totalValueInEth + toEther(value)
 
-    if (toEther(eventTransaction.value) > artist.highestSaleValueInEth) {
+    if (toEther(value) > artist.highestSaleValueInEth) {
         artist.highestSaleToken = tokenId.toString()
-        artist.highestSaleValueInEth = toEther(eventTransaction.value)
+        artist.highestSaleValueInEth = toEther(value)
     }
 
     artist.save()

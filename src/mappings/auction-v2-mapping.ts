@@ -134,7 +134,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let artistAddress = contract.artistCommission(event.params._editionNumber).value0
-    recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
+    recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
 
     let auctionEvent = createBidAccepted(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
     auctionEvent.save()

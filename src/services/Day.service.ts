@@ -78,14 +78,14 @@ export function recordDayBidPlacedCount(event: EthereumEvent): void {
     dayEntity.save()
 }
 
-export function recordDayTotalValueCycledInBids(event: EthereumEvent, value:BigInt): void {
+export function recordDayTotalValueCycledInBids(event: EthereumEvent, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValueCycledInBids = dayEntity.totalValueCycledInBids + toEther(value)
 
     dayEntity.save()
 }
 
-export function recordDayTotalValuePlaceInBids(event: EthereumEvent, value:BigInt): void {
+export function recordDayTotalValuePlaceInBids(event: EthereumEvent, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValuePlaceInBids = dayEntity.totalValuePlaceInBids + toEther(value)
 

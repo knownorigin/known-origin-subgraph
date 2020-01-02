@@ -17,7 +17,7 @@ export function handlePurchase(event: PurchasedWithEther): void {
     // Record Artist Data
     let tokenId = event.params._tokenId
     let artistAddress = contract.editionInfo(tokenId).value4
-    recordArtistValue(artistAddress, tokenId, event.transaction)
+    recordArtistValue(artistAddress, tokenId, event.transaction.value)
 
     // Record Purchases against the Day & Month
     recordDayValue(event, event.params._tokenId, event.transaction.value)

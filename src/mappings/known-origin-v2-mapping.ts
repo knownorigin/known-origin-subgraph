@@ -59,7 +59,7 @@ export function handlePurchase(event: Purchase): void {
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
-    recordArtistValue(artistAddress, event.params._tokenId, event.transaction)
+    recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
 
     // Record Purchases against the Day & Month
     recordDayValue(event, event.params._tokenId, event.transaction.value)
