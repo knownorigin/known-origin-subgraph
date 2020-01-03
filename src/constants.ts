@@ -1,5 +1,6 @@
 import {BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
 
+export const ZERO_BIG_DECIMAL = BigDecimal.fromString("0")
 export const ZERO = BigInt.fromI32(0)
 export const ONE = BigInt.fromI32(1)
 

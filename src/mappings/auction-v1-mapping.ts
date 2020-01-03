@@ -32,6 +32,7 @@ import {
     createBidPlacedEvent,
     createBidWithdrawn
 } from "../services/AuctionEvent.factory";
+import {toEther} from "../utils";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
@@ -59,6 +60,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     auctionEvent.save()
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._amount);
 
     let biddingHistory = editionEntity.biddingHistory
     biddingHistory.push(auctionEvent.id.toString())

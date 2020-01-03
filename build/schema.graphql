@@ -25,7 +25,7 @@ type Day @entity {
     totalValueCycledInBids: BigDecimal!
     # Sales/gifting counts and values
     salesCount: BigInt!
-    giftsCount: BigInt!
+    giftsCount: BigInt! # FIXME this isnt right - do not use this metric as fact
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
@@ -60,6 +60,7 @@ type Edition @entity {
     priceInWei: BigInt!
     totalSupply: BigInt!
     totalAvailable: BigInt!
+    totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData!
     auctionEnabled: Boolean!
@@ -100,4 +101,23 @@ type Artist @entity {
 
     lastEdition: Edition
     lastEditionTimestamp: BigInt!
+}
+
+type Collector @entity {
+    id: ID! # toString for address
+
+    firstPurchaseTimeStamp: BigInt!
+    lastPurchaseTimeStamp: BigInt!
+
+    tokenIdsPurchased: [BigInt!]!
+    tokenIdsCurrentlyOwned: [BigInt!]!
+
+    editionsPurchased: [BigInt!]!
+    editionsCurrentlyOwned: [BigInt!]!
+
+    totalSpendInEth: BigDecimal!
+    # totalTransfer - can we already work this out?
+    # purchase history - can we work this out already?
+
+    biddingHistory: [AuctionEvent!]!
 }

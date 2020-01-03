@@ -1,9 +1,8 @@
 import {BigInt, CallResult, EthereumBlock, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
-import {ZERO} from "../constants";
+import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
-import {addEditionToArtist} from "./Artist.service";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -14,6 +13,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.auctionEnabled = false
         editionEntity.activeBid = null
         editionEntity.biddingHistory = new Array<string>()
+        editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
 
         let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
         if (!_editionDataResult.reverted) {

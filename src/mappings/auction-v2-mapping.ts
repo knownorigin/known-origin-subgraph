@@ -40,36 +40,10 @@ import {
     recordActiveEditionBid,
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
+import {toEther} from "../utils";
 
-
-// Bidding flow works like this:
-// Edition is added to Action Contracts = AuctionEnabled
-//
-// Offers can be:
-//
-//  Rejected = BidRejected
-//      - rejected by the artist
-//      - monies returned to highest bidder, no open offers left
-//
-//  Withdrawn = BidWithdrawn
-//      - bidder revokes offer (commonly if not accepted within a timeframe or social comms highlight not enough)
-//      - monies returned to highest bidder
-//
-//  Increased = BidIncreased
-//      - highest bidder increases their offer
-//      - additional monies added
-//
-//  Accepted = BidAccepted
-//      - Artist (or KO in very very small circumstances) accepts the current highest offer
-//      - monies split between artist/KO & optional commission split
-//      - no open offer remaining (new offers can now be made if not sold out)
-//
-// Cancelled = AuctionCancelled
-//      - BR triggerred function
-//      - refunds highest bidder
 
 // Ideas on what to store:
-// * auction history - single property pertaining to a running offer history against an edition
 // * total accepted ETH against an Edition = capture ETH value for when bids are accepted
 // * total rejected ETH against an Edition
 // * total numbers of offers made
@@ -140,6 +114,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     auctionEvent.save()
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._amount);
 
     let biddingHistory = editionEntity.biddingHistory
     biddingHistory.push(auctionEvent.id.toString())

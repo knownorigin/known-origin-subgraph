@@ -54,6 +54,9 @@ export function handlePurchase(event: Purchase): void {
     let contract = KnownOrigin.bind(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._priceInWei);
+    editionEntity.save()
+
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
 
     // Record Artist Data

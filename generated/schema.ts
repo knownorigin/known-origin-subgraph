@@ -621,6 +621,15 @@ export class Edition extends Entity {
     this.set("totalAvailable", Value.fromBigInt(value));
   }
 
+  get totalEthSpentOnEdition(): BigDecimal {
+    let value = this.get("totalEthSpentOnEdition");
+    return value.toBigDecimal();
+  }
+
+  set totalEthSpentOnEdition(value: BigDecimal) {
+    this.set("totalEthSpentOnEdition", Value.fromBigDecimal(value));
+  }
+
   get active(): boolean {
     let value = this.get("active");
     return value.toBoolean();
@@ -937,5 +946,108 @@ export class Artist extends Entity {
 
   set lastEditionTimestamp(value: BigInt) {
     this.set("lastEditionTimestamp", Value.fromBigInt(value));
+  }
+}
+
+export class Collector extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Collector entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Collector entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Collector", id.toString(), this);
+  }
+
+  static load(id: string): Collector | null {
+    return store.get("Collector", id) as Collector | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get firstPurchaseTimeStamp(): BigInt {
+    let value = this.get("firstPurchaseTimeStamp");
+    return value.toBigInt();
+  }
+
+  set firstPurchaseTimeStamp(value: BigInt) {
+    this.set("firstPurchaseTimeStamp", Value.fromBigInt(value));
+  }
+
+  get lastPurchaseTimeStamp(): BigInt {
+    let value = this.get("lastPurchaseTimeStamp");
+    return value.toBigInt();
+  }
+
+  set lastPurchaseTimeStamp(value: BigInt) {
+    this.set("lastPurchaseTimeStamp", Value.fromBigInt(value));
+  }
+
+  get tokenIdsPurchased(): Array<BigInt> {
+    let value = this.get("tokenIdsPurchased");
+    return value.toBigIntArray();
+  }
+
+  set tokenIdsPurchased(value: Array<BigInt>) {
+    this.set("tokenIdsPurchased", Value.fromBigIntArray(value));
+  }
+
+  get tokenIdsCurrentlyOwned(): Array<BigInt> {
+    let value = this.get("tokenIdsCurrentlyOwned");
+    return value.toBigIntArray();
+  }
+
+  set tokenIdsCurrentlyOwned(value: Array<BigInt>) {
+    this.set("tokenIdsCurrentlyOwned", Value.fromBigIntArray(value));
+  }
+
+  get editionsPurchased(): Array<BigInt> {
+    let value = this.get("editionsPurchased");
+    return value.toBigIntArray();
+  }
+
+  set editionsPurchased(value: Array<BigInt>) {
+    this.set("editionsPurchased", Value.fromBigIntArray(value));
+  }
+
+  get editionsCurrentlyOwned(): Array<BigInt> {
+    let value = this.get("editionsCurrentlyOwned");
+    return value.toBigIntArray();
+  }
+
+  set editionsCurrentlyOwned(value: Array<BigInt>) {
+    this.set("editionsCurrentlyOwned", Value.fromBigIntArray(value));
+  }
+
+  get totalSpendInEth(): BigDecimal {
+    let value = this.get("totalSpendInEth");
+    return value.toBigDecimal();
+  }
+
+  set totalSpendInEth(value: BigDecimal) {
+    this.set("totalSpendInEth", Value.fromBigDecimal(value));
+  }
+
+  get biddingHistory(): Array<string> {
+    let value = this.get("biddingHistory");
+    return value.toStringArray();
+  }
+
+  set biddingHistory(value: Array<string>) {
+    this.set("biddingHistory", Value.fromStringArray(value));
   }
 }
