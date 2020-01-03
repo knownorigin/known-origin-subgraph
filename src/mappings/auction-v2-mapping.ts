@@ -43,11 +43,6 @@ import {
 import {toEther} from "../utils";
 
 
-// Ideas on what to store:
-// * total accepted ETH against an Edition = capture ETH value for when bids are accepted
-// * total rejected ETH against an Edition
-// * total numbers of offers made
-
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
