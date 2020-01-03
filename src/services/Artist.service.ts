@@ -56,10 +56,10 @@ export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value
     artist.save()
 }
 
-export function recordArtistCounts(artistAddress: Address, eventTransaction: EthereumTransaction): void {
+export function recordArtistCounts(artistAddress: Address, value: BigInt): void {
     let artist = loadOrCreateArtist(artistAddress)
 
-    if (eventTransaction.value > ZERO) {
+    if (value > ZERO) {
         artist.salesCount = artist.salesCount + ONE
     } else {
         artist.giftsCount = artist.giftsCount + ONE

@@ -62,10 +62,12 @@ export function handlePurchase(event: Purchase): void {
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
-    recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
 
-    // Record Purchases against the Day & Month
+    recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
+
+    recordDayCounts(event, event.params._tokenId, event.transaction.value)
+    recordArtistCounts(artistAddress, event.transaction.value)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
@@ -75,9 +77,8 @@ export function handleMinted(event: Minted): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
 
-    recordDayCounts(event, event.params._tokenId)
+
 
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
-    recordArtistCounts(artistAddress, event.transaction)
 }

@@ -14,14 +14,14 @@ import {
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
-import {recordArtistValue} from "../services/Artist.service";
+import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
     recordDayBidWithdrawnCount,
     recordDayBidIncreasedCount,
-    recordDayValue
+    recordDayValue, recordDayCounts
 } from "../services/Day.service";
 
 import {KODA_MAINNET} from "../constants";
@@ -70,6 +70,10 @@ export function handleBidAccepted(event: BidAccepted): void {
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
     recordDayValue(event, event.params._tokenId, event.params._amount)
+
+    // FIXME
+    recordDayCounts(event, event.params._tokenId, event.params._amount)
+    recordArtistCounts(artistAddress, event.params._amount)
 
     recordDayBidAcceptedCount(event)
 
