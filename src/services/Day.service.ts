@@ -126,10 +126,10 @@ export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: Big
     dayEntity.save()
 }
 
-export function recordDayCounts(event: EthereumEvent, tokenId: BigInt): void {
+export function recordDayCounts(event: EthereumEvent, tokenId: BigInt, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
 
-    if (event.transaction.value > ZERO) {
+    if (value > ZERO) {
         // Record token as a sale
         let sales = dayEntity.sales
         sales.push(tokenId.toString())
