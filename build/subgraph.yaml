@@ -52,6 +52,15 @@ dataSources:
           handler: handlePurchase
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
+      callHandlers:
+        - function: updateActive(uint256,bool)
+          handler: handleUpdateActive
+        - function: updateArtistsAccount(uint256,address)
+          handler: handleUpdateArtistsAccount
+        - function: updateArtistCommission(uint256,uint256)
+          handler: handleUpdateArtistCommission
+        - function: updatePriceInWei(uint256,uint256)
+          handler: handleUpdatePriceInWei
       file: KnownOrigin/KnownOrigin.wasm
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1

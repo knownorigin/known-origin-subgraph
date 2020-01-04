@@ -5,6 +5,7 @@ import {
     EditionCreated,
     Transfer,
     KnownOrigin__detailsOfEditionResult,
+    UpdateActiveCall, UpdateArtistsAccountCall, UpdateArtistCommissionCall, UpdatePriceInWeiCall
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
@@ -13,7 +14,7 @@ import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../serv
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
-import {ONE, ZERO} from "../constants";
+import {KODA_MAINNET, ONE, ZERO} from "../constants";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -105,4 +106,40 @@ export function handleMinted(event: Minted): void {
 
     // let editionNumber = event.params._editionNumber
     // let artistAddress = contract.artistCommission(editionNumber).value0
+}
+
+export function handleUpdateActive(call: UpdateActiveCall): void {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+
+    let editionNumber = call.inputs._editionNumber
+    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+    editionEntity.active = call.inputs._active;
+    editionEntity.save()
+}
+
+export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+
+    let editionNumber = call.inputs._editionNumber
+    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+    editionEntity.artistAccount = call.inputs._artistAccount;
+    editionEntity.save()
+}
+
+export function handleUpdateArtistCommission(call: UpdateArtistCommissionCall): void {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+
+    let editionNumber = call.inputs._editionNumber
+    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+    editionEntity.artistCommission = call.inputs._rate;
+    editionEntity.save()
+}
+
+export function handleUpdatePriceInWei(call: UpdatePriceInWeiCall): void {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+
+    let editionNumber = call.inputs._editionNumber
+    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+    editionEntity.priceInWei = call.inputs._priceInWei;
+    editionEntity.save()
 }

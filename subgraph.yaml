@@ -48,7 +48,7 @@ dataSources:
         - name: KnownOrigin
           file: ./abis/KnownOrigin.json
       eventHandlers:
-          # All transfers to/from regardless of on KO or not
+        # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
 
@@ -63,6 +63,17 @@ dataSources:
           # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
+      # Some things we need to watch method calls for
+      callHandlers:
+        - function: updateActive(uint256,bool)
+          handler: handleUpdateActive
+        - function: updateArtistsAccount(uint256,address)
+          handler: handleUpdateArtistsAccount
+        - function: updateArtistCommission(uint256,uint256)
+          handler: handleUpdateArtistCommission
+        - function: updatePriceInWei(uint256,uint256)
+          handler: handleUpdatePriceInWei
+
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
