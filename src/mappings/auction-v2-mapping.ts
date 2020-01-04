@@ -27,7 +27,7 @@ import {
     recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids, recordDayCounts
 } from "../services/Day.service";
 
-import {KODA_MAINNET} from "../constants";
+import {KODA_MAINNET, ONE} from "../constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
@@ -111,6 +111,13 @@ export function handleBidAccepted(event: BidAccepted): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._amount);
 
+    // Record sale against the edition
+    let sales = editionEntity.sales
+    sales.push(event.params._tokenId.toString())
+    editionEntity.sales = sales
+    editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
+
+    // Maintain bidding history list
     let biddingHistory = editionEntity.biddingHistory
     biddingHistory.push(auctionEvent.id.toString())
     editionEntity.biddingHistory = biddingHistory

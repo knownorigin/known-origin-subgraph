@@ -13,7 +13,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.auctionEnabled = false
         editionEntity.activeBid = null
         editionEntity.biddingHistory = new Array<string>()
+        editionEntity.sales = new Array<string>()
         editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
+        editionEntity.totalSold = ZERO
 
         let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
         if (!_editionDataResult.reverted) {

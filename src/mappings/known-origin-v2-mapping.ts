@@ -13,7 +13,7 @@ import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../serv
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
-import {ONE} from "../constants";
+import {ONE, ZERO} from "../constants";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -54,11 +54,9 @@ export function handleTransfer(event: Transfer): void {
 export function handlePurchase(event: Purchase): void {
     let contract = KnownOrigin.bind(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._priceInWei);
-    editionEntity.save()
-
+    // Create token
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    tokenEntity.save()
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
@@ -69,6 +67,20 @@ export function handlePurchase(event: Purchase): void {
 
     recordDayCounts(event, event.params._tokenId, event.transaction.value)
     recordArtistCounts(artistAddress, event.transaction.value)
+
+    // Action edition data changes
+    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._priceInWei);
+
+    // Only count Purchases with value attached as sale - primary sales trigger this event
+    if (event.transaction.value > ZERO) {
+        // Record sale against the edition
+        let sales = editionEntity.sales
+        sales.push(event.params._tokenId.toString())
+        editionEntity.sales = sales
+        editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
+    }
+    editionEntity.save()
 }
 
 // A token has been issued - could be purchase, gift, accepted offer

@@ -621,6 +621,24 @@ export class Edition extends Entity {
     this.set("totalAvailable", Value.fromBigInt(value));
   }
 
+  get totalSold(): BigInt {
+    let value = this.get("totalSold");
+    return value.toBigInt();
+  }
+
+  set totalSold(value: BigInt) {
+    this.set("totalSold", Value.fromBigInt(value));
+  }
+
+  get sales(): Array<string> {
+    let value = this.get("sales");
+    return value.toStringArray();
+  }
+
+  set sales(value: Array<string>) {
+    this.set("sales", Value.fromStringArray(value));
+  }
+
   get totalEthSpentOnEdition(): BigDecimal {
     let value = this.get("totalEthSpentOnEdition");
     return value.toBigDecimal();
