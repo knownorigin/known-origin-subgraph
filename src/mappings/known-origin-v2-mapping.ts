@@ -13,6 +13,7 @@ import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../serv
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
+import {ONE} from "../constants";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -75,10 +76,21 @@ export function handleMinted(event: Minted): void {
     let contract = KnownOrigin.bind(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+
+    // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
+    editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
+
+    // Maintain a list of tokenId issued from the edition
+    let tokenIds = editionEntity.tokenIds
+    tokenIds.push(event.params._tokenId)
+    editionEntity.tokenIds = tokenIds
+
+    // Save edition entity
+    editionEntity.save();
+
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    tokenEntity.save();
 
-
-
-    let editionNumber = event.params._editionNumber
-    let artistAddress = contract.artistCommission(editionNumber).value0
+    // let editionNumber = event.params._editionNumber
+    // let artistAddress = contract.artistCommission(editionNumber).value0
 }
