@@ -18,7 +18,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.totalSold = ZERO
 
         let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+
         if (!_editionDataResult.reverted) {
+
             let _editionData = _editionDataResult.value;
             editionEntity.createdTimestamp = block.timestamp
             editionEntity.editionData = _editionData.value0
