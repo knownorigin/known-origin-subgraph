@@ -10,7 +10,7 @@ type Token @entity {
     lastTransferTimestamp: BigInt!
 
     # TODO tally up number of owners token has ever had
-    transfers: [TransferEvent!]!
+    transfers: [TransferEvent!]! # total number of token transfers made
 }
 
 type Day @entity {
@@ -80,9 +80,9 @@ type Edition @entity {
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
 
-    transfers: [TransferEvent!]!
+    transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
+
     # TODO total number of owners of all tokens from the edition
-    # TODO total number of token transfers made for all tokens from the edition
 }
 
 type AuctionEvent @entity {
@@ -122,19 +122,16 @@ type Artist @entity {
 
 type Collector @entity {
     id: ID! # toString for address
+    address: Bytes! # address
 
-    firstPurchaseTimeStamp: BigInt!
-    lastPurchaseTimeStamp: BigInt!
-
-    tokenIdsPurchased: [BigInt!]!
-    tokenIdsCurrentlyOwned: [BigInt!]!
-
-    editionsPurchased: [BigInt!]!
-    editionsCurrentlyOwned: [BigInt!]!
-
-    totalSpendInEth: BigDecimal!
-    # totalTransfer - can we already work this out?
-    # purchase history - can we work this out already?
-
-    biddingHistory: [AuctionEvent!]!
+    #    firstPurchaseTimeStamp: BigInt!
+    #    lastPurchaseTimeStamp: BigInt!
+    #    tokenIdsPurchased: [BigInt!]!
+    #    tokenIdsCurrentlyOwned: [BigInt!]!
+    #    editionsPurchased: [BigInt!]!
+    #    editionsCurrentlyOwned: [BigInt!]!
+    #    totalSpendInEth: BigDecimal!
+    #    totalTransfer - can we already work this out?
+    #    purchase history - can we work this out already?
+    #    biddingHistory: [AuctionEvent!]!
 }

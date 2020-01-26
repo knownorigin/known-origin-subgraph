@@ -1073,75 +1073,12 @@ export class Collector extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get firstPurchaseTimeStamp(): BigInt {
-    let value = this.get("firstPurchaseTimeStamp");
-    return value.toBigInt();
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
   }
 
-  set firstPurchaseTimeStamp(value: BigInt) {
-    this.set("firstPurchaseTimeStamp", Value.fromBigInt(value));
-  }
-
-  get lastPurchaseTimeStamp(): BigInt {
-    let value = this.get("lastPurchaseTimeStamp");
-    return value.toBigInt();
-  }
-
-  set lastPurchaseTimeStamp(value: BigInt) {
-    this.set("lastPurchaseTimeStamp", Value.fromBigInt(value));
-  }
-
-  get tokenIdsPurchased(): Array<BigInt> {
-    let value = this.get("tokenIdsPurchased");
-    return value.toBigIntArray();
-  }
-
-  set tokenIdsPurchased(value: Array<BigInt>) {
-    this.set("tokenIdsPurchased", Value.fromBigIntArray(value));
-  }
-
-  get tokenIdsCurrentlyOwned(): Array<BigInt> {
-    let value = this.get("tokenIdsCurrentlyOwned");
-    return value.toBigIntArray();
-  }
-
-  set tokenIdsCurrentlyOwned(value: Array<BigInt>) {
-    this.set("tokenIdsCurrentlyOwned", Value.fromBigIntArray(value));
-  }
-
-  get editionsPurchased(): Array<BigInt> {
-    let value = this.get("editionsPurchased");
-    return value.toBigIntArray();
-  }
-
-  set editionsPurchased(value: Array<BigInt>) {
-    this.set("editionsPurchased", Value.fromBigIntArray(value));
-  }
-
-  get editionsCurrentlyOwned(): Array<BigInt> {
-    let value = this.get("editionsCurrentlyOwned");
-    return value.toBigIntArray();
-  }
-
-  set editionsCurrentlyOwned(value: Array<BigInt>) {
-    this.set("editionsCurrentlyOwned", Value.fromBigIntArray(value));
-  }
-
-  get totalSpendInEth(): BigDecimal {
-    let value = this.get("totalSpendInEth");
-    return value.toBigDecimal();
-  }
-
-  set totalSpendInEth(value: BigDecimal) {
-    this.set("totalSpendInEth", Value.fromBigDecimal(value));
-  }
-
-  get biddingHistory(): Array<string> {
-    let value = this.get("biddingHistory");
-    return value.toStringArray();
-  }
-
-  set biddingHistory(value: Array<string>) {
-    this.set("biddingHistory", Value.fromStringArray(value));
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
   }
 }
