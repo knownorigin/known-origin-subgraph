@@ -113,6 +113,15 @@ export class Token extends Entity {
   set lastTransferTimestamp(value: BigInt) {
     this.set("lastTransferTimestamp", Value.fromBigInt(value));
   }
+
+  get transfers(): Array<string> {
+    let value = this.get("transfers");
+    return value.toStringArray();
+  }
+
+  set transfers(value: Array<string>) {
+    this.set("transfers", Value.fromStringArray(value));
+  }
 }
 
 export class Day extends Entity {
@@ -449,6 +458,64 @@ export class MetaData extends Entity {
   }
 }
 
+export class TransferEvent extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save TransferEvent entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save TransferEvent entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("TransferEvent", id.toString(), this);
+  }
+
+  static load(id: string): TransferEvent | null {
+    return store.get("TransferEvent", id) as TransferEvent | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get from(): Bytes {
+    let value = this.get("from");
+    return value.toBytes();
+  }
+
+  set from(value: Bytes) {
+    this.set("from", Value.fromBytes(value));
+  }
+
+  get to(): Bytes {
+    let value = this.get("to");
+    return value.toBytes();
+  }
+
+  set to(value: Bytes) {
+    this.set("to", Value.fromBytes(value));
+  }
+
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    return value.toBigInt();
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
+  }
+}
+
 export class Edition extends Entity {
   constructor(id: string) {
     super();
@@ -699,6 +766,15 @@ export class Edition extends Entity {
 
   set biddingHistory(value: Array<string>) {
     this.set("biddingHistory", Value.fromStringArray(value));
+  }
+
+  get transfers(): Array<string> {
+    let value = this.get("transfers");
+    return value.toStringArray();
+  }
+
+  set transfers(value: Array<string>) {
+    this.set("transfers", Value.fromStringArray(value));
   }
 }
 

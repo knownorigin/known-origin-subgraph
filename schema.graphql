@@ -8,6 +8,9 @@ type Token @entity {
     birthTimestamp: BigInt!
     primaryValueInEth: BigDecimal!
     lastTransferTimestamp: BigInt!
+
+    # TODO tally up number of owners token has ever had
+    transfers: [TransferEvent!]!
 }
 
 type Day @entity {
@@ -44,6 +47,13 @@ type MetaData @entity {
     tags: [String!]
 }
 
+type TransferEvent @entity {
+    id: ID!
+    from: Bytes! # address
+    to: Bytes! # address
+    tokenId: BigInt!
+}
+
 type Edition @entity {
     id: ID!
     editionType: BigInt!
@@ -69,6 +79,10 @@ type Edition @entity {
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
+
+    transfers: [TransferEvent!]!
+    # TODO total number of owners of all tokens from the edition
+    # TODO total number of token transfers made for all tokens from the edition
 }
 
 type AuctionEvent @entity {

@@ -8,13 +8,14 @@ import {
     UpdateActiveCall, UpdateArtistsAccountCall, UpdateArtistCommissionCall, UpdatePriceInWeiCall
 } from "../../generated/KnownOrigin/KnownOrigin"
 
-import {loadOrCreateEdition} from "../services/Edition.service";
+import {loadOrCreateEdition, loadOrCreateEditionFromTokenId} from "../services/Edition.service";
 import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
 import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
+import {TransferEvent} from "../../generated/schema";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -37,6 +38,14 @@ export function handleEditionCreated(event: EditionCreated): void {
 export function handleTransfer(event: Transfer): void {
     let contract = KnownOrigin.bind(event.address)
 
+    // Transfer Event
+    let transferEventId = event.params._tokenId.toString().concat(event.transaction.hash.toHexString()).concat(event.transaction.index.toString());
+    let transferEvent = new TransferEvent(transferEventId);
+    transferEvent.from = event.params._from
+    transferEvent.to = event.params._to
+    transferEvent.tokenId = event.params._tokenId
+    transferEvent.save()
+
     // TOKEN
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
 
@@ -46,9 +55,21 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.primaryValueInEth = toEther(event.transaction.value)
     }
 
+    // Record transfer against token
+    let tokenTransfers = tokenEntity.transfers;
+    tokenTransfers.push(transferEventId);
+    tokenEntity.transfers = tokenTransfers;
+
     tokenEntity.save()
 
     recordDayTransfer(event)
+
+    // Record transfer against the edition
+    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block);
+    let transfers = editionEntity.transfers;
+    transfers.push(transferEventId);
+    editionEntity.transfers = transfers;
+    editionEntity.save();
 }
 
 // Direct primary "Buy it now" purchase form the website

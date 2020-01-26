@@ -1,8 +1,9 @@
 import {BigInt, CallResult, EthereumBlock, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
-import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {KODA_MAINNET, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
+import {Address} from "@graphprotocol/graph-ts/index";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -54,4 +55,10 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
 
 export function loadEdition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
+}
+
+export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock): Edition | null {
+    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET));
+    let _editionNumber = contract.editionOfTokenId(tokenId);
+    return loadOrCreateEdition(_editionNumber, block, contract);
 }
