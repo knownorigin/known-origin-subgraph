@@ -15,7 +15,7 @@ import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
-import {TransferEvent} from "../../generated/schema";
+import {Collector, Edition, TransferEvent} from "../../generated/schema";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -59,7 +59,6 @@ export function handleTransfer(event: Transfer): void {
     let tokenTransfers = tokenEntity.transfers;
     tokenTransfers.push(transferEventId);
     tokenEntity.transfers = tokenTransfers;
-
     tokenEntity.save()
 
     recordDayTransfer(event)
@@ -70,6 +69,23 @@ export function handleTransfer(event: Transfer): void {
     transfers.push(transferEventId);
     editionEntity.transfers = transfers;
     editionEntity.save();
+
+    // FIXME me lazy load
+    // let collector = new Collector(event.params._to.toString());
+    // collector.address = event.params._to;
+    // collector.save()
+
+    // let collectorId = tokenEntity.allOwners.find((owner) => {
+    //     return owner === event.params._to.toString();
+    // });
+    // if(collectorId === null){
+    //     let collector = new Collector(event.params._to.toString());
+    //
+    // }else{
+    //     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
+    //
+    // }
+
 }
 
 // Direct primary "Buy it now" purchase form the website

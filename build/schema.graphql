@@ -10,6 +10,8 @@ type Token @entity {
     lastTransferTimestamp: BigInt!
 
     # TODO tally up number of owners token has ever had
+#    currentOwner: Collector! # the current owner
+    allOwners: [Collector]! # list (set) of all unique owners
     transfers: [TransferEvent!]! # total number of token transfers made
 }
 

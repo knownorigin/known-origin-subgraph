@@ -114,6 +114,15 @@ export class Token extends Entity {
     this.set("lastTransferTimestamp", Value.fromBigInt(value));
   }
 
+  get allOwners(): Array<string | null> {
+    let value = this.get("allOwners");
+    return value.toStringArray();
+  }
+
+  set allOwners(value: Array<string | null>) {
+    this.set("allOwners", Value.fromStringArray(value));
+  }
+
   get transfers(): Array<string> {
     let value = this.get("transfers");
     return value.toStringArray();
