@@ -29,8 +29,8 @@ export function loadOrCreateArtist(address: Address): Artist | null {
 
 export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): void {
     let artist = loadOrCreateArtist(artistAddress)
-    artist.editionsCount = artist.editionsCount + ONE
-    artist.supply = artist.supply + totalAvailable
+    artist.editionsCount = artist.editionsCount.plus(ONE)
+    artist.supply = artist.supply.plus(totalAvailable)
 
     if (artist.firstEdition === null) {
         artist.firstEdition = editionNumber
@@ -46,7 +46,7 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
 export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt): void {
     let artist = loadOrCreateArtist(artistAddress)
 
-    artist.totalValueInEth = artist.totalValueInEth + toEther(value)
+    artist.totalValueInEth = artist.totalValueInEth.plus(toEther(value))
 
     if (toEther(value) > artist.highestSaleValueInEth) {
         artist.highestSaleToken = tokenId.toString()
@@ -60,9 +60,9 @@ export function recordArtistCounts(artistAddress: Address, value: BigInt): void 
     let artist = loadOrCreateArtist(artistAddress)
 
     if (value > ZERO) {
-        artist.salesCount = artist.salesCount + ONE
+        artist.salesCount = artist.salesCount.plus(ONE)
     } else {
-        artist.giftsCount = artist.giftsCount + ONE
+        artist.giftsCount = artist.giftsCount.plus(ONE)
     }
 
     artist.save()

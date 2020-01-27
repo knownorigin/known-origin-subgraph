@@ -114,6 +114,15 @@ export class Token extends Entity {
     this.set("lastTransferTimestamp", Value.fromBigInt(value));
   }
 
+  get currentOwner(): string {
+    let value = this.get("currentOwner");
+    return value.toString();
+  }
+
+  set currentOwner(value: string) {
+    this.set("currentOwner", Value.fromString(value));
+  }
+
   get allOwners(): Array<string | null> {
     let value = this.get("allOwners");
     return value.toStringArray();
@@ -785,6 +794,15 @@ export class Edition extends Entity {
   set transfers(value: Array<string>) {
     this.set("transfers", Value.fromStringArray(value));
   }
+
+  get allOwners(): Array<string | null> {
+    let value = this.get("allOwners");
+    return value.toStringArray();
+  }
+
+  set allOwners(value: Array<string | null>) {
+    this.set("allOwners", Value.fromStringArray(value));
+  }
 }
 
 export class AuctionEvent extends Entity {
@@ -1089,5 +1107,14 @@ export class Collector extends Entity {
 
   set address(value: Bytes) {
     this.set("address", Value.fromBytes(value));
+  }
+
+  get firstSeen(): BigInt {
+    let value = this.get("firstSeen");
+    return value.toBigInt();
+  }
+
+  set firstSeen(value: BigInt) {
+    this.set("firstSeen", Value.fromBigInt(value));
   }
 }

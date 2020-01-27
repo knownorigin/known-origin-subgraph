@@ -16,6 +16,8 @@ import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
 import {Collector, Edition, TransferEvent} from "../../generated/schema";
+import {createTransferEvent} from "../services/TransferEvent.factory";
+import {loadOrCreateCollector} from "../services/Collector.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -38,13 +40,55 @@ export function handleEditionCreated(event: EditionCreated): void {
 export function handleTransfer(event: Transfer): void {
     let contract = KnownOrigin.bind(event.address)
 
+    ///////////////
+    // Transfers //
+    ///////////////
+
     // Transfer Event
-    let transferEventId = event.params._tokenId.toString().concat(event.transaction.hash.toHexString()).concat(event.transaction.index.toString());
-    let transferEvent = new TransferEvent(transferEventId);
-    transferEvent.from = event.params._from
-    transferEvent.to = event.params._to
-    transferEvent.tokenId = event.params._tokenId
-    transferEvent.save()
+    let transferEvent = createTransferEvent(event);
+    transferEvent.save();
+
+    ////////////////
+    // Day Counts //
+    ////////////////
+
+    recordDayTransfer(event);
+
+    /////////////////////
+    // Collector Logic //
+    /////////////////////
+
+    let collector = loadOrCreateCollector(event.params._to, event.block);
+    collector.save();
+
+    ///////////////////
+    // Edition Logic //
+    ///////////////////
+
+    // Record transfer against the edition
+    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block);
+
+    // Set Transfers on edition
+    let editionTransfers = editionEntity.transfers;
+    editionTransfers.push(transferEvent.id);
+    editionEntity.transfers = editionTransfers;
+
+    // Check if the edition already has the owner
+    let allEditionOwners = editionEntity.allOwners;
+    for (let i = 0; i < editionEntity.allOwners.length; i++) {
+        let owner = allEditionOwners[i]
+        if (owner.toString() == collector.id.toString()) {
+            let allOwners = editionEntity.allOwners;
+            allOwners.push(collector.id);
+            editionEntity.allOwners = allOwners;
+        }
+    }
+
+    editionEntity.save();
+
+    /////////////////
+    // Token Logic //
+    /////////////////
 
     // TOKEN
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
@@ -57,35 +101,23 @@ export function handleTransfer(event: Transfer): void {
 
     // Record transfer against token
     let tokenTransfers = tokenEntity.transfers;
-    tokenTransfers.push(transferEventId);
+    tokenTransfers.push(transferEvent.id);
     tokenEntity.transfers = tokenTransfers;
-    tokenEntity.save()
 
-    recordDayTransfer(event)
+    // Check if the token already has the owner
+    let allTokenOwners = tokenEntity.allOwners;
+    for (let i = 0; i < tokenEntity.allOwners.length; i++) {
+        let owner = allTokenOwners[i]
+        if (owner.toString() == collector.id.toString()) {
+            let allOwners = tokenEntity.allOwners;
+            allOwners.push(collector.id);
+            tokenEntity.allOwners = allOwners;
+        }
+    }
 
-    // Record transfer against the edition
-    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block);
-    let transfers = editionEntity.transfers;
-    transfers.push(transferEventId);
-    editionEntity.transfers = transfers;
-    editionEntity.save();
-
-    // FIXME me lazy load
-    // let collector = new Collector(event.params._to.toString());
-    // collector.address = event.params._to;
-    // collector.save()
-
-    // let collectorId = tokenEntity.allOwners.find((owner) => {
-    //     return owner === event.params._to.toString();
-    // });
-    // if(collectorId === null){
-    //     let collector = new Collector(event.params._to.toString());
-    //
-    // }else{
-    //     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
-    //
-    // }
-
+    // Keep track of current owner
+    tokenEntity.currentOwner = transferEvent.id
+    tokenEntity.save();
 }
 
 // Direct primary "Buy it now" purchase form the website
@@ -140,9 +172,6 @@ export function handleMinted(event: Minted): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
     tokenEntity.save();
-
-    // let editionNumber = event.params._editionNumber
-    // let artistAddress = contract.artistCommission(editionNumber).value0
 }
 
 export function handleUpdateActive(call: UpdateActiveCall): void {

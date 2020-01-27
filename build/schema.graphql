@@ -9,8 +9,7 @@ type Token @entity {
     primaryValueInEth: BigDecimal!
     lastTransferTimestamp: BigInt!
 
-    # TODO tally up number of owners token has ever had
-#    currentOwner: Collector! # the current owner
+    currentOwner: Collector! # the current owner
     allOwners: [Collector]! # list (set) of all unique owners
     transfers: [TransferEvent!]! # total number of token transfers made
 }
@@ -81,10 +80,8 @@ type Edition @entity {
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
-
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
-
-    # TODO total number of owners of all tokens from the edition
+    allOwners: [Collector]! # list (set) of all unique owners for all tokens
 }
 
 type AuctionEvent @entity {
@@ -125,6 +122,7 @@ type Artist @entity {
 type Collector @entity {
     id: ID! # toString for address
     address: Bytes! # address
+    firstSeen: BigInt!
 
     #    firstPurchaseTimeStamp: BigInt!
     #    lastPurchaseTimeStamp: BigInt!

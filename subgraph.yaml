@@ -67,15 +67,15 @@ dataSources:
       # FIXME - disabled for now as it seems to take an unbelievable amount of time to sync with call handler setup
       # For price changes we can listen to `PriceChanged` event from ArtistControls
       # For others ... I dont have a solution other than force deploying to refresh the data
-      callHandlers:
-        - function: updateActive(uint256,bool)
-          handler: handleUpdateActive
-      #        - function: updateArtistsAccount(uint256,address)
-      #          handler: handleUpdateArtistsAccount
-      #        - function: updateArtistCommission(uint256,uint256)
-      #          handler: handleUpdateArtistCommission
-      #        - function: updatePriceInWei(uint256,uint256)
-      #          handler: handleUpdatePriceInWei
+#      callHandlers:
+#        - function: updateActive(uint256,bool)
+#          handler: handleUpdateActive
+#      #        - function: updateArtistsAccount(uint256,address)
+#      #          handler: handleUpdateArtistsAccount
+#      #        - function: updateArtistCommission(uint256,uint256)
+#      #          handler: handleUpdateArtistCommission
+#      #        - function: updatePriceInWei(uint256,uint256)
+#      #          handler: handleUpdatePriceInWei
 
       file: ./src/mappings/known-origin-v2-mapping.ts
 
