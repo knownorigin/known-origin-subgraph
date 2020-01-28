@@ -5,28 +5,6 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: KnownOriginV1
-    network: mainnet
-    source:
-      address: "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72"
-      abi: KnownOriginV1
-      startBlock: 5381767
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.3
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-      abis:
-        - name: KnownOriginV1
-          file: KnownOriginV1/abis/KnownOriginV1.json
-      eventHandlers:
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
-        - event: PurchasedWithEther(indexed uint256,indexed address)
-          handler: handlePurchase
-      file: KnownOriginV1/KnownOriginV1.wasm
-  - kind: ethereum/contract
     name: KnownOrigin
     network: mainnet
     source:

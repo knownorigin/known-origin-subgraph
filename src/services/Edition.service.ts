@@ -17,6 +17,8 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.sales = new Array<string>()
         editionEntity.transfers = new Array<string>()
         editionEntity.allOwners = new Array<string>()
+        editionEntity.currentOwners = new Array<string>()
+        editionEntity.primaryOwners = new Array<string>()
         editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
         editionEntity.totalSold = ZERO
 

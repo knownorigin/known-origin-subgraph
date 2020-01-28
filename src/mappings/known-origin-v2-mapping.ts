@@ -26,9 +26,12 @@ import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
-import {Collector, Edition, TransferEvent} from "../../generated/schema";
 import {createTransferEvent} from "../services/TransferEvent.factory";
-import {collectorInList, loadOrCreateCollector} from "../services/Collector.service";
+import {
+    addPrimarySaleToCollector,
+    collectorInList,
+    loadOrCreateCollector
+} from "../services/Collector.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -110,7 +113,7 @@ export function handleTransfer(event: Transfer): void {
     tokenTransfers.push(transferEvent.id);
     tokenEntity.transfers = tokenTransfers;
 
-    // // Check if the token already has the owner
+    // Check if the token already has the owner
     if (!collectorInList(collector, tokenEntity.allOwners)) {
         let allOwners = tokenEntity.allOwners;
         allOwners.push(collector.id);
@@ -129,6 +132,10 @@ export function handlePurchase(event: Purchase): void {
     // Create token
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
     tokenEntity.save()
+
+    // Create collector
+    let collector = loadOrCreateCollector(event.params._buyer, event.block);
+    collector.save();
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
@@ -151,6 +158,15 @@ export function handlePurchase(event: Purchase): void {
         sales.push(event.params._tokenId.toString())
         editionEntity.sales = sales
         editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
+
+        // Tally up primary sale owners
+        if (!collectorInList(collector, editionEntity.primaryOwners)) {
+            let primaryOwners = editionEntity.primaryOwners;
+            primaryOwners.push(collector.id);
+            editionEntity.primaryOwners = primaryOwners;
+        }
+
+        addPrimarySaleToCollector(event.block, event.transaction.from, event.transaction.value, event.params._editionNumber, event.params._tokenId);
     }
     editionEntity.save()
 }

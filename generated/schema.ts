@@ -794,6 +794,24 @@ export class Edition extends Entity {
   set allOwners(value: Array<string | null>) {
     this.set("allOwners", Value.fromStringArray(value));
   }
+
+  get currentOwners(): Array<string | null> {
+    let value = this.get("currentOwners");
+    return value.toStringArray();
+  }
+
+  set currentOwners(value: Array<string | null>) {
+    this.set("currentOwners", Value.fromStringArray(value));
+  }
+
+  get primaryOwners(): Array<string | null> {
+    let value = this.get("primaryOwners");
+    return value.toStringArray();
+  }
+
+  set primaryOwners(value: Array<string | null>) {
+    this.set("primaryOwners", Value.fromStringArray(value));
+  }
 }
 
 export class AuctionEvent extends Entity {
@@ -1107,5 +1125,50 @@ export class Collector extends Entity {
 
   set firstSeen(value: BigInt) {
     this.set("firstSeen", Value.fromBigInt(value));
+  }
+
+  get firstPurchaseTimeStamp(): BigInt {
+    let value = this.get("firstPurchaseTimeStamp");
+    return value.toBigInt();
+  }
+
+  set firstPurchaseTimeStamp(value: BigInt) {
+    this.set("firstPurchaseTimeStamp", Value.fromBigInt(value));
+  }
+
+  get primarySaleCount(): BigInt {
+    let value = this.get("primarySaleCount");
+    return value.toBigInt();
+  }
+
+  set primarySaleCount(value: BigInt) {
+    this.set("primarySaleCount", Value.fromBigInt(value));
+  }
+
+  get primarySaleEthSpent(): BigInt {
+    let value = this.get("primarySaleEthSpent");
+    return value.toBigInt();
+  }
+
+  set primarySaleEthSpent(value: BigInt) {
+    this.set("primarySaleEthSpent", Value.fromBigInt(value));
+  }
+
+  get primarySaleTokensPurchased(): Array<string> {
+    let value = this.get("primarySaleTokensPurchased");
+    return value.toStringArray();
+  }
+
+  set primarySaleTokensPurchased(value: Array<string>) {
+    this.set("primarySaleTokensPurchased", Value.fromStringArray(value));
+  }
+
+  get primarySaleEditionsPurchased(): Array<string> {
+    let value = this.get("primarySaleEditionsPurchased");
+    return value.toStringArray();
+  }
+
+  set primarySaleEditionsPurchased(value: Array<string>) {
+    this.set("primarySaleEditionsPurchased", Value.fromStringArray(value));
   }
 }
