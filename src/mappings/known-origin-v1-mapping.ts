@@ -11,7 +11,12 @@ import {
     recordDayTransfer,
     recordDayValue
 } from "../services/Day.service";
-import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../services/Artist.service";
+import {
+    loadOrCreateArtist,
+    recordArtistCounts,
+    recordArtistIssued,
+    recordArtistValue
+} from "../services/Artist.service";
 import {ONE} from "../constants";
 
 export function handlePurchase(event: PurchasedWithEther): void {
@@ -20,6 +25,7 @@ export function handlePurchase(event: PurchasedWithEther): void {
     // Record Artist Data
     let tokenId = event.params._tokenId
     let artistAddress = contract.editionInfo(tokenId).value4
+
     recordArtistValue(artistAddress, tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
@@ -28,6 +34,11 @@ export function handlePurchase(event: PurchasedWithEther): void {
 
     recordDayIssued(event, tokenId)
     recordArtistIssued(artistAddress)
+
+    // FIXME add one to the supply in artist? Is this correct - not using editions like v2
+    let artist = loadOrCreateArtist(artistAddress)
+    artist.supply = artist.supply.plus(ONE)
+    artist.save()
 }
 
 export function handleTransfer(event: Transfer): void {

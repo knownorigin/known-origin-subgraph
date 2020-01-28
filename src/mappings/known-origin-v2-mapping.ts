@@ -199,6 +199,9 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
     editionEntity.active = call.inputs._active;
     editionEntity.save()
+
+    // FIXME reduce supply and edition count for artist?
+    // can editions with sales be disabled?
 }
 
 export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {

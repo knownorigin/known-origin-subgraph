@@ -132,6 +132,8 @@ export function recordDayCounts(event: EthereumEvent, value: BigInt): void {
     if (value > ZERO) {
         dayEntity.salesCount = dayEntity.salesCount.plus(ONE)
     }
+
+    dayEntity.save()
 }
 
 export function recordDayIssued(event: EthereumEvent, tokenId: BigInt): void {
