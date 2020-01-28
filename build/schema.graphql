@@ -8,6 +8,10 @@ type Token @entity {
     birthTimestamp: BigInt!
     primaryValueInEth: BigDecimal!
     lastTransferTimestamp: BigInt!
+
+    currentOwner: Collector! # the current owner
+    allOwners: [Collector]! # list (set) of all unique owners
+    transfers: [TransferEvent!]! # total number of token transfers made
 }
 
 type Day @entity {
@@ -44,6 +48,13 @@ type MetaData @entity {
     tags: [String!]
 }
 
+type TransferEvent @entity {
+    id: ID!
+    from: Bytes! # address
+    to: Bytes! # address
+    tokenId: BigInt!
+}
+
 type Edition @entity {
     id: ID!
     editionType: BigInt!
@@ -69,6 +80,8 @@ type Edition @entity {
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
+    transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
+    allOwners: [Collector]! # list (set) of all unique owners for all tokens
 }
 
 type AuctionEvent @entity {
@@ -108,19 +121,17 @@ type Artist @entity {
 
 type Collector @entity {
     id: ID! # toString for address
+    address: Bytes! # address
+    firstSeen: BigInt!
 
-    firstPurchaseTimeStamp: BigInt!
-    lastPurchaseTimeStamp: BigInt!
-
-    tokenIdsPurchased: [BigInt!]!
-    tokenIdsCurrentlyOwned: [BigInt!]!
-
-    editionsPurchased: [BigInt!]!
-    editionsCurrentlyOwned: [BigInt!]!
-
-    totalSpendInEth: BigDecimal!
-    # totalTransfer - can we already work this out?
-    # purchase history - can we work this out already?
-
-    biddingHistory: [AuctionEvent!]!
+    #    firstPurchaseTimeStamp: BigInt!
+    #    lastPurchaseTimeStamp: BigInt!
+    #    tokenIdsPurchased: [BigInt!]!
+    #    tokenIdsCurrentlyOwned: [BigInt!]!
+    #    editionsPurchased: [BigInt!]!
+    #    editionsCurrentlyOwned: [BigInt!]!
+    #    totalSpendInEth: BigDecimal!
+    #    totalTransfer - can we already work this out?
+    #    purchase history - can we work this out already?
+    #    biddingHistory: [AuctionEvent!]!
 }
