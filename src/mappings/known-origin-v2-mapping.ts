@@ -28,7 +28,7 @@ import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
 import {Collector, Edition, TransferEvent} from "../../generated/schema";
 import {createTransferEvent} from "../services/TransferEvent.factory";
-import {loadOrCreateCollector} from "../services/Collector.service";
+import {collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -85,16 +85,11 @@ export function handleTransfer(event: Transfer): void {
     editionEntity.transfers = editionTransfers;
 
     // Check if the edition already has the owner
-    let allEditionOwners = editionEntity.allOwners;
-    for (let i = 0; i < editionEntity.allOwners.length; i++) {
-        let owner = allEditionOwners[i]
-        if (owner.toString() == collector.id.toString()) {
-            let allOwners = editionEntity.allOwners;
-            allOwners.push(collector.id);
-            editionEntity.allOwners = allOwners;
-        }
+    if (!collectorInList(collector, editionEntity.allOwners)) {
+        let allOwners = editionEntity.allOwners;
+        allOwners.push(collector.id);
+        editionEntity.allOwners = allOwners;
     }
-
     editionEntity.save();
 
     /////////////////
@@ -115,19 +110,15 @@ export function handleTransfer(event: Transfer): void {
     tokenTransfers.push(transferEvent.id);
     tokenEntity.transfers = tokenTransfers;
 
-    // Check if the token already has the owner
-    let allTokenOwners = tokenEntity.allOwners;
-    for (let i = 0; i < tokenEntity.allOwners.length; i++) {
-        let owner = allTokenOwners[i]
-        if (owner.toString() == collector.id.toString()) {
-            let allOwners = tokenEntity.allOwners;
-            allOwners.push(collector.id);
-            tokenEntity.allOwners = allOwners;
-        }
+    // // Check if the token already has the owner
+    if (!collectorInList(collector, tokenEntity.allOwners)) {
+        let allOwners = tokenEntity.allOwners;
+        allOwners.push(collector.id);
+        tokenEntity.allOwners = allOwners;
     }
 
     // Keep track of current owner
-    tokenEntity.currentOwner = transferEvent.id
+    tokenEntity.currentOwner = transferEvent.id;
     tokenEntity.save();
 }
 
