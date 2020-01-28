@@ -79,7 +79,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayValue(event, event.params._tokenId, event.params._amount)
     recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
 
-    recordDayCounts(event, event.params._tokenId, event.params._amount)
+    recordDayCounts(event, event.params._amount)
     recordArtistCounts(artistAddress, event.params._amount)
 
     recordDayBidAcceptedCount(event)

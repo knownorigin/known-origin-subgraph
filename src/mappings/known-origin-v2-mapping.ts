@@ -9,8 +9,19 @@ import {
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition, loadOrCreateEditionFromTokenId} from "../services/Edition.service";
-import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
-import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
+import {
+    addEditionToDay,
+    recordDayCounts,
+    recordDayIssued,
+    recordDayTransfer,
+    recordDayValue
+} from "../services/Day.service";
+import {
+    addEditionToArtist,
+    recordArtistValue,
+    recordArtistCounts,
+    recordArtistIssued
+} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
@@ -135,7 +146,7 @@ export function handlePurchase(event: Purchase): void {
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    recordDayCounts(event, event.params._tokenId, event.transaction.value)
+    recordDayCounts(event, event.transaction.value)
     recordArtistCounts(artistAddress, event.transaction.value)
 
     // Action edition data changes
@@ -172,6 +183,13 @@ export function handleMinted(event: Minted): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
     tokenEntity.save();
+
+    // record running total of issued tokens
+    recordDayIssued(event, event.params._tokenId)
+
+    let editionNumber = event.params._editionNumber
+    let artistAddress = contract.artistCommission(editionNumber).value0
+    recordArtistIssued(artistAddress)
 }
 
 export function handleUpdateActive(call: UpdateActiveCall): void {

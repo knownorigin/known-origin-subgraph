@@ -1,7 +1,8 @@
-import {Address, BigDecimal, BigInt, EthereumTransaction} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt, EthereumEvent, EthereumTransaction} from "@graphprotocol/graph-ts/index";
 import {Artist} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {toEther} from "../utils";
+import {loadDayFromEvent} from "./Day.service";
 
 export function loadOrCreateArtist(address: Address): Artist | null {
     let artist: Artist | null = Artist.load(address.toHexString())
@@ -63,6 +64,12 @@ export function recordArtistCounts(artistAddress: Address, value: BigInt): void 
     if (value > ZERO) {
         artist.salesCount = artist.salesCount.plus(ONE)
     }
+
+    artist.save()
+}
+
+export function recordArtistIssued(artistAddress: Address): void {
+    let artist = loadOrCreateArtist(artistAddress)
 
     artist.issuedCount = artist.issuedCount.plus(ONE)
 
