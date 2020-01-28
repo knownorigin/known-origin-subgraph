@@ -19,6 +19,7 @@ import {
 } from "../services/Artist.service";
 import {ONE} from "../constants";
 
+// FIXME need to think about this a bit more...
 export function handlePurchase(event: PurchasedWithEther): void {
     let contract = KnownOriginV1.bind(event.address)
 
@@ -35,7 +36,6 @@ export function handlePurchase(event: PurchasedWithEther): void {
     recordDayIssued(event, tokenId)
     recordArtistIssued(artistAddress)
 
-    // FIXME add one to the supply in artist? Is this correct - not using editions like v2
     let artist = loadOrCreateArtist(artistAddress)
     artist.supply = artist.supply.plus(ONE)
     artist.save()
