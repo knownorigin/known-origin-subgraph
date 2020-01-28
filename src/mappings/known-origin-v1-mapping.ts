@@ -4,8 +4,14 @@ import {
     PurchasedWithEther,
 } from "../../generated/KnownOriginV1/KnownOriginV1"
 
-import {loadDayFromEvent, recordDayTransfer, recordDayValue} from "../services/Day.service";
-import {recordArtistValue} from "../services/Artist.service";
+import {
+    loadDayFromEvent,
+    recordDayCounts,
+    recordDayIssued,
+    recordDayTransfer,
+    recordDayValue
+} from "../services/Day.service";
+import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../services/Artist.service";
 import {ONE} from "../constants";
 
 export function handlePurchase(event: PurchasedWithEther): void {
@@ -15,19 +21,13 @@ export function handlePurchase(event: PurchasedWithEther): void {
     let tokenId = event.params._tokenId
     let artistAddress = contract.editionInfo(tokenId).value4
     recordArtistValue(artistAddress, tokenId, event.transaction.value)
-
-    // Record Purchases against the Day & Month
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    // Record token as a sale
-    let dayEntity = loadDayFromEvent(event)
-    let issued = dayEntity.issued
-    issued.push(tokenId.toString())
-    dayEntity.issued = issued
+    recordDayCounts(event, event.transaction.value)
+    recordArtistCounts(artistAddress, event.transaction.value)
 
-    dayEntity.salesCount = dayEntity.salesCount.plus(ONE)
-
-    dayEntity.save()
+    recordDayIssued(event, tokenId)
+    recordArtistIssued(artistAddress)
 }
 
 export function handleTransfer(event: Transfer): void {
