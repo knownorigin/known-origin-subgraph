@@ -1130,7 +1130,7 @@ export class KnownOrigin extends SmartContract {
   hasRole(_operator: Address, _role: i32): boolean {
     let result = super.call("hasRole", [
       EthereumValue.fromAddress(_operator),
-      EthereumValue.fromI32(_role)
+      EthereumValue.fromUnsignedBigInt(BigInt.fromI32(_role))
     ]);
 
     return result[0].toBoolean();
@@ -1139,7 +1139,7 @@ export class KnownOrigin extends SmartContract {
   try_hasRole(_operator: Address, _role: i32): CallResult<boolean> {
     let result = super.tryCall("hasRole", [
       EthereumValue.fromAddress(_operator),
-      EthereumValue.fromI32(_role)
+      EthereumValue.fromUnsignedBigInt(BigInt.fromI32(_role))
     ]);
     if (result.reverted) {
       return new CallResult();
