@@ -11,8 +11,8 @@ export function loadOrCreateDay(date: string): Day | null {
         dayEntity = new Day(date)
         dayEntity.date = date
         dayEntity.transferCount = ZERO
+        dayEntity.issuedCount = ZERO
         dayEntity.salesCount = ZERO
-        dayEntity.giftsCount = ZERO
         dayEntity.editionsCount = ZERO
         dayEntity.bidsAcceptedCount = ZERO
         dayEntity.bidsPlacedCount = ZERO
@@ -23,8 +23,7 @@ export function loadOrCreateDay(date: string): Day | null {
         dayEntity.totalValueCycledInBids = new BigDecimal(ZERO)
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
-        dayEntity.sales = new Array<string>()
-        dayEntity.gifts = new Array<string>()
+        dayEntity.issued = new Array<string>()
         dayEntity.editions = new Array<string>()
     }
 
@@ -47,7 +46,7 @@ export function loadDayFromEvent(event: EthereumEvent): Day | null {
 export function addEditionToDay(editionCreated: EthereumEvent, editionEntityId: string): void {
     let dayEntity = loadDayFromEvent(editionCreated)
 
-    dayEntity.editionsCount = dayEntity.editionsCount + ONE
+    dayEntity.editionsCount = dayEntity.editionsCount.plus(ONE)
 
     let editions = dayEntity.editions
     editions.push(editionEntityId)
@@ -59,56 +58,56 @@ export function addEditionToDay(editionCreated: EthereumEvent, editionEntityId: 
 export function recordDayTransfer(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
 
-    dayEntity.transferCount = dayEntity.transferCount + ONE
+    dayEntity.transferCount = dayEntity.transferCount.plus(ONE)
 
     dayEntity.save()
 }
 
 export function recordDayBidAcceptedCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.bidsAcceptedCount = dayEntity.bidsAcceptedCount + ONE
+    dayEntity.bidsAcceptedCount = dayEntity.bidsAcceptedCount.plus(ONE)
 
     dayEntity.save()
 }
 
 export function recordDayBidPlacedCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.bidsPlacedCount = dayEntity.bidsPlacedCount + ONE
+    dayEntity.bidsPlacedCount = dayEntity.bidsPlacedCount.plus(ONE)
 
     dayEntity.save()
 }
 
 export function recordDayTotalValueCycledInBids(event: EthereumEvent, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.totalValueCycledInBids = dayEntity.totalValueCycledInBids + toEther(value)
+    dayEntity.totalValueCycledInBids = dayEntity.totalValueCycledInBids.plus(toEther(value))
 
     dayEntity.save()
 }
 
 export function recordDayTotalValuePlaceInBids(event: EthereumEvent, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.totalValuePlaceInBids = dayEntity.totalValuePlaceInBids + toEther(value)
+    dayEntity.totalValuePlaceInBids = dayEntity.totalValuePlaceInBids.plus(toEther(value))
 
     dayEntity.save()
 }
 
 export function recordDayBidRejectedCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.bidsRejectedCount = dayEntity.bidsRejectedCount + ONE
+    dayEntity.bidsRejectedCount = dayEntity.bidsRejectedCount.plus(ONE)
 
     dayEntity.save()
 }
 
 export function recordDayBidWithdrawnCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.bidsWithdrawnCount = dayEntity.bidsWithdrawnCount + ONE
+    dayEntity.bidsWithdrawnCount = dayEntity.bidsWithdrawnCount.plus(ONE)
 
     dayEntity.save()
 }
 
 export function recordDayBidIncreasedCount(event: EthereumEvent): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.bidsIncreasedCount = dayEntity.bidsIncreasedCount + ONE
+    dayEntity.bidsIncreasedCount = dayEntity.bidsIncreasedCount.plus(ONE)
 
     dayEntity.save()
 }
@@ -116,7 +115,7 @@ export function recordDayBidIncreasedCount(event: EthereumEvent): void {
 
 export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
-    dayEntity.totalValueInEth = dayEntity.totalValueInEth + toEther(value)
+    dayEntity.totalValueInEth = dayEntity.totalValueInEth.plus(toEther(value))
 
     if (toEther(value) > dayEntity.highestValueInEth) {
         dayEntity.highestValueToken = tokenId.toString()
@@ -129,21 +128,17 @@ export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: Big
 export function recordDayCounts(event: EthereumEvent, tokenId: BigInt, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
 
+    // only if has value can it be a sale - via purchase and bid accepted
     if (value > ZERO) {
-        // Record token as a sale
-        let sales = dayEntity.sales
-        sales.push(tokenId.toString())
-        dayEntity.sales = sales
-
-        dayEntity.salesCount = dayEntity.salesCount + ONE
-    } else {
-        // Record token as a gift
-        let gifts = dayEntity.gifts
-        gifts.push(tokenId.toString())
-        dayEntity.gifts = gifts
-
-        dayEntity.giftsCount = dayEntity.giftsCount + ONE
+        dayEntity.salesCount = dayEntity.salesCount.plus(ONE)
     }
+
+    dayEntity.issuedCount = dayEntity.issuedCount.plus(ONE)
+
+    // add all purchase with eth, gifts, bid accepted
+    let issued = dayEntity.issued
+    issued.push(tokenId.toString())
+    dayEntity.issued = issued
 
     dayEntity.save()
 }

@@ -12,10 +12,11 @@ export function loadOrCreateArtist(address: Address): Artist | null {
         artist.address = address
 
         artist.editionsCount = ZERO
-        artist.giftsCount = ZERO
-        artist.salesCount = ZERO
-        artist.supply = ZERO
 
+        artist.issuedCount = ZERO
+        artist.salesCount = ZERO
+
+        artist.supply = ZERO
         artist.totalValueInEth = new BigDecimal(ZERO)
 
         artist.highestSaleValueInEth = new BigDecimal(ZERO)
@@ -61,9 +62,9 @@ export function recordArtistCounts(artistAddress: Address, value: BigInt): void 
 
     if (value > ZERO) {
         artist.salesCount = artist.salesCount.plus(ONE)
-    } else {
-        artist.giftsCount = artist.giftsCount.plus(ONE)
     }
+
+    artist.issuedCount = artist.issuedCount.plus(ONE)
 
     artist.save()
 }

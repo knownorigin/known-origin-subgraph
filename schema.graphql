@@ -28,13 +28,14 @@ type Day @entity {
     totalValuePlaceInBids: BigDecimal!
     totalValueCycledInBids: BigDecimal!
     # Sales/gifting counts and values
+    issuedCount: BigInt!
     salesCount: BigInt!
-    giftsCount: BigInt! # FIXME this isnt right - do not use this metric as fact
+
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
-    sales: [Token!]!
-    gifts: [Token!]!
+
+    issued: [Token!]!
     editions: [Edition!]!
 }
 
@@ -104,8 +105,8 @@ type Artist @entity {
 
     supply: BigInt!
 
+    issuedCount: BigInt!
     salesCount: BigInt!
-    giftsCount: BigInt!
 
     totalValueInEth: BigDecimal!
 

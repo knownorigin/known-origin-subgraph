@@ -21,11 +21,11 @@ export function handlePurchase(event: PurchasedWithEther): void {
 
     // Record token as a sale
     let dayEntity = loadDayFromEvent(event)
-    let sales = dayEntity.sales
-    sales.push(tokenId.toString())
-    dayEntity.sales = sales
+    let issued = dayEntity.issued
+    issued.push(tokenId.toString())
+    dayEntity.issued = issued
 
-    dayEntity.salesCount = dayEntity.salesCount + ONE
+    dayEntity.salesCount = dayEntity.salesCount.plus(ONE)
 
     dayEntity.save()
 }
