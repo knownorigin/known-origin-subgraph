@@ -6,29 +6,29 @@ schema:
 dataSources:
   ## KODA V1 (Alpha)
   # FIXME - do this properly when we do it...
-#  - kind: ethereum/contract
-#    name: KnownOriginV1
-#    network: mainnet
-#    source:
-#      address: "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72"
-#      abi: KnownOriginV1
-#      startBlock: 5381767
-#    mapping:
-#      kind: ethereum/events
-#      apiVersion: 0.0.3
-#      language: wasm/assemblyscript
-#      entities:
-#        - Transfer
-#      abis:
-#        - name: KnownOriginV1
-#          file: ./abis/KnownOriginV1.json
-#      eventHandlers:
-#        - event: Transfer(indexed address,indexed address,uint256)
-#          handler: handleTransfer
-#
-#        - event: PurchasedWithEther(indexed uint256,indexed address)
-#          handler: handlePurchase
-#      file: ./src/mappings/known-origin-v1-mapping.ts
+  #  - kind: ethereum/contract
+  #    name: KnownOriginV1
+  #    network: mainnet
+  #    source:
+  #      address: "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72"
+  #      abi: KnownOriginV1
+  #      startBlock: 5381767
+  #    mapping:
+  #      kind: ethereum/events
+  #      apiVersion: 0.0.3
+  #      language: wasm/assemblyscript
+  #      entities:
+  #        - Transfer
+  #      abis:
+  #        - name: KnownOriginV1
+  #          file: ./abis/KnownOriginV1.json
+  #      eventHandlers:
+  #        - event: Transfer(indexed address,indexed address,uint256)
+  #          handler: handleTransfer
+  #
+  #        - event: PurchasedWithEther(indexed uint256,indexed address)
+  #          handler: handlePurchase
+  #      file: ./src/mappings/known-origin-v1-mapping.ts
 
   ## KODA V2 (Current)
   - kind: ethereum/contract
@@ -65,18 +65,17 @@ dataSources:
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
       # Some things we need to watch method calls for
-      # FIXME - disabled for now as it seems to take an unbelievable amount of time to sync with call handler setup
       # For price changes we can listen to `PriceChanged` event from ArtistControls
       # For others ... I dont have a solution other than force deploying to refresh the data
-#      callHandlers:
-#        - function: updateActive(uint256,bool)
-#          handler: handleUpdateActive
-#      #        - function: updateArtistsAccount(uint256,address)
-#      #          handler: handleUpdateArtistsAccount
-#      #        - function: updateArtistCommission(uint256,uint256)
-#      #          handler: handleUpdateArtistCommission
-#      #        - function: updatePriceInWei(uint256,uint256)
-#      #          handler: handleUpdatePriceInWei
+      callHandlers:
+        - function: updateActive(uint256,bool)
+          handler: handleUpdateActive
+      #        - function: updateArtistsAccount(uint256,address)
+      #          handler: handleUpdateArtistsAccount
+      #        - function: updateArtistCommission(uint256,uint256)
+      #          handler: handleUpdateArtistCommission
+      #        - function: updatePriceInWei(uint256,uint256)
+      #          handler: handleUpdatePriceInWei
 
       file: ./src/mappings/known-origin-v2-mapping.ts
 

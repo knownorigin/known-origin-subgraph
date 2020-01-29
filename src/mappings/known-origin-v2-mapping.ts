@@ -20,7 +20,7 @@ import {
     addEditionToArtist,
     recordArtistValue,
     recordArtistCounts,
-    recordArtistIssued
+    recordArtistIssued, loadOrCreateArtist
 } from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
@@ -207,8 +207,10 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     editionEntity.active = call.inputs._active;
     editionEntity.save()
 
-    // FIXME reduce supply and edition count for artist?
-    // can editions with sales be disabled?
+    let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+    artist.editionsCount = artist.editionsCount.minus(ONE);
+    artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+    artist.save();
 }
 
 export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {
