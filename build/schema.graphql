@@ -28,13 +28,14 @@ type Day @entity {
     totalValuePlaceInBids: BigDecimal!
     totalValueCycledInBids: BigDecimal!
     # Sales/gifting counts and values
+    issuedCount: BigInt!
     salesCount: BigInt!
-    giftsCount: BigInt! # FIXME this isnt right - do not use this metric as fact
+
     totalValueInEth: BigDecimal!
     highestValueInEth: BigDecimal!
     highestValueToken: Token
-    sales: [Token!]!
-    gifts: [Token!]!
+
+    issued: [Token!]!
     editions: [Edition!]!
 }
 
@@ -82,6 +83,8 @@ type Edition @entity {
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
     allOwners: [Collector]! # list (set) of all unique owners for all tokens
+    currentOwners: [Collector]! # TODO Current (set) owners at this point in time
+    primaryOwners: [Collector]! # Owners (set) when sold in primary sale
 }
 
 type AuctionEvent @entity {
@@ -104,8 +107,8 @@ type Artist @entity {
 
     supply: BigInt!
 
+    issuedCount: BigInt!
     salesCount: BigInt!
-    giftsCount: BigInt!
 
     totalValueInEth: BigDecimal!
 
@@ -124,12 +127,19 @@ type Collector @entity {
     address: Bytes! # address
     firstSeen: BigInt!
 
-    #    firstPurchaseTimeStamp: BigInt!
-    #    lastPurchaseTimeStamp: BigInt!
+    firstPurchaseTimeStamp: BigInt!
+
+    # Primary sales counts
+    primarySaleCount: BigInt!
+    primarySaleEthSpent: BigInt!
+#    primarySaleTokensPurchased: [Token!]!
+#    primarySaleEditionsPurchased: [Edition!]!
+
+    # TODO Counts for any type of ownership
+
     #    tokenIdsPurchased: [BigInt!]!
+    #    lastPurchaseTimeStamp: BigInt!
     #    tokenIdsCurrentlyOwned: [BigInt!]!
-    #    editionsPurchased: [BigInt!]!
-    #    editionsCurrentlyOwned: [BigInt!]!
     #    totalSpendInEth: BigDecimal!
     #    totalTransfer - can we already work this out?
     #    purchase history - can we work this out already?

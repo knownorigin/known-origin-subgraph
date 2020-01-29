@@ -4,30 +4,41 @@ import {
     PurchasedWithEther,
 } from "../../generated/KnownOriginV1/KnownOriginV1"
 
-import {loadDayFromEvent, recordDayTransfer, recordDayValue} from "../services/Day.service";
-import {recordArtistValue} from "../services/Artist.service";
+import {
+    loadDayFromEvent,
+    recordDayCounts,
+    recordDayIssued,
+    recordDayTransfer,
+    recordDayValue
+} from "../services/Day.service";
+import {
+    loadOrCreateArtist,
+    recordArtistCounts,
+    recordArtistIssued,
+    recordArtistValue
+} from "../services/Artist.service";
 import {ONE} from "../constants";
 
+// FIXME need to think about this a bit more...
 export function handlePurchase(event: PurchasedWithEther): void {
     let contract = KnownOriginV1.bind(event.address)
 
     // Record Artist Data
     let tokenId = event.params._tokenId
     let artistAddress = contract.editionInfo(tokenId).value4
-    recordArtistValue(artistAddress, tokenId, event.transaction.value)
 
-    // Record Purchases against the Day & Month
+    recordArtistValue(artistAddress, tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    // Record token as a sale
-    let dayEntity = loadDayFromEvent(event)
-    let sales = dayEntity.sales
-    sales.push(tokenId.toString())
-    dayEntity.sales = sales
+    recordDayCounts(event, event.transaction.value)
+    recordArtistCounts(artistAddress, event.transaction.value)
 
-    dayEntity.salesCount = dayEntity.salesCount + ONE
+    recordDayIssued(event, tokenId)
+    recordArtistIssued(artistAddress)
 
-    dayEntity.save()
+    let artist = loadOrCreateArtist(artistAddress)
+    artist.supply = artist.supply.plus(ONE)
+    artist.save()
 }
 
 export function handleTransfer(event: Transfer): void {

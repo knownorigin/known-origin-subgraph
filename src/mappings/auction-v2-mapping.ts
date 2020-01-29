@@ -41,6 +41,7 @@ import {
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
 import {toEther} from "../utils";
+import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -101,9 +102,12 @@ export function handleBidAccepted(event: BidAccepted): void {
         uint256 _amount
       );
     */
+
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let artistAddress = contract.artistCommission(event.params._editionNumber).value0
-    recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
+
+    let collector = loadOrCreateCollector(event.params._bidder, event.block);
+    collector.save();
 
     let auctionEvent = createBidAccepted(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
     auctionEvent.save()
@@ -121,14 +125,22 @@ export function handleBidAccepted(event: BidAccepted): void {
     let biddingHistory = editionEntity.biddingHistory
     biddingHistory.push(auctionEvent.id.toString())
     editionEntity.biddingHistory = biddingHistory
-    editionEntity.save()
+
+    // Tally up primary sale owners
+    if (!collectorInList(collector, editionEntity.primaryOwners)) {
+        let primaryOwners = editionEntity.primaryOwners;
+        primaryOwners.push(collector.id);
+        editionEntity.primaryOwners = primaryOwners;
+    }
+
+    editionEntity.save();
 
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
     recordDayValue(event, event.params._tokenId, event.params._amount)
+    recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
 
-    // FIXME
-    recordDayCounts(event, event.params._tokenId, event.params._amount)
+    recordDayCounts(event, event.params._amount)
     recordArtistCounts(artistAddress, event.params._amount)
 
     recordDayBidAcceptedCount(event)
@@ -136,6 +148,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+
+    addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
+
 }
 
 export function handleBidRejected(event: BidRejected): void {

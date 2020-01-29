@@ -9,15 +9,29 @@ import {
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition, loadOrCreateEditionFromTokenId} from "../services/Edition.service";
-import {addEditionToDay, recordDayCounts, recordDayTransfer, recordDayValue} from "../services/Day.service";
-import {addEditionToArtist, recordArtistValue, recordArtistCounts} from "../services/Artist.service";
+import {
+    addEditionToDay,
+    recordDayCounts,
+    recordDayIssued,
+    recordDayTransfer,
+    recordDayValue
+} from "../services/Day.service";
+import {
+    addEditionToArtist,
+    recordArtistValue,
+    recordArtistCounts,
+    recordArtistIssued
+} from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
-import {Collector, Edition, TransferEvent} from "../../generated/schema";
 import {createTransferEvent} from "../services/TransferEvent.factory";
-import {loadOrCreateCollector} from "../services/Collector.service";
+import {
+    addPrimarySaleToCollector,
+    collectorInList,
+    loadOrCreateCollector
+} from "../services/Collector.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -74,16 +88,11 @@ export function handleTransfer(event: Transfer): void {
     editionEntity.transfers = editionTransfers;
 
     // Check if the edition already has the owner
-    let allEditionOwners = editionEntity.allOwners;
-    for (let i = 0; i < editionEntity.allOwners.length; i++) {
-        let owner = allEditionOwners[i]
-        if (owner.toString() == collector.id.toString()) {
-            let allOwners = editionEntity.allOwners;
-            allOwners.push(collector.id);
-            editionEntity.allOwners = allOwners;
-        }
+    if (!collectorInList(collector, editionEntity.allOwners)) {
+        let allOwners = editionEntity.allOwners;
+        allOwners.push(collector.id);
+        editionEntity.allOwners = allOwners;
     }
-
     editionEntity.save();
 
     /////////////////
@@ -105,18 +114,14 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.transfers = tokenTransfers;
 
     // Check if the token already has the owner
-    let allTokenOwners = tokenEntity.allOwners;
-    for (let i = 0; i < tokenEntity.allOwners.length; i++) {
-        let owner = allTokenOwners[i]
-        if (owner.toString() == collector.id.toString()) {
-            let allOwners = tokenEntity.allOwners;
-            allOwners.push(collector.id);
-            tokenEntity.allOwners = allOwners;
-        }
+    if (!collectorInList(collector, tokenEntity.allOwners)) {
+        let allOwners = tokenEntity.allOwners;
+        allOwners.push(collector.id);
+        tokenEntity.allOwners = allOwners;
     }
 
     // Keep track of current owner
-    tokenEntity.currentOwner = transferEvent.id
+    tokenEntity.currentOwner = transferEvent.id;
     tokenEntity.save();
 }
 
@@ -128,6 +133,10 @@ export function handlePurchase(event: Purchase): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
     tokenEntity.save()
 
+    // Create collector
+    let collector = loadOrCreateCollector(event.params._buyer, event.block);
+    collector.save();
+
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = contract.artistCommission(editionNumber).value0
@@ -135,7 +144,7 @@ export function handlePurchase(event: Purchase): void {
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    recordDayCounts(event, event.params._tokenId, event.transaction.value)
+    recordDayCounts(event, event.transaction.value)
     recordArtistCounts(artistAddress, event.transaction.value)
 
     // Action edition data changes
@@ -149,6 +158,15 @@ export function handlePurchase(event: Purchase): void {
         sales.push(event.params._tokenId.toString())
         editionEntity.sales = sales
         editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
+
+        // Tally up primary sale owners
+        if (!collectorInList(collector, editionEntity.primaryOwners)) {
+            let primaryOwners = editionEntity.primaryOwners;
+            primaryOwners.push(collector.id);
+            editionEntity.primaryOwners = primaryOwners;
+        }
+
+        addPrimarySaleToCollector(event.block, event.transaction.from, event.transaction.value, event.params._editionNumber, event.params._tokenId);
     }
     editionEntity.save()
 }
@@ -172,6 +190,13 @@ export function handleMinted(event: Minted): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
     tokenEntity.save();
+
+    // record running total of issued tokens
+    recordDayIssued(event, event.params._tokenId)
+
+    let editionNumber = event.params._editionNumber
+    let artistAddress = contract.artistCommission(editionNumber).value0
+    recordArtistIssued(artistAddress)
 }
 
 export function handleUpdateActive(call: UpdateActiveCall): void {
@@ -181,6 +206,9 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
     editionEntity.active = call.inputs._active;
     editionEntity.save()
+
+    // FIXME reduce supply and edition count for artist?
+    // can editions with sales be disabled?
 }
 
 export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {
