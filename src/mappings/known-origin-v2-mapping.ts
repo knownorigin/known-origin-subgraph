@@ -47,7 +47,7 @@ export function handleEditionCreated(event: EditionCreated): void {
         let _editionData = _editionDataResult.value;
         addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
     } else {
-        log.error("Handled reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
+        log.error("Handled unknown reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
     }
 }
 
