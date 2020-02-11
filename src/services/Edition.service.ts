@@ -62,6 +62,7 @@ export function loadEdition(editionNumber: BigInt): Edition | null {
 }
 
 export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock): Edition | null {
+    log.info("loadOrCreateEditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET));
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateEdition(_editionNumber, block, contract);
