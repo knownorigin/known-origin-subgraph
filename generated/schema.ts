@@ -1153,22 +1153,4 @@ export class Collector extends Entity {
   set primarySaleEthSpent(value: BigInt) {
     this.set("primarySaleEthSpent", Value.fromBigInt(value));
   }
-
-  get primarySaleTokensPurchased(): Array<string> {
-    let value = this.get("primarySaleTokensPurchased");
-    return value.toStringArray();
-  }
-
-  set primarySaleTokensPurchased(value: Array<string>) {
-    this.set("primarySaleTokensPurchased", Value.fromStringArray(value));
-  }
-
-  get primarySaleEditionsPurchased(): Array<string> {
-    let value = this.get("primarySaleEditionsPurchased");
-    return value.toStringArray();
-  }
-
-  set primarySaleEditionsPurchased(value: Array<string>) {
-    this.set("primarySaleEditionsPurchased", Value.fromStringArray(value));
-  }
 }

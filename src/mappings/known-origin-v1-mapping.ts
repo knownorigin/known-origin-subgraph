@@ -18,6 +18,7 @@ import {
     recordArtistValue
 } from "../services/Artist.service";
 import {ONE} from "../constants";
+import {getArtistAddress} from "../services/AddressMapping.service";
 
 // FIXME need to think about this a bit more...
 export function handlePurchase(event: PurchasedWithEther): void {
@@ -25,7 +26,7 @@ export function handlePurchase(event: PurchasedWithEther): void {
 
     // Record Artist Data
     let tokenId = event.params._tokenId
-    let artistAddress = contract.editionInfo(tokenId).value4
+    let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
 
     recordArtistValue(artistAddress, tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)

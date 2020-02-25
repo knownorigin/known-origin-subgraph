@@ -33,6 +33,7 @@ import {
     createBidWithdrawn
 } from "../services/AuctionEvent.factory";
 import {toEther} from "../utils";
+import {getArtistAddress} from "../services/AddressMapping.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
@@ -53,7 +54,7 @@ export function handleBidPlaced(event: BidPlaced): void {
 
 export function handleBidAccepted(event: BidAccepted): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-    let artistAddress = contract.artistCommission(event.params._editionNumber).value0
+    let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
 
 
     let auctionEvent = createBidAccepted(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);

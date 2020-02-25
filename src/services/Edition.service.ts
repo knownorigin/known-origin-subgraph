@@ -4,6 +4,7 @@ import {Edition} from "../../generated/schema";
 import {KODA_MAINNET, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {Address} from "@graphprotocol/graph-ts/index";
+import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -32,7 +33,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
             editionEntity.editionType = _editionData.value1
             editionEntity.startDate = _editionData.value2
             editionEntity.endDate = _editionData.value3
-            editionEntity.artistAccount = _editionData.value4
+            editionEntity.artistAccount = getArtistAddress(_editionData.value4)
             editionEntity.artistCommission = _editionData.value5
             editionEntity.priceInWei = _editionData.value6
             editionEntity.tokenURI = _editionData.value7
@@ -43,7 +44,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
             let _optionalCommission = contract.editionOptionalCommission(editionNumber)
             if (_optionalCommission.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value0
-                editionEntity.optionalCommissionAccount = _optionalCommission.value1
+                editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value1)
             }
 
             let metaData = constructMetaData(_editionData.value7)

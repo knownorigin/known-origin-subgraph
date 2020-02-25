@@ -2,15 +2,15 @@ import {Address, BigDecimal, BigInt, EthereumEvent, EthereumTransaction} from "@
 import {Artist} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {toEther} from "../utils";
-import {loadDayFromEvent} from "./Day.service";
+import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateArtist(address: Address): Artist | null {
     let artist: Artist | null = Artist.load(address.toHexString())
 
     if (artist === null) {
-        artist = new Artist(address.toHexString())
+        artist = new Artist(getArtistAddress(address).toHexString())
 
-        artist.address = address
+        artist.address = getArtistAddress(address)
 
         artist.editionsCount = ZERO
 

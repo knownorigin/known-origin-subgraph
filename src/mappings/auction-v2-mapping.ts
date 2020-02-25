@@ -42,6 +42,7 @@ import {
 } from "../services/AuctionEvent.service";
 import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
+import {getArtistAddress} from "../services/AddressMapping.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -104,7 +105,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
 
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-    let artistAddress = contract.artistCommission(event.params._editionNumber).value0
+    let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
 
     let collector = loadOrCreateCollector(event.params._bidder, event.block);
     collector.save();
