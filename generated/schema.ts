@@ -1136,6 +1136,15 @@ export class Collector extends Entity {
     this.set("firstPurchaseTimeStamp", Value.fromBigInt(value));
   }
 
+  get lastPurchaseTimeStamp(): BigInt {
+    let value = this.get("lastPurchaseTimeStamp");
+    return value.toBigInt();
+  }
+
+  set lastPurchaseTimeStamp(value: BigInt) {
+    this.set("lastPurchaseTimeStamp", Value.fromBigInt(value));
+  }
+
   get primarySaleCount(): BigInt {
     let value = this.get("primarySaleCount");
     return value.toBigInt();

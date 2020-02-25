@@ -32,9 +32,10 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
 export function addPrimarySaleToCollector(block: EthereumBlock, address: Address, value: BigInt, editionNumber: BigInt, tokenId: BigInt): void {
     let collector = loadOrCreateCollector(address, block);
 
-    if (collector.firstPurchaseTimeStamp) {
+    if (!collector.firstPurchaseTimeStamp) {
         collector.firstPurchaseTimeStamp = block.timestamp;
     }
+    collector.lastPurchaseTimeStamp = block.timestamp;
 
     collector.primarySaleCount = collector.primarySaleCount.plus(ONE);
     collector.primarySaleEthSpent = collector.primarySaleEthSpent.plus(value);
