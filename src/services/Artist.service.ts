@@ -5,12 +5,14 @@ import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateArtist(address: Address): Artist | null {
-    let artist: Artist | null = Artist.load(getArtistAddress(address).toHexString())
+    let artistAddress = getArtistAddress(address);
+
+    let artist: Artist | null = Artist.load(artistAddress.toHexString())
 
     if (artist === null) {
-        artist = new Artist(getArtistAddress(address).toHexString())
+        artist = new Artist(artistAddress.toHexString())
 
-        artist.address = getArtistAddress(address)
+        artist.address = artistAddress
 
         artist.editionsCount = ZERO
 
