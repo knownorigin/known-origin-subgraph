@@ -10,6 +10,7 @@ export function loadOrCreateCollector(address: Address, block: EthereumBlock): C
         collectorEntity.address = address;
         collectorEntity.firstSeen = block.timestamp;
         collectorEntity.firstPurchaseTimeStamp = ZERO;
+        collectorEntity.lastPurchaseTimeStamp = ZERO;
         collectorEntity.primarySaleCount = ZERO;
         collectorEntity.primarySaleEthSpent = ZERO;
     }
