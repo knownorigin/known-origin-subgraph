@@ -5,7 +5,7 @@ import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateArtist(address: Address): Artist | null {
-    let artist: Artist | null = Artist.load(address.toHexString())
+    let artist: Artist | null = Artist.load(getArtistAddress(address).toHexString())
 
     if (artist === null) {
         artist = new Artist(getArtistAddress(address).toHexString())
