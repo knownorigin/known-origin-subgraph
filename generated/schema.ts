@@ -1136,6 +1136,15 @@ export class Collector extends Entity {
     this.set("firstPurchaseTimeStamp", Value.fromBigInt(value));
   }
 
+  get lastPurchaseTimeStamp(): BigInt {
+    let value = this.get("lastPurchaseTimeStamp");
+    return value.toBigInt();
+  }
+
+  set lastPurchaseTimeStamp(value: BigInt) {
+    this.set("lastPurchaseTimeStamp", Value.fromBigInt(value));
+  }
+
   get primarySaleCount(): BigInt {
     let value = this.get("primarySaleCount");
     return value.toBigInt();
@@ -1152,23 +1161,5 @@ export class Collector extends Entity {
 
   set primarySaleEthSpent(value: BigInt) {
     this.set("primarySaleEthSpent", Value.fromBigInt(value));
-  }
-
-  get primarySaleTokensPurchased(): Array<string> {
-    let value = this.get("primarySaleTokensPurchased");
-    return value.toStringArray();
-  }
-
-  set primarySaleTokensPurchased(value: Array<string>) {
-    this.set("primarySaleTokensPurchased", Value.fromStringArray(value));
-  }
-
-  get primarySaleEditionsPurchased(): Array<string> {
-    let value = this.get("primarySaleEditionsPurchased");
-    return value.toStringArray();
-  }
-
-  set primarySaleEditionsPurchased(value: Array<string>) {
-    this.set("primarySaleEditionsPurchased", Value.fromStringArray(value));
   }
 }

@@ -32,6 +32,7 @@ import {
     collectorInList,
     loadOrCreateCollector
 } from "../services/Collector.service";
+import {getArtistAddress} from "../services/AddressMapping.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -139,7 +140,7 @@ export function handlePurchase(event: Purchase): void {
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
-    let artistAddress = contract.artistCommission(editionNumber).value0
+    let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
     recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
@@ -195,7 +196,7 @@ export function handleMinted(event: Minted): void {
     recordDayIssued(event, event.params._tokenId)
 
     let editionNumber = event.params._editionNumber
-    let artistAddress = contract.artistCommission(editionNumber).value0
+    let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
     recordArtistIssued(artistAddress)
 }
 
@@ -218,7 +219,7 @@ export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void
 
     let editionNumber = call.inputs._editionNumber
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.artistAccount = call.inputs._artistAccount;
+    editionEntity.artistAccount = getArtistAddress(call.inputs._artistAccount);
     editionEntity.save()
 }
 
