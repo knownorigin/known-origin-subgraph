@@ -19,6 +19,7 @@ import {
 } from "../services/Artist.service";
 import {ONE} from "../constants";
 import {getArtistAddress} from "../services/AddressMapping.service";
+import {addPrimarySaleToCollector} from "../services/Collector.service";
 
 // FIXME need to think about this a bit more...
 export function handlePurchase(event: PurchasedWithEther): void {
@@ -26,20 +27,23 @@ export function handlePurchase(event: PurchasedWithEther): void {
 
     // Record Artist Data
     let tokenId = event.params._tokenId
-    let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
+    // let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
 
-    recordArtistValue(artistAddress, tokenId, event.transaction.value)
-    recordDayValue(event, event.params._tokenId, event.transaction.value)
+    // recordArtistValue(artistAddress, tokenId, event.transaction.value)
+    // recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    recordDayCounts(event, event.transaction.value)
-    recordArtistCounts(artistAddress, event.transaction.value)
+    // recordDayCounts(event, event.transaction.value)
+    // recordArtistCounts(artistAddress, event.transaction.value)
 
-    recordDayIssued(event, tokenId)
-    recordArtistIssued(artistAddress)
+    // recordDayIssued(event, tokenId)
+    // recordArtistIssued(artistAddress)
 
-    let artist = loadOrCreateArtist(artistAddress)
-    artist.supply = artist.supply.plus(ONE)
-    artist.save()
+    // let artist = loadOrCreateArtist(artistAddress)
+    // artist.supply = artist.supply.plus(ONE)
+    // artist.save()
+
+    // TODO handle no edition in V1
+    addPrimarySaleToCollector(event.block, event.params._buyer, event.transaction.value, ONE, tokenId);
 }
 
 export function handleTransfer(event: Transfer): void {

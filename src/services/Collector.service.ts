@@ -30,8 +30,8 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
     return false;
 }
 
-export function addPrimarySaleToCollector(block: EthereumBlock, address: Address, value: BigInt, editionNumber: BigInt, tokenId: BigInt): void {
-    let collector = loadOrCreateCollector(address, block);
+export function addPrimarySaleToCollector(block: EthereumBlock, buyer: Address, value: BigInt, editionNumber: BigInt, tokenId: BigInt): void {
+    let collector = loadOrCreateCollector(buyer, block);
 
     if (!collector.firstPurchaseTimeStamp) {
         collector.firstPurchaseTimeStamp = block.timestamp;

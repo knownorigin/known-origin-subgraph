@@ -35,6 +35,10 @@ import {
 import {toEther} from "../utils";
 import {getArtistAddress} from "../services/AddressMapping.service";
 
+import {
+    addPrimarySaleToCollector
+} from "../services/Collector.service";
+
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
@@ -86,6 +90,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayBidAcceptedCount(event)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+
+    addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {

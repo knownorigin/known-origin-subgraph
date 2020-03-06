@@ -167,7 +167,7 @@ export function handlePurchase(event: Purchase): void {
             editionEntity.primaryOwners = primaryOwners;
         }
 
-        addPrimarySaleToCollector(event.block, event.transaction.from, event.transaction.value, event.params._editionNumber, event.params._tokenId);
+        addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei, event.params._editionNumber, event.params._tokenId);
     }
     editionEntity.save()
 }
