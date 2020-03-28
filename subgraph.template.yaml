@@ -2,15 +2,16 @@ specVersion: 0.0.2
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
 schema:
-  file: schema.graphql
+  file: ./schema.graphql
 dataSources:
+  ## KODA V1 (Alpha)
   - kind: ethereum/contract
     name: KnownOriginV1
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72"
+      address: '{{koda-v1-address}}'
       abi: KnownOriginV1
-      startBlock: 5381767
+      startBlock: {{koda-v1-startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -19,18 +20,22 @@ dataSources:
         - Transfer
       abis:
         - name: KnownOriginV1
-          file: KnownOriginV1/abis/KnownOriginV1.json
+          file: ./abis/KnownOriginV1.json
       eventHandlers:
+        #        - event: Transfer(indexed address,indexed address,uint256)
+        #          handler: handleTransfer
         - event: PurchasedWithEther(indexed uint256,indexed address)
           handler: handlePurchase
-      file: KnownOriginV1/KnownOriginV1.wasm
+      file: ./src/mappings/known-origin-v1-mapping.ts
+
+  ## KODA V2 (Current)
   - kind: ethereum/contract
     name: KnownOrigin
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0xfbeef911dc5821886e1dda71586d90ed28174b7d"
+      address: '{{koda-v2-address}}'
       abi: KnownOrigin
-      startBlock: 6270484
+      startBlock: {{koda-v2-startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -40,27 +45,45 @@ dataSources:
         - EditionCreated
       abis:
         - name: KnownOrigin
-          file: KnownOrigin/abis/KnownOrigin.json
+          file: ./abis/KnownOrigin.json
       eventHandlers:
+        # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+
+          # Every edition created emits one of these
         - event: EditionCreated(indexed uint256,indexed bytes32,indexed uint256)
           handler: handleEditionCreated
+
+          # Emitted on purchases from within this contract
         - event: Purchase(indexed uint256,indexed uint256,indexed address,uint256)
           handler: handlePurchase
+
+          # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
+      # Some things we need to watch method calls for
+      # For price changes we can listen to `PriceChanged` event from ArtistControls
+      # For others ... I dont have a solution other than force deploying to refresh the data
       callHandlers:
         - function: updateActive(uint256,bool)
           handler: handleUpdateActive
-      file: KnownOrigin/KnownOrigin.wasm
+      #        - function: updateArtistsAccount(uint256,address)
+      #          handler: handleUpdateArtistsAccount
+      #        - function: updateArtistCommission(uint256,uint256)
+      #          handler: handleUpdateArtistCommission
+      #        - function: updatePriceInWei(uint256,uint256)
+      #          handler: handleUpdatePriceInWei
+      file: ./src/mappings/known-origin-v2-mapping.ts
+
+  ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec"
+      address: '{{auction-v1-address}}'
       abi: ArtistAcceptingBidsV1
-      startBlock: 6568535
+      startBlock: {{auction-v1-startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -69,30 +92,37 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV1
-          file: ArtistAcceptingBidsV1/abis/ArtistAcceptingBidsV1.json
+          file: ./abis/ArtistAcceptingBidsV1.json
         - name: KnownOrigin
-          file: ArtistAcceptingBidsV1/abis/KnownOrigin.json
+          file: ./abis/KnownOrigin.json
       eventHandlers:
         - event: BidPlaced(indexed address,indexed uint256,indexed uint256)
           handler: handleBidPlaced
+
         - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
           handler: handleBidAccepted
+
         - event: BidWithdrawn(indexed address,indexed uint256)
           handler: handleBidWithdrawn
+
         - event: BidIncreased(indexed address,indexed uint256,indexed uint256)
           handler: handleBidIncreased
+
         - event: BidderRefunded(indexed uint256,indexed address,indexed uint256)
           handler: handleBidderRefunded
+
         - event: AuctionCancelled(indexed uint256)
           handler: handleAuctionCancelled
-      file: ArtistAcceptingBidsV1/ArtistAcceptingBidsV1.wasm
+      file: ./src/mappings/auction-v1-mapping.ts
+
+  ## Auctions V2 (Current)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
-    network: mainnet
+    network: {{network}}
     source:
-      address: "0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639"
+      address: '{{auction-v2-address}}'
       abi: ArtistAcceptingBidsV2
-      startBlock: 7271800
+      startBlock: {{auction-v2-startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -101,24 +131,31 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV2
-          file: ArtistAcceptingBidsV2/abis/ArtistAcceptingBidsV2.json
+          file: ./abis/ArtistAcceptingBidsV2.json
         - name: KnownOrigin
-          file: ArtistAcceptingBidsV2/abis/KnownOrigin.json
+          file: ./abis/KnownOrigin.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
+
         - event: AuctionCancelled(indexed uint256)
           handler: handleAuctionCancelled
+
         - event: BidPlaced(indexed address,indexed uint256,uint256)
           handler: handleBidPlaced
+
         - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
           handler: handleBidAccepted
+
         - event: BidRejected(indexed address,indexed address,indexed uint256,uint256)
           handler: handleBidRejected
+
         - event: BidWithdrawn(indexed address,indexed uint256)
           handler: handleBidWithdrawn
+
         - event: BidIncreased(indexed address,indexed uint256,uint256)
           handler: handleBidIncreased
+
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
-      file: ArtistAcceptingBidsV2/ArtistAcceptingBidsV2.wasm
+      file: ./src/mappings/auction-v2-mapping.ts
