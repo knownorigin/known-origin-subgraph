@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "prep:mainnet": "mustache templates/mainnet.json subgraph.template.yaml > subgraph.yaml",
-    "prep:rinkeby": "mustache templates/rinkeby.json subgraph.template.yaml > subgraph.yaml",
-    "deploy:mainnet": "yarn run prep:mainnet; graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin",
-    "deploy:rinkeby": "yarn run prep:rinkeby; graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin-rinkeby",
+    "prep:mainnet": "mustache templates/mainnet.json subgraph.template.yaml > subgraph.yaml && yarn codegen;",
+    "prep:rinkeby": "mustache templates/rinkeby.json subgraph.template.yaml > subgraph.yaml && yarn codegen;",
+    "deploy:mainnet": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin",
+    "deploy:rinkeby": "yarn run prep:rinkeby; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/knownoriginrinkeby",
     "create-local": "graph create --node http://localhost:8020/ knownorigin/known-origin",
     "remove-local": "graph remove --node http://localhost:8020/ knownorigin/known-origin",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 knownorigin/known-origin"

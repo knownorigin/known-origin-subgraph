@@ -7,5 +7,6 @@
   "auction-v1-address": "0xC68373E4BCCA5630A82b35b989e9F4Adb1d375c8",
   "auction-v1-startBlock": 3211004,
   "auction-v2-address": "0xb05DA17AA04ac6f57821513572fb7760a203cd98",
-  "auction-v2-startBlock": 3620647
+  "auction-v2-startBlock": 3620647,
+  "includeCallHandlers": false
 }
