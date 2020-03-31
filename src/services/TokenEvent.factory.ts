@@ -17,7 +17,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     let timestamp = event.block.timestamp;
 
     // BidPlace-{tokenId}-{to}-{timestamp}
-    let tokenOfferEventId = "Transfer-"
+    let tokenEventId = "Transfer-"
         .concat(event.params._tokenId.toHexString())
         .concat("-")
         .concat(event.params._to.toHexString())
@@ -26,7 +26,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
 
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEvent = new TokenEvent(tokenOfferEventId);
+    let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
@@ -56,7 +56,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     let timestamp = event.block.timestamp;
 
     // BidPlace-{tokenId}-{bidder}-{timestamp}
-    let tokenOfferEventId = "BidPlaced-"
+    let tokenEventId = "BidPlaced-"
         .concat(event.params._tokenId.toHexString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
@@ -65,7 +65,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
 
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEvent = new TokenEvent(tokenOfferEventId);
+    let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
@@ -93,7 +93,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
 export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenOfferEventId = "BidAccepted-"
+    let tokenEventId = "BidAccepted-"
         .concat(event.params._tokenId.toHexString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
@@ -102,7 +102,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
 
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEvent = new TokenEvent(tokenOfferEventId);
+    let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
@@ -130,7 +130,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
 export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenOfferEventId = "BidRejected-"
+    let tokenEventId = "BidRejected-"
         .concat(event.params._tokenId.toHexString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
@@ -139,7 +139,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
 
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEvent = new TokenEvent(tokenOfferEventId);
+    let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
@@ -167,7 +167,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
 export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenOfferEventId = "BidWithdrawn-"
+    let tokenEventId = "BidWithdrawn-"
         .concat(event.params._tokenId.toHexString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
@@ -176,7 +176,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
 
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEvent = new TokenEvent(tokenOfferEventId);
+    let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)

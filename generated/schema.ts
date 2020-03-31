@@ -1083,22 +1083,22 @@ export class TokenOffer extends Entity {
     this.set("edition", Value.fromString(value));
   }
 
-  get ownerAtTimeOfBid(): Bytes {
+  get ownerAtTimeOfBid(): string {
     let value = this.get("ownerAtTimeOfBid");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set ownerAtTimeOfBid(value: Bytes) {
-    this.set("ownerAtTimeOfBid", Value.fromBytes(value));
+  set ownerAtTimeOfBid(value: string) {
+    this.set("ownerAtTimeOfBid", Value.fromString(value));
   }
 
-  get bidder(): Bytes {
+  get bidder(): string {
     let value = this.get("bidder");
-    return value.toBytes();
+    return value.toString();
   }
 
-  set bidder(value: Bytes) {
-    this.set("bidder", Value.fromBytes(value));
+  set bidder(value: string) {
+    this.set("bidder", Value.fromString(value));
   }
 
   get ethValue(): BigDecimal {

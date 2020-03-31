@@ -133,8 +133,8 @@ type TokenOffer @entity {
     id: ID!
     token: Token!
     edition: Edition!
-    ownerAtTimeOfBid: Bytes!    # TODO change to collector
-    bidder: Bytes!              # TODO change to collector
+    ownerAtTimeOfBid: Collector!
+    bidder: Collector!
     ethValue: BigDecimal!
     timestamp: BigInt!
 }

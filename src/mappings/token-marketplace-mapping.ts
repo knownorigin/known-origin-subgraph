@@ -1,8 +1,4 @@
 import {
-    Address,
-} from "@graphprotocol/graph-ts/index";
-
-import {
     BidAccepted,
     BidPlaced,
     BidRejected,
@@ -12,11 +8,7 @@ import {
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 
 import {
-    KnownOrigin
-} from "../../generated/KnownOrigin/KnownOrigin"
-
-import {
-    TokenOffer, TokenEvent
+    TokenOffer
 } from "../../generated/schema";
 
 import {
@@ -43,6 +35,16 @@ import {
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {
+    recordDayBidAcceptedCount,
+    recordDayBidPlacedCount,
+    recordDayBidRejectedCount,
+    recordDayBidWithdrawnCount,
+    recordDayCounts,
+    recordDayTotalValueCycledInBids,
+    recordDayTotalValuePlaceInBids,
+    recordDayValue
+} from "../services/Day.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -98,15 +100,18 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     tokenOffer.timestamp = timestamp;
     tokenOffer.edition = editionEntity.id
-    tokenOffer.bidder = event.params._bidder
+    tokenOffer.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenOffer.ethValue = toEther(event.params._amount)
-    tokenOffer.ownerAtTimeOfBid = event.params._currentOwner
+    tokenOffer.ownerAtTimeOfBid = loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenOffer.token = tokenEntity.id;
     tokenOffer.save()
 
     tokenEntity.openOffer = tokenOffer.id
     tokenEntity.save();
 
+    recordDayBidPlacedCount(event)
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDayTotalValuePlaceInBids(event, event.params._amount)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -126,7 +131,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.openOffer = null;
     tokenEntity.save();
 
-
+    recordDayBidAcceptedCount(event)
+    recordDayCounts(event, event.params._amount)
+    recordDayValue(event, event.params._tokenId, event.params._amount)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -146,6 +153,7 @@ export function handleBidRejected(event: BidRejected): void {
     tokenEntity.openOffer = null;
     tokenEntity.save();
 
+    recordDayBidRejectedCount(event)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -163,4 +171,5 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     tokenEntity.openOffer = null;
     tokenEntity.save();
 
+    recordDayBidWithdrawnCount(event)
 }

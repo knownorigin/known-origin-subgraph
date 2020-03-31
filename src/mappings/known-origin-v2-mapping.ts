@@ -129,7 +129,7 @@ export function handleTransfer(event: Transfer): void {
     }
 
     // Keep track of current owner
-    tokenEntity.currentOwner = transferEvent.id;
+    tokenEntity.currentOwner = collector.id;
     tokenEntity.save();
 }
 

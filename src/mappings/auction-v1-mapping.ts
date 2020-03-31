@@ -15,7 +15,8 @@ import {
     recordDayBidPlacedCount,
     recordDayBidWithdrawnCount,
     recordDayBidIncreasedCount,
-    recordDayValue, recordDayCounts
+    recordDayValue,
+    recordDayCounts
 } from "../services/Day.service";
 
 import {ONE} from "../constants";
