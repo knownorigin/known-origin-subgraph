@@ -119,3 +119,40 @@ dataSources:
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
       file: ArtistAcceptingBidsV2/ArtistAcceptingBidsV2.wasm
+  - kind: ethereum/contract
+    name: TokenMarketplace
+    network: rinkeby
+    source:
+      address: "0x106105abad617a2e80a0C5D1D901cFD74803D53E"
+      abi: TokenMarketplace
+      startBlock: 6222694
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - BidPlaced
+        - BidWithdrawn
+        - BidAccepted
+        - BidRejected
+        - AuctionEnabled
+        - AuctionDisabled
+      abis:
+        - name: TokenMarketplace
+          file: TokenMarketplace/abis/TokenMarketplace.json
+        - name: KnownOrigin
+          file: TokenMarketplace/abis/KnownOrigin.json
+      eventHandlers:
+        - event: AuctionEnabled(indexed uint256,indexed address)
+          handler: handleAuctionEnabled
+        - event: AuctionDisabled(indexed uint256,indexed address)
+          handler: handleAuctionDisabled
+        - event: BidPlaced(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidPlaced
+        - event: BidAccepted(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidAccepted
+        - event: BidRejected(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidRejected
+        - event: BidWithdrawn(indexed uint256,indexed address)
+          handler: handleBidWithdrawn
+      file: TokenMarketplace/TokenMarketplace.wasm

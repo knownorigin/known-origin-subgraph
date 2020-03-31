@@ -8,5 +8,8 @@
   "auction-v1-startBlock": 3211004,
   "auction-v2-address": "0xb05DA17AA04ac6f57821513572fb7760a203cd98",
   "auction-v2-startBlock": 3620647,
-  "includeCallHandlers": false
+  "includeCallHandlers": false,
+  "includeTokenMarketplace": true,
+  "token-marketplace-v1-address": "0x106105abad617a2e80a0C5D1D901cFD74803D53E",
+  "token-marketplace-v1-startBlock": 6222694
 }

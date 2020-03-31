@@ -14,6 +14,7 @@ export function loadOrCreateCollector(address: Address, block: EthereumBlock): C
         collectorEntity.primarySaleCount = ZERO;
         collectorEntity.primarySaleEthSpent = ZERO;
     }
+    collectorEntity.save()
     return collectorEntity;
 }
 

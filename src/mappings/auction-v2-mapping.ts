@@ -43,10 +43,11 @@ import {
 import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
+import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
@@ -59,7 +60,7 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
     editionEntity.save()
@@ -75,7 +76,7 @@ export function handleBidPlaced(event: BidPlaced): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidPlacedEvent(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
@@ -104,7 +105,7 @@ export function handleBidAccepted(event: BidAccepted): void {
       );
     */
 
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
 
     let collector = loadOrCreateCollector(event.params._bidder, event.block);
@@ -114,7 +115,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     auctionEvent.save()
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._amount);
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._amount));
 
     // Record sale against the edition
     let sales = editionEntity.sales
@@ -163,7 +164,7 @@ export function handleBidRejected(event: BidRejected): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidRejected(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
@@ -188,7 +189,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidWithdrawn(event.block, event.transaction, event.params._editionNumber, event.params._bidder);
@@ -212,7 +213,7 @@ export function handleBidIncreased(event: BidIncreased): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidIncreased(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);

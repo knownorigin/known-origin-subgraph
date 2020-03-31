@@ -5,6 +5,7 @@ import {KODA_MAINNET, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {Address} from "@graphprotocol/graph-ts/index";
 import {getArtistAddress} from "./AddressMapping.service";
+import {getKnownOriginForAddress} from "./KnownOrigin.factory";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -62,9 +63,8 @@ export function loadEdition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
 }
 
-export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock): Edition | null {
+export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock, contract:KnownOrigin): Edition | null {
     log.info("loadOrCreateEditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET));
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateEdition(_editionNumber, block, contract);
 }

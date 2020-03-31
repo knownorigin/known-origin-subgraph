@@ -8,7 +8,10 @@ import {
     UpdateActiveCall, UpdateArtistsAccountCall, UpdateArtistCommissionCall, UpdatePriceInWeiCall
 } from "../../generated/KnownOrigin/KnownOrigin"
 
-import {loadOrCreateEdition, loadOrCreateEditionFromTokenId} from "../services/Edition.service";
+import {
+    loadOrCreateEdition,
+    loadOrCreateEditionFromTokenId
+} from "../services/Edition.service";
 import {
     addEditionToDay,
     recordDayCounts,
@@ -33,6 +36,7 @@ import {
     loadOrCreateCollector
 } from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
+import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -59,9 +63,12 @@ export function handleTransfer(event: Transfer): void {
     // Transfers //
     ///////////////
 
-    // Transfer Event
+    // Transfer Events
     let transferEvent = createTransferEvent(event);
     transferEvent.save();
+
+    let tokenTransferEvent = createTokenTransferEvent(event);
+    tokenTransferEvent.save();
 
     ////////////////
     // Day Counts //
@@ -81,7 +88,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////////
 
     // Record transfer against the edition
-    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block);
+    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block, contract);
 
     // Set Transfers on edition
     let editionTransfers = editionEntity.transfers;
@@ -150,7 +157,7 @@ export function handlePurchase(event: Purchase): void {
 
     // Action edition data changes
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._priceInWei);
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._priceInWei));
 
     // Only count Purchases with value attached as sale - primary sales trigger this event
     if (event.transaction.value > ZERO) {
@@ -200,6 +207,7 @@ export function handleMinted(event: Minted): void {
     recordArtistIssued(artistAddress)
 }
 
+// Only called on Mainnet
 export function handleUpdateActive(call: UpdateActiveCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
@@ -214,6 +222,7 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     artist.save();
 }
 
+// Only called on Mainnet
 export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
@@ -223,6 +232,7 @@ export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void
     editionEntity.save()
 }
 
+// Only called on Mainnet
 export function handleUpdateArtistCommission(call: UpdateArtistCommissionCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
@@ -232,6 +242,7 @@ export function handleUpdateArtistCommission(call: UpdateArtistCommissionCall): 
     editionEntity.save()
 }
 
+// Only called on Mainnet
 export function handleUpdatePriceInWei(call: UpdatePriceInWeiCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 

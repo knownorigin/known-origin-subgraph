@@ -1,7 +1,10 @@
 import {Bytes, ipfs, json, JSONValue} from "@graphprotocol/graph-ts";
 import {MetaData} from "../../generated/schema";
+import {log} from "@graphprotocol/graph-ts/index";
 
 export function constructMetaData(tokenURI: string): MetaData | null {
+
+    log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
     let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
