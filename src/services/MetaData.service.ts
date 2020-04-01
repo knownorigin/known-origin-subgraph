@@ -1,5 +1,6 @@
 import {Bytes, ipfs, json, JSONValue} from "@graphprotocol/graph-ts";
 import {MetaData} from "../../generated/schema";
+import {log} from "@graphprotocol/graph-ts/index";
 
 export function constructMetaData(tokenURI: string): MetaData | null {
 
@@ -37,6 +38,9 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 }
             }
         }
+    } else {
+        log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
+
     return metaData;
 }
