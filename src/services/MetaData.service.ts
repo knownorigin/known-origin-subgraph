@@ -40,6 +40,9 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 }
             }
         }
+    } else {
+        log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
+
     return metaData;
 }
