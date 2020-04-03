@@ -88,7 +88,7 @@ type Token @entity {
 type Edition @entity {
     id: ID!
     editionType: BigInt!
-    editionData: Bytes! # bytes32
+    editionData: Bytes # bytes32
     startDate: BigInt!
     endDate: BigInt!
     createdTimestamp: BigInt!
@@ -106,7 +106,7 @@ type Edition @entity {
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
-    metadata: MetaData!
+    metadata: MetaData
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
@@ -115,7 +115,6 @@ type Edition @entity {
     currentOwners: [Collector]! # TODO Current (set) owners at this point in time
     primaryOwners: [Collector]! # Owners (set) when sold in primary sale
 }
-
 
 # A token/editions and its meta data
 type MetaData @entity {

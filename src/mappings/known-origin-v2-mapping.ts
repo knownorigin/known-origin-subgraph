@@ -57,6 +57,8 @@ export function handleEditionCreated(event: EditionCreated): void {
 }
 
 export function handleTransfer(event: Transfer): void {
+    log.info("handleTransfer() called for event address {}", [event.address.toHexString()]);
+
     let contract = KnownOrigin.bind(event.address)
 
     ///////////////
@@ -108,7 +110,7 @@ export function handleTransfer(event: Transfer): void {
     /////////////////
 
     // TOKEN
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
@@ -138,7 +140,7 @@ export function handlePurchase(event: Purchase): void {
     let contract = KnownOrigin.bind(event.address)
 
     // Create token
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.save()
 
     // Create collector
@@ -196,7 +198,7 @@ export function handleMinted(event: Minted): void {
     // Save edition entity
     editionEntity.save();
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.save();
 
     // record running total of issued tokens

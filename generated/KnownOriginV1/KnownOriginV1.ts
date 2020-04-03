@@ -162,8 +162,14 @@ export class KnownOriginV1__getCommissionForTypeResult {
 
   toMap(): TypedMap<string, EthereumValue> {
     let map = new TypedMap<string, EthereumValue>();
-    map.set("value0", EthereumValue.fromI32(this.value0));
-    map.set("value1", EthereumValue.fromI32(this.value1));
+    map.set(
+      "value0",
+      EthereumValue.fromUnsignedBigInt(BigInt.fromI32(this.value0))
+    );
+    map.set(
+      "value1",
+      EthereumValue.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+    );
     return map;
   }
 }
@@ -193,7 +199,10 @@ export class KnownOriginV1__assetInfoResult {
     let map = new TypedMap<string, EthereumValue>();
     map.set("value0", EthereumValue.fromUnsignedBigInt(this.value0));
     map.set("value1", EthereumValue.fromAddress(this.value1));
-    map.set("value2", EthereumValue.fromI32(this.value2));
+    map.set(
+      "value2",
+      EthereumValue.fromUnsignedBigInt(BigInt.fromI32(this.value2))
+    );
     map.set("value3", EthereumValue.fromUnsignedBigInt(this.value3));
     map.set("value4", EthereumValue.fromUnsignedBigInt(this.value4));
     return map;

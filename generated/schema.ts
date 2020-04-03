@@ -652,13 +652,21 @@ export class Edition extends Entity {
     this.set("editionType", Value.fromBigInt(value));
   }
 
-  get editionData(): Bytes {
+  get editionData(): Bytes | null {
     let value = this.get("editionData");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set editionData(value: Bytes) {
-    this.set("editionData", Value.fromBytes(value));
+  set editionData(value: Bytes | null) {
+    if (value === null) {
+      this.unset("editionData");
+    } else {
+      this.set("editionData", Value.fromBytes(value as Bytes));
+    }
   }
 
   get startDate(): BigInt {
@@ -821,13 +829,21 @@ export class Edition extends Entity {
     this.set("active", Value.fromBoolean(value));
   }
 
-  get metadata(): string {
+  get metadata(): string | null {
     let value = this.get("metadata");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set metadata(value: string) {
-    this.set("metadata", Value.fromString(value));
+  set metadata(value: string | null) {
+    if (value === null) {
+      this.unset("metadata");
+    } else {
+      this.set("metadata", Value.fromString(value as string));
+    }
   }
 
   get auctionEnabled(): boolean {

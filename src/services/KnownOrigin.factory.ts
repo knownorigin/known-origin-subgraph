@@ -14,5 +14,6 @@ export function getKnownOriginForAddress(address: Address): KnownOrigin {
     if (mainnetAddresses.indexOf(address) > -1) {
         return KnownOrigin.bind(Address.fromString(KODA_MAINNET))
     }
+
     return KnownOrigin.bind(Address.fromString(KODA_RINKEBY))
 }

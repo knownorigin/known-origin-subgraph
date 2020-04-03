@@ -56,7 +56,7 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
     */
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.openOffer = null;
     tokenEntity.save();
 }
@@ -70,7 +70,7 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     */
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.openOffer = null;
     tokenEntity.save();
 }
@@ -93,7 +93,7 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     let tokenOffer = new TokenOffer(id);
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
@@ -127,7 +127,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     createBidAcceptedEvent(event)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.openOffer = null;
     tokenEntity.save();
 
@@ -149,7 +149,7 @@ export function handleBidRejected(event: BidRejected): void {
 
     createBidRejectedEvent(event)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.openOffer = null;
     tokenEntity.save();
 
@@ -167,7 +167,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
 
     createBidWithdrawnEvent(event)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
     tokenEntity.openOffer = null;
     tokenEntity.save();
 

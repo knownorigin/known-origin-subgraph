@@ -1,8 +1,4 @@
 import {
-    Address,
-} from "@graphprotocol/graph-ts"
-
-import {
     AuctionEnabled,
     BidPlaced,
     BidAccepted,
@@ -12,8 +8,6 @@ import {
     BidderRefunded,
     AuctionCancelled,
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
-
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
@@ -27,7 +21,7 @@ import {
     recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids, recordDayCounts
 } from "../services/Day.service";
 
-import {KODA_MAINNET, ONE} from "../constants";
+import {ONE} from "../constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
