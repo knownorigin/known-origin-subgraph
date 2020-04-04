@@ -20,6 +20,7 @@ type TransferEvent @entity {
     from: Bytes! # address
     to: Bytes! # address
     tokenId: BigInt!
+    timestamp: BigInt!
 }
 
 # Edition primary sale auction events
@@ -80,8 +81,9 @@ type Token @entity {
     currentOwner: Collector!            # the current owner
     allOwners: [Collector]!             # list (set) of all unique owners
     transfers: [TransferEvent!]!        # total number of token transfers made
-    openOffer: TokenOffer,              # current top active offer on a token
     tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
+    openOffer: TokenOffer,              # current top active offer on a token
+    currentTopBiider: Bytes             # current active top bidder on the secondary market for this token
 }
 
 # A token/editions and its meta data
