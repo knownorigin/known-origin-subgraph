@@ -46,6 +46,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
     tokenEvent.currentOwner = loadOrCreateCollector(event.params._from, event.block).id
     tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
 
     tokenEvent.save()
 
@@ -84,6 +85,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
 
     tokenEvent.save()
 
@@ -121,6 +123,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
 
     tokenEvent.save()
 
@@ -158,6 +161,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
 
     tokenEvent.save()
 
@@ -195,6 +199,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(contract.ownerOf(event.params._tokenId), event.block).id
     tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
 
     tokenEvent.save()
 

@@ -12,6 +12,7 @@ type TokenEvent @entity {
     currentOwner: Collector
     ethValue: BigDecimal!
     timestamp: BigInt!
+    transactionHash: Bytes!
 }
 
 # Token events for transfers
@@ -21,6 +22,7 @@ type TransferEvent @entity {
     to: Bytes! # address
     tokenId: BigInt!
     timestamp: BigInt!
+    transactionHash: Bytes!
 }
 
 # Edition primary sale auction events
@@ -32,6 +34,7 @@ type AuctionEvent @entity {
     caller: Bytes!
     timestamp: BigInt!
     ethValue: BigDecimal!
+    transactionHash: Bytes!
 }
 
 # Rolled up counts for a given day

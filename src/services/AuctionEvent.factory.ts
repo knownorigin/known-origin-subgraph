@@ -28,6 +28,7 @@ export function createBidPlacedEvent(
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
     auctionEvent.caller = transaction.from
+    auctionEvent.transactionHash = transaction.hash
 
     return auctionEvent
 }
@@ -49,6 +50,7 @@ export function createBidAccepted(
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
     auctionEvent.caller = transaction.from
+    auctionEvent.transactionHash = transaction.hash
 
     return auctionEvent
 }
@@ -70,6 +72,7 @@ export function createBidRejected(
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
     auctionEvent.caller = transaction.from
+    auctionEvent.transactionHash = transaction.hash
 
     return auctionEvent
 }
@@ -90,6 +93,7 @@ export function createBidWithdrawn(
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = BigDecimal.fromString('0.0')
     auctionEvent.caller = transaction.from
+    auctionEvent.transactionHash = transaction.hash
 
     return auctionEvent
 }
@@ -111,6 +115,7 @@ export function createBidIncreased(
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
     auctionEvent.caller = transaction.from
+    auctionEvent.transactionHash = transaction.hash
 
     return auctionEvent
 }

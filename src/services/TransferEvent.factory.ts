@@ -11,6 +11,7 @@ export function createTransferEvent(event: Transfer): TransferEvent {
     transferEvent.to = event.params._to;
     transferEvent.tokenId = event.params._tokenId;
     transferEvent.timestamp = event.block.timestamp;
+    transferEvent.transactionHash = event.transaction.hash
 
     return transferEvent;
 }
