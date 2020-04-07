@@ -40,6 +40,8 @@ import {
     createTokenPrimaryPurchaseEvent,
     createTokenTransferEvent
 } from "../services/TokenEvent.factory";
+import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {updateTokenOfferOwner} from "../services/Offers.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -137,6 +139,11 @@ export function handleTransfer(event: Transfer): void {
     // Keep track of current owner
     tokenEntity.currentOwner = collector.id;
     tokenEntity.save();
+
+    // Update token offer owner
+    if (event.params._to !== event.params._from) {
+        updateTokenOfferOwner(event.block, contract, event.params._tokenId, event.params._to)
+    }
 }
 
 // Direct primary "Buy it now" purchase form the website

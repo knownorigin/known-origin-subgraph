@@ -1271,13 +1271,13 @@ export class Offer extends Entity {
     this.set("edition", Value.fromString(value));
   }
 
-  get ownerAtTimeOfBid(): string {
-    let value = this.get("ownerAtTimeOfBid");
+  get currentOwner(): string {
+    let value = this.get("currentOwner");
     return value.toString();
   }
 
-  set ownerAtTimeOfBid(value: string) {
-    this.set("ownerAtTimeOfBid", Value.fromString(value));
+  set currentOwner(value: string) {
+    this.set("currentOwner", Value.fromString(value));
   }
 
   get bidder(): string {

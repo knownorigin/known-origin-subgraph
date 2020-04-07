@@ -26,7 +26,7 @@ export function recordEditionOffer(block: EthereumBlock,
     offer.ethValue = toEther(amount)
     offer.weiValue = amount
     // Artists own editions
-    offer.ownerAtTimeOfBid = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), block).id
+    offer.currentOwner = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), block).id
     offer.timestamp = block.timestamp
     offer.transactionHash = transaction.hash
     offer.token = null
@@ -59,7 +59,7 @@ export function recordTokenOffer(block: EthereumBlock,
     offer.ethValue = toEther(amount)
     offer.weiValue = amount
     // Token holders own token
-    offer.ownerAtTimeOfBid = loadOrCreateCollector(Address.fromString(tokenEntity.currentOwner), block).id
+    offer.currentOwner = loadOrCreateCollector(Address.fromString(tokenEntity.currentOwner), block).id
     offer.timestamp = block.timestamp
     offer.transactionHash = transaction.hash
     offer.token = tokenEntity.id
@@ -79,10 +79,22 @@ export function clearTokenOffer(block: EthereumBlock, contract: KnownOrigin, tok
     return offer as Offer
 }
 
+export function updateTokenOfferOwner(block: EthereumBlock, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
+    let offer: Offer | null = Offer.load(tokenId.toString());
+
+    // Only do this is there is an offer object set
+    if (offer !== null && offer.isActive) {
+        let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
+        offer.currentOwner = loadOrCreateCollector(Address.fromString(newOwner.toHexString()), block).id
+        offer.save()
+    }
+}
+
 export function initOffer(block: EthereumBlock, contract: KnownOrigin, type: String, id: BigInt): Offer {
     let offer: Offer | null = Offer.load(id.toString());
     if (offer == null) {
         offer = new Offer(id.toString());
+        offer.type = type.toString()
 
         if (type == EDITION_TYPE) {
             offer.edition = loadOrCreateEdition(id, block, contract).id

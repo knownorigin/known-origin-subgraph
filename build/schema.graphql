@@ -151,7 +151,7 @@ type Offer @entity {
     type: String!
     token: Token
     edition: Edition!
-    ownerAtTimeOfBid: Collector!
+    currentOwner: Collector!
     bidder: Collector!
     ethValue: BigDecimal!
     weiValue: BigInt!
