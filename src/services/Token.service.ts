@@ -1,11 +1,11 @@
-import {BigInt,EthereumEvent} from "@graphprotocol/graph-ts/index";
+import {BigInt, EthereumBlock} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
 import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 
-export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, event: EthereumEvent): Token | null {
+export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: EthereumBlock): Token | null {
     let tokenEntity = Token.load(tokenId.toString())
 
     if (tokenEntity == null) {
@@ -22,7 +22,7 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, event:
         tokenEntity.editionNumber = _tokenData.value0
         tokenEntity.tokenURI = _tokenData.value3
 
-        let collector = loadOrCreateCollector(_tokenData.value4, event.block);
+        let collector = loadOrCreateCollector(_tokenData.value4, block);
         collector.save();
 
         tokenEntity.currentOwner = collector.id

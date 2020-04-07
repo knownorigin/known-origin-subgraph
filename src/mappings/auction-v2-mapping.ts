@@ -38,6 +38,7 @@ import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -60,6 +61,8 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
     editionEntity.save()
 
     removeActiveBidOnEdition(event.params._editionNumber)
+
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -87,6 +90,8 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+
+    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -144,6 +149,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
 
@@ -174,6 +180,7 @@ export function handleBidRejected(event: BidRejected): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -197,6 +204,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {
@@ -223,6 +231,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
 }
 
 export function handleBidderRefunded(event: BidderRefunded): void {

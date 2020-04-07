@@ -45,6 +45,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
+import {clearTokenOffer, recordEditionOffer, recordTokenOffer} from "../services/Offers.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -56,7 +57,7 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
     */
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 }
 
@@ -69,10 +70,12 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     */
     let contract = getKnownOriginForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBiider = null
     tokenEntity.save();
+
+    clearTokenOffer(event.block, contract, event.params._tokenId)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -93,7 +96,7 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     let tokenOffer = new TokenOffer(id);
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.currentTopBiider = event.params._bidder
     tokenEntity.save()
 
@@ -114,6 +117,8 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayBidPlacedCount(event)
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
+
+    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -128,12 +133,12 @@ export function handleBidAccepted(event: BidAccepted): void {
     let contract = getKnownOriginForAddress(event.address)
 
     createBidAcceptedEvent(event)
+    clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBiider = null
     tokenEntity.save();
-
 
     recordDayBidAcceptedCount(event)
     recordDayCounts(event, event.params._amount)
@@ -152,8 +157,9 @@ export function handleBidRejected(event: BidRejected): void {
     let contract = getKnownOriginForAddress(event.address)
 
     createBidRejectedEvent(event)
+    clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBiider = null
     tokenEntity.save();
@@ -171,8 +177,9 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     let contract = getKnownOriginForAddress(event.address)
 
     createBidWithdrawnEvent(event)
+    clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBiider = null
     tokenEntity.save();

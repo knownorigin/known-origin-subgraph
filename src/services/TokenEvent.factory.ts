@@ -30,7 +30,7 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -68,7 +68,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -107,7 +107,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -145,7 +145,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -184,7 +184,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -222,7 +222,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;

@@ -145,6 +145,21 @@ type TokenOffer @entity {
     timestamp: BigInt!
 }
 
+# Encapsulates all offers either on editions or tokens
+type Offer @entity {
+    id: ID!
+    type: String!
+    token: Token
+    edition: Edition!
+    ownerAtTimeOfBid: Collector!
+    bidder: Collector!
+    ethValue: BigDecimal!
+    weiValue: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    isActive: Boolean!
+}
+
 ##########################
 ## Accountable entities ##
 ##########################
