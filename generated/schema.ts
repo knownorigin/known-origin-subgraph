@@ -69,6 +69,23 @@ export class TokenEvent extends Entity {
     this.set("edition", Value.fromString(value));
   }
 
+  get buyer(): string | null {
+    let value = this.get("buyer");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set buyer(value: string | null) {
+    if (value === null) {
+      this.unset("buyer");
+    } else {
+      this.set("buyer", Value.fromString(value as string));
+    }
+  }
+
   get bidder(): string | null {
     let value = this.get("bidder");
     if (value === null) {

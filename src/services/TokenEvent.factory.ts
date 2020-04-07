@@ -1,3 +1,4 @@
+import {Address} from "@graphprotocol/graph-ts/index";
 import {TokenEvent} from "../../generated/schema";
 import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {toEther} from "../utils";
@@ -10,15 +11,53 @@ import {
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 import {loadOrCreateToken} from "./Token.service";
 import {getKnownOriginForAddress} from "./KnownOrigin.factory";
-import {Transfer} from "../../generated/KnownOrigin/KnownOrigin";
+import {getArtistAddress} from "../services/AddressMapping.service";
+import {Purchase, Transfer} from "../../generated/KnownOrigin/KnownOrigin";
 import {loadOrCreateCollector} from "./Collector.service";
+
+export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
+    let timestamp = event.block.timestamp;
+
+    let tokenEventId = "Purchase-"
+        .concat(event.params._tokenId.toString())
+        .concat("-")
+        .concat(event.params._buyer.toHexString())
+        .concat("-")
+        .concat(timestamp.toString());
+
+    let contract = getKnownOriginForAddress(event.address)
+
+    let tokenEvent = new TokenEvent(tokenEventId);
+
+    // Setup token and add history
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event)
+    let tokenEvents = tokenEntity.tokenEvents;
+    tokenEvents.push(tokenEvent.id);
+    tokenEntity.tokenEvents = tokenEvents;
+    tokenEntity.save()
+
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    editionEntity.save()
+
+    tokenEvent.name = 'Purchase';
+    tokenEvent.token = tokenEntity.id;
+    tokenEvent.edition = editionEntity.id;
+    tokenEvent.buyer = loadOrCreateCollector(event.params._buyer, event.block).id
+    tokenEvent.ethValue = event.params._priceInWei.toBigDecimal()
+    tokenEvent.currentOwner = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), event.block).id
+    tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
+
+    tokenEvent.save()
+
+    return tokenEvent
+}
 
 export function createTokenTransferEvent(event: Transfer): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    // BidPlace-{tokenId}-{to}-{timestamp}
     let tokenEventId = "Transfer-"
-        .concat(event.params._tokenId.toHexString())
+        .concat(event.params._tokenId.toString())
         .concat("-")
         .concat(event.params._to.toHexString())
         .concat("-")
@@ -56,9 +95,8 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
 export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    // BidPlace-{tokenId}-{bidder}-{timestamp}
     let tokenEventId = "BidPlaced-"
-        .concat(event.params._tokenId.toHexString())
+        .concat(event.params._tokenId.toString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
         .concat("-")
@@ -96,7 +134,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     let timestamp = event.block.timestamp;
 
     let tokenEventId = "BidAccepted-"
-        .concat(event.params._tokenId.toHexString())
+        .concat(event.params._tokenId.toString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
         .concat("-")
@@ -120,6 +158,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = toEther(event.params._amount)
+    tokenEvent.buyer = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
@@ -134,7 +173,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     let timestamp = event.block.timestamp;
 
     let tokenEventId = "BidRejected-"
-        .concat(event.params._tokenId.toHexString())
+        .concat(event.params._tokenId.toString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
         .concat("-")
@@ -172,7 +211,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     let timestamp = event.block.timestamp;
 
     let tokenEventId = "BidWithdrawn-"
-        .concat(event.params._tokenId.toHexString())
+        .concat(event.params._tokenId.toString())
         .concat("-")
         .concat(event.params._bidder.toHexString())
         .concat("-")

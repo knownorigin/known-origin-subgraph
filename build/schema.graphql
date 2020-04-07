@@ -2,12 +2,14 @@
 ## Timeseries events ##
 #######################
 
-# Token events for history of actions including secodnary sales actions
+# Generic activity stream events for history of actions including primary and secodnary sales actions & triggers
+# Used for listing out token history on the token pages
 type TokenEvent @entity {
-    id: ID!
+    id: ID!                     # Composite key made form multiple items
     name: String!
     token: Token!
     edition: Edition!
+    buyer: Collector
     bidder: Collector
     currentOwner: Collector
     ethValue: BigDecimal!

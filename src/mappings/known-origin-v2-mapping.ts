@@ -36,7 +36,10 @@ import {
     loadOrCreateCollector
 } from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
-import {createTokenTransferEvent} from "../services/TokenEvent.factory";
+import {
+    createTokenPrimaryPurchaseEvent,
+    createTokenTransferEvent
+} from "../services/TokenEvent.factory";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -69,6 +72,7 @@ export function handleTransfer(event: Transfer): void {
     let transferEvent = createTransferEvent(event);
     transferEvent.save();
 
+    // Token Events
     let tokenTransferEvent = createTokenTransferEvent(event);
     tokenTransferEvent.save();
 
@@ -177,6 +181,9 @@ export function handlePurchase(event: Purchase): void {
         }
 
         addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei, event.params._editionNumber, event.params._tokenId);
+
+        let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event);
+        tokenTransferEvent.save();
     }
     editionEntity.save()
 }

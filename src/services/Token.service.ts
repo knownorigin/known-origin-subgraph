@@ -1,6 +1,6 @@
-import {BigDecimal, BigInt, Bytes, EthereumEvent, ipfs, json, JSONValue, log} from "@graphprotocol/graph-ts/index";
-import {MetaData, Token} from "../../generated/schema";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {BigInt,EthereumEvent} from "@graphprotocol/graph-ts/index";
+import {Token} from "../../generated/schema";
+import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
