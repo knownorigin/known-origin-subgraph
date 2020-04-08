@@ -147,17 +147,17 @@ type TokenOffer @entity {
 
 # Encapsulates all offers either on editions or tokens
 type Offer @entity {
-    id: ID!
-    type: String!
-    token: Token
-    edition: Edition!
-    currentOwner: Collector!
-    bidder: Collector!
+    id: ID!                         # edition ID or token ID
+    type: String!                   # either Token or Edition
+    token: Token                    # nullable token, as editions dont have tokens attached
+    edition: Edition!               # All offers must be from an edition
+    currentOwner: Collector!        # This is either the token holder or the edition artist
+    bidder: Collector!              # Who is making the bid
     ethValue: BigDecimal!
     weiValue: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
-    isActive: Boolean!
+    isActive: Boolean!              # Only active offers can be seen in the UI
 }
 
 ##########################
