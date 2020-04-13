@@ -621,12 +621,12 @@ export class Token extends Entity {
     this.set("currentOwner", Value.fromString(value));
   }
 
-  get allOwners(): Array<string | null> {
+  get allOwners(): Array<string> {
     let value = this.get("allOwners");
     return value.toStringArray();
   }
 
-  set allOwners(value: Array<string | null>) {
+  set allOwners(value: Array<string>) {
     this.set("allOwners", Value.fromStringArray(value));
   }
 
@@ -665,8 +665,8 @@ export class Token extends Entity {
     }
   }
 
-  get currentTopBiider(): Bytes | null {
-    let value = this.get("currentTopBiider");
+  get currentTopBidder(): Bytes | null {
+    let value = this.get("currentTopBidder");
     if (value === null) {
       return null;
     } else {
@@ -674,11 +674,11 @@ export class Token extends Entity {
     }
   }
 
-  set currentTopBiider(value: Bytes | null) {
+  set currentTopBidder(value: Bytes | null) {
     if (value === null) {
-      this.unset("currentTopBiider");
+      this.unset("currentTopBidder");
     } else {
-      this.set("currentTopBiider", Value.fromBytes(value as Bytes));
+      this.set("currentTopBidder", Value.fromBytes(value as Bytes));
     }
   }
 }
@@ -969,21 +969,21 @@ export class Edition extends Entity {
     this.set("allOwners", Value.fromStringArray(value));
   }
 
-  get currentOwners(): Array<string | null> {
+  get currentOwners(): Array<string> {
     let value = this.get("currentOwners");
     return value.toStringArray();
   }
 
-  set currentOwners(value: Array<string | null>) {
+  set currentOwners(value: Array<string>) {
     this.set("currentOwners", Value.fromStringArray(value));
   }
 
-  get primaryOwners(): Array<string | null> {
+  get primaryOwners(): Array<string> {
     let value = this.get("primaryOwners");
     return value.toStringArray();
   }
 
-  set primaryOwners(value: Array<string | null>) {
+  set primaryOwners(value: Array<string>) {
     this.set("primaryOwners", Value.fromStringArray(value));
   }
 }

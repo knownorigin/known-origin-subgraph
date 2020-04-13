@@ -84,11 +84,11 @@ type Token @entity {
     lastTransferTimestamp: BigInt!
 
     currentOwner: Collector!            # the current owner
-    allOwners: [Collector]!             # list (set) of all unique owners
+    allOwners: [Collector!]!             # list (set) of all unique owners
     transfers: [TransferEvent!]!        # total number of token transfers made
     tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
     openOffer: TokenOffer,              # current top active offer on a token
-    currentTopBiider: Bytes             # current active top bidder on the secondary market for this token
+    currentTopBidder: Bytes             # current active top bidder on the secondary market for this token
 }
 
 # A token/editions and its meta data
@@ -119,8 +119,8 @@ type Edition @entity {
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
     allOwners: [Collector]! # list (set) of all unique owners for all tokens
-    currentOwners: [Collector]! # TODO Current (set) owners at this point in time
-    primaryOwners: [Collector]! # Owners (set) when sold in primary sale
+    currentOwners: [Collector!]! # TODO Current (set) owners at this point in time
+    primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
 }
 
 # A token/editions and its meta data
@@ -147,17 +147,17 @@ type TokenOffer @entity {
 
 # Encapsulates all offers either on editions or tokens
 type Offer @entity {
-    id: ID!
-    type: String!
-    token: Token
-    edition: Edition!
-    currentOwner: Collector!
-    bidder: Collector!
+    id: ID!                         # edition ID or token ID
+    type: String!                   # either Token or Edition
+    token: Token                    # nullable token, as editions dont have tokens attached
+    edition: Edition!               # All offers must be from an edition
+    currentOwner: Collector!        # This is either the token holder or the edition artist
+    bidder: Collector!              # Who is making the bid
     ethValue: BigDecimal!
     weiValue: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
-    isActive: Boolean!
+    isActive: Boolean!              # Only active offers can be seen in the UI
 }
 
 ##########################

@@ -72,7 +72,7 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
-    tokenEntity.currentTopBiider = null
+    tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
     clearTokenOffer(event.block, contract, event.params._tokenId)
@@ -97,7 +97,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     let tokenOffer = new TokenOffer(id);
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
-    tokenEntity.currentTopBiider = event.params._bidder
+    tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
@@ -137,7 +137,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
-    tokenEntity.currentTopBiider = null
+    tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
     recordDayBidAcceptedCount(event)
@@ -161,7 +161,7 @@ export function handleBidRejected(event: BidRejected): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
-    tokenEntity.currentTopBiider = null
+    tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
     recordDayBidRejectedCount(event)
@@ -181,7 +181,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
 
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
-    tokenEntity.currentTopBiider = null
+    tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
     recordDayBidWithdrawnCount(event)
