@@ -9,7 +9,7 @@ import {
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {
-    loadOrCreateEdition,
+    loadOrCreateEdition, loadOrCreateEditionFlat,
     loadOrCreateEditionFromTokenId
 } from "../services/Edition.service";
 import {
@@ -48,6 +48,9 @@ export function handleEditionCreated(event: EditionCreated): void {
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
+
+    let editionEntityFlat = loadOrCreateEditionFlat(event.params._editionNumber, event.block, contract)
+    editionEntityFlat.save()
 
     addEditionToDay(event, editionEntity.id);
 

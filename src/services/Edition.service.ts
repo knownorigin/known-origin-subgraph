@@ -1,6 +1,6 @@
 import {BigInt, CallResult, EthereumBlock, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
-import {Edition} from "../../generated/schema";
+import {Edition, EditionFlat} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
@@ -76,4 +76,40 @@ export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumB
     log.info("loadOrCreateEditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateEdition(_editionNumber, block, contract);
+}
+
+export function loadOrCreateEditionFlat(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): EditionFlat | null {
+    let editionFlatEntity: EditionFlat | null = EditionFlat.load(editionNumber.toString())
+
+    if (editionFlatEntity == null) {
+
+        // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
+        editionFlatEntity = new EditionFlat(editionNumber.toString())
+        editionFlatEntity.createdTimestamp = block.timestamp
+        editionFlatEntity.totalSupply = ZERO
+        editionFlatEntity.totalAvailable = ZERO
+        editionFlatEntity.active = false
+
+        let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+
+        if (!_editionDataResult.reverted) {
+            let _editionData = _editionDataResult.value;
+
+            editionFlatEntity.totalSupply = _editionData.value8
+            editionFlatEntity.totalAvailable = _editionData.value9
+            editionFlatEntity.active = _editionData.value10
+
+            let metaData = constructMetaData(_editionData.value7)
+
+            editionFlatEntity.name = metaData.name
+            editionFlatEntity.description = metaData.description
+            editionFlatEntity.image = metaData.image
+            editionFlatEntity.artist = metaData.artist
+
+        } else {
+            log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()])
+        }
+    }
+
+    return editionFlatEntity;
 }

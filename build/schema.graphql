@@ -217,3 +217,15 @@ type Collector @entity {
     #    purchase history - can we work this out already?
     #    biddingHistory: [AuctionEvent!]!
 }
+
+type EditionFlat @entity {
+    id: ID!
+    createdTimestamp: BigInt!
+    totalSupply: BigInt!
+    totalAvailable: BigInt!
+    active: Boolean!
+    name: String
+    description: String
+    image: String
+    artist: String
+}
