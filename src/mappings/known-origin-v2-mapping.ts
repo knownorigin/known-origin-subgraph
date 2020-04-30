@@ -121,7 +121,7 @@ export function handleTransfer(event: Transfer): void {
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         tokenEntity.birthTimestamp = event.block.timestamp
-        tokenEntity.primaryValueInEth = toEther(event.transaction.value)
+        // tokenEntity.primaryValueInEth = toEther(event.transaction.value)
     }
 
     // Record transfer against token
@@ -191,6 +191,11 @@ export function handlePurchase(event: Purchase): void {
 
         let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event);
         tokenTransferEvent.save();
+
+        // Set price against token
+        let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+        tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
+        tokenEntity.save()
     }
     editionEntity.save()
 }

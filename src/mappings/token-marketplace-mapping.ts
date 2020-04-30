@@ -45,7 +45,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
-import {clearTokenOffer, recordEditionOffer, recordTokenOffer} from "../services/Offers.service";
+import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
