@@ -1,24 +1,51 @@
-type Token @entity {
-    id: ID!
-    tokenId: BigInt!
-    transferCount: BigInt!
-    editionNumber: BigInt!
-    tokenURI: String!
-    metadata: MetaData!
-    birthTimestamp: BigInt!
-    primaryValueInEth: BigDecimal!
-    lastTransferTimestamp: BigInt!
+#######################
+## Timeseries events ##
+#######################
 
-    currentOwner: Collector! # the current owner
-    allOwners: [Collector]! # list (set) of all unique owners
-    transfers: [TransferEvent!]! # total number of token transfers made
+# Generic activity stream events for history of actions including primary and secodnary sales actions & triggers
+# Used for listing out token history on the token pages
+type TokenEvent @entity {
+    id: ID!                     # Composite key made form multiple items
+    name: String!
+    token: Token!
+    edition: Edition!
+    buyer: Collector
+    bidder: Collector
+    currentOwner: Collector
+    ethValue: BigDecimal!
+    timestamp: BigInt!
+    transactionHash: Bytes!
 }
 
+# Token events for transfers
+type TransferEvent @entity {
+    id: ID!
+    from: Bytes! # address
+    to: Bytes! # address
+    tokenId: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+}
+
+# Edition primary sale auction events
+type AuctionEvent @entity {
+    id: ID!
+    edition: Edition!
+    name: String!
+    bidder: Bytes!
+    caller: Bytes!
+    timestamp: BigInt!
+    ethValue: BigDecimal!
+    transactionHash: Bytes!
+}
+
+# Rolled up counts for a given day
 type Day @entity {
     id: ID!
     date: String!
     transferCount: BigInt!
     editionsCount: BigInt!
+
     # Bid/offer counts and values
     bidsAcceptedCount: BigInt!
     bidsPlacedCount: BigInt!
@@ -27,6 +54,7 @@ type Day @entity {
     bidsIncreasedCount: BigInt!
     totalValuePlaceInBids: BigDecimal!
     totalValueCycledInBids: BigDecimal!
+
     # Sales/gifting counts and values
     issuedCount: BigInt!
     salesCount: BigInt!
@@ -39,27 +67,35 @@ type Day @entity {
     editions: [Edition!]!
 }
 
-type MetaData @entity {
-    id: ID!
-    name: String
-    description: String
-    image: String
-    scarcity: String
-    artist: String
-    tags: [String!]
-}
+###################
+## Main entities ##
+###################
 
-type TransferEvent @entity {
+# A token and its details
+type Token @entity {
     id: ID!
-    from: Bytes! # address
-    to: Bytes! # address
     tokenId: BigInt!
+    transferCount: BigInt!
+    editionNumber: BigInt!
+    tokenURI: String!
+    metadata: MetaData!
+    birthTimestamp: BigInt!
+    primaryValueInEth: BigDecimal!
+    lastTransferTimestamp: BigInt!
+
+    currentOwner: Collector!            # the current owner
+    allOwners: [Collector!]!             # list (set) of all unique owners
+    transfers: [TransferEvent!]!        # total number of token transfers made
+    tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
+    openOffer: TokenOffer,              # current top active offer on a token
+    currentTopBidder: Bytes             # current active top bidder on the secondary market for this token
 }
 
+# A token/editions and its meta data
 type Edition @entity {
     id: ID!
     editionType: BigInt!
-    editionData: Bytes! # bytes32
+    editionData: Bytes # bytes32
     startDate: BigInt!
     endDate: BigInt!
     createdTimestamp: BigInt!
@@ -77,26 +113,58 @@ type Edition @entity {
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
-    metadata: MetaData!
+    metadata: MetaData
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
     allOwners: [Collector]! # list (set) of all unique owners for all tokens
-    currentOwners: [Collector]! # TODO Current (set) owners at this point in time
-    primaryOwners: [Collector]! # Owners (set) when sold in primary sale
+    currentOwners: [Collector!]! # TODO Current (set) owners at this point in time
+    primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
 }
 
-type AuctionEvent @entity {
+# A token/editions and its meta data
+type MetaData @entity {
     id: ID!
-    edition: Edition!
-    name: String!
-    bidder: Bytes!
-    caller: Bytes!
-    timestamp: BigInt!
-    ethValue: BigDecimal!
+    name: String
+    description: String
+    image: String
+    scarcity: String
+    artist: String
+    tags: [String!]
 }
 
+# Single high level entity capturing the top offer on the secondary marketplace
+type TokenOffer @entity {
+    id: ID!
+    token: Token!
+    edition: Edition!
+    ownerAtTimeOfBid: Collector!
+    bidder: Collector!
+    ethValue: BigDecimal!
+    timestamp: BigInt!
+}
+
+# Encapsulates all offers either on editions or tokens
+type Offer @entity {
+    id: ID!                         # edition ID or token ID
+    type: String!                   # either Token or Edition
+    token: Token                    # nullable token, as editions dont have tokens attached
+    edition: Edition!               # All offers must be from an edition
+    currentOwner: Collector!        # This is either the token holder or the edition artist
+    bidder: Collector!              # Who is making the bid
+    ethValue: BigDecimal!
+    weiValue: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    isActive: Boolean!              # Only active offers can be seen in the UI
+}
+
+##########################
+## Accountable entities ##
+##########################
+
+# An artists who has created editions/tokens
 type Artist @entity {
     id: ID!
 
@@ -120,8 +188,11 @@ type Artist @entity {
 
     lastEdition: Edition
     lastEditionTimestamp: BigInt!
+
+    # FIXME handle secondary sales payments
 }
 
+# A single collector who has at sometime held a KO asset
 type Collector @entity {
     id: ID! # toString for address
     address: Bytes! # address
@@ -133,11 +204,11 @@ type Collector @entity {
     # Primary sales counts
     primarySaleCount: BigInt!
     primarySaleEthSpent: BigInt!
-#    primarySaleTokensPurchased: [Token!]!
-#    primarySaleEditionsPurchased: [Edition!]!
+
+    #    primarySaleTokensPurchased: [Token!]!
+    #    primarySaleEditionsPurchased: [Edition!]!
 
     # TODO Counts for any type of ownership
-
     #    tokenIdsPurchased: [BigInt!]!
     #    lastPurchaseTimeStamp: BigInt!
     #    tokenIdsCurrentlyOwned: [BigInt!]!

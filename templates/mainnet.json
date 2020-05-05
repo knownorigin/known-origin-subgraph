@@ -1,0 +1,15 @@
+{
+  "network": "mainnet",
+  "koda-v1-address": "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72",
+  "koda-v1-startBlock": 5381767,
+  "koda-v2-address": "0xfbeef911dc5821886e1dda71586d90ed28174b7d",
+  "koda-v2-startBlock": 6270484,
+  "auction-v1-address": "0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec",
+  "auction-v1-startBlock": 6568535,
+  "auction-v2-address": "0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639",
+  "auction-v2-startBlock": 7271800,
+  "includeCallHandlers": true,
+  "includeTokenMarketplace": true,
+  "token-marketplace-v1-address": "0xc1697d340807324200e26e4617Ce9c0070488E23",
+  "token-marketplace-v1-startBlock": 9927235
+}

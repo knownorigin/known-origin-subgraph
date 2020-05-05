@@ -5,12 +5,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   ## KODA V1 (Alpha)
-  # FIXME - do this properly when we do it...
   - kind: ethereum/contract
     name: KnownOriginV1
     network: mainnet
     source:
-      address: "0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72"
+      address: '0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72'
       abi: KnownOriginV1
       startBlock: 5381767
     mapping:
@@ -23,9 +22,8 @@ dataSources:
         - name: KnownOriginV1
           file: ./abis/KnownOriginV1.json
       eventHandlers:
-#        - event: Transfer(indexed address,indexed address,uint256)
-#          handler: handleTransfer
-
+        #        - event: Transfer(indexed address,indexed address,uint256)
+        #          handler: handleTransfer
         - event: PurchasedWithEther(indexed uint256,indexed address)
           handler: handlePurchase
       file: ./src/mappings/known-origin-v1-mapping.ts
@@ -35,7 +33,7 @@ dataSources:
     name: KnownOrigin
     network: mainnet
     source:
-      address: "0xFBeef911Dc5821886e1dda71586d90eD28174B7d"
+      address: '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
       abi: KnownOrigin
       startBlock: 6270484
     mapping:
@@ -76,7 +74,6 @@ dataSources:
       #          handler: handleUpdateArtistCommission
       #        - function: updatePriceInWei(uint256,uint256)
       #          handler: handleUpdatePriceInWei
-
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
@@ -84,7 +81,7 @@ dataSources:
     name: ArtistAcceptingBidsV1
     network: mainnet
     source:
-      address: "0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec"
+      address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
       abi: ArtistAcceptingBidsV1
       startBlock: 6568535
     mapping:
@@ -123,7 +120,7 @@ dataSources:
     name: ArtistAcceptingBidsV2
     network: mainnet
     source:
-      address: "0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639"
+      address: '0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639'
       abi: ArtistAcceptingBidsV2
       startBlock: 7271800
     mapping:
@@ -162,3 +159,48 @@ dataSources:
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
       file: ./src/mappings/auction-v2-mapping.ts
+
+  ## TokenMarketplace V! (Current)
+  - kind: ethereum/contract
+    name: TokenMarketplace
+    network: mainnet
+    source:
+      address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
+      abi: TokenMarketplace
+      startBlock: 9927235
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - BidPlaced
+        - BidWithdrawn
+        - BidAccepted
+        - BidRejected
+        - AuctionEnabled
+        - AuctionDisabled
+      abis:
+        - name: TokenMarketplace
+          file: ./abis/TokenMarketplace.json
+        - name: KnownOrigin
+          file: ./abis/KnownOrigin.json
+      eventHandlers:
+        - event: AuctionEnabled(indexed uint256,indexed address)
+          handler: handleAuctionEnabled
+
+        - event: AuctionDisabled(indexed uint256,indexed address)
+          handler: handleAuctionDisabled
+
+        - event: BidPlaced(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidPlaced
+
+        - event: BidAccepted(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidAccepted
+
+        - event: BidRejected(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidRejected
+
+        - event: BidWithdrawn(indexed uint256,indexed address)
+          handler: handleBidWithdrawn
+
+      file: ./src/mappings/token-marketplace-mapping.ts

@@ -1,8 +1,4 @@
 import {
-    Address,
-} from "@graphprotocol/graph-ts"
-
-import {
     AuctionEnabled,
     BidPlaced,
     BidAccepted,
@@ -12,8 +8,6 @@ import {
     BidderRefunded,
     AuctionCancelled,
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
-
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin"
 
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
@@ -27,7 +21,7 @@ import {
     recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids, recordDayCounts
 } from "../services/Day.service";
 
-import {KODA_MAINNET, ONE} from "../constants";
+import {ONE} from "../constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
@@ -43,10 +37,13 @@ import {
 import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
+import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
+import {loadOrCreateToken} from "../services/Token.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
@@ -59,12 +56,14 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
     editionEntity.save()
 
     removeActiveBidOnEdition(event.params._editionNumber)
+
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -75,7 +74,7 @@ export function handleBidPlaced(event: BidPlaced): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidPlacedEvent(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
@@ -92,6 +91,8 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+
+    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -104,7 +105,7 @@ export function handleBidAccepted(event: BidAccepted): void {
       );
     */
 
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
 
     let collector = loadOrCreateCollector(event.params._bidder, event.block);
@@ -114,7 +115,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     auctionEvent.save()
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
-    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition + toEther(event.params._amount);
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._amount));
 
     // Record sale against the edition
     let sales = editionEntity.sales
@@ -149,9 +150,14 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
 
+    // Set price against token
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.primaryValueInEth = toEther(event.params._amount)
+    tokenEntity.save()
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -163,7 +169,7 @@ export function handleBidRejected(event: BidRejected): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidRejected(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
@@ -179,6 +185,7 @@ export function handleBidRejected(event: BidRejected): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -188,7 +195,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidWithdrawn(event.block, event.transaction, event.params._editionNumber, event.params._bidder);
@@ -202,6 +209,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+    clearEditionOffer(event.block, contract, event.params._editionNumber)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {
@@ -212,7 +220,7 @@ export function handleBidIncreased(event: BidIncreased): void {
         uint256 _amount
       );
     */
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+    let contract = getKnownOriginForAddress(event.address)
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
 
     let auctionEvent = createBidIncreased(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
@@ -228,6 +236,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
 }
 
 export function handleBidderRefunded(event: BidderRefunded): void {

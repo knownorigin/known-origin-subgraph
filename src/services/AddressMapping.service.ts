@@ -60,5 +60,13 @@ export function getArtistAddress(address: Address): Address {
         return Address.fromString("0x576a655161B5502dCf40602BE1f3519A89b71658");
     }
 
+    // ArtByMlo
+    if (address.equals(Address.fromString("0xe0f228070d8f7b5c25e9375fa70fa418f8dfedf8"))) {
+        log.info("Replacing address {} with {}", [
+            "0xe0f228070d8f7b5c25e9375fa70fa418f8dfedf8", "0xCed2662Fe30D876bEf52F219eeAC67e2b328Effc"
+        ]);
+        return Address.fromString("0xCed2662Fe30D876bEf52F219eeAC67e2b328Effc");
+    }
+
     return address;
 }
