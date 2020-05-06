@@ -46,6 +46,7 @@ import {
     recordDayValue
 } from "../services/Day.service";
 import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
+import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -140,9 +141,31 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
+    // Save the collector
+    let collector = loadOrCreateCollector(event.params._bidder, event.block);
+    collector.save();
+
+    // Edition updates
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    // Tally up primary sale owners
+    if (!collectorInList(collector, editionEntity.primaryOwners)) {
+        let primaryOwners = editionEntity.primaryOwners;
+        primaryOwners.push(collector.id);
+        editionEntity.primaryOwners = primaryOwners;
+    }
+
+    // BidAccepted emit Transfer events - handle day counts for monetary values in here
     recordDayBidAcceptedCount(event)
     recordDayCounts(event, event.params._amount)
     recordDayValue(event, event.params._tokenId, event.params._amount)
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+
+    // FIXME only record artist royalties
+    // recordArtistValue(editionEntity.artistAccount, event.params._tokenId, event.params._amount)
+    // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
+
+    editionEntity.save();
 }
 
 export function handleBidRejected(event: BidRejected): void {

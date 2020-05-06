@@ -121,7 +121,6 @@ export function handleTransfer(event: Transfer): void {
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         tokenEntity.birthTimestamp = event.block.timestamp
-        // tokenEntity.primaryValueInEth = toEther(event.transaction.value)
     }
 
     // Record transfer against token
@@ -138,6 +137,12 @@ export function handleTransfer(event: Transfer): void {
 
     // Keep track of current owner
     tokenEntity.currentOwner = collector.id;
+
+    // Update counters and timestamps
+    tokenEntity.lastTransferTimestamp = event.block.timestamp
+    tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+    // Persist
     tokenEntity.save();
 
     // Update token offer owner

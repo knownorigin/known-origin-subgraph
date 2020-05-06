@@ -18,7 +18,10 @@ import {
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
     recordDayBidIncreasedCount,
-    recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids, recordDayCounts
+    recordDayValue,
+    recordDayTotalValueCycledInBids,
+    recordDayTotalValuePlaceInBids,
+    recordDayCounts
 } from "../services/Day.service";
 
 import {ONE} from "../constants";
@@ -34,6 +37,7 @@ import {
     recordActiveEditionBid,
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
+
 import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
