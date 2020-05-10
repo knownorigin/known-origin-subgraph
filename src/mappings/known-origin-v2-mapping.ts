@@ -200,6 +200,7 @@ export function handlePurchase(event: Purchase): void {
         // Set price against token
         let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
         tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
+        tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
         tokenEntity.save()
     }
     editionEntity.save()
@@ -243,8 +244,18 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     editionEntity.save()
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-    artist.editionsCount = artist.editionsCount.minus(ONE);
-    artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+
+    // If not active - reduce counts
+    if (!editionEntity.active) {
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+    }
+    // If re-enabling - add counts
+    else {
+        artist.editionsCount = artist.editionsCount.plus(ONE);
+        artist.supply = artist.supply.plus(editionEntity.totalAvailable);
+    }
+
     artist.save();
 }
 

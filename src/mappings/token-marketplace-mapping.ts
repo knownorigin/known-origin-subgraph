@@ -139,6 +139,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
+    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.save();
 
     // Save the collector

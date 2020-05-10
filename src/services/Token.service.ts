@@ -30,6 +30,7 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         tokenEntity.birthTimestamp = ZERO
         tokenEntity.lastTransferTimestamp = ZERO
         tokenEntity.primaryValueInEth = ZERO_BIG_DECIMAL
+        tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
 
         let metaData = constructMetaData(_tokenData.value3);
         metaData.save()

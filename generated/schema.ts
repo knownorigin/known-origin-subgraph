@@ -603,6 +603,15 @@ export class Token extends Entity {
     this.set("primaryValueInEth", Value.fromBigDecimal(value));
   }
 
+  get lastSalePriceInEth(): BigDecimal {
+    let value = this.get("lastSalePriceInEth");
+    return value.toBigDecimal();
+  }
+
+  set lastSalePriceInEth(value: BigDecimal) {
+    this.set("lastSalePriceInEth", Value.fromBigDecimal(value));
+  }
+
   get lastTransferTimestamp(): BigInt {
     let value = this.get("lastTransferTimestamp");
     return value.toBigInt();

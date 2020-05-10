@@ -161,6 +161,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     // Set price against token
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.primaryValueInEth = toEther(event.params._amount)
+    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
+
     tokenEntity.save()
 }
 

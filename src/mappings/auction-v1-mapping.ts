@@ -34,6 +34,7 @@ import {
     addPrimarySaleToCollector
 } from "../services/Collector.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {loadOrCreateToken} from "../services/Token.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginForAddress(event.address)
@@ -88,6 +89,12 @@ export function handleBidAccepted(event: BidAccepted): void {
     removeActiveBidOnEdition(event.params._editionNumber)
 
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
+
+    // Set price against token
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.primaryValueInEth = toEther(event.params._amount)
+    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
+    tokenEntity.save()
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
