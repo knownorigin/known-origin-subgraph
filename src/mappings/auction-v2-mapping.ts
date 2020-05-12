@@ -18,7 +18,10 @@ import {
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
     recordDayBidIncreasedCount,
-    recordDayValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids, recordDayCounts
+    recordDayValue,
+    recordDayTotalValueCycledInBids,
+    recordDayTotalValuePlaceInBids,
+    recordDayCounts
 } from "../services/Day.service";
 
 import {ONE} from "../constants";
@@ -34,11 +37,13 @@ import {
     recordActiveEditionBid,
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
+
 import {toEther} from "../utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
+import {loadOrCreateToken} from "../services/Token.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -153,6 +158,12 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
 
+    // Set price against token
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.primaryValueInEth = toEther(event.params._amount)
+    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
+
+    tokenEntity.save()
 }
 
 export function handleBidRejected(event: BidRejected): void {

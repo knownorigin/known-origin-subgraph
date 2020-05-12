@@ -124,7 +124,6 @@ export function handleTransfer(event: Transfer): void {
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         tokenEntity.birthTimestamp = event.block.timestamp
-        tokenEntity.primaryValueInEth = toEther(event.transaction.value)
     }
 
     // Record transfer against token
@@ -141,6 +140,12 @@ export function handleTransfer(event: Transfer): void {
 
     // Keep track of current owner
     tokenEntity.currentOwner = collector.id;
+
+    // Update counters and timestamps
+    tokenEntity.lastTransferTimestamp = event.block.timestamp
+    tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+    // Persist
     tokenEntity.save();
 
     // Update token offer owner
@@ -194,6 +199,12 @@ export function handlePurchase(event: Purchase): void {
 
         let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event);
         tokenTransferEvent.save();
+
+        // Set price against token
+        let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+        tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
+        tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
+        tokenEntity.save()
     }
     editionEntity.save()
 }
@@ -236,8 +247,18 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     editionEntity.save()
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-    artist.editionsCount = artist.editionsCount.minus(ONE);
-    artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+
+    // If not active - reduce counts
+    if (!editionEntity.active) {
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+    }
+    // If re-enabling - add counts
+    else {
+        artist.editionsCount = artist.editionsCount.plus(ONE);
+        artist.supply = artist.supply.plus(editionEntity.totalAvailable);
+    }
+
     artist.save();
 }
 
