@@ -1,11 +1,11 @@
-import {BigInt, CallResult, EthereumBlock, log} from "@graphprotocol/graph-ts";
+import {BigInt, ethereum, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition, EditionFlat} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 
-export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
+export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
@@ -35,7 +35,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.totalAvailable = ZERO
         editionEntity.active = false
 
-        let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
@@ -72,13 +72,13 @@ export function loadEdition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
 }
 
-export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
+export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     log.info("loadOrCreateEditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateEdition(_editionNumber, block, contract);
 }
 
-export function loadOrCreateEditionFlat(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): EditionFlat | null {
+export function loadOrCreateEditionFlat(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): EditionFlat | null {
     let editionFlatEntity: EditionFlat | null = EditionFlat.load(editionNumber.toString())
 
     if (editionFlatEntity == null) {
@@ -89,8 +89,11 @@ export function loadOrCreateEditionFlat(editionNumber: BigInt, block: EthereumBl
         editionFlatEntity.totalSupply = ZERO
         editionFlatEntity.totalAvailable = ZERO
         editionFlatEntity.active = false
+        editionFlatEntity.artistAccount = ZERO_ADDRESS
+        editionFlatEntity.tagstring = null
 
-        let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+
+        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
@@ -105,6 +108,9 @@ export function loadOrCreateEditionFlat(editionNumber: BigInt, block: EthereumBl
             editionFlatEntity.description = metaData.description
             editionFlatEntity.image = metaData.image
             editionFlatEntity.artist = metaData.artist
+            editionFlatEntity.artistAccount = getArtistAddress(_editionData.value4)
+
+            editionFlatEntity.tagstring = metaData.tags.toString()
 
         } else {
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()])

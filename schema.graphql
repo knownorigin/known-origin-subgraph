@@ -218,6 +218,24 @@ type Collector @entity {
     #    biddingHistory: [AuctionEvent!]!
 }
 
+type _Schema_
+@fulltext(
+    name: "editionFlatSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "EditionFlat",
+            fields: [
+                { name: "name" },
+                { name: "description" },
+                { name: "artist" },
+                { name: "tagstring" },
+            ]
+        }
+    ]
+)
+
 type EditionFlat @entity {
     id: ID!
     createdTimestamp: BigInt!
@@ -227,5 +245,7 @@ type EditionFlat @entity {
     name: String
     description: String
     image: String
+    tagstring: String
     artist: String
+    artistAccount: Bytes! # address
 }

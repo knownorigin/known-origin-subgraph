@@ -1,6 +1,6 @@
 import {Day} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
-import {BigDecimal, BigInt, EthereumEvent} from "@graphprotocol/graph-ts/index";
+import {BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {dayMonthYearFromEventTimestamp} from "../DateConverter";
 
@@ -30,7 +30,7 @@ export function loadOrCreateDay(date: string): Day | null {
     return dayEntity;
 }
 
-export function loadDayFromEvent(event: EthereumEvent): Day | null {
+export function loadDayFromEvent(event: ethereum.Event): Day | null {
     let dayMonthYear = dayMonthYearFromEventTimestamp(event)
 
     let month = dayMonthYear.month.toString();
@@ -43,7 +43,7 @@ export function loadDayFromEvent(event: EthereumEvent): Day | null {
     return loadOrCreateDay(dayId)
 }
 
-export function addEditionToDay(editionCreated: EthereumEvent, editionEntityId: string): void {
+export function addEditionToDay(editionCreated: ethereum.Event, editionEntityId: string): void {
     let dayEntity = loadDayFromEvent(editionCreated)
 
     dayEntity.editionsCount = dayEntity.editionsCount.plus(ONE)
@@ -55,7 +55,7 @@ export function addEditionToDay(editionCreated: EthereumEvent, editionEntityId: 
     dayEntity.save()
 }
 
-export function recordDayTransfer(event: EthereumEvent): void {
+export function recordDayTransfer(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
 
     dayEntity.transferCount = dayEntity.transferCount.plus(ONE)
@@ -63,49 +63,49 @@ export function recordDayTransfer(event: EthereumEvent): void {
     dayEntity.save()
 }
 
-export function recordDayBidAcceptedCount(event: EthereumEvent): void {
+export function recordDayBidAcceptedCount(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsAcceptedCount = dayEntity.bidsAcceptedCount.plus(ONE)
 
     dayEntity.save()
 }
 
-export function recordDayBidPlacedCount(event: EthereumEvent): void {
+export function recordDayBidPlacedCount(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsPlacedCount = dayEntity.bidsPlacedCount.plus(ONE)
 
     dayEntity.save()
 }
 
-export function recordDayTotalValueCycledInBids(event: EthereumEvent, value: BigInt): void {
+export function recordDayTotalValueCycledInBids(event: ethereum.Event, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValueCycledInBids = dayEntity.totalValueCycledInBids.plus(toEther(value))
 
     dayEntity.save()
 }
 
-export function recordDayTotalValuePlaceInBids(event: EthereumEvent, value: BigInt): void {
+export function recordDayTotalValuePlaceInBids(event: ethereum.Event, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValuePlaceInBids = dayEntity.totalValuePlaceInBids.plus(toEther(value))
 
     dayEntity.save()
 }
 
-export function recordDayBidRejectedCount(event: EthereumEvent): void {
+export function recordDayBidRejectedCount(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsRejectedCount = dayEntity.bidsRejectedCount.plus(ONE)
 
     dayEntity.save()
 }
 
-export function recordDayBidWithdrawnCount(event: EthereumEvent): void {
+export function recordDayBidWithdrawnCount(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsWithdrawnCount = dayEntity.bidsWithdrawnCount.plus(ONE)
 
     dayEntity.save()
 }
 
-export function recordDayBidIncreasedCount(event: EthereumEvent): void {
+export function recordDayBidIncreasedCount(event: ethereum.Event): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.bidsIncreasedCount = dayEntity.bidsIncreasedCount.plus(ONE)
 
@@ -113,7 +113,7 @@ export function recordDayBidIncreasedCount(event: EthereumEvent): void {
 }
 
 
-export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: BigInt): void {
+export function recordDayValue(event: ethereum.Event, tokenId: BigInt, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
     dayEntity.totalValueInEth = dayEntity.totalValueInEth.plus(toEther(value))
 
@@ -125,7 +125,7 @@ export function recordDayValue(event: EthereumEvent, tokenId: BigInt, value: Big
     dayEntity.save()
 }
 
-export function recordDayCounts(event: EthereumEvent, value: BigInt): void {
+export function recordDayCounts(event: ethereum.Event, value: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
 
     // only if has value can it be a sale - via purchase and bid accepted
@@ -136,7 +136,7 @@ export function recordDayCounts(event: EthereumEvent, value: BigInt): void {
     dayEntity.save()
 }
 
-export function recordDayIssued(event: EthereumEvent, tokenId: BigInt): void {
+export function recordDayIssued(event: ethereum.Event, tokenId: BigInt): void {
     let dayEntity = loadDayFromEvent(event)
 
     // add all purchase with eth, gifts, bid accepted

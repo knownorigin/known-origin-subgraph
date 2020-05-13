@@ -1726,6 +1726,23 @@ export class EditionFlat extends Entity {
     }
   }
 
+  get tagstring(): string | null {
+    let value = this.get("tagstring");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set tagstring(value: string | null) {
+    if (value === null) {
+      this.unset("tagstring");
+    } else {
+      this.set("tagstring", Value.fromString(value as string));
+    }
+  }
+
   get artist(): string | null {
     let value = this.get("artist");
     if (value === null) {
@@ -1741,5 +1758,14 @@ export class EditionFlat extends Entity {
     } else {
       this.set("artist", Value.fromString(value as string));
     }
+  }
+
+  get artistAccount(): Bytes {
+    let value = this.get("artistAccount");
+    return value.toBytes();
+  }
+
+  set artistAccount(value: Bytes) {
+    this.set("artistAccount", Value.fromBytes(value));
   }
 }
