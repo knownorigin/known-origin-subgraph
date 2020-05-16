@@ -220,12 +220,12 @@ type Collector @entity {
 
 type _Schema_
 @fulltext(
-    name: "editionFlatSearch",
+    name: "KODASearch",
     language: en
     algorithm: rank,
     include: [
         {
-            entity: "EditionFlat",
+            entity: "KODA",
             fields: [
                 { name: "name" },
                 { name: "description" },
@@ -236,16 +236,46 @@ type _Schema_
     ]
 )
 
-type EditionFlat @entity {
+@fulltext(
+    name: "KODATagSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "KODA",
+            fields: [
+                { name: "tagstring" },
+            ]
+        }
+    ]
+)
+
+@fulltext(
+    name: "KODANameArtistSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "KODA",
+            fields: [
+                { name: "name" },
+                { name: "artist" },
+            ]
+        }
+    ]
+)
+
+type KODA @entity {
     id: ID!
     createdTimestamp: BigInt!
     totalSupply: BigInt!
-    totalAvailable: BigInt!
     active: Boolean!
+    edition: Boolean!
     name: String
     description: String
     image: String
     tagstring: String
     artist: String
     artistAccount: Bytes! # address
+    priceInWei: BigInt!
 }

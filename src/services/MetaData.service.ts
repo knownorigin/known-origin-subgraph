@@ -7,11 +7,11 @@ export function constructMetaData(tokenURI: string): MetaData | null {
     log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
-    let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
-
-    let metaData: MetaData = new MetaData(ipfsHash)
-
     if (ipfsParts.length > 0) {
+        let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
+        let metaData: MetaData = new MetaData(ipfsHash)
+        metaData.tags = new Array<string>()
+
         let data = ipfs.cat(ipfsHash)
         if (data !== null) {
             let jsonData: JSONValue = json.fromBytes(data as Bytes)
@@ -55,11 +55,16 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 }
             }
         }
+        else {
+            log.error("Unknown IPFS data found for token URI {}", [tokenURI]);
+        }
+
+        return metaData;
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
 
-    return metaData;
+    return null
 }
 
 function isObject(jsonData: JSONValue): boolean {

@@ -1609,7 +1609,7 @@ export class Collector extends Entity {
   }
 }
 
-export class EditionFlat extends Entity {
+export class KODA extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1617,17 +1617,17 @@ export class EditionFlat extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save EditionFlat entity without an ID");
+    assert(id !== null, "Cannot save KODA entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save EditionFlat entity with non-string ID. " +
+      "Cannot save KODA entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("EditionFlat", id.toString(), this);
+    store.set("KODA", id.toString(), this);
   }
 
-  static load(id: string): EditionFlat | null {
-    return store.get("EditionFlat", id) as EditionFlat | null;
+  static load(id: string): KODA | null {
+    return store.get("KODA", id) as KODA | null;
   }
 
   get id(): string {
@@ -1657,15 +1657,6 @@ export class EditionFlat extends Entity {
     this.set("totalSupply", Value.fromBigInt(value));
   }
 
-  get totalAvailable(): BigInt {
-    let value = this.get("totalAvailable");
-    return value.toBigInt();
-  }
-
-  set totalAvailable(value: BigInt) {
-    this.set("totalAvailable", Value.fromBigInt(value));
-  }
-
   get active(): boolean {
     let value = this.get("active");
     return value.toBoolean();
@@ -1673,6 +1664,15 @@ export class EditionFlat extends Entity {
 
   set active(value: boolean) {
     this.set("active", Value.fromBoolean(value));
+  }
+
+  get edition(): boolean {
+    let value = this.get("edition");
+    return value.toBoolean();
+  }
+
+  set edition(value: boolean) {
+    this.set("edition", Value.fromBoolean(value));
   }
 
   get name(): string | null {
@@ -1767,5 +1767,14 @@ export class EditionFlat extends Entity {
 
   set artistAccount(value: Bytes) {
     this.set("artistAccount", Value.fromBytes(value));
+  }
+
+  get priceInWei(): BigInt {
+    let value = this.get("priceInWei");
+    return value.toBigInt();
+  }
+
+  set priceInWei(value: BigInt) {
+    this.set("priceInWei", Value.fromBigInt(value));
   }
 }
