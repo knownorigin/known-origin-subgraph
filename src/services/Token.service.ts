@@ -1,5 +1,5 @@
 import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
-import {KODA, Token} from "../../generated/schema";
+import {Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
@@ -57,47 +57,47 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
     return tokenEntity;
 }
 
-export function loadOrCreateTokenKODA(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): KODA | null {
-    let tokenKODAEntity = KODA.load(tokenId.toString())
-
-    if (tokenKODAEntity == null) {
-        // uint256 _editionNumber,
-        //     uint256 _editionType,
-        //     bytes32 _editionData,
-        //     string _tokenURI,
-        //     address _owner
-        // let _tokenData = contract.tokenData(tokenId)
-        tokenKODAEntity = new KODA(tokenId.toString())
-
-        tokenKODAEntity.createdTimestamp = block.timestamp
-        tokenKODAEntity.totalSupply = ZERO
-        tokenKODAEntity.active = false
-        tokenKODAEntity.edition = true
-        tokenKODAEntity.name = null
-        tokenKODAEntity.description = null
-        tokenKODAEntity.image = null
-        tokenKODAEntity.tagstring = null
-        tokenKODAEntity.artist = null
-        tokenKODAEntity.artistAccount = ZERO_ADDRESS
-        tokenKODAEntity.priceInWei = ZERO
-
-        // let metaData = constructMetaData(_tokenData.value3);
-        // tokenKODAEntity.name = metaData.name
-        // tokenKODAEntity.description = metaData.description
-        // tokenKODAEntity.image = metaData.image
-        // tokenKODAEntity.artist = metaData.artist
-        // tokenKODAEntity.tagstring = metaData.tags.toString()
-
-        // from edition
-        // tokenKODAEntity.artistAccount = getArtistAddress(_editionData.value4)
-        // editionKODAEntity.totalSupply = _editionData.value8
-        // editionKODAEntity.active = _editionData.value10
-
-        // TODO load in edition stuff
-
-
-        tokenKODAEntity.save();
-    }
-
-    return tokenKODAEntity;
-}
+// export function loadOrCreateTokenKODA(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): KODA | null {
+//     let tokenKODAEntity = KODA.load(tokenId.toString())
+//
+//     if (tokenKODAEntity == null) {
+//         // uint256 _editionNumber,
+//         //     uint256 _editionType,
+//         //     bytes32 _editionData,
+//         //     string _tokenURI,
+//         //     address _owner
+//         // let _tokenData = contract.tokenData(tokenId)
+//         tokenKODAEntity = new KODA(tokenId.toString())
+//
+//         tokenKODAEntity.createdTimestamp = block.timestamp
+//         tokenKODAEntity.totalSupply = ZERO
+//         tokenKODAEntity.active = false
+//         tokenKODAEntity.edition = true
+//         tokenKODAEntity.name = null
+//         tokenKODAEntity.description = null
+//         tokenKODAEntity.image = null
+//         tokenKODAEntity.tagstring = null
+//         tokenKODAEntity.artist = null
+//         tokenKODAEntity.artistAccount = ZERO_ADDRESS
+//         tokenKODAEntity.priceInWei = ZERO
+//
+//         // let metaData = constructMetaData(_tokenData.value3);
+//         // tokenKODAEntity.name = metaData.name
+//         // tokenKODAEntity.description = metaData.description
+//         // tokenKODAEntity.image = metaData.image
+//         // tokenKODAEntity.artist = metaData.artist
+//         // tokenKODAEntity.tagstring = metaData.tags.toString()
+//
+//         // from edition
+//         // tokenKODAEntity.artistAccount = getArtistAddress(_editionData.value4)
+//         // editionKODAEntity.totalSupply = _editionData.value8
+//         // editionKODAEntity.active = _editionData.value10
+//
+//         // TODO load in edition stuff
+//
+//
+//         tokenKODAEntity.save();
+//     }
+//
+//     return tokenKODAEntity;
+// }

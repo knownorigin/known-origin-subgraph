@@ -94,6 +94,23 @@ type Token @entity {
     editionActive: Boolean!
 }
 
+type _Schema_
+@fulltext(
+    name: "EditionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "name" },
+                { name: "artist" }
+            ]
+        }
+    ]
+)
+
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
@@ -117,6 +134,8 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
+    name: String
+    artist: String
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
@@ -221,64 +240,63 @@ type Collector @entity {
     #    biddingHistory: [AuctionEvent!]!
 }
 
-type _Schema_
-@fulltext(
-    name: "KODASearch",
-    language: en
-    algorithm: rank,
-    include: [
-        {
-            entity: "KODA",
-            fields: [
-                { name: "name" },
-                { name: "description" },
-                { name: "artist" },
-                { name: "tagstring" },
-            ]
-        }
-    ]
-)
-
-@fulltext(
-    name: "KODATagSearch",
-    language: en
-    algorithm: rank,
-    include: [
-        {
-            entity: "KODA",
-            fields: [
-                { name: "tagstring" },
-            ]
-        }
-    ]
-)
-
-@fulltext(
-    name: "KODANameArtistSearch",
-    language: en
-    algorithm: rank,
-    include: [
-        {
-            entity: "KODA",
-            fields: [
-                { name: "name" },
-                { name: "artist" },
-            ]
-        }
-    ]
-)
-
-type KODA @entity {
-    id: ID!
-    createdTimestamp: BigInt!
-    totalSupply: BigInt!
-    active: Boolean!
-    edition: Boolean!
-    name: String
-    description: String
-    image: String
-    tagstring: String
-    artist: String
-    artistAccount: Bytes! # address
-    priceInWei: BigInt!
-}
+#@fulltext(
+#    name: "KODASearch",
+#    language: en
+#    algorithm: rank,
+#    include: [
+#        {
+#            entity: "KODA",
+#            fields: [
+#                { name: "name" },
+#                { name: "description" },
+#                { name: "artist" },
+#                { name: "tagstring" },
+#            ]
+#        }
+#    ]
+#)
+#
+#@fulltext(
+#    name: "KODATagSearch",
+#    language: en
+#    algorithm: rank,
+#    include: [
+#        {
+#            entity: "KODA",
+#            fields: [
+#                { name: "tagstring" },
+#            ]
+#        }
+#    ]
+#)
+#
+#@fulltext(
+#    name: "KODANameArtistSearch",
+#    language: en
+#    algorithm: rank,
+#    include: [
+#        {
+#            entity: "KODA",
+#            fields: [
+#                { name: "name" },
+#                { name: "artist" },
+#            ]
+#        }
+#    ]
+#)
+#
+#type KODA @entity {
+#    id: ID!
+#    createdTimestamp: BigInt!
+#    totalSupply: BigInt!
+#    active: Boolean!
+#    edition: Boolean!
+#    name: String
+#    description: String
+#    image: String
+#    tagstring: String
+#    artist: String
+#    artistAccount: Bytes! # address
+#    priceInWei: BigInt!
+#}

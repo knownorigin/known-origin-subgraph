@@ -1,6 +1,6 @@
 import {BigInt, ethereum, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
-import {Edition, KODA} from "../../generated/schema";
+import {Edition} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
@@ -78,48 +78,48 @@ export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: ethereum.
     return loadOrCreateEdition(_editionNumber, block, contract);
 }
 
-export function loadOrCreateEditionKODA(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): KODA | null {
-    let editionKODAEntity: KODA | null = KODA.load(editionNumber.toString())
-
-    if (editionKODAEntity == null) {
-
-        // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
-        editionKODAEntity = new KODA(editionNumber.toString())
-        editionKODAEntity.createdTimestamp = block.timestamp
-        editionKODAEntity.totalSupply = ZERO
-        editionKODAEntity.active = false
-        editionKODAEntity.edition = true
-        editionKODAEntity.name = null
-        editionKODAEntity.description = null
-        editionKODAEntity.image = null
-        editionKODAEntity.tagstring = null
-        editionKODAEntity.artist = null
-        editionKODAEntity.artistAccount = ZERO_ADDRESS
-        editionKODAEntity.priceInWei = ZERO
-
-        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
-
-        if (!_editionDataResult.reverted) {
-            let _editionData = _editionDataResult.value;
-
-            editionKODAEntity.totalSupply = _editionData.value8
-            editionKODAEntity.active = _editionData.value10
-            editionKODAEntity.priceInWei = _editionData.value6
-
-            // let metaData = constructMetaData(_editionData.value7)
-            //
-            // editionKODAEntity.name = metaData.name
-            // editionKODAEntity.description = metaData.description
-            // editionKODAEntity.image = metaData.image
-            // editionKODAEntity.artist = metaData.artist
-            // editionKODAEntity.tagstring = metaData.tags.toString();
-
-            editionKODAEntity.artistAccount = getArtistAddress(_editionData.value4)
-
-        } else {
-            log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()])
-        }
-    }
-
-    return editionKODAEntity;
-}
+// export function loadOrCreateEditionKODA(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): KODA | null {
+//     let editionKODAEntity: KODA | null = KODA.load(editionNumber.toString())
+//
+//     if (editionKODAEntity == null) {
+//
+//         // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
+//         editionKODAEntity = new KODA(editionNumber.toString())
+//         editionKODAEntity.createdTimestamp = block.timestamp
+//         editionKODAEntity.totalSupply = ZERO
+//         editionKODAEntity.active = false
+//         editionKODAEntity.edition = true
+//         editionKODAEntity.name = null
+//         editionKODAEntity.description = null
+//         editionKODAEntity.image = null
+//         editionKODAEntity.tagstring = null
+//         editionKODAEntity.artist = null
+//         editionKODAEntity.artistAccount = ZERO_ADDRESS
+//         editionKODAEntity.priceInWei = ZERO
+//
+//         let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+//
+//         if (!_editionDataResult.reverted) {
+//             let _editionData = _editionDataResult.value;
+//
+//             editionKODAEntity.totalSupply = _editionData.value8
+//             editionKODAEntity.active = _editionData.value10
+//             editionKODAEntity.priceInWei = _editionData.value6
+//
+//             // let metaData = constructMetaData(_editionData.value7)
+//             //
+//             // editionKODAEntity.name = metaData.name
+//             // editionKODAEntity.description = metaData.description
+//             // editionKODAEntity.image = metaData.image
+//             // editionKODAEntity.artist = metaData.artist
+//             // editionKODAEntity.tagstring = metaData.tags.toString();
+//
+//             editionKODAEntity.artistAccount = getArtistAddress(_editionData.value4)
+//
+//         } else {
+//             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()])
+//         }
+//     }
+//
+//     return editionKODAEntity;
+// }

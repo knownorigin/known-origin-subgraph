@@ -952,6 +952,40 @@ export class Edition extends Entity {
     }
   }
 
+  get name(): string | null {
+    let value = this.get("name");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (value === null) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(value as string));
+    }
+  }
+
+  get artist(): string | null {
+    let value = this.get("artist");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set artist(value: string | null) {
+    if (value === null) {
+      this.unset("artist");
+    } else {
+      this.set("artist", Value.fromString(value as string));
+    }
+  }
+
   get auctionEnabled(): boolean {
     let value = this.get("auctionEnabled");
     return value.toBoolean();
@@ -1633,175 +1667,5 @@ export class Collector extends Entity {
 
   set primarySaleEthSpent(value: BigInt) {
     this.set("primarySaleEthSpent", Value.fromBigInt(value));
-  }
-}
-
-export class KODA extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id !== null, "Cannot save KODA entity without an ID");
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save KODA entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("KODA", id.toString(), this);
-  }
-
-  static load(id: string): KODA | null {
-    return store.get("KODA", id) as KODA | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get createdTimestamp(): BigInt {
-    let value = this.get("createdTimestamp");
-    return value.toBigInt();
-  }
-
-  set createdTimestamp(value: BigInt) {
-    this.set("createdTimestamp", Value.fromBigInt(value));
-  }
-
-  get totalSupply(): BigInt {
-    let value = this.get("totalSupply");
-    return value.toBigInt();
-  }
-
-  set totalSupply(value: BigInt) {
-    this.set("totalSupply", Value.fromBigInt(value));
-  }
-
-  get active(): boolean {
-    let value = this.get("active");
-    return value.toBoolean();
-  }
-
-  set active(value: boolean) {
-    this.set("active", Value.fromBoolean(value));
-  }
-
-  get edition(): boolean {
-    let value = this.get("edition");
-    return value.toBoolean();
-  }
-
-  set edition(value: boolean) {
-    this.set("edition", Value.fromBoolean(value));
-  }
-
-  get name(): string | null {
-    let value = this.get("name");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set name(value: string | null) {
-    if (value === null) {
-      this.unset("name");
-    } else {
-      this.set("name", Value.fromString(value as string));
-    }
-  }
-
-  get description(): string | null {
-    let value = this.get("description");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set description(value: string | null) {
-    if (value === null) {
-      this.unset("description");
-    } else {
-      this.set("description", Value.fromString(value as string));
-    }
-  }
-
-  get image(): string | null {
-    let value = this.get("image");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set image(value: string | null) {
-    if (value === null) {
-      this.unset("image");
-    } else {
-      this.set("image", Value.fromString(value as string));
-    }
-  }
-
-  get tagstring(): string | null {
-    let value = this.get("tagstring");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set tagstring(value: string | null) {
-    if (value === null) {
-      this.unset("tagstring");
-    } else {
-      this.set("tagstring", Value.fromString(value as string));
-    }
-  }
-
-  get artist(): string | null {
-    let value = this.get("artist");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set artist(value: string | null) {
-    if (value === null) {
-      this.unset("artist");
-    } else {
-      this.set("artist", Value.fromString(value as string));
-    }
-  }
-
-  get artistAccount(): Bytes {
-    let value = this.get("artistAccount");
-    return value.toBytes();
-  }
-
-  set artistAccount(value: Bytes) {
-    this.set("artistAccount", Value.fromBytes(value));
-  }
-
-  get priceInWei(): BigInt {
-    let value = this.get("priceInWei");
-    return value.toBigInt();
-  }
-
-  set priceInWei(value: BigInt) {
-    this.set("priceInWei", Value.fromBigInt(value));
   }
 }
