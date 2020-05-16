@@ -690,6 +690,33 @@ export class Token extends Entity {
       this.set("currentTopBidder", Value.fromBytes(value as Bytes));
     }
   }
+
+  get artistAccount(): Bytes {
+    let value = this.get("artistAccount");
+    return value.toBytes();
+  }
+
+  set artistAccount(value: Bytes) {
+    this.set("artistAccount", Value.fromBytes(value));
+  }
+
+  get editionTotalAvailable(): BigInt {
+    let value = this.get("editionTotalAvailable");
+    return value.toBigInt();
+  }
+
+  set editionTotalAvailable(value: BigInt) {
+    this.set("editionTotalAvailable", Value.fromBigInt(value));
+  }
+
+  get editionActive(): boolean {
+    let value = this.get("editionActive");
+    return value.toBoolean();
+  }
+
+  set editionActive(value: boolean) {
+    this.set("editionActive", Value.fromBoolean(value));
+  }
 }
 
 export class Edition extends Entity {

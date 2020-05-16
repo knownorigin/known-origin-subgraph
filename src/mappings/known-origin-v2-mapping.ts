@@ -10,7 +10,7 @@ import {
 
 import {
     loadOrCreateEdition,
-    loadOrCreateEditionFromTokenId, loadOrCreateEditionKODA
+    loadOrCreateEditionFromTokenId
 } from "../services/Edition.service";
 import {
     addEditionToDay,
@@ -25,7 +25,7 @@ import {
     recordArtistCounts,
     recordArtistIssued, loadOrCreateArtist
 } from "../services/Artist.service";
-import {loadOrCreateToken, loadOrCreateTokenKODA} from "../services/Token.service";
+import {loadOrCreateToken} from "../services/Token.service";
 import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
@@ -49,8 +49,8 @@ export function handleEditionCreated(event: EditionCreated): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
-    let editionKODAEntity = loadOrCreateEditionKODA(event.params._editionNumber, event.block, contract)
-    editionKODAEntity.save()
+    // let editionKODAEntity = loadOrCreateEditionKODA(event.params._editionNumber, event.block, contract)
+    // editionKODAEntity.save()
 
     addEditionToDay(event, editionEntity.id);
 
@@ -120,12 +120,12 @@ export function handleTransfer(event: Transfer): void {
 
     // TOKEN
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
-    let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
+    // let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
         tokenEntity.birthTimestamp = event.block.timestamp
-        tokenKODAEntity.createdTimestamp = event.block.timestamp
+        // tokenKODAEntity.createdTimestamp = event.block.timestamp
     }
 
     // Record transfer against token
@@ -149,7 +149,7 @@ export function handleTransfer(event: Transfer): void {
 
     // Persist
     tokenEntity.save()
-    tokenKODAEntity.save()
+    // tokenKODAEntity.save()
 
     // Update token offer owner
     if (event.params._to !== event.params._from) {
@@ -165,8 +165,8 @@ export function handlePurchase(event: Purchase): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.save()
 
-    let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
-    tokenKODAEntity.save()
+    // let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
+    // tokenKODAEntity.save()
 
     // Create collector
     let collector = loadOrCreateCollector(event.params._buyer, event.block);
@@ -213,9 +213,9 @@ export function handlePurchase(event: Purchase): void {
         tokenEntity.save()
 
         // set the price on the KODA entity
-        let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
-        tokenKODAEntity.priceInWei = event.params._priceInWei
-        tokenKODAEntity.save()
+        // let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
+        // tokenKODAEntity.priceInWei = event.params._priceInWei
+        // tokenKODAEntity.save()
     }
     editionEntity.save()
 }
@@ -240,8 +240,8 @@ export function handleMinted(event: Minted): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 
-    let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
-    tokenKODAEntity.save()
+    // let tokenKODAEntity = loadOrCreateTokenKODA(event.params._tokenId, contract, event.block)
+    // tokenKODAEntity.save()
 
     // record running total of issued tokens
     recordDayIssued(event, event.params._tokenId)
@@ -305,7 +305,7 @@ export function handleUpdatePriceInWei(call: UpdatePriceInWeiCall): void {
     editionEntity.priceInWei = call.inputs._priceInWei;
     editionEntity.save()
 
-    let editionKODAEntity = loadOrCreateEditionKODA(editionNumber, call.block, contract)
-    editionKODAEntity.priceInWei = call.inputs._priceInWei;
-    editionKODAEntity.save()
+    // let editionKODAEntity = loadOrCreateEditionKODA(editionNumber, call.block, contract)
+    // editionKODAEntity.priceInWei = call.inputs._priceInWei;
+    // editionKODAEntity.save()
 }
