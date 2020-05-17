@@ -239,14 +239,17 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
     let editionNumber = call.inputs._editionNumber
+
+    let active = contract.editionActive(editionNumber);
+
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.active = call.inputs._active;
+    editionEntity.active = active;
     editionEntity.save()
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
 
     // If not active - reduce counts
-    if (!editionEntity.active) {
+    if (!active) {
         artist.editionsCount = artist.editionsCount.minus(ONE);
         artist.supply = artist.supply.minus(editionEntity.totalAvailable);
     }
