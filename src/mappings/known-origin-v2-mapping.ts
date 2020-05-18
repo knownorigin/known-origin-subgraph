@@ -215,6 +215,9 @@ export function handleMinted(event: Minted): void {
     // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
     editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
 
+    // Reduce remaining supply for each mint
+    editionEntity.remaingSupply = editionEntity.remaingSupply.minus(ONE)
+
     // Maintain a list of tokenId issued from the edition
     let tokenIds = editionEntity.tokenIds
     tokenIds.push(event.params._tokenId)

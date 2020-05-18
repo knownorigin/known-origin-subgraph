@@ -33,6 +33,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.tokenURI = ""
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = ZERO
+        editionEntity.remaingSupply = ZERO
         editionEntity.active = false
 
         let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
@@ -49,6 +50,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = _editionData.value9
+            editionEntity.remaingSupply = _editionData.value9 // set to initial supply
             editionEntity.active = _editionData.value10
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
