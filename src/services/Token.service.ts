@@ -1,11 +1,11 @@
-import {BigInt, EthereumBlock} from "@graphprotocol/graph-ts/index";
+import {BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
 import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 
-export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: EthereumBlock): Token | null {
+export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): Token | null {
     let tokenEntity = Token.load(tokenId.toString())
 
     if (tokenEntity == null) {
