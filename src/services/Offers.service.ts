@@ -1,4 +1,4 @@
-import {Address, BigInt, EthereumBlock, EthereumTransaction} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadOrCreateEdition} from "./Edition.service";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
@@ -10,8 +10,8 @@ import {loadOrCreateToken} from "./Token.service";
 let EDITION_TYPE = "Edition"
 let TOKEN_TYPE = "Token"
 
-export function recordEditionOffer(block: EthereumBlock,
-                                   transaction: EthereumTransaction,
+export function recordEditionOffer(block: ethereum.Block,
+                                   transaction: ethereum.Transaction,
                                    contract: KnownOrigin,
                                    bidder: Address,
                                    amount: BigInt,
@@ -37,15 +37,15 @@ export function recordEditionOffer(block: EthereumBlock,
     return offer as Offer
 }
 
-export function clearEditionOffer(block: EthereumBlock, contract: KnownOrigin, editionNumber: BigInt): Offer {
+export function clearEditionOffer(block: ethereum.Block, contract: KnownOrigin, editionNumber: BigInt): Offer {
     let offer: Offer = initOffer(block, contract, EDITION_TYPE, editionNumber)
     offer.isActive = false
     offer.save();
     return offer as Offer
 }
 
-export function recordTokenOffer(block: EthereumBlock,
-                                 transaction: EthereumTransaction,
+export function recordTokenOffer(block: ethereum.Block,
+                                 transaction: ethereum.Transaction,
                                  contract: KnownOrigin,
                                  bidder: Address,
                                  amount: BigInt,
@@ -70,7 +70,7 @@ export function recordTokenOffer(block: EthereumBlock,
     return offer as Offer
 }
 
-export function clearTokenOffer(block: EthereumBlock, contract: KnownOrigin, tokenId: BigInt): Offer {
+export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt): Offer {
 
     let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
     offer.isActive = false
@@ -79,7 +79,7 @@ export function clearTokenOffer(block: EthereumBlock, contract: KnownOrigin, tok
     return offer as Offer
 }
 
-export function updateTokenOfferOwner(block: EthereumBlock, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
+export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
     let offer: Offer | null = Offer.load(tokenId.toString());
 
     // Only do this is there is an offer object set
@@ -90,7 +90,7 @@ export function updateTokenOfferOwner(block: EthereumBlock, contract: KnownOrigi
     }
 }
 
-export function initOffer(block: EthereumBlock, contract: KnownOrigin, type: String, id: BigInt): Offer {
+export function initOffer(block: ethereum.Block, contract: KnownOrigin, type: String, id: BigInt): Offer {
     let offer: Offer | null = Offer.load(id.toString());
     if (offer == null) {
         offer = new Offer(id.toString());

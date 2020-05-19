@@ -1,11 +1,11 @@
-import {BigInt, CallResult, EthereumBlock, log} from "@graphprotocol/graph-ts";
+import {BigInt, ethereum, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 
-export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
+export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
@@ -36,7 +36,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: EthereumBlock,
         editionEntity.remaingSupply = ZERO
         editionEntity.active = false
 
-        let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
@@ -74,7 +74,7 @@ export function loadEdition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
 }
 
-export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: EthereumBlock, contract: KnownOrigin): Edition | null {
+export function loadOrCreateEditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     log.info("loadOrCreateEditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateEdition(_editionNumber, block, contract);

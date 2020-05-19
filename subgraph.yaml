@@ -14,7 +14,7 @@ dataSources:
       startBlock: 2054121
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -38,7 +38,7 @@ dataSources:
       startBlock: 2932902
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -74,7 +74,7 @@ dataSources:
       startBlock: 3211004
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - AuctionEnabled
@@ -113,7 +113,7 @@ dataSources:
       startBlock: 3620647
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - AuctionEnabled
@@ -158,7 +158,7 @@ dataSources:
       startBlock: 6321886
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - BidPlaced
@@ -203,7 +203,7 @@ dataSources:
       startBlock: 6514505
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.3
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - EditionDeactivated

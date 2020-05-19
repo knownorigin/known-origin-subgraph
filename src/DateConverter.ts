@@ -1,4 +1,4 @@
-import {BigInt, EthereumEvent} from "@graphprotocol/graph-ts/index";
+import {BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {ONE, SECONDS_IN_DAY, ZERO} from "./constants";
 import {toBigInt} from "./TypeConverterUtils";
 
@@ -15,7 +15,7 @@ class DayMonthYear {
 }
 
 // Ported from http://howardhinnant.github.io/date_algorithms.html#civil_from_days
-export function dayMonthYearFromEventTimestamp(event: EthereumEvent): DayMonthYear {
+export function dayMonthYearFromEventTimestamp(event: ethereum.Event): DayMonthYear {
     let unixEpoch: BigInt = event.block.timestamp;
 
     // you can have leap seconds apparently - but this is good enough for us ;)
