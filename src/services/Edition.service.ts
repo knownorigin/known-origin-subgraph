@@ -50,7 +50,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = _editionData.value9
-            editionEntity.remaingSupply = _editionData.value9 // set to initial supply
+            editionEntity.remaingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)

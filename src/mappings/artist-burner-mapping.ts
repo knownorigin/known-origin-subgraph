@@ -12,6 +12,7 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
     editionEntity.active = false;
     editionEntity.totalAvailable = ZERO;
+    editionEntity.remaingSupply = ZERO;
     editionEntity.save()
 
     // Reduce supply and edition count
@@ -33,5 +34,6 @@ export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): vo
 
     // Reduce available to total sold
     editionEntity.totalAvailable = editionEntity.totalSupply;
+    editionEntity.remaingSupply = ZERO;
     editionEntity.save()
 }
