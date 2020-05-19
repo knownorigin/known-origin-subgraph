@@ -9,7 +9,8 @@
   "auction-v2-address": "0xb05DA17AA04ac6f57821513572fb7760a203cd98",
   "auction-v2-startBlock": 3620647,
   "includeCallHandlers": false,
-  "includeTokenMarketplace": true,
   "token-marketplace-v1-address": "0x2AA618cF1Cc8C1223EB0571676E73c7e8117Ed45",
-  "token-marketplace-v1-startBlock": 6321886
+  "token-marketplace-v1-startBlock": 6321886,
+  "artist-burner-address": "0x9dd4cf0a7f1c195cc42c3bfaaa92c70c039058e9",
+  "artist-burner-startBlock": 6514505
 }

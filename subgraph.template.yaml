@@ -162,7 +162,6 @@ dataSources:
           handler: handleBidderRefunded
       file: ./src/mappings/auction-v2-mapping.ts
 
-  {{#includeTokenMarketplace}}
   ## TokenMarketplace V! (Current)
   - kind: ethereum/contract
     name: TokenMarketplace
@@ -207,4 +206,32 @@ dataSources:
           handler: handleBidWithdrawn
 
       file: ./src/mappings/token-marketplace-mapping.ts
-  {{/includeTokenMarketplace}}
+
+  ## Artist Burner (Current)
+  - kind: ethereum/contract
+    name: ArtistEditionBurner
+    network: {{network}}
+    source:
+      address: '{{artist-burner-address}}'
+      abi: ArtistEditionBurner
+      startBlock: {{artist-burner-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - EditionDeactivated
+        - EditionSupplyReduced
+      abis:
+        - name: ArtistEditionBurner
+          file: ./abis/ArtistEditionBurner.json
+        - name: KnownOrigin
+          file: ./abis/KnownOrigin.json
+      eventHandlers:
+        - event: EditionDeactivated(indexed uint256)
+          handler: handleEditionDeactivatedEvent
+
+        - event: EditionSupplyReduced(indexed uint256)
+          handler: handleEditionSupplyReducedEvent
+
+      file: ./src/mappings/artist-burner-mapping.ts

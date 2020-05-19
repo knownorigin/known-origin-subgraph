@@ -247,6 +247,7 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
 
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
     editionEntity.active = active;
+    editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
     editionEntity.save()
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
