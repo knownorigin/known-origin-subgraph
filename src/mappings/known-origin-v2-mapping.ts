@@ -26,7 +26,7 @@ import {
     recordArtistIssued, loadOrCreateArtist
 } from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
-import {CallResult, log, Address} from "@graphprotocol/graph-ts/index";
+import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {KODA_MAINNET, ONE, ZERO} from "../constants";
 import {createTransferEvent} from "../services/TransferEvent.factory";
@@ -52,7 +52,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     addEditionToDay(event, editionEntity.id);
 
     // Update artist
-    let _editionDataResult: CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
+    let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
     if (!_editionDataResult.reverted) {
         let _editionData = _editionDataResult.value;
         addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)

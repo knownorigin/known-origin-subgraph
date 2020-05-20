@@ -1,9 +1,9 @@
 import {Collector} from "../../generated/schema";
 
-import {Address, BigInt, EthereumBlock} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO} from "../constants";
 
-export function loadOrCreateCollector(address: Address, block: EthereumBlock): Collector | null {
+export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector | null {
     let collectorEntity: Collector | null = Collector.load(address.toHexString());
     if (collectorEntity == null) {
         collectorEntity = new Collector(address.toHexString());
@@ -31,7 +31,7 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
     return false;
 }
 
-export function addPrimarySaleToCollector(block: EthereumBlock, buyer: Address, value: BigInt, editionNumber: BigInt, tokenId: BigInt): void {
+export function addPrimarySaleToCollector(block: ethereum.Block, buyer: Address, value: BigInt, editionNumber: BigInt, tokenId: BigInt): void {
     let collector = loadOrCreateCollector(buyer, block);
 
     if (!collector.firstPurchaseTimeStamp) {

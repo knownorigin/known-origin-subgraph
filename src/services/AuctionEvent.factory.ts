@@ -1,4 +1,4 @@
-import {Address, BigDecimal, BigInt, EthereumTransaction, EthereumBlock} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Artist, AuctionEvent, Edition} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {toEther} from "../utils";
@@ -12,8 +12,8 @@ import {
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
 
 export function createBidPlacedEvent(
-    block: EthereumBlock,
-    transaction: EthereumTransaction,
+    block: ethereum.Block,
+    transaction: ethereum.Transaction,
     editionNumber: BigInt,
     bidder: Address,
     ethValue: BigInt
@@ -34,8 +34,8 @@ export function createBidPlacedEvent(
 }
 
 export function createBidAccepted(
-    block: EthereumBlock,
-    transaction: EthereumTransaction,
+    block: ethereum.Block,
+    transaction: ethereum.Transaction,
     editionNumber: BigInt,
     bidder: Address,
     ethValue: BigInt
@@ -56,8 +56,8 @@ export function createBidAccepted(
 }
 
 export function createBidRejected(
-    block: EthereumBlock,
-    transaction: EthereumTransaction,
+    block: ethereum.Block,
+    transaction: ethereum.Transaction,
     editionNumber: BigInt,
     bidder: Address,
     ethValue: BigInt
@@ -78,8 +78,8 @@ export function createBidRejected(
 }
 
 export function createBidWithdrawn(
-    block: EthereumBlock,
-    transaction: EthereumTransaction,
+    block: ethereum.Block,
+    transaction: ethereum.Transaction,
     editionNumber: BigInt,
     bidder: Address
 ): AuctionEvent {
@@ -99,8 +99,8 @@ export function createBidWithdrawn(
 }
 
 export function createBidIncreased(
-    block: EthereumBlock,
-    transaction: EthereumTransaction,
+    block: ethereum.Block,
+    transaction: ethereum.Transaction,
     editionNumber: BigInt,
     bidder: Address,
     ethValue: BigInt
