@@ -1,9 +1,10 @@
-import {BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
-import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
+import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): Token | null {
     let tokenEntity = Token.load(tokenId.toString())
@@ -32,9 +33,27 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         tokenEntity.primaryValueInEth = ZERO_BIG_DECIMAL
         tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
 
+        tokenEntity.editionTotalAvailable = ZERO
+        tokenEntity.editionActive = true
+        tokenEntity.artistAccount = ZERO_ADDRESS
+
         let metaData = constructMetaData(_tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id
+
+        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
+
+        if (!_editionDataResult.reverted) {
+            let _editionData = _editionDataResult.value;
+
+            tokenEntity.editionTotalAvailable = _editionData.value9
+            tokenEntity.editionActive = _editionData.value10
+
+            tokenEntity.artistAccount = getArtistAddress(_editionData.value4)
+
+        } else {
+            log.error("Handled reverted detailsOfEdition() call for {}", [tokenEntity.editionNumber.toString()])
+        }
 
         tokenEntity.save();
     }

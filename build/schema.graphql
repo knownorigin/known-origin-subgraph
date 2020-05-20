@@ -89,6 +89,9 @@ type Token @entity {
     tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
     openOffer: TokenOffer,              # current top active offer on a token
     currentTopBidder: Bytes             # current active top bidder on the secondary market for this token
+    artistAccount: Bytes! # address
+    editionTotalAvailable: BigInt!
+    editionActive: Boolean!
 }
 
 # A token/editions and its meta data
