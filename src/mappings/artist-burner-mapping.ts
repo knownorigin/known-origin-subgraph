@@ -16,11 +16,11 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     editionEntity.remaingSupply = ZERO;
     editionEntity.save()
 
-    // Reduce supply and edition count
-    let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-    artist.supply = artist.supply.minus(editionEntity.totalAvailable);
-    artist.editionsCount = artist.editionsCount.minus(ONE);
-    artist.save();
+    // N.B: Do not reduce edition supply and count - this is done by hooks in the callHandlers()
+    // let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+    // artist.editionsCount = artist.editionsCount.minus(ONE);
+    // artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+    // artist.save();
 }
 
 export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): void {
