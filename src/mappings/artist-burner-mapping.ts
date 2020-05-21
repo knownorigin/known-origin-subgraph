@@ -3,9 +3,10 @@ import {EditionDeactivated, EditionSupplyReduced} from "../../generated/ArtistEd
 import {loadOrCreateEdition} from "../services/Edition.service";
 import {ONE, ZERO} from "../constants";
 import {loadOrCreateArtist} from "../services/Artist.service";
-import {Address} from "@graphprotocol/graph-ts/index";
+import {Address, log} from "@graphprotocol/graph-ts/index";
 
 export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
+    log.info("handleEditionDeactivatedEvent() for edition [{}]", [event.params._editionNumber.toString()]);
     let contract = getKnownOriginForAddress(event.address)
 
     // Deactivate the edition
@@ -18,11 +19,12 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     // Reduce supply and edition count
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
     artist.supply = artist.supply.minus(editionEntity.totalAvailable);
-    artist.editionsCount = artist.editionsCount.plus(ONE);
+    artist.editionsCount = artist.editionsCount.minus(ONE);
     artist.save();
 }
 
 export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): void {
+    log.info("handleEditionSupplyReducedEvent() for edition [{}]", [event.params._editionNumber.toString()]);
     let contract = getKnownOriginForAddress(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)

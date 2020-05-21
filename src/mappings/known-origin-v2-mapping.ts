@@ -239,6 +239,7 @@ export function handleMinted(event: Minted): void {
 
 // Only called on Mainnet
 export function handleUpdateActive(call: UpdateActiveCall): void {
+    log.info("handleUpdateActive() for edition [{}]", [call.inputs._editionNumber.toString()]);
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
     let editionNumber = call.inputs._editionNumber
