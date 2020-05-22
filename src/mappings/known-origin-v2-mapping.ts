@@ -215,6 +215,9 @@ export function handleMinted(event: Minted): void {
     // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
     editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
 
+    // Reduce remaining supply for each mint
+    editionEntity.remaingSupply = editionEntity.remaingSupply.minus(ONE)
+
     // Maintain a list of tokenId issued from the edition
     let tokenIds = editionEntity.tokenIds
     tokenIds.push(event.params._tokenId)
@@ -236,6 +239,7 @@ export function handleMinted(event: Minted): void {
 
 // Only called on Mainnet
 export function handleUpdateActive(call: UpdateActiveCall): void {
+    log.info("handleUpdateActive() for edition [{}]", [call.inputs._editionNumber.toString()]);
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
 
     let editionNumber = call.inputs._editionNumber
@@ -244,6 +248,7 @@ export function handleUpdateActive(call: UpdateActiveCall): void {
 
     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
     editionEntity.active = active;
+    editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
     editionEntity.save()
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));

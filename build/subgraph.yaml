@@ -159,3 +159,28 @@ dataSources:
         - event: BidWithdrawn(indexed uint256,indexed address)
           handler: handleBidWithdrawn
       file: TokenMarketplace/TokenMarketplace.wasm
+  - kind: ethereum/contract
+    name: ArtistEditionBurner
+    network: mainnet
+    source:
+      address: "0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166"
+      abi: ArtistEditionBurner
+      startBlock: 10098533
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - EditionDeactivated
+        - EditionSupplyReduced
+      abis:
+        - name: ArtistEditionBurner
+          file: ArtistEditionBurner/abis/ArtistEditionBurner.json
+        - name: KnownOrigin
+          file: ArtistEditionBurner/abis/KnownOrigin.json
+      eventHandlers:
+        - event: EditionDeactivated(indexed uint256)
+          handler: handleEditionDeactivatedEvent
+        - event: EditionSupplyReduced(indexed uint256)
+          handler: handleEditionSupplyReducedEvent
+      file: ArtistEditionBurner/ArtistEditionBurner.wasm

@@ -899,6 +899,15 @@ export class Edition extends Entity {
     this.set("totalAvailable", Value.fromBigInt(value));
   }
 
+  get remaingSupply(): BigInt {
+    let value = this.get("remaingSupply");
+    return value.toBigInt();
+  }
+
+  set remaingSupply(value: BigInt) {
+    this.set("remaingSupply", Value.fromBigInt(value));
+  }
+
   get totalSold(): BigInt {
     let value = this.get("totalSold");
     return value.toBigInt();

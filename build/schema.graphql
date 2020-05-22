@@ -111,6 +111,7 @@ type Edition @entity {
     priceInWei: BigInt!
     totalSupply: BigInt!
     totalAvailable: BigInt!
+    remaingSupply: BigInt!
     totalSold: BigInt! # sold = purchase/bid accepted with price > 0
     sales: [Token!]!
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
