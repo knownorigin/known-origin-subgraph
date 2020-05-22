@@ -216,7 +216,7 @@ export function handleMinted(event: Minted): void {
     editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
 
     // Reduce remaining supply for each mint
-    editionEntity.remaingSupply = editionEntity.remaingSupply.minus(ONE)
+    editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE)
 
     // Maintain a list of tokenId issued from the edition
     let tokenIds = editionEntity.tokenIds
