@@ -60,8 +60,10 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             }
 
             let metaData = constructMetaData(_editionData.value7)
-            metaData.save()
-            editionEntity.metadata = metaData.id
+            if (metaData != null) {
+                metaData.save()
+                editionEntity.metadata = metaData.id
+            }
         } else {
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()]);
         }
