@@ -94,6 +94,37 @@ type Token @entity {
     editionActive: Boolean!
 }
 
+#type _Schema_
+#@fulltext(
+#    name: "EditionSearch",
+#    language: en
+#    algorithm: rank,
+#    include: [
+#        {
+#            entity: "Edition",
+#            fields: [
+#                { name: "metadataName" },
+#                { name: "metadataArtist" },
+#                { name: "metadataTagString" }
+#            ]
+#        }
+#    ]
+#)
+#
+#@fulltext(
+#    name: "EditionTagSearch",
+#    language: en
+#    algorithm: rank,
+#    include: [
+#        {
+#            entity: "Edition",
+#            fields: [
+#                { name: "metadataTagString" }
+#            ]
+#        }
+#    ]
+#)
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
@@ -118,6 +149,9 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
+    metadataName: String
+    metadataArtist: String
+    metadataTagString: String
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
