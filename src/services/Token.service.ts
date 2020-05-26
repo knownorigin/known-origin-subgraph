@@ -42,8 +42,10 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         tokenEntity.artistAccount = ZERO_ADDRESS
 
         let metaData = constructMetaData(_tokenData.value3);
-        metaData.save()
-        tokenEntity.metadata = metaData.id
+        if (metaData != null) {
+            metaData.save()
+            tokenEntity.metadata = metaData.id
+        }
 
         let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
 

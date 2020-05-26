@@ -576,13 +576,21 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
-  get metadata(): string {
+  get metadata(): string | null {
     let value = this.get("metadata");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set metadata(value: string) {
-    this.set("metadata", Value.fromString(value));
+  set metadata(value: string | null) {
+    if (value === null) {
+      this.unset("metadata");
+    } else {
+      this.set("metadata", Value.fromString(value as string));
+    }
   }
 
   get birthTimestamp(): BigInt {
@@ -899,13 +907,13 @@ export class Edition extends Entity {
     this.set("totalAvailable", Value.fromBigInt(value));
   }
 
-  get remaingSupply(): BigInt {
-    let value = this.get("remaingSupply");
+  get remainingSupply(): BigInt {
+    let value = this.get("remainingSupply");
     return value.toBigInt();
   }
 
-  set remaingSupply(value: BigInt) {
-    this.set("remaingSupply", Value.fromBigInt(value));
+  set remainingSupply(value: BigInt) {
+    this.set("remainingSupply", Value.fromBigInt(value));
   }
 
   get totalSold(): BigInt {

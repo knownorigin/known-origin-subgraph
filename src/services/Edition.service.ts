@@ -33,7 +33,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.tokenURI = ""
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = ZERO
-        editionEntity.remaingSupply = ZERO
+        editionEntity.remainingSupply = ZERO
         editionEntity.active = false
 
         let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
@@ -50,7 +50,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = _editionData.value9
-            editionEntity.remaingSupply = editionEntity.totalAvailable // set to initial supply
+            editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
@@ -60,8 +60,10 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             }
 
             let metaData = constructMetaData(_editionData.value7)
-            metaData.save()
-            editionEntity.metadata = metaData.id
+            if (metaData != null) {
+                metaData.save()
+                editionEntity.metadata = metaData.id
+            }
         } else {
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()]);
         }

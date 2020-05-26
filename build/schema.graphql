@@ -78,7 +78,7 @@ type Token @entity {
     transferCount: BigInt!
     editionNumber: BigInt!
     tokenURI: String!
-    metadata: MetaData!
+    metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
     primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
     lastSalePriceInEth: BigDecimal!          # known last sale if we capture it (primary & secondary)
@@ -111,7 +111,7 @@ type Edition @entity {
     priceInWei: BigInt!
     totalSupply: BigInt!
     totalAvailable: BigInt!
-    remaingSupply: BigInt!
+    remainingSupply: BigInt!
     totalSold: BigInt! # sold = purchase/bid accepted with price > 0
     sales: [Token!]!
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
