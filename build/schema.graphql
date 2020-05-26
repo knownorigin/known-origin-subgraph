@@ -78,12 +78,12 @@ type Token @entity {
     transferCount: BigInt!
     editionNumber: BigInt!
     tokenURI: String!
-    metadata: MetaData!
+    metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
     primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
-    lastSalePriceInEth: BigDecimal!          # known last sale if we capture it (primary & secondary)
+    lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!      # updated on ever Transfer
-    currentOwner: Collector!            # the current owner
+    currentOwner: Collector             # the current owner
     allOwners: [Collector!]!            # list (set) of all unique owners
     transfers: [TransferEvent!]!        # total number of token transfers made
     tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers

@@ -576,13 +576,21 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
-  get metadata(): string {
+  get metadata(): string | null {
     let value = this.get("metadata");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set metadata(value: string) {
-    this.set("metadata", Value.fromString(value));
+  set metadata(value: string | null) {
+    if (value === null) {
+      this.unset("metadata");
+    } else {
+      this.set("metadata", Value.fromString(value as string));
+    }
   }
 
   get birthTimestamp(): BigInt {
@@ -621,13 +629,21 @@ export class Token extends Entity {
     this.set("lastTransferTimestamp", Value.fromBigInt(value));
   }
 
-  get currentOwner(): string {
+  get currentOwner(): string | null {
     let value = this.get("currentOwner");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set currentOwner(value: string) {
-    this.set("currentOwner", Value.fromString(value));
+  set currentOwner(value: string | null) {
+    if (value === null) {
+      this.unset("currentOwner");
+    } else {
+      this.set("currentOwner", Value.fromString(value as string));
+    }
   }
 
   get allOwners(): Array<string> {
