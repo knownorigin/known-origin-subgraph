@@ -7,9 +7,13 @@ import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): Token | null {
+    log.error("Calling loadOrCreateToken() call for {}", [tokenId.toString()])
+
     let tokenEntity = Token.load(tokenId.toString())
 
     if (tokenEntity == null) {
+        // FIXME make this use try_tokenData()
+
         let _tokenData = contract.tokenData(tokenId)
         tokenEntity = new Token(tokenId.toString())
         tokenEntity.transfers = new Array<string>()
