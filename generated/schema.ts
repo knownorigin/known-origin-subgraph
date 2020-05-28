@@ -629,13 +629,21 @@ export class Token extends Entity {
     this.set("lastTransferTimestamp", Value.fromBigInt(value));
   }
 
-  get currentOwner(): string {
+  get currentOwner(): string | null {
     let value = this.get("currentOwner");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set currentOwner(value: string) {
-    this.set("currentOwner", Value.fromString(value));
+  set currentOwner(value: string | null) {
+    if (value === null) {
+      this.unset("currentOwner");
+    } else {
+      this.set("currentOwner", Value.fromString(value as string));
+    }
   }
 
   get allOwners(): Array<string> {

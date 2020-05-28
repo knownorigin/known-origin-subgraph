@@ -11,7 +11,7 @@ import {
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 import {loadOrCreateToken} from "./Token.service";
 import {getKnownOriginForAddress} from "./KnownOrigin.factory";
-import {getArtistAddress} from "../services/AddressMapping.service";
+import {getArtistAddress} from "./AddressMapping.service";
 import {Purchase, Transfer} from "../../generated/KnownOrigin/KnownOrigin";
 import {loadOrCreateCollector} from "./Collector.service";
 
