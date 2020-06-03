@@ -200,24 +200,20 @@ type Artist @entity {
 type Collector @entity {
     id: ID! # toString for address
     address: Bytes! # address
-    firstSeen: BigInt!
 
+    firstSeen: BigInt!
     firstPurchaseTimeStamp: BigInt!
     lastPurchaseTimeStamp: BigInt!
 
     # Primary sales counts
-    primarySaleCount: BigInt!
-    primarySaleEthSpent: BigInt!
+    primaryPurchaseCount: BigInt!
+    primaryPurchaseEthSpent: BigDecimal!
 
-    #    primarySaleTokensPurchased: [Token!]!
-    #    primarySaleEditionsPurchased: [Edition!]!
+    # Secondary sales counts
+    secondaryPurchaseCount: BigInt!
+    secondaryPurchaseEthSpent: BigDecimal!
 
-    # TODO Counts for any type of ownership
-    #    tokenIdsPurchased: [BigInt!]!
-    #    lastPurchaseTimeStamp: BigInt!
-    #    tokenIdsCurrentlyOwned: [BigInt!]!
-    #    totalSpendInEth: BigDecimal!
-    #    totalTransfer - can we already work this out?
-    #    purchase history - can we work this out already?
-    #    biddingHistory: [AuctionEvent!]!
+    # Primary & secondary sales counts
+    totalPurchaseCount: BigInt!
+    totalPurchaseEthSpent: BigDecimal!
 }

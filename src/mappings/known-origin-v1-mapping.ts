@@ -42,8 +42,7 @@ export function handlePurchase(event: PurchasedWithEther): void {
     // artist.supply = artist.supply.plus(ONE)
     // artist.save()
 
-    // TODO handle no edition in V1
-    addPrimarySaleToCollector(event.block, event.params._buyer, event.transaction.value, ONE, tokenId);
+    addPrimarySaleToCollector(event.block, event.params._buyer, event.transaction.value);
 }
 
 export function handleTransfer(event: Transfer): void {

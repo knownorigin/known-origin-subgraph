@@ -88,7 +88,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     removeActiveBidOnEdition(event.params._editionNumber)
 
-    addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount, event.params._editionNumber, event.params._tokenId);
+    addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount);
 
     // Set price against token
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
