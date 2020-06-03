@@ -977,6 +977,57 @@ export class Edition extends Entity {
     }
   }
 
+  get metadataName(): string | null {
+    let value = this.get("metadataName");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set metadataName(value: string | null) {
+    if (value === null) {
+      this.unset("metadataName");
+    } else {
+      this.set("metadataName", Value.fromString(value as string));
+    }
+  }
+
+  get metadataArtist(): string | null {
+    let value = this.get("metadataArtist");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set metadataArtist(value: string | null) {
+    if (value === null) {
+      this.unset("metadataArtist");
+    } else {
+      this.set("metadataArtist", Value.fromString(value as string));
+    }
+  }
+
+  get metadataTagString(): string | null {
+    let value = this.get("metadataTagString");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set metadataTagString(value: string | null) {
+    if (value === null) {
+      this.unset("metadataTagString");
+    } else {
+      this.set("metadataTagString", Value.fromString(value as string));
+    }
+  }
+
   get auctionEnabled(): boolean {
     let value = this.get("auctionEnabled");
     return value.toBoolean();

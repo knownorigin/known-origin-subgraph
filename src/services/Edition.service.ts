@@ -63,6 +63,12 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             if (metaData != null) {
                 metaData.save()
                 editionEntity.metadata = metaData.id
+
+                editionEntity.metadataName = metaData.name
+                editionEntity.metadataArtist = metaData.artist
+                if (metaData.tags != null && metaData.tags.length > 0) {
+                    editionEntity.metadataTagString = metaData.tags.toString()
+                }
             }
         } else {
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()]);

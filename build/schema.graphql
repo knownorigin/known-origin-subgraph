@@ -118,6 +118,9 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
+    metadataName: String
+    metadataArtist: String
+    metadataTagString: String
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
