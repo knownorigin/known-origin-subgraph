@@ -1693,21 +1693,57 @@ export class Collector extends Entity {
     this.set("lastPurchaseTimeStamp", Value.fromBigInt(value));
   }
 
-  get primarySaleCount(): BigInt {
-    let value = this.get("primarySaleCount");
+  get primaryPurchaseCount(): BigInt {
+    let value = this.get("primaryPurchaseCount");
     return value.toBigInt();
   }
 
-  set primarySaleCount(value: BigInt) {
-    this.set("primarySaleCount", Value.fromBigInt(value));
+  set primaryPurchaseCount(value: BigInt) {
+    this.set("primaryPurchaseCount", Value.fromBigInt(value));
   }
 
-  get primarySaleEthSpent(): BigInt {
-    let value = this.get("primarySaleEthSpent");
+  get primaryPurchaseEthSpent(): BigDecimal {
+    let value = this.get("primaryPurchaseEthSpent");
+    return value.toBigDecimal();
+  }
+
+  set primaryPurchaseEthSpent(value: BigDecimal) {
+    this.set("primaryPurchaseEthSpent", Value.fromBigDecimal(value));
+  }
+
+  get secondaryPurchaseCount(): BigInt {
+    let value = this.get("secondaryPurchaseCount");
     return value.toBigInt();
   }
 
-  set primarySaleEthSpent(value: BigInt) {
-    this.set("primarySaleEthSpent", Value.fromBigInt(value));
+  set secondaryPurchaseCount(value: BigInt) {
+    this.set("secondaryPurchaseCount", Value.fromBigInt(value));
+  }
+
+  get secondaryPurchaseEthSpent(): BigDecimal {
+    let value = this.get("secondaryPurchaseEthSpent");
+    return value.toBigDecimal();
+  }
+
+  set secondaryPurchaseEthSpent(value: BigDecimal) {
+    this.set("secondaryPurchaseEthSpent", Value.fromBigDecimal(value));
+  }
+
+  get totalPurchaseCount(): BigInt {
+    let value = this.get("totalPurchaseCount");
+    return value.toBigInt();
+  }
+
+  set totalPurchaseCount(value: BigInt) {
+    this.set("totalPurchaseCount", Value.fromBigInt(value));
+  }
+
+  get totalPurchaseEthSpent(): BigDecimal {
+    let value = this.get("totalPurchaseEthSpent");
+    return value.toBigDecimal();
+  }
+
+  set totalPurchaseEthSpent(value: BigDecimal) {
+    this.set("totalPurchaseEthSpent", Value.fromBigDecimal(value));
   }
 }
