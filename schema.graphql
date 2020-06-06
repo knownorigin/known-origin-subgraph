@@ -94,6 +94,24 @@ type Token @entity {
     editionActive: Boolean!
 }
 
+type _Schema_
+@fulltext(
+    name: "editionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataTagString" },
+            ]
+        }
+    ]
+)
+
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
