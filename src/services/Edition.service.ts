@@ -35,6 +35,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.totalAvailable = ZERO
         editionEntity.remainingSupply = ZERO
         editionEntity.active = false
+        editionEntity.offersOnly = false
 
         let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 

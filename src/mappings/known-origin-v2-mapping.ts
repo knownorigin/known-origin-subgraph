@@ -42,6 +42,7 @@ import {
 } from "../services/TokenEvent.factory";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
+import {handleEditionPriceChange} from "./artist-edition-controls-v2-mapping"
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -290,9 +291,6 @@ export function handleUpdateArtistCommission(call: UpdateArtistCommissionCall): 
 // Only called on Mainnet
 export function handleUpdatePriceInWei(call: UpdatePriceInWeiCall): void {
     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-
     let editionNumber = call.inputs._editionNumber
-    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.priceInWei = call.inputs._priceInWei;
-    editionEntity.save()
+    handleEditionPriceChange(contract, editionNumber, call.block, call.inputs._priceInWei)
 }

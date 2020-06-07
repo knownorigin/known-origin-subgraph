@@ -7,11 +7,11 @@ dataSources:
   ## KODA V1 (Alpha)
   - kind: ethereum/contract
     name: KnownOriginV1
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72'
+      address: '0xf0d6a41a3f011e06260f9133101b82b405539167'
       abi: KnownOriginV1
-      startBlock: 5381767
+      startBlock: 2054121
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -31,11 +31,11 @@ dataSources:
   ## KODA V2 (Current)
   - kind: ethereum/contract
     name: KnownOrigin
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
+      address: '0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e'
       abi: KnownOrigin
-      startBlock: 6270484
+      startBlock: 2932902
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -62,28 +62,16 @@ dataSources:
           # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
-      # Some things we need to watch method calls for
-      # For price changes we can listen to `PriceChanged` event from ArtistControls
-      # For others ... I dont have a solution other than force deploying to refresh the data
-      callHandlers:
-        - function: updateActive(uint256,bool)
-          handler: handleUpdateActive
-      #        - function: updateArtistsAccount(uint256,address)
-      #          handler: handleUpdateArtistsAccount
-      #        - function: updateArtistCommission(uint256,uint256)
-      #          handler: handleUpdateArtistCommission
-      #        - function: updatePriceInWei(uint256,uint256)
-      #          handler: handleUpdatePriceInWei
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
+      address: '0xC68373E4BCCA5630A82b35b989e9F4Adb1d375c8'
       abi: ArtistAcceptingBidsV1
-      startBlock: 6568535
+      startBlock: 3211004
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -118,11 +106,11 @@ dataSources:
   ## Auctions V2 (Current)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639'
+      address: '0xb05DA17AA04ac6f57821513572fb7760a203cd98'
       abi: ArtistAcceptingBidsV2
-      startBlock: 7271800
+      startBlock: 3620647
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -163,11 +151,11 @@ dataSources:
   ## TokenMarketplace V! (Current)
   - kind: ethereum/contract
     name: TokenMarketplace
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
+      address: '0x2AA618cF1Cc8C1223EB0571676E73c7e8117Ed45'
       abi: TokenMarketplace
-      startBlock: 9927235
+      startBlock: 6321886
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -208,11 +196,11 @@ dataSources:
   ## Artist Burner (Current)
   - kind: ethereum/contract
     name: ArtistEditionBurner
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166'
+      address: '0x9dd4cf0a7f1c195cc42c3bfaaa92c70c039058e9'
       abi: ArtistEditionBurner
-      startBlock: 10098533
+      startBlock: 6514505
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -233,3 +221,25 @@ dataSources:
           handler: handleEditionSupplyReducedEvent
 
       file: ./src/mappings/artist-burner-mapping.ts
+
+  ## Artist Tools V2
+  - kind: ethereum/contract
+    name: ArtistEditionControlsV2
+    network: rinkeby
+    source:
+      address: '0xC2d4Df7b146a5e5898e66DAa759213882e06dE59'
+      abi: ArtistEditionControlsV2
+      startBlock: 3919265
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: ArtistEditionControlsV2
+          file: ./abis/ArtistEditionControlsV2.json
+      eventHandlers:
+        - event: PriceChanged(indexed uint256,indexed address,uint256)
+          handler: handlePriceChangedEvent
+      file: ./src/mappings/artist-edition-controls-v2-mapping.ts
