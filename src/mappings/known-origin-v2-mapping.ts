@@ -40,7 +40,6 @@ import {
     createTokenPrimaryPurchaseEvent,
     createTokenTransferEvent
 } from "../services/TokenEvent.factory";
-import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
 import {handleEditionPriceChange} from "./artist-edition-controls-v2-mapping"
 

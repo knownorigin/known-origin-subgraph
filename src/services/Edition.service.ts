@@ -1,7 +1,7 @@
 import {BigInt, ethereum, log} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
-import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {MAX_UINT_256, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 
@@ -53,6 +53,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.totalAvailable = _editionData.value9
             editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
+            editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
