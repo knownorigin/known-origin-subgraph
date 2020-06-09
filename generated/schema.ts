@@ -897,6 +897,15 @@ export class Edition extends Entity {
     this.set("priceInWei", Value.fromBigInt(value));
   }
 
+  get offersOnly(): boolean {
+    let value = this.get("offersOnly");
+    return value.toBoolean();
+  }
+
+  set offersOnly(value: boolean) {
+    this.set("offersOnly", Value.fromBoolean(value));
+  }
+
   get totalSupply(): BigInt {
     let value = this.get("totalSupply");
     return value.toBigInt();
