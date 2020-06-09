@@ -109,6 +109,7 @@ type Edition @entity {
     optionalCommissionAccount: Bytes # address
     optionalCommissionRate: BigInt
     priceInWei: BigInt!
+    offersOnly: Boolean!
     totalSupply: BigInt!
     totalAvailable: BigInt!
     remainingSupply: BigInt!

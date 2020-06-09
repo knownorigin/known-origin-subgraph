@@ -235,3 +235,25 @@ dataSources:
           handler: handleEditionSupplyReducedEvent
 
       file: ./src/mappings/artist-burner-mapping.ts
+
+  ## Artist Tools V2
+  - kind: ethereum/contract
+    name: ArtistEditionControlsV2
+    network: {{network}}
+    source:
+      address: '{{artist-edition-controls-v2-address}}'
+      abi: ArtistEditionControlsV2
+      startBlock: {{artist-edition-controls-v2-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: ArtistEditionControlsV2
+          file: ./abis/ArtistEditionControlsV2.json
+      eventHandlers:
+        - event: PriceChanged(indexed uint256,indexed address,uint256)
+          handler: handlePriceChangedEvent
+      file: ./src/mappings/artist-edition-controls-v2-mapping.ts

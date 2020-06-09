@@ -11,6 +11,7 @@ export function getKnownOriginForAddress(address: Address): KnownOrigin {
     mainnetAddresses.push(Address.fromString("0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639")) // auction V2
     mainnetAddresses.push(Address.fromString("0xc1697d340807324200e26e4617Ce9c0070488E23")) // token marketplace V1
     mainnetAddresses.push(Address.fromString("0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166")) // artist burner V1
+    mainnetAddresses.push(Address.fromString("0x5327cf8b4127e81013d706330043e8bf5673f50d")) // artist tools v2
 
     // Mainnet addresses
     if (mainnetAddresses.indexOf(address) > -1) {

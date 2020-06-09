@@ -17,10 +17,6 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     editionEntity.save()
 
     // N.B: Do not reduce edition supply and count - this is done by hooks in the callHandlers()
-    // let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-    // artist.editionsCount = artist.editionsCount.minus(ONE);
-    // artist.supply = artist.supply.minus(editionEntity.totalAvailable);
-    // artist.save();
 }
 
 export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): void {
