@@ -105,6 +105,7 @@ type _Schema_
             fields: [
                 { name: "metadataName" },
                 { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
                 { name: "metadataTagString" },
             ]
         }
@@ -137,9 +138,10 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
-    metadataName: String
-    metadataArtist: String
-    metadataTagString: String
+    metadataName: String!
+    metadataArtist: String!
+    metadataTagString: String!
+    metadataArtistAccount: String!
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
