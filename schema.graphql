@@ -221,3 +221,14 @@ type Collector @entity {
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
 }
+
+# Goal is to capture actuate purchases and sales values for an "address" which can be exported as a CSV/JSON and used for tax accountanting
+type PurchaseAndSalesHistory @entity {
+    id: ID!
+    token: Token!           # the token this relates to
+    address: Bytes!         # who the event relates to
+    eventType: String!      # SALE or PURCHASE
+    timestamp: BigInt!      # when it happened
+    valueInEth: BigDecimal! # the value of it
+    transactionHash: Bytes! 
+}

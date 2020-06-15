@@ -44,6 +44,7 @@ import {getArtistAddress} from "../services/AddressMapping.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
 import {loadOrCreateToken} from "../services/Token.service";
+import {recordPurchaseEvent, recordSaleEvent} from "../services/PurchaseAndSalesHistory.service";
 
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -164,6 +165,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
 
     tokenEntity.save()
+
+    recordPurchaseEvent(event.transaction, tokenEntity, event.params._bidder, event.block.timestamp, event.params._amount)
+    recordSaleEvent(event.transaction, tokenEntity, artistAddress, event.block.timestamp, event.params._amount)
 }
 
 export function handleBidRejected(event: BidRejected): void {

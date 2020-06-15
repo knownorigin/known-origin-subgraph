@@ -42,6 +42,7 @@ import {
 } from "../services/TokenEvent.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
 import {handleEditionPriceChange} from "./artist-edition-controls-v2-mapping"
+import {recordPurchaseEvent, recordSaleEvent} from "../services/PurchaseAndSalesHistory.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
@@ -204,6 +205,9 @@ export function handlePurchase(event: Purchase): void {
         tokenEntity.save()
     }
     editionEntity.save()
+
+    recordPurchaseEvent(event.transaction, tokenEntity, event.params._buyer, event.block.timestamp, event.params._priceInWei)
+    recordSaleEvent(event.transaction, tokenEntity, artistAddress, event.block.timestamp, event.params._priceInWei)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer

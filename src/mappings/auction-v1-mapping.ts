@@ -35,6 +35,7 @@ import {
 } from "../services/Collector.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {loadOrCreateToken} from "../services/Token.service";
+import {recordPurchaseEvent, recordSaleEvent} from "../services/PurchaseAndSalesHistory.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginForAddress(event.address)
@@ -56,7 +57,6 @@ export function handleBidPlaced(event: BidPlaced): void {
 export function handleBidAccepted(event: BidAccepted): void {
     let contract = getKnownOriginForAddress(event.address)
     let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
-
 
     let auctionEvent = createBidAccepted(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
     auctionEvent.save()
@@ -95,6 +95,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.primaryValueInEth = toEther(event.params._amount)
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.save()
+
+    recordPurchaseEvent(event.transaction, tokenEntity, event.params._bidder, event.block.timestamp, event.params._amount)
+    recordSaleEvent(event.transaction, tokenEntity, artistAddress, event.block.timestamp, event.params._amount)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {

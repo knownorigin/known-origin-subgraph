@@ -1756,3 +1756,94 @@ export class Collector extends Entity {
     this.set("totalPurchaseEthSpent", Value.fromBigDecimal(value));
   }
 }
+
+export class PurchaseAndSalesHistory extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(
+      id !== null,
+      "Cannot save PurchaseAndSalesHistory entity without an ID"
+    );
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save PurchaseAndSalesHistory entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("PurchaseAndSalesHistory", id.toString(), this);
+  }
+
+  static load(id: string): PurchaseAndSalesHistory | null {
+    return store.get(
+      "PurchaseAndSalesHistory",
+      id
+    ) as PurchaseAndSalesHistory | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get token(): string {
+    let value = this.get("token");
+    return value.toString();
+  }
+
+  set token(value: string) {
+    this.set("token", Value.fromString(value));
+  }
+
+  get address(): Bytes {
+    let value = this.get("address");
+    return value.toBytes();
+  }
+
+  set address(value: Bytes) {
+    this.set("address", Value.fromBytes(value));
+  }
+
+  get eventType(): string {
+    let value = this.get("eventType");
+    return value.toString();
+  }
+
+  set eventType(value: string) {
+    this.set("eventType", Value.fromString(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
+  }
+
+  get valueInEth(): BigDecimal {
+    let value = this.get("valueInEth");
+    return value.toBigDecimal();
+  }
+
+  set valueInEth(value: BigDecimal) {
+    this.set("valueInEth", Value.fromBigDecimal(value));
+  }
+
+  get transactionHash(): Bytes {
+    let value = this.get("transactionHash");
+    return value.toBytes();
+  }
+
+  set transactionHash(value: Bytes) {
+    this.set("transactionHash", Value.fromBytes(value));
+  }
+}
