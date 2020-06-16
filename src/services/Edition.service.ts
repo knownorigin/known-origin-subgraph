@@ -74,7 +74,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
-                editionEntity.metadataArtistAccount = getArtistAddress(_editionData.value4).toString()
+                editionEntity.metadataArtistAccount = getArtistAddress(_editionData.value4).toHexString()
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }
