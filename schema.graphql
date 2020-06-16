@@ -230,5 +230,5 @@ type PurchaseAndSalesHistory @entity {
     eventType: String!      # SALE or PURCHASE
     timestamp: BigInt!      # when it happened
     valueInEth: BigDecimal! # the value of it
-    transactionHash: Bytes! 
+    transactionHash: Bytes!
 }
