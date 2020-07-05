@@ -1175,6 +1175,91 @@ export class MetaData extends Entity {
     }
   }
 
+  get image_type(): string | null {
+    let value = this.get("image_type");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image_type(value: string | null) {
+    if (value === null) {
+      this.unset("image_type");
+    } else {
+      this.set("image_type", Value.fromString(value as string));
+    }
+  }
+
+  get image_size_in_bytes(): string | null {
+    let value = this.get("image_size_in_bytes");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image_size_in_bytes(value: string | null) {
+    if (value === null) {
+      this.unset("image_size_in_bytes");
+    } else {
+      this.set("image_size_in_bytes", Value.fromString(value as string));
+    }
+  }
+
+  get cover_image(): string | null {
+    let value = this.get("cover_image");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover_image(value: string | null) {
+    if (value === null) {
+      this.unset("cover_image");
+    } else {
+      this.set("cover_image", Value.fromString(value as string));
+    }
+  }
+
+  get cover_image_type(): string | null {
+    let value = this.get("cover_image_type");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover_image_type(value: string | null) {
+    if (value === null) {
+      this.unset("cover_image_type");
+    } else {
+      this.set("cover_image_type", Value.fromString(value as string));
+    }
+  }
+
+  get cover_image_size_in_bytes(): string | null {
+    let value = this.get("cover_image_size_in_bytes");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover_image_size_in_bytes(value: string | null) {
+    if (value === null) {
+      this.unset("cover_image_size_in_bytes");
+    } else {
+      this.set("cover_image_size_in_bytes", Value.fromString(value as string));
+    }
+  }
+
   get scarcity(): string | null {
     let value = this.get("scarcity");
     if (value === null) {
