@@ -94,6 +94,25 @@ type Token @entity {
     editionActive: Boolean!
 }
 
+type _Schema_
+@fulltext(
+    name: "editionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+            ]
+        }
+    ]
+)
+
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
@@ -119,9 +138,10 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
-    metadataName: String
-    metadataArtist: String
-    metadataTagString: String
+    metadataName: String!
+    metadataArtist: String!
+    metadataTagString: String!
+    metadataArtistAccount: String!
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!

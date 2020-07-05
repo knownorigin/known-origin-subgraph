@@ -37,6 +37,12 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.active = false
         editionEntity.offersOnly = false
 
+        // set to empty string for text string although Ford is fixing this for us to handle nulls
+        editionEntity.metadataName = ""
+        editionEntity.metadataTagString = ""
+        editionEntity.metadataArtist = ""
+        editionEntity.metadataArtistAccount = "";
+
         let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
         if (!_editionDataResult.reverted) {
@@ -68,6 +74,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
+                editionEntity.metadataArtistAccount = getArtistAddress(_editionData.value4).toHexString()
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }
