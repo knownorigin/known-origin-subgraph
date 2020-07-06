@@ -59,7 +59,7 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                         metaData.image_type = attributes.toObject().get('asset_type').toString()
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
-                        metaData.image_size_in_bytes = attributes.toObject().get('asset_size_in_bytes').toString()
+                        metaData.image_size_in_bytes = attributes.toObject().get('asset_size_in_bytes').toBigInt()
                     }
 
                     /////////////////
@@ -73,7 +73,7 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                         metaData.cover_image_type = attributes.toObject().get('cover_image_type').toString()
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
-                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_size_in_bytes').toString()
+                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_size_in_bytes').toBigInt()
                     }
 
                     if (isObject(attributes) && attributes.toObject().isSet("tags")) {

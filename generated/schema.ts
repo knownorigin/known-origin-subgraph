@@ -1192,20 +1192,20 @@ export class MetaData extends Entity {
     }
   }
 
-  get image_size_in_bytes(): string | null {
+  get image_size_in_bytes(): BigInt | null {
     let value = this.get("image_size_in_bytes");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toBigInt();
     }
   }
 
-  set image_size_in_bytes(value: string | null) {
+  set image_size_in_bytes(value: BigInt | null) {
     if (value === null) {
       this.unset("image_size_in_bytes");
     } else {
-      this.set("image_size_in_bytes", Value.fromString(value as string));
+      this.set("image_size_in_bytes", Value.fromBigInt(value as BigInt));
     }
   }
 
@@ -1243,20 +1243,20 @@ export class MetaData extends Entity {
     }
   }
 
-  get cover_image_size_in_bytes(): string | null {
+  get cover_image_size_in_bytes(): BigInt | null {
     let value = this.get("cover_image_size_in_bytes");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toBigInt();
     }
   }
 
-  set cover_image_size_in_bytes(value: string | null) {
+  set cover_image_size_in_bytes(value: BigInt | null) {
     if (value === null) {
       this.unset("cover_image_size_in_bytes");
     } else {
-      this.set("cover_image_size_in_bytes", Value.fromString(value as string));
+      this.set("cover_image_size_in_bytes", Value.fromBigInt(value as BigInt));
     }
   }
 
