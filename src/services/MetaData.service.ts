@@ -69,11 +69,11 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image')) {
                         metaData.cover_image = attributes.toObject().get('cover_image').toString()
                     }
-                    if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
-                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_type').toString()
+                    if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
+                        metaData.cover_image_type = attributes.toObject().get('cover_image_type').toString()
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
-                        metaData.cover_image_type = attributes.toObject().get('cover_image_type').toString()
+                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_size_in_bytes').toString()
                     }
 
                     if (isObject(attributes) && attributes.toObject().isSet("tags")) {
