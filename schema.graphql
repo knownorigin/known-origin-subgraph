@@ -156,7 +156,17 @@ type MetaData @entity {
     id: ID!
     name: String
     description: String
+
     image: String
+    # only added july-2020
+    image_type: String
+    image_size_in_bytes: BigInt
+
+    # optional - only added july-2020
+    cover_image: String
+    cover_image_type: String
+    cover_image_size_in_bytes: BigInt
+
     scarcity: String
     artist: String
     tags: [String!]
