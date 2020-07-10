@@ -51,6 +51,31 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                         metaData.artist = attributes.toObject().get('artist').toString()
                     }
 
+                    ///////////
+                    // Image //
+                    ///////////
+
+                    if (isObject(attributes) && attributes.toObject().isSet('asset_type')) {
+                        metaData.image_type = attributes.toObject().get('asset_type').toString()
+                    }
+                    if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
+                        metaData.image_size_in_bytes = attributes.toObject().get('asset_size_in_bytes').toBigInt()
+                    }
+
+                    /////////////////
+                    // Cover image //
+                    /////////////////
+
+                    if (isObject(attributes) && attributes.toObject().isSet('cover_image')) {
+                        metaData.cover_image = attributes.toObject().get('cover_image').toString()
+                    }
+                    if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
+                        metaData.cover_image_type = attributes.toObject().get('cover_image_type').toString()
+                    }
+                    if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
+                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_size_in_bytes').toBigInt()
+                    }
+
                     if (isObject(attributes) && attributes.toObject().isSet("tags")) {
                         let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
                         let tags: Array<string> = rawTags.map<string>((value, i, values) => {

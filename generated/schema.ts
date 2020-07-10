@@ -986,55 +986,40 @@ export class Edition extends Entity {
     }
   }
 
-  get metadataName(): string | null {
+  get metadataName(): string {
     let value = this.get("metadataName");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set metadataName(value: string | null) {
-    if (value === null) {
-      this.unset("metadataName");
-    } else {
-      this.set("metadataName", Value.fromString(value as string));
-    }
+  set metadataName(value: string) {
+    this.set("metadataName", Value.fromString(value));
   }
 
-  get metadataArtist(): string | null {
+  get metadataArtist(): string {
     let value = this.get("metadataArtist");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set metadataArtist(value: string | null) {
-    if (value === null) {
-      this.unset("metadataArtist");
-    } else {
-      this.set("metadataArtist", Value.fromString(value as string));
-    }
+  set metadataArtist(value: string) {
+    this.set("metadataArtist", Value.fromString(value));
   }
 
-  get metadataTagString(): string | null {
+  get metadataTagString(): string {
     let value = this.get("metadataTagString");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set metadataTagString(value: string | null) {
-    if (value === null) {
-      this.unset("metadataTagString");
-    } else {
-      this.set("metadataTagString", Value.fromString(value as string));
-    }
+  set metadataTagString(value: string) {
+    this.set("metadataTagString", Value.fromString(value));
+  }
+
+  get metadataArtistAccount(): string {
+    let value = this.get("metadataArtistAccount");
+    return value.toString();
+  }
+
+  set metadataArtistAccount(value: string) {
+    this.set("metadataArtistAccount", Value.fromString(value));
   }
 
   get auctionEnabled(): boolean {
@@ -1187,6 +1172,91 @@ export class MetaData extends Entity {
       this.unset("image");
     } else {
       this.set("image", Value.fromString(value as string));
+    }
+  }
+
+  get image_type(): string | null {
+    let value = this.get("image_type");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image_type(value: string | null) {
+    if (value === null) {
+      this.unset("image_type");
+    } else {
+      this.set("image_type", Value.fromString(value as string));
+    }
+  }
+
+  get image_size_in_bytes(): BigInt | null {
+    let value = this.get("image_size_in_bytes");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set image_size_in_bytes(value: BigInt | null) {
+    if (value === null) {
+      this.unset("image_size_in_bytes");
+    } else {
+      this.set("image_size_in_bytes", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get cover_image(): string | null {
+    let value = this.get("cover_image");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover_image(value: string | null) {
+    if (value === null) {
+      this.unset("cover_image");
+    } else {
+      this.set("cover_image", Value.fromString(value as string));
+    }
+  }
+
+  get cover_image_type(): string | null {
+    let value = this.get("cover_image_type");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cover_image_type(value: string | null) {
+    if (value === null) {
+      this.unset("cover_image_type");
+    } else {
+      this.set("cover_image_type", Value.fromString(value as string));
+    }
+  }
+
+  get cover_image_size_in_bytes(): BigInt | null {
+    let value = this.get("cover_image_size_in_bytes");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set cover_image_size_in_bytes(value: BigInt | null) {
+    if (value === null) {
+      this.unset("cover_image_size_in_bytes");
+    } else {
+      this.set("cover_image_size_in_bytes", Value.fromBigInt(value as BigInt));
     }
   }
 

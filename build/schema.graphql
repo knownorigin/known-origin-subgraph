@@ -94,6 +94,25 @@ type Token @entity {
     editionActive: Boolean!
 }
 
+type _Schema_
+@fulltext(
+    name: "editionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+            ]
+        }
+    ]
+)
+
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
@@ -119,9 +138,10 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
-    metadataName: String
-    metadataArtist: String
-    metadataTagString: String
+    metadataName: String!
+    metadataArtist: String!
+    metadataTagString: String!
+    metadataArtistAccount: String!
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
@@ -136,7 +156,17 @@ type MetaData @entity {
     id: ID!
     name: String
     description: String
+
     image: String
+    # only added july-2020
+    image_type: String
+    image_size_in_bytes: BigInt
+
+    # optional - only added july-2020
+    cover_image: String
+    cover_image_type: String
+    cover_image_size_in_bytes: BigInt
+
     scarcity: String
     artist: String
     tags: [String!]
@@ -222,6 +252,7 @@ type Collector @entity {
     totalPurchaseEthSpent: BigDecimal!
 }
 
+# Goal is to capture actuate purchases and sales values for an "address" which can be exported as a CSV/JSON and used for tax accountanting
 type PurchaseAndSalesHistory @entity {
     id: ID!
     token: Token!           # the token this relates to
@@ -230,5 +261,4 @@ type PurchaseAndSalesHistory @entity {
     timestamp: BigInt!      # when it happened
     valueInEth: BigDecimal! # the value of it
     transactionHash: Bytes!
-
 }
