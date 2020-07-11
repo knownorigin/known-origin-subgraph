@@ -39,6 +39,28 @@ type AuctionEvent @entity {
     transactionHash: Bytes!
 }
 
+
+# Goal is to capture actuate purchases and sales values for an "address" which can be exported as a CSV/JSON and used for tax accountanting
+type ActivityEvent @entity {
+    id: ID!
+    type: String!               # Token or Edition
+    eventType: String!          # Event types e.g. ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
+    edition: Edition!           # All events relate to an edition
+    token: Token                # (nullable) the token this relates to
+    # accounts
+    creator: Bytes!             # the original edition creator
+    creatorCommission: BigInt!  # % recieved as creator - only valid is event has value
+    collaborator: Bytes        # (nullable) the original edition creator collaborator
+    collaboratorCommission: BigInt # (nullable) % recieved as creator - only valid is event has value
+    triggeredBy: Bytes!         # who fired the transaction
+    buyer: Bytes!               # the buyer
+    seller: Bytes               # (nullable) the seller
+    # technicals
+    eventValueInWei: BigInt     # (nullable) the WEI value
+    transactionHash: Bytes!     # the traneaction
+    timestamp: BigInt!          # the block confirmation time
+}
+
 # Rolled up counts for a given day
 type Day @entity {
     id: ID!
@@ -250,15 +272,4 @@ type Collector @entity {
     # Primary & secondary sales counts
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
-}
-
-# Goal is to capture actuate purchases and sales values for an "address" which can be exported as a CSV/JSON and used for tax accountanting
-type PurchaseAndSalesHistory @entity {
-    id: ID!
-    token: Token!           # the token this relates to
-    address: Bytes!         # who the event relates to
-    eventType: String!      # SALE or PURCHASE
-    timestamp: BigInt!      # when it happened
-    valueInEth: BigDecimal! # the value of it
-    transactionHash: Bytes!
 }

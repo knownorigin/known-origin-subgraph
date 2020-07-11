@@ -35,7 +35,13 @@ import {
 } from "../services/Collector.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {loadOrCreateToken} from "../services/Token.service";
-import {recordPurchaseEvent, recordSaleEvent} from "../services/PurchaseAndSalesHistory.service";
+import {
+    recordPrimaryBidPlaced,
+    recordPrimaryBidAccepted,
+    recordPrimaryBidIncreased,
+    recordPrimarySale,
+    recordPrimaryBidWithdrawn
+} from "../services/ActivityEvent.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginForAddress(event.address)
@@ -52,6 +58,8 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayBidPlacedCount(event)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+
+    recordPrimaryBidPlaced(event, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -96,8 +104,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.save()
 
-    recordPurchaseEvent(event.transaction, tokenEntity, event.params._bidder, event.block.timestamp, event.params._amount)
-    recordSaleEvent(event.transaction, tokenEntity, artistAddress, event.block.timestamp, event.params._amount)
+    recordPrimaryBidAccepted(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySale(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -115,6 +123,8 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     removeActiveBidOnEdition(event.params._editionNumber)
+
+    recordPrimaryBidWithdrawn(event, editionEntity, event.params._bidder)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {
@@ -132,6 +142,8 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayBidIncreasedCount(event)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
+
+    recordPrimaryBidIncreased(event, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidderRefunded(event: BidderRefunded): void {

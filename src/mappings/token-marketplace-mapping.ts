@@ -48,6 +48,13 @@ import {
 import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
+import {
+    recordSecondaryBidAccepted,
+    recordSecondaryBidPlaced,
+    recordSecondaryBidRejected,
+    recordSecondaryBidWithdrawn,
+    recordSecondarySale
+} from "../services/ActivityEvent.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -120,6 +127,8 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId)
+
+    recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -169,6 +178,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
 
     editionEntity.save();
+
+    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
+    recordSecondarySale(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -190,7 +202,12 @@ export function handleBidRejected(event: BidRejected): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+    editionEntity.save();
+
     recordDayBidRejectedCount(event)
+
+    recordSecondaryBidRejected(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -210,5 +227,10 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+    editionEntity.save();
+
     recordDayBidWithdrawnCount(event)
+
+    recordSecondaryBidWithdrawn(event, tokenEntity, editionEntity, event.params._bidder)
 }
