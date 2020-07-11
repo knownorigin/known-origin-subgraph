@@ -40,7 +40,6 @@ type AuctionEvent @entity {
 }
 
 
-# Goal is to capture actuate purchases and sales values for an "address" which can be exported as a CSV/JSON and used for tax accountanting
 type ActivityEvent @entity {
     id: ID!
     type: String!               # Token or Edition
@@ -53,7 +52,7 @@ type ActivityEvent @entity {
     collaborator: Bytes        # (nullable) the original edition creator collaborator
     collaboratorCommission: BigInt # (nullable) % recieved as creator - only valid is event has value
     triggeredBy: Bytes!         # who fired the transaction
-    buyer: Bytes!               # the buyer
+    buyer: Bytes                # (nullable) the buyer
     seller: Bytes               # (nullable) the seller
     # technicals
     eventValueInWei: BigInt     # (nullable) the WEI value

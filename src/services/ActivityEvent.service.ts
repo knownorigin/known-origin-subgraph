@@ -133,7 +133,7 @@ function createEditionEvent(
 }
 
 function editionActivityId(edition: Edition | null, rawEvent: ethereum.Event): string {
-    return "edition-"
+    return "edition"
         .concat("-")
         .concat(edition.id)
         .concat("-")
@@ -235,7 +235,7 @@ function createTokenEvent(
 }
 
 function tokenActivityId(token: Token | null, rawEvent: ethereum.Event): string {
-    return "token-"
+    return "token"
         .concat("-")
         .concat(token.id)
         .concat("-")

@@ -453,13 +453,21 @@ export class ActivityEvent extends Entity {
     this.set("triggeredBy", Value.fromBytes(value));
   }
 
-  get buyer(): Bytes {
+  get buyer(): Bytes | null {
     let value = this.get("buyer");
-    return value.toBytes();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set buyer(value: Bytes) {
-    this.set("buyer", Value.fromBytes(value));
+  set buyer(value: Bytes | null) {
+    if (value === null) {
+      this.unset("buyer");
+    } else {
+      this.set("buyer", Value.fromBytes(value as Bytes));
+    }
   }
 
   get seller(): Bytes | null {
