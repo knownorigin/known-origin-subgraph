@@ -1,6 +1,6 @@
-import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
-import {toEther} from "../utils";
+import {ZERO, ZERO_ADDRESS} from "../constants";
 
 const TYPE_EDITION = "EDITION";
 const TYPE_TOKEN = "TOKEN";
@@ -118,8 +118,8 @@ function createEditionEvent(
     event.type = TYPE_EDITION
     event.eventType = eventType
     event.edition = edition.id
-    event.creator = edition.artistAccount;
-    event.creatorCommission = edition.artistCommission;
+    event.creator = edition.artistAccount || ZERO_ADDRESS;
+    event.creatorCommission = edition.artistCommission || ZERO;
     event.collaborator = edition.optionalCommissionAccount;
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
@@ -209,7 +209,7 @@ export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Tok
 }
 
 function createTokenEvent(
-    id: string,
+    id: string, 
     eventType: string,
     rawEvent: ethereum.Event,
     edition: Edition | null,
@@ -222,8 +222,10 @@ function createTokenEvent(
     event.eventType = eventType
     event.token = token.id
     event.edition = edition.id
-    event.creator = edition.artistAccount;
+    event.creator = edition.artistAccount || ZERO_ADDRESS;
+    event.creatorCommission = edition.artistCommission || ZERO;
     event.collaborator = edition.optionalCommissionAccount;
+    event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
     event.transactionHash = rawEvent.transaction.hash;
