@@ -39,6 +39,27 @@ type AuctionEvent @entity {
     transactionHash: Bytes!
 }
 
+
+type ActivityEvent @entity {
+    id: ID!
+    type: String!               # Token or Edition
+    eventType: String!          # Event types e.g. ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
+    edition: Edition!           # All events relate to an edition
+    token: Token                # (nullable) the token this relates to
+    # accounts
+    creator: Bytes!             # the original edition creator
+    creatorCommission: BigInt!  # % recieved as creator - only valid is event has value
+    collaborator: Bytes        # (nullable) the original edition creator collaborator
+    collaboratorCommission: BigInt # (nullable) % recieved as creator - only valid is event has value
+    triggeredBy: Bytes!         # who fired the transaction
+    buyer: Bytes                # (nullable) the buyer
+    seller: Bytes               # (nullable) the seller
+    # technicals
+    eventValueInWei: BigInt     # (nullable) the WEI value
+    transactionHash: Bytes!     # the traneaction
+    timestamp: BigInt!          # the block confirmation time
+}
+
 # Rolled up counts for a given day
 type Day @entity {
     id: ID!

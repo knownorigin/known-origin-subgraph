@@ -43,6 +43,12 @@ import {
 import {updateTokenOfferOwner} from "../services/Offers.service";
 import {handleEditionPriceChange} from "./artist-edition-controls-v2-mapping"
 
+import {
+    recordEditionCreated,
+    recordTransfer,
+    recordPrimarySale,
+} from "../services/ActivityEvent.service";
+
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
 
@@ -59,6 +65,8 @@ export function handleEditionCreated(event: EditionCreated): void {
     } else {
         log.error("Handled unknown reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
     }
+
+    recordEditionCreated(event, editionEntity)
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -149,6 +157,8 @@ export function handleTransfer(event: Transfer): void {
     if (event.params._to !== event.params._from) {
         updateTokenOfferOwner(event.block, contract, event.params._tokenId, event.params._to)
     }
+
+    recordTransfer(event, tokenEntity, editionEntity, event.params._to)
 }
 
 // Direct primary "Buy it now" purchase form the website
@@ -204,6 +214,8 @@ export function handlePurchase(event: Purchase): void {
         tokenEntity.save()
     }
     editionEntity.save()
+
+    recordPrimarySale(event, editionEntity, tokenEntity, event.params._priceInWei, event.params._buyer)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
