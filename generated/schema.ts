@@ -1465,6 +1465,23 @@ export class MetaData extends Entity {
     }
   }
 
+  get animation_url(): string | null {
+    let value = this.get("animation_url");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set animation_url(value: string | null) {
+    if (value === null) {
+      this.unset("animation_url");
+    } else {
+      this.set("animation_url", Value.fromString(value as string));
+    }
+  }
+
   get scarcity(): string | null {
     let value = this.get("scarcity");
     if (value === null) {

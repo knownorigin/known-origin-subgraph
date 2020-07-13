@@ -24,19 +24,23 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 if (isObject(jsonData) && jsonData.toObject().isSet('name')) {
                     metaData.name = jsonData.toObject().get('name').toString()
                 } else {
-                    metaData.name = "NOT SET"
+                    metaData.name = ""
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('description')) {
                     metaData.description = jsonData.toObject().get('description').toString()
                 } else {
-                    metaData.description = "NOT SET"
+                    metaData.description = ""
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('image')) {
                     metaData.image = jsonData.toObject().get('image').toString()
                 } else {
-                    metaData.image = "NOT SET"
+                    metaData.image = ""
+                }
+
+                if (isObject(jsonData) && jsonData.toObject().isSet('animation_url')) {
+                    metaData.animation_url = jsonData.toObject().get('animation_url').toString()
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
