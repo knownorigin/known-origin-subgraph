@@ -1,4 +1,4 @@
-import {BigInt, ethereum, log} from "@graphprotocol/graph-ts";
+import {BigInt, ethereum, log, Address} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
@@ -36,6 +36,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.remainingSupply = ZERO
         editionEntity.active = false
         editionEntity.offersOnly = false
+        editionEntity.isGenesisEdition = false
 
         // set to empty string for text string although Ford is fixing this for us to handle nulls
         editionEntity.metadataName = ""
@@ -65,6 +66,12 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
                 editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1)
+            }
+
+            // Set genesis flag
+            let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
+            if (artistEditions.length === 0) {
+                editionEntity.isGenesisEdition = true
             }
 
             let metaData = constructMetaData(_editionData.value7)

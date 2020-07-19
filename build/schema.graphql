@@ -170,6 +170,7 @@ type Edition @entity {
     allOwners: [Collector]! # list (set) of all unique owners for all tokens
     currentOwners: [Collector!]! # TODO Current (set) owners at this point in time
     primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
+    isGenesisEdition: Boolean! # set true if edition is an artists first edition
 }
 
 # A token/editions and its meta data
