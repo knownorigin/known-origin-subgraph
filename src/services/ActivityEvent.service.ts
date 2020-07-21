@@ -15,6 +15,9 @@ const BID_REJECTED = "BidRejected"
 const BID_WITHDRAWN = "BidWithdrawn"
 const TRANSFER = "Transfer"
 
+// Artwork management actions
+const PRICE_CHANGED = "PriceChanged"
+
 //////////////////////////////
 // Primary sales - editions //
 //////////////////////////////
@@ -209,7 +212,7 @@ export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Tok
 }
 
 function createTokenEvent(
-    id: string, 
+    id: string,
     eventType: string,
     rawEvent: ethereum.Event,
     edition: Edition | null,
@@ -246,11 +249,11 @@ function tokenActivityId(token: Token | null, rawEvent: ethereum.Event): string 
         .concat(rawEvent.logIndex.toString());
 }
 
-///////////////////////////////
-// Generic events - editions //
-///////////////////////////////
+////////////////////////////////////////
+// Generic events - tokens & editions //
+////////////////////////////////////////
 
-// ['Transfer'', 'EditionGifted']
+// ['Transfer'', 'EditionGifted', 'PriceChanged']
 
 export function recordTransfer(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, to: Address): void {
 
@@ -272,6 +275,18 @@ export function recordEditionGifted(rawEvent: ethereum.Event, token: Token | nul
 
     if (event == null) {
         event = createTokenEvent(id, EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner))
+        event.save()
+    }
+}
+
+export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt): void {
+
+    let id: string = editionActivityId(edition, rawEvent);
+
+    let event: ActivityEvent | null = ActivityEvent.load(id)
+
+    if (event == null) {
+        event = createEditionEvent(id, PRICE_CHANGED, rawEvent, edition, value, null)
         event.save()
     }
 }
