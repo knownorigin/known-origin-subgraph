@@ -1297,6 +1297,15 @@ export class Edition extends Entity {
   set primaryOwners(value: Array<string>) {
     this.set("primaryOwners", Value.fromStringArray(value));
   }
+
+  get isGenesisEdition(): boolean {
+    let value = this.get("isGenesisEdition");
+    return value.toBoolean();
+  }
+
+  set isGenesisEdition(value: boolean) {
+    this.set("isGenesisEdition", Value.fromBoolean(value));
+  }
 }
 
 export class MetaData extends Entity {
