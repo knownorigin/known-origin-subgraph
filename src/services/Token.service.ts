@@ -39,6 +39,7 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         if (!_tokenDataResult.reverted) {
             let _tokenData = _tokenDataResult.value;
             tokenEntity.editionNumber = _tokenData.value0
+            tokenEntity.edition = _tokenData.value0.toString()
             tokenEntity.tokenURI = _tokenData.value3
 
             let collector = loadOrCreateCollector(_tokenData.value4, block);

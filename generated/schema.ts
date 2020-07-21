@@ -772,6 +772,15 @@ export class Token extends Entity {
     this.set("editionNumber", Value.fromBigInt(value));
   }
 
+  get edition(): string {
+    let value = this.get("edition");
+    return value.toString();
+  }
+
+  set edition(value: string) {
+    this.set("edition", Value.fromString(value));
+  }
+
   get tokenURI(): string {
     let value = this.get("tokenURI");
     return value.toString();
