@@ -40,7 +40,10 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('animation_url')) {
-                    metaData.animation_url = jsonData.toObject().get('animation_url').toString()
+                    let animation_url = jsonData.toObject().get('animation_url');
+                    if (animation_url !== null) {
+                        metaData.animation_url = animation_url.toString()
+                    }
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
