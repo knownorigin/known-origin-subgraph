@@ -7,8 +7,9 @@ import {PriceChanged, EditionGifted} from "../../generated/ArtistEditionControls
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 
 import {
-    recordEditionGifted,
+    recordEditionGifted, recordPriceChanged,
 } from "../services/ActivityEvent.service";
+import {Edition} from "../../generated/schema";
 
 export function handlePriceChangedEvent(event: PriceChanged): void {
     log.info("handlePriceChangedEvent() for edition [{}]", [event.params._editionNumber.toString()]);
@@ -23,7 +24,9 @@ export function handlePriceChangedEvent(event: PriceChanged): void {
 
     let contract = getKnownOriginForAddress(event.address)
     let editionNumber = event.params._editionNumber
-    handleEditionPriceChange(contract, editionNumber, event.block, event.params._priceInWei)
+    let editionEntity = handleEditionPriceChange(contract, editionNumber, event.block, event.params._priceInWei)
+
+    recordPriceChanged(event, editionEntity, event.params._priceInWei)
 }
 
 export function handleEditionGiftedEvent(event: EditionGifted): void {
@@ -49,9 +52,10 @@ export function handleEditionGiftedEvent(event: EditionGifted): void {
     recordEditionGifted(event, tokenEntity, editionEntity)
 }
 
-export function handleEditionPriceChange(contract: KnownOrigin, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): void {
+export function handleEditionPriceChange(contract: KnownOrigin, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): Edition | null  {
     let editionEntity = loadOrCreateEdition(editionNumber, block, contract)
     editionEntity.priceInWei = priceInWei
     editionEntity.offersOnly = priceInWei.equals(MAX_UINT_256)
     editionEntity.save()
+    return editionEntity
 }
