@@ -98,6 +98,7 @@ type Token @entity {
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!
+    edition: Edition!
     tokenURI: String!
     metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
