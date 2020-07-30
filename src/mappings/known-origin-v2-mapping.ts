@@ -117,8 +117,15 @@ export function handleTransfer(event: Transfer): void {
         allOwners.push(collector.id);
         editionEntity.allOwners = allOwners;
     }
-    editionEntity.save();
 
+    // Tally up current owners of edition
+    if (!collectorInList(collector, editionEntity.currentOwners)) {
+        let currentOwners = editionEntity.currentOwners;
+        currentOwners.push(collector.id);
+        editionEntity.currentOwners = currentOwners;
+    }
+
+    editionEntity.save();
     /////////////////
     // Token Logic //
     /////////////////

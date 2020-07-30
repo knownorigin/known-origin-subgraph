@@ -160,7 +160,7 @@ dataSources:
           handler: handleBidderRefunded
       file: ./src/mappings/auction-v2-mapping.ts
 
-  ## TokenMarketplace V! (Current)
+  ## TokenMarketplace V1 (Current)
   - kind: ethereum/contract
     name: TokenMarketplace
     network: mainnet
