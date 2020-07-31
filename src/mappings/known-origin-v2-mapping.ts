@@ -4,8 +4,7 @@ import {
     Minted,
     EditionCreated,
     Transfer,
-    KnownOrigin__detailsOfEditionResult,
-    UpdateActiveCall, UpdateArtistsAccountCall, UpdateArtistCommissionCall, UpdatePriceInWeiCall
+    KnownOrigin__detailsOfEditionResult
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {
@@ -23,12 +22,12 @@ import {
     addEditionToArtist,
     recordArtistValue,
     recordArtistCounts,
-    recordArtistIssued, loadOrCreateArtist
+    recordArtistIssued,
 } from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
 import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
-import {KODA_MAINNET, ONE, ZERO} from "../constants";
+import {ONE, ZERO} from "../constants";
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {
     addPrimarySaleToCollector,
@@ -41,7 +40,6 @@ import {
     createTokenTransferEvent
 } from "../services/TokenEvent.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
-import {handleEditionPriceChange} from "./artist-edition-controls-v2-mapping"
 
 import {
     recordEditionCreated,
@@ -256,59 +254,32 @@ export function handleMinted(event: Minted): void {
     recordArtistIssued(artistAddress)
 }
 
-// Only called on Mainnet
-export function handleUpdateActive(call: UpdateActiveCall): void {
-    log.info("handleUpdateActive() for edition [{}]", [call.inputs._editionNumber.toString()]);
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-
-    let editionNumber = call.inputs._editionNumber
-
-    let active = contract.editionActive(editionNumber);
-
-    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.active = active;
-    editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
-    editionEntity.save()
-
-    let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-
-    // If not active - reduce counts
-    if (!active) {
-        artist.editionsCount = artist.editionsCount.minus(ONE);
-        artist.supply = artist.supply.minus(editionEntity.totalAvailable);
-    }
-    // If re-enabling - add counts
-    else {
-        artist.editionsCount = artist.editionsCount.plus(ONE);
-        artist.supply = artist.supply.plus(editionEntity.totalAvailable);
-    }
-
-    artist.save();
-}
-
-// Only called on Mainnet
-export function handleUpdateArtistsAccount(call: UpdateArtistsAccountCall): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-
-    let editionNumber = call.inputs._editionNumber
-    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.artistAccount = getArtistAddress(call.inputs._artistAccount);
-    editionEntity.save()
-}
-
-// Only called on Mainnet
-export function handleUpdateArtistCommission(call: UpdateArtistCommissionCall): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-
-    let editionNumber = call.inputs._editionNumber
-    let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
-    editionEntity.artistCommission = call.inputs._rate;
-    editionEntity.save()
-}
-
-// Only called on Mainnet
-export function handleUpdatePriceInWei(call: UpdatePriceInWeiCall): void {
-    let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
-    let editionNumber = call.inputs._editionNumber
-    handleEditionPriceChange(contract, editionNumber, call.block, call.inputs._priceInWei)
-}
+// // Only called on Mainnet
+// export function handleUpdateActive(call: UpdateActiveCall): void {
+//     log.info("handleUpdateActive() for edition [{}]", [call.inputs._editionNumber.toString()]);
+//     let contract = KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+//
+//     let editionNumber = call.inputs._editionNumber
+//
+//     let active = contract.editionActive(editionNumber);
+//
+//     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+//     editionEntity.active = active;
+//     editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
+//     editionEntity.save()
+//
+//     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+//
+//     // If not active - reduce counts
+//     if (!active) {
+//         artist.editionsCount = artist.editionsCount.minus(ONE);
+//         artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+//     }
+//     // If re-enabling - add counts
+//     else {
+//         artist.editionsCount = artist.editionsCount.plus(ONE);
+//         artist.supply = artist.supply.plus(editionEntity.totalAvailable);
+//     }
+//
+//     artist.save();
+// }

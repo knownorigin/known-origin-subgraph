@@ -62,20 +62,6 @@ dataSources:
           # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
-    {{#includeCallHandlers}}
-      # Some things we need to watch method calls for
-      # For price changes we can listen to `PriceChanged` event from ArtistControls
-      # For others ... I dont have a solution other than force deploying to refresh the data
-      callHandlers:
-        - function: updateActive(uint256,bool)
-          handler: handleUpdateActive
-      #        - function: updateArtistsAccount(uint256,address)
-      #          handler: handleUpdateArtistsAccount
-      #        - function: updateArtistCommission(uint256,uint256)
-      #          handler: handleUpdateArtistCommission
-      #        - function: updatePriceInWei(uint256,uint256)
-      #          handler: handleUpdatePriceInWei
-    {{/includeCallHandlers}}
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
