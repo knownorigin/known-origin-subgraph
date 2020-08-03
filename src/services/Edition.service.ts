@@ -1,9 +1,11 @@
 import {BigInt, ethereum, log, Address} from "@graphprotocol/graph-ts";
 import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
 import {Edition} from "../../generated/schema";
-import {MAX_UINT_256, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
+import {isEditionBurnt} from "./burnt-editions";
+import {loadOrCreateArtist} from "./Artist.service";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -69,8 +71,14 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             }
 
             // Set genesis flag
-            let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
+            const artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
+            const artistEditions = contract.artistsEditions(artistAddress);
             if (artistEditions.length === 0) {
+                log.error("Setting isGenesisEdition TRUE for artist {} on edition {} total found {}", [
+                    artistAddress.toHexString(),
+                    editionNumber.toString(),
+                    BigInt.fromI32(artistEditions.length).toString()
+                ]);
                 editionEntity.isGenesisEdition = true
             }
 
@@ -81,7 +89,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
-                editionEntity.metadataArtistAccount = getArtistAddress(_editionData.value4).toHexString()
+                editionEntity.metadataArtistAccount = artistAddress.toHexString()
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }
@@ -89,6 +97,19 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         } else {
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()]);
         }
+    }
+
+    // Check static list of know burnt editions
+    let isBurnt = isEditionBurnt(editionNumber);
+    // If burnt and not already inactive - make edition burnt
+    if (isBurnt && editionEntity.active) {
+        editionEntity.active = false
+        editionEntity.totalAvailable = ZERO
+
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+        artist.save()
     }
 
     return editionEntity;

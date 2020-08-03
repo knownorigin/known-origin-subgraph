@@ -6,7 +6,10 @@ import {loadOrCreateArtist} from "../services/Artist.service";
 import {Address, log} from "@graphprotocol/graph-ts/index";
 
 export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
-    log.info("handleEditionDeactivatedEvent() for edition [{}]", [event.params._editionNumber.toString()]);
+    log.info("handleEditionDeactivatedEvent() for edition [{}] with address [{}]", [
+        event.params._editionNumber.toString(),
+        event.address.toHexString()
+    ]);
     let contract = getKnownOriginForAddress(event.address)
 
     // Deactivate the edition
@@ -20,7 +23,10 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
 }
 
 export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): void {
-    log.info("handleEditionSupplyReducedEvent() for edition [{}]", [event.params._editionNumber.toString()]);
+    log.info("handleEditionSupplyReducedEvent() for edition [{}] with address [{}]", [
+        event.params._editionNumber.toString(),
+        event.address.toHexString()
+    ]);
     let contract = getKnownOriginForAddress(event.address)
 
     let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
