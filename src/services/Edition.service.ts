@@ -89,7 +89,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
-                editionEntity.metadataArtistAccount = getArtistAddress(_editionData.value4).toHexString()
+                editionEntity.metadataArtistAccount = artistAddress.toHexString()
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }
@@ -109,6 +109,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
         artist.editionsCount = artist.editionsCount.minus(ONE);
         artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+        artist.save()
     }
 
     return editionEntity;
