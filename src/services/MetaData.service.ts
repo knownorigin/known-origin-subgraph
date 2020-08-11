@@ -40,9 +40,12 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                 }
 
                 if (isObject(jsonData) && jsonData.toObject().isSet('animation_url')) {
-                    let animation_url = jsonData.toObject().get('animation_url');
-                    if (animation_url !== null) {
-                        metaData.animation_url = animation_url.toString()
+                    let animation_url: JSONValue | null = jsonData.toObject().get('animation_url');
+                    if (animation_url) {
+                        let isNull: boolean = (animation_url as JSONValue).isNull();
+                        if (!isNull) {
+                            metaData.animation_url = animation_url.toString()
+                        }
                     }
                 }
 
@@ -63,10 +66,22 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                     ///////////
 
                     if (isObject(attributes) && attributes.toObject().isSet('asset_type')) {
-                        metaData.image_type = attributes.toObject().get('asset_type').toString()
+                        let assetType: JSONValue | null = attributes.toObject().get('asset_type');
+                        if (assetType) {
+                            let isNull: boolean = (assetType as JSONValue).isNull();
+                            if (!isNull) {
+                                metaData.image_type = assetType.toString()
+                            }
+                        }
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
-                        metaData.image_size_in_bytes = attributes.toObject().get('asset_size_in_bytes').toBigInt()
+                        let assetSizeInBytes: JSONValue | null = attributes.toObject().get('asset_size_in_bytes');
+                        if (assetSizeInBytes) {
+                            let isNull: boolean = (assetSizeInBytes as JSONValue).isNull();
+                            if (!isNull) {
+                                metaData.image_size_in_bytes = assetSizeInBytes.toBigInt()
+                            }
+                        }
                     }
 
                     /////////////////
@@ -74,13 +89,31 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                     /////////////////
 
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image')) {
-                        metaData.cover_image = attributes.toObject().get('cover_image').toString()
+                        let coverImage: JSONValue | null = attributes.toObject().get('cover_image');
+                        if (coverImage) {
+                            let isNull: boolean = (coverImage as JSONValue).isNull();
+                            if (!isNull) {
+                                metaData.cover_image = coverImage.toString()
+                            }
+                        }
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
-                        metaData.cover_image_type = attributes.toObject().get('cover_image_type').toString()
+                        let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
+                        if (coverImageType) {
+                            let isNull: boolean = (coverImageType as JSONValue).isNull();
+                            if (!isNull) {
+                                metaData.cover_image_type = coverImageType.toString()
+                            }
+                        }
                     }
                     if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
-                        metaData.cover_image_size_in_bytes = attributes.toObject().get('cover_image_size_in_bytes').toBigInt()
+                        let coverImageSizeInBytes: JSONValue | null = attributes.toObject().get('cover_image_size_in_bytes');
+                        if (coverImageSizeInBytes) {
+                            let isNull: boolean = (coverImageSizeInBytes as JSONValue).isNull();
+                            if (!isNull) {
+                                metaData.cover_image_size_in_bytes = coverImageSizeInBytes.toBigInt()
+                            }
+                        }
                     }
 
                     if (isObject(attributes) && attributes.toObject().isSet("tags")) {
@@ -98,7 +131,6 @@ export function constructMetaData(tokenURI: string): MetaData | null {
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
-
     return null;
 }
 
