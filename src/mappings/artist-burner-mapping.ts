@@ -4,6 +4,7 @@ import {loadOrCreateEdition} from "../services/Edition.service";
 import {ONE, ZERO} from "../constants";
 import {loadOrCreateArtist} from "../services/Artist.service";
 import {Address, log} from "@graphprotocol/graph-ts/index";
+import {isEditionBurnt} from "../services/burnt-editions";
 
 export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     log.info("handleEditionDeactivatedEvent() for edition [{}] with address [{}]", [
@@ -19,7 +20,14 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     editionEntity.remainingSupply = ZERO;
     editionEntity.save()
 
-    // N.B: Do not reduce edition supply and count - this is done by hooks in the callHandlers()
+    // If the burn is not already handled by the hard coded list, then make sure we reduce artists counts
+    let isHardCodedBurnt = isEditionBurnt(event.params._editionNumber);
+    if (!isHardCodedBurnt) {
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.supply = artist.supply.minus(editionEntity.totalAvailable);
+        artist.save()
+    }
 }
 
 export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): void {

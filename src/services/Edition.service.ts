@@ -74,7 +74,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             const artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
             const artistEditions = contract.artistsEditions(artistAddress);
             if (artistEditions.length === 0) {
-                log.error("Setting isGenesisEdition TRUE for artist {} on edition {} total found {}", [
+                log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {}", [
                     artistAddress.toHexString(),
                     editionNumber.toString(),
                     BigInt.fromI32(artistEditions.length).toString()
@@ -103,6 +103,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
     let isBurnt = isEditionBurnt(editionNumber);
     // If burnt and not already inactive - make edition burnt
     if (isBurnt && editionEntity.active) {
+        log.warning("isEditionBurnt() true for edition [{}]", [editionNumber.toString()]);
         editionEntity.active = false
         editionEntity.totalAvailable = ZERO
 
