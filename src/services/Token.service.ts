@@ -60,7 +60,7 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
                 log.error("Handled reverted detailsOfEdition() call for {}", [tokenEntity.editionNumber.toString()])
             }
         } else {
-            log.error("Handled reverted tokenData() call for {}", [tokenId.toString()])
+            log.error("Handled reverted tokenData() call for ... why? {}", [tokenId.toString()])
         }
 
         tokenEntity.save();
