@@ -125,6 +125,12 @@ export function constructMetaData(tokenURI: string): MetaData | null {
                     }
                 }
             }
+            else {
+                log.error("IPFS result conversion failed for token URI {}", [tokenURI]);
+            }
+        }
+        else {
+            log.error("Failed to find IPFS, data null for token URI {}", [tokenURI]);
         }
 
         return metaData
