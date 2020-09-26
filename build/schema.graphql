@@ -129,6 +129,7 @@ type _Schema_
                 { name: "metadataArtist" },
                 { name: "metadataArtistAccount" },
                 { name: "metadataTagString" },
+                { name: "primaryAssetMimeType" },
             ]
         }
     ]
@@ -164,6 +165,7 @@ type Edition @entity {
     metadataArtist: String!
     metadataTagString: String!
     metadataArtistAccount: String!
+    primaryAssetMimeType: String!
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!

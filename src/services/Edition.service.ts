@@ -90,6 +90,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
                 editionEntity.metadataArtistAccount = artistAddress.toHexString()
+                editionEntity.primaryAssetMimeType = metaData.image_type;
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }

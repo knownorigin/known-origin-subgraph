@@ -1236,6 +1236,15 @@ export class Edition extends Entity {
     this.set("metadataArtistAccount", Value.fromString(value));
   }
 
+  get primaryAssetMimeType(): string {
+    let value = this.get("primaryAssetMimeType");
+    return value.toString();
+  }
+
+  set primaryAssetMimeType(value: string) {
+    this.set("primaryAssetMimeType", Value.fromString(value));
+  }
+
   get auctionEnabled(): boolean {
     let value = this.get("auctionEnabled");
     return value.toBoolean();
