@@ -39,6 +39,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.active = false
         editionEntity.offersOnly = false
         editionEntity.isGenesisEdition = false
+        editionEntity.hasCoverImage = false
 
         // set to empty string for text string although Ford is fixing this for us to handle nulls
         editionEntity.metadataName = ""
