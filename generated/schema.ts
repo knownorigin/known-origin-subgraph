@@ -1236,13 +1236,21 @@ export class Edition extends Entity {
     this.set("metadataArtistAccount", Value.fromString(value));
   }
 
-  get primaryAssetMimeType(): string {
+  get primaryAssetMimeType(): string | null {
     let value = this.get("primaryAssetMimeType");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set primaryAssetMimeType(value: string) {
-    this.set("primaryAssetMimeType", Value.fromString(value));
+  set primaryAssetMimeType(value: string | null) {
+    if (value === null) {
+      this.unset("primaryAssetMimeType");
+    } else {
+      this.set("primaryAssetMimeType", Value.fromString(value as string));
+    }
   }
 
   get auctionEnabled(): boolean {
@@ -1323,6 +1331,15 @@ export class Edition extends Entity {
 
   set isGenesisEdition(value: boolean) {
     this.set("isGenesisEdition", Value.fromBoolean(value));
+  }
+
+  get hasCoverImage(): boolean {
+    let value = this.get("hasCoverImage");
+    return value.toBoolean();
+  }
+
+  set hasCoverImage(value: boolean) {
+    this.set("hasCoverImage", Value.fromBoolean(value));
   }
 }
 
