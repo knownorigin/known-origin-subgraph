@@ -129,6 +129,7 @@ type _Schema_
                 { name: "metadataArtist" },
                 { name: "metadataArtistAccount" },
                 { name: "metadataTagString" },
+                { name: "primaryAssetMimeType" },
             ]
         }
     ]
@@ -160,10 +161,15 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
+
+    # START: freetext search fields
     metadataName: String!
     metadataArtist: String!
     metadataTagString: String!
     metadataArtistAccount: String!
+    primaryAssetMimeType: String # null-able mime-type field
+    # END: freetext search fields
+
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
     biddingHistory: [AuctionEvent!]!
@@ -172,6 +178,7 @@ type Edition @entity {
     currentOwners: [Collector!]! # Current set of owners for this edition
     primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
+    hasCoverImage: Boolean! # set to true if non-image asset with cover image
 }
 
 # A token/editions and its meta data

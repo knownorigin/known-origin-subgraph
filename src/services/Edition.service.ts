@@ -39,6 +39,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.active = false
         editionEntity.offersOnly = false
         editionEntity.isGenesisEdition = false
+        editionEntity.hasCoverImage = false
 
         // set to empty string for text string although Ford is fixing this for us to handle nulls
         editionEntity.metadataName = ""
@@ -90,6 +91,8 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
                 editionEntity.metadataArtistAccount = artistAddress.toHexString()
+                editionEntity.primaryAssetMimeType = metaData.image_type;
+                editionEntity.hasCoverImage = metaData.cover_image !== null;
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
                 }
