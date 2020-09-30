@@ -6,6 +6,7 @@ import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
+import {JSONValue} from "@graphprotocol/graph-ts/index";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -72,8 +73,8 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             }
 
             // Set genesis flag
-            const artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
-            const artistEditions = contract.artistsEditions(artistAddress);
+            let artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
+            let artistEditions = contract.artistsEditions(artistAddress);
             if (artistEditions.length === 0) {
                 log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {}", [
                     artistAddress.toHexString(),
@@ -91,7 +92,15 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
                 editionEntity.metadataArtistAccount = artistAddress.toHexString()
-                editionEntity.primaryAssetMimeType = metaData.image_type;
+                if (metaData.image_type) {
+                    let mimeTypes: string[] = metaData.image_type.split('/');
+                    if (mimeTypes.length >= 1 as boolean) {
+                        editionEntity.primaryAssetShortType = mimeTypes[0];
+                    }
+                    if ((mimeTypes.length >= 2 as boolean)) {
+                        editionEntity.primaryAssetActualType = mimeTypes[1];
+                    }
+                }
                 editionEntity.hasCoverImage = metaData.cover_image !== null;
                 if (metaData.tags != null && metaData.tags.length > 0) {
                     editionEntity.metadataTagString = metaData.tags.toString()
