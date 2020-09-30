@@ -129,7 +129,8 @@ type _Schema_
                 { name: "metadataArtist" },
                 { name: "metadataArtistAccount" },
                 { name: "metadataTagString" },
-                { name: "primaryAssetMimeType" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
             ]
         }
     ]
@@ -167,7 +168,8 @@ type Edition @entity {
     metadataArtist: String!
     metadataTagString: String!
     metadataArtistAccount: String!
-    primaryAssetMimeType: String # null-able mime-type field
+    primaryAssetShortType: String # null-able leading mime-type field i.e. image or video etc
+    primaryAssetActualType: String # null-able ending mime-type field e.g. mp4, gif, png etc
     # END: freetext search fields
 
     auctionEnabled: Boolean!

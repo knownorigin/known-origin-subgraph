@@ -1236,8 +1236,8 @@ export class Edition extends Entity {
     this.set("metadataArtistAccount", Value.fromString(value));
   }
 
-  get primaryAssetMimeType(): string | null {
-    let value = this.get("primaryAssetMimeType");
+  get primaryAssetShortType(): string | null {
+    let value = this.get("primaryAssetShortType");
     if (value === null) {
       return null;
     } else {
@@ -1245,11 +1245,28 @@ export class Edition extends Entity {
     }
   }
 
-  set primaryAssetMimeType(value: string | null) {
+  set primaryAssetShortType(value: string | null) {
     if (value === null) {
-      this.unset("primaryAssetMimeType");
+      this.unset("primaryAssetShortType");
     } else {
-      this.set("primaryAssetMimeType", Value.fromString(value as string));
+      this.set("primaryAssetShortType", Value.fromString(value as string));
+    }
+  }
+
+  get primaryAssetActualType(): string | null {
+    let value = this.get("primaryAssetActualType");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set primaryAssetActualType(value: string | null) {
+    if (value === null) {
+      this.unset("primaryAssetActualType");
+    } else {
+      this.set("primaryAssetActualType", Value.fromString(value as string));
     }
   }
 
