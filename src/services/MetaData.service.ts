@@ -133,7 +133,6 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
 }
 
 export function constructMetaData(tokenURI: string): MetaData | null {
-
     log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
@@ -143,17 +142,11 @@ export function constructMetaData(tokenURI: string): MetaData | null {
 
         let metaData: MetaData | null = loadIpfsData(tokenURI, ipfsHash);
 
-        if (!metaData) {
-            log.info("1st extra attempt at getting IPFS data {}", [tokenURI]);
+        let maxTries = 1;
+        while (!metaData && maxTries < 10) {
+            log.info("Attempt {} at getting IPFS data {}", [maxTries.toString(), tokenURI]);
             metaData = loadIpfsData(tokenURI, ipfsHash);
-        }
-        if (!metaData) {
-            log.info("2nd extra attempt at getting IPFS data {}", [tokenURI]);
-            metaData = loadIpfsData(tokenURI, ipfsHash);
-        }
-        if (!metaData) {
-            log.info("3rd extra attempt at getting IPFS data {}", [tokenURI]);
-            metaData = loadIpfsData(tokenURI, ipfsHash);
+            maxTries++;
         }
 
         return metaData;
