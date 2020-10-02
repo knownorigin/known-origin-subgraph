@@ -20,12 +20,20 @@ export function getArtistAddress(address: Address): Address {
         return Address.fromString("0xa2cD656f8461d2C186D69fFB8A4a5c10EFF0914d");
     }
 
-    // Rare designer
+    // Rare designer (first replacement)
     if (address.equals(Address.fromString("0x43a7634Eb14C12B59bE599487c1d7898A3d864c1"))) {
         log.info("Replacing address {} with {}", [
             "0x43a7634Eb14C12B59bE599487c1d7898A3d864c1", "0x44c5E5bA251206cFB378dE443e70C4959562206d"
         ]);
         return Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d");
+    }
+
+    // Rare designer (second replacement)
+    if (address.equals(Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d"))) {
+        log.info("Replacing address {} with {}", [
+            "0x44c5E5bA251206cFB378dE443e70C4959562206d", "0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c"
+        ]);
+        return Address.fromString("0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c");
     }
 
     // Stan Ragets
