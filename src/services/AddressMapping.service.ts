@@ -6,6 +6,7 @@ export function getArtistAddress(address: Address): Address {
     /*
         Aktiv Protesk,"0xa2cD656f8461d2C186D69fFB8A4a5c10EFF0914d,0x7DEc37c03ea5ca2C47ad2509BE6abAf8C63CDB39"
         Rare Designer,"0x44c5E5bA251206cFB378dE443e70C4959562206d,0x43a7634Eb14C12B59bE599487c1d7898A3d864c1"
+        Rare Designer,"0x43a7634Eb14C12B59bE599487c1d7898A3d864c1,0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c"
         Stan Ragets,"0x9155e2c7dB48d01d9dc419D1F18a088DeD25C009,0x96DEAD6149f580884410c873F6dA8d3DDE16F13C"
         hex6c,"0xf8b32D30aC6Ab3030595432533D7836FD76B078d,0x6F7fC56461F1Be9d430037f714AF67E641e5f6cF"
         CryptoKaiju,"0x7205A1B9C5cf6494ba2CEb5adCca831C05536912,0x7EdAbC5d4a3E1870b157caB79fAF5731389b07cF"
@@ -20,18 +21,15 @@ export function getArtistAddress(address: Address): Address {
         return Address.fromString("0xa2cD656f8461d2C186D69fFB8A4a5c10EFF0914d");
     }
 
-    // Rare designer (first replacement)
-    if (address.equals(Address.fromString("0x43a7634Eb14C12B59bE599487c1d7898A3d864c1"))) {
-        log.info("Replacing address {} with {}", [
-            "0x43a7634Eb14C12B59bE599487c1d7898A3d864c1", "0x44c5E5bA251206cFB378dE443e70C4959562206d"
-        ]);
-        return Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d");
-    }
-
-    // Rare designer (second replacement)
-    if (address.equals(Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d"))) {
-        log.info("Replacing address {} with {}", [
-            "0x44c5E5bA251206cFB378dE443e70C4959562206d", "0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c"
+    // Rare designer
+    if (
+        // (first replacement)
+        address.equals(Address.fromString("0x43a7634Eb14C12B59bE599487c1d7898A3d864c1"))
+        // (second replacement)
+        || address.equals(Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d"))
+    ) {
+        log.info("Replacing address {} with {} ", [
+            address.toHexString(), "0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c"
         ]);
         return Address.fromString("0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c");
     }
