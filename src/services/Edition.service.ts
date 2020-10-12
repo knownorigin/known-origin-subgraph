@@ -76,7 +76,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             let artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
             let artistEditions = contract.artistsEditions(artistAddress);
             if (artistEditions.length === 0) {
-                log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {}", [
+                log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {} ", [
                     artistAddress.toHexString(),
                     editionNumber.toString(),
                     BigInt.fromI32(artistEditions.length).toString()
