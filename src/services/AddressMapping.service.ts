@@ -28,7 +28,7 @@ export function getArtistAddress(address: Address): Address {
         // (second replacement)
         || address.equals(Address.fromString("0x44c5E5bA251206cFB378dE443e70C4959562206d"))
     ) {
-        log.info("Replacing address {} with {} ", [
+        log.info("Replacing address {} with {}  ", [
             address.toHexString(), "0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c"
         ]);
         return Address.fromString("0xfe5b7200b2b63be7dc7281e7b4ae9955e34d986c");

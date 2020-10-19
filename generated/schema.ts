@@ -205,6 +205,15 @@ export class TransferEvent extends Entity {
     this.set("tokenId", Value.fromBigInt(value));
   }
 
+  get edition(): string {
+    let value = this.get("edition");
+    return value.toString();
+  }
+
+  set edition(value: string) {
+    this.set("edition", Value.fromString(value));
+  }
+
   get timestamp(): BigInt {
     let value = this.get("timestamp");
     return value.toBigInt();

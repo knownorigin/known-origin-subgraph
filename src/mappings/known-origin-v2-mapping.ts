@@ -72,18 +72,6 @@ export function handleTransfer(event: Transfer): void {
 
     let contract = KnownOrigin.bind(event.address)
 
-    ///////////////
-    // Transfers //
-    ///////////////
-
-    // Transfer Events
-    let transferEvent = createTransferEvent(event);
-    transferEvent.save();
-
-    // Token Events
-    let tokenTransferEvent = createTokenTransferEvent(event);
-    tokenTransferEvent.save();
-
     ////////////////
     // Day Counts //
     ////////////////
@@ -103,6 +91,10 @@ export function handleTransfer(event: Transfer): void {
 
     // Record transfer against the edition
     let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block, contract);
+
+    // Transfer Events
+    let transferEvent = createTransferEvent(event, editionEntity);
+    transferEvent.save();
 
     // Set Transfers on edition
     let editionTransfers = editionEntity.transfers;
@@ -124,6 +116,15 @@ export function handleTransfer(event: Transfer): void {
     }
 
     editionEntity.save();
+
+    ///////////////
+    // Transfers //
+    ///////////////
+
+    // Token Events
+    let tokenTransferEvent = createTokenTransferEvent(event);
+    tokenTransferEvent.save();
+
     /////////////////
     // Token Logic //
     /////////////////

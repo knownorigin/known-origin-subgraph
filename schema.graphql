@@ -23,6 +23,7 @@ type TransferEvent @entity {
     from: Bytes! # address
     to: Bytes! # address
     tokenId: BigInt!
+    edition: Edition!
     timestamp: BigInt!
     transactionHash: Bytes!
 }
