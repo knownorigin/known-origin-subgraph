@@ -33,7 +33,7 @@ function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId:
             tokenEntity.editionActive = _editionData.value10
             tokenEntity.artistAccount = getArtistAddress(_editionData.value4)
         } else {
-            log.error("Handled reverted detailsOfEdition() call for {}", [tokenEntity.editionNumber.toString()])
+            log.error("Handled reverted  detailsOfEdition() call for {}", [tokenEntity.editionNumber.toString()])
             return null;
         }
     } else {
