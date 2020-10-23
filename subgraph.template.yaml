@@ -193,6 +193,55 @@ dataSources:
 
       file: ./src/mappings/token-marketplace-mapping.ts
 
+  ## TokenMarketplace V2 (Current)
+  - kind: ethereum/contract
+    name: TokenMarketplaceV2
+    network: {{network}}
+    source:
+      address: '{{token-marketplace-v2-address}}'
+      abi: TokenMarketplaceV2
+      startBlock: {{token-marketplace-v2-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - BidPlaced
+        - BidWithdrawn
+        - BidAccepted
+        - BidRejected
+        - AuctionEnabled
+        - AuctionDisabled
+      abis:
+        - name: TokenMarketplaceV2
+          file: ./abis/TokenMarketplaceV2.json
+        - name: KnownOrigin
+          file: ./abis/KnownOrigin.json
+      eventHandlers:
+        - event: AuctionEnabled(indexed uint256,indexed address)
+          handler: handleAuctionEnabled
+
+        - event: AuctionDisabled(indexed uint256,indexed address)
+          handler: handleAuctionDisabled
+
+        - event: BidPlaced(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidPlaced
+
+        - event: BidAccepted(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidAccepted
+
+        - event: BidRejected(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleBidRejected
+
+        - event: BidWithdrawn(indexed uint256,indexed address)
+          handler: handleBidWithdrawn
+
+        ## TODO TokenListed(uint256 indexed _tokenId,address indexed _seller,uint256 _price)
+        ## TODO TokenDeListed(uint256 indexed _tokenId)
+        ## TODO TokenPurchased(uint256 indexed _tokenId,address indexed _buyer,address indexed _seller,uint256 _price)
+
+      file: ./src/mappings/token-marketplace-v2-mapping.ts
+
   ## Artist Burner (Current)
   - kind: ethereum/contract
     name: ArtistEditionBurner

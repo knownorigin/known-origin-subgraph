@@ -11,6 +11,8 @@
   "includeCallHandlers": false,
   "token-marketplace-v1-address": "0x2AA618cF1Cc8C1223EB0571676E73c7e8117Ed45",
   "token-marketplace-v1-startBlock": 6321886,
+  "token-marketplace-v2-address": "0xc84d2Cd82967dB47AfeC1b4E06C30E5d35523d0B",
+  "token-marketplace-v2-startBlock": 7420527,
   "artist-burner-address": "0x9dd4cf0a7f1c195cc42c3bfaaa92c70c039058e9",
   "artist-burner-startBlock": 6514505,
   "artist-edition-controls-v2-address": "0xC2d4Df7b146a5e5898e66DAa759213882e06dE59",

@@ -115,6 +115,10 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
+    ## Token secondary market
+    listPrice: BigDecimal!
+    lister: Collector!
+    listingTimestamp: BigInt!
 }
 
 type _Schema_
