@@ -118,9 +118,9 @@ type Token @entity {
 
     ## Token secondary market
     isListed: Boolean!
-    listPrice: BigDecimal!
-    lister: Collector!
-    listingTimestamp: BigInt!
+    listPrice: BigDecimal
+    lister: Collector
+    listingTimestamp: BigInt
 }
 
 type _Schema_

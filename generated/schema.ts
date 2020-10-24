@@ -966,31 +966,55 @@ export class Token extends Entity {
     this.set("isListed", Value.fromBoolean(value));
   }
 
-  get listPrice(): BigDecimal {
+  get listPrice(): BigDecimal | null {
     let value = this.get("listPrice");
-    return value.toBigDecimal();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set listPrice(value: BigDecimal) {
-    this.set("listPrice", Value.fromBigDecimal(value));
+  set listPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("listPrice");
+    } else {
+      this.set("listPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
   }
 
-  get lister(): string {
+  get lister(): string | null {
     let value = this.get("lister");
-    return value.toString();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set lister(value: string) {
-    this.set("lister", Value.fromString(value));
+  set lister(value: string | null) {
+    if (value === null) {
+      this.unset("lister");
+    } else {
+      this.set("lister", Value.fromString(value as string));
+    }
   }
 
-  get listingTimestamp(): BigInt {
+  get listingTimestamp(): BigInt | null {
     let value = this.get("listingTimestamp");
-    return value.toBigInt();
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set listingTimestamp(value: BigInt) {
-    this.set("listingTimestamp", Value.fromBigInt(value));
+  set listingTimestamp(value: BigInt | null) {
+    if (value === null) {
+      this.unset("listingTimestamp");
+    } else {
+      this.set("listingTimestamp", Value.fromBigInt(value as BigInt));
+    }
   }
 }
 
