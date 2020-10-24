@@ -192,7 +192,13 @@ dataSources:
           handler: handleBidRejected
         - event: BidWithdrawn(indexed uint256,indexed address)
           handler: handleBidWithdrawn
-      file: TokenMarketplace/TokenMarketplace.wasm
+        - event: TokenListed(indexed uint256,indexed address,uint256)
+          handler: handleTokenListed
+        - event: TokenDeListed(indexed uint256)
+          handler: handleTokenDeListed
+        - event: TokenPurchased(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenPurchased
+      file: TokenMarketplaceV2/TokenMarketplaceV2.wasm
   - kind: ethereum/contract
     name: ArtistEditionBurner
     network: rinkeby

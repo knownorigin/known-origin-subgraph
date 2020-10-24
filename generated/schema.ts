@@ -956,6 +956,42 @@ export class Token extends Entity {
   set editionActive(value: boolean) {
     this.set("editionActive", Value.fromBoolean(value));
   }
+
+  get isListed(): boolean {
+    let value = this.get("isListed");
+    return value.toBoolean();
+  }
+
+  set isListed(value: boolean) {
+    this.set("isListed", Value.fromBoolean(value));
+  }
+
+  get listPrice(): BigDecimal {
+    let value = this.get("listPrice");
+    return value.toBigDecimal();
+  }
+
+  set listPrice(value: BigDecimal) {
+    this.set("listPrice", Value.fromBigDecimal(value));
+  }
+
+  get lister(): string {
+    let value = this.get("lister");
+    return value.toString();
+  }
+
+  set lister(value: string) {
+    this.set("lister", Value.fromString(value));
+  }
+
+  get listingTimestamp(): BigInt {
+    let value = this.get("listingTimestamp");
+    return value.toBigInt();
+  }
+
+  set listingTimestamp(value: BigInt) {
+    this.set("listingTimestamp", Value.fromBigInt(value));
+  }
 }
 
 export class Edition extends Entity {

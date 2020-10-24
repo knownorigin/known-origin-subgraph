@@ -27,7 +27,7 @@ import {
 import {loadOrCreateToken} from "../services/Token.service";
 import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
-import {ONE, ZERO} from "../constants";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {
     addPrimarySaleToCollector,
@@ -155,6 +155,16 @@ export function handleTransfer(event: Transfer): void {
     // Update counters and timestamps
     tokenEntity.lastTransferTimestamp = event.block.timestamp
     tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+    ////////////////////////////////////////
+    // Secondary market - pricing listing //
+    ////////////////////////////////////////
+
+    // Clear price listing
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
 
     // Persist
     tokenEntity.save();

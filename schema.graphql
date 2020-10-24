@@ -115,7 +115,9 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
+
     ## Token secondary market
+    isListed: Boolean!
     listPrice: BigDecimal!
     lister: Collector!
     listingTimestamp: BigInt!

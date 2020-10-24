@@ -236,9 +236,14 @@ dataSources:
         - event: BidWithdrawn(indexed uint256,indexed address)
           handler: handleBidWithdrawn
 
-        ## TODO TokenListed(uint256 indexed _tokenId,address indexed _seller,uint256 _price)
-        ## TODO TokenDeListed(uint256 indexed _tokenId)
-        ## TODO TokenPurchased(uint256 indexed _tokenId,address indexed _buyer,address indexed _seller,uint256 _price)
+        - event: TokenListed(indexed uint256,indexed address,uint256)
+          handler: handleTokenListed
+
+        - event: TokenDeListed(indexed uint256)
+          handler: handleTokenDeListed
+
+        - event: TokenPurchased(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenPurchased
 
       file: ./src/mappings/token-marketplace-v2-mapping.ts
 

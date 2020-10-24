@@ -55,6 +55,8 @@ import {
     recordSecondaryBidWithdrawn,
     recordSecondarySale
 } from "../services/ActivityEvent.service";
+import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
+import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -233,4 +235,84 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     recordSecondaryBidWithdrawn(event, tokenEntity, editionEntity, event.params._bidder)
+}
+
+export function handleTokenPurchased(event: TokenPurchased): void {
+    /*
+      event TokenPurchased(
+        uint256 indexed _tokenId,
+        address indexed _buyer,
+        address indexed _seller,
+        uint256 _price
+      );
+     */
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
+
+    // counts and offers
+    clearTokenOffer(event.block, contract, event.params._tokenId)
+    recordDayCounts(event, event.params._price)
+    recordDayValue(event, event.params._tokenId, event.params._price)
+
+    // Save the collector
+    let buyer = loadOrCreateCollector(event.params._buyer, event.block);
+    buyer.save();
+
+    // Save the seller
+    let seller = loadOrCreateCollector(event.params._seller, event.block);
+    seller.save();
+
+    // Edition updates
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer)
+
+    tokenEntity.save()
+}
+
+
+export function handleTokenListed(event: TokenListed): void {
+    /*
+     event TokenListed(
+        uint256 indexed _tokenId,
+        address indexed _seller,
+        uint256 _price
+      );
+     */
+
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+
+    tokenEntity.isListed = true;
+    tokenEntity.listPrice = toEther(event.params._price)
+    tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    tokenEntity.listingTimestamp = event.block.timestamp
+
+    // Save the lister
+    let collector = loadOrCreateCollector(event.params._seller, event.block);
+    collector.save();
+
+    tokenEntity.save()
+}
+
+export function handleTokenDeListed(event: TokenDeListed): void {
+    /*
+      event TokenDeListed(
+        uint256 indexed _tokenId
+      );
+     */
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
+
+    tokenEntity.save()
 }
