@@ -1876,6 +1876,23 @@ export class Offer extends Entity {
   set isActive(value: boolean) {
     this.set("isActive", Value.fromBoolean(value));
   }
+
+  get secondaryMarketVersion(): string | null {
+    let value = this.get("secondaryMarketVersion");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set secondaryMarketVersion(value: string | null) {
+    if (value === null) {
+      this.unset("secondaryMarketVersion");
+    } else {
+      this.set("secondaryMarketVersion", Value.fromString(value as string));
+    }
+  }
 }
 
 export class Artist extends Entity {

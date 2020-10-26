@@ -45,7 +45,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
-import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
+import {clearTokenOffer, recordTokenOffer, V1_CONTRACT} from "../services/Offers.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
@@ -126,7 +126,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId)
+    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, V1_CONTRACT);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }

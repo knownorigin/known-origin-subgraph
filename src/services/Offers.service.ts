@@ -7,8 +7,11 @@ import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadOrCreateToken} from "./Token.service";
 
-let EDITION_TYPE = "Edition"
-let TOKEN_TYPE = "Token"
+export const EDITION_TYPE = "Edition"
+export const TOKEN_TYPE = "Token"
+
+export const V1_CONTRACT = "1";
+export const V2_CONTRACT = "2";
 
 export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
@@ -49,7 +52,8 @@ export function recordTokenOffer(block: ethereum.Block,
                                  contract: KnownOrigin,
                                  bidder: Address,
                                  amount: BigInt,
-                                 tokenId: BigInt): Offer {
+                                 tokenId: BigInt,
+                                 secondaryMarketVersion: String): Offer {
 
     let tokenEntity = loadOrCreateToken(tokenId, contract, block);
 
@@ -64,6 +68,7 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.transactionHash = transaction.hash
     offer.token = tokenEntity.id
     offer.type = TOKEN_TYPE
+    offer.secondaryMarketVersion = secondaryMarketVersion
 
     offer.save()
 
