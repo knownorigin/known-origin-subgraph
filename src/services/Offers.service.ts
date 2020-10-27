@@ -68,6 +68,8 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.transactionHash = transaction.hash
     offer.token = tokenEntity.id
     offer.type = TOKEN_TYPE
+
+    // FIXME Once all offers from V1 are removed, this fields can go - frontend switch also needs to be removed
     offer.secondaryMarketVersion = secondaryMarketVersion
 
     offer.save()
@@ -75,13 +77,12 @@ export function recordTokenOffer(block: ethereum.Block,
     return offer as Offer
 }
 
-export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt): Offer {
-
-    let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
-    offer.isActive = false
-    offer.save()
-
-    return offer as Offer
+export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt):  void{
+    let offer: Offer | null = Offer.load(tokenId.toString());
+    if (offer !== null && offer.isActive) {
+        offer.isActive = false
+        offer.save()
+    }
 }
 
 export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
