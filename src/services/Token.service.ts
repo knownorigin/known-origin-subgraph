@@ -44,7 +44,7 @@ function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId:
 }
 
 export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): Token | null {
-    log.info("Calling loadOrCreateToken() call for {}", [tokenId.toString()])
+    log.info("Calling loadOrCreateToken() call for {} ", [tokenId.toString()])
 
     let tokenEntity = Token.load(tokenId.toString())
 
