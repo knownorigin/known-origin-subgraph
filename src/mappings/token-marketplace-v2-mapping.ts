@@ -53,7 +53,9 @@ import {
     recordSecondaryBidPlaced,
     recordSecondaryBidRejected,
     recordSecondaryBidWithdrawn,
-    recordSecondarySale
+    recordSecondarySale,
+    recordSecondaryTokenDeListed,
+    recordSecondaryTokenListed
 } from "../services/ActivityEvent.service";
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
 import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
@@ -297,6 +299,10 @@ export function handleTokenListed(event: TokenListed): void {
     let collector = loadOrCreateCollector(event.params._seller, event.block);
     collector.save();
 
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    recordSecondaryTokenListed(event,tokenEntity, editionEntity, event.params._price)
+
     tokenEntity.save()
 }
 
@@ -313,6 +319,10 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listingTimestamp = ZERO
+
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    recordSecondaryTokenDeListed(event,tokenEntity, editionEntity)
 
     tokenEntity.save()
 }
