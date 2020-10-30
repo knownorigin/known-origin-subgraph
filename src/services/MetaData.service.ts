@@ -125,7 +125,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
             return null;
         }
     } else {
-        log.error(" Failed to find IPFS, data null for token URI {} ", [tokenURI]);
+        log.error(" Failed to find IPFS, data  null for token URI {} ", [tokenURI]);
         return null;
     }
 
