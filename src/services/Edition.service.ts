@@ -7,6 +7,7 @@ import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
 import {JSONValue} from "@graphprotocol/graph-ts/index";
+import {splitMimeType} from "../utils";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -69,7 +70,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
-                editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1).toHexString()
+                if (_optionalCommission.value.value1) {
+                    editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1).toHexString()
+                }
             }
 
             // Set genesis flag
@@ -93,13 +96,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.metadataArtist = metaData.artist
                 editionEntity.metadataArtistAccount = artistAddress.toHexString()
                 if (metaData.image_type) {
-                    let mimeTypes: string[] = metaData.image_type.split('/');
-                    if (mimeTypes.length >= 1 as boolean) {
-                        editionEntity.primaryAssetShortType = mimeTypes[0];
-                    }
-                    if ((mimeTypes.length >= 2 as boolean)) {
-                        editionEntity.primaryAssetActualType = mimeTypes[1];
-                    }
+                    let types = splitMimeType(metaData.image_type)
+                    editionEntity.primaryAssetShortType = types.primaryAssetShortType
+                    editionEntity.primaryAssetActualType = types.primaryAssetActualType
                 }
                 editionEntity.hasCoverImage = metaData.cover_image !== null;
                 if (metaData.tags != null && metaData.tags.length > 0) {

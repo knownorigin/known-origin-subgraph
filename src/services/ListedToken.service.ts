@@ -6,6 +6,7 @@ import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
+import {splitMimeType} from "../utils";
 
 export function loadOrCreateListedToken(
     tokenId: BigInt,
@@ -42,13 +43,9 @@ export function loadOrCreateListedToken(
             listedToken.metadataArtistAccount = artistAddress.toHexString();
 
             if (metaData.image_type) {
-                let mimeTypes: string[] = metaData.image_type.split('/');
-                if (mimeTypes.length >= 1 as boolean) {
-                    listedToken.primaryAssetShortType = mimeTypes[0];
-                }
-                if ((mimeTypes.length >= 2 as boolean)) {
-                    listedToken.primaryAssetActualType = mimeTypes[1];
-                }
+                let types = splitMimeType(metaData.image_type)
+                listedToken.primaryAssetShortType = types.primaryAssetShortType
+                listedToken.primaryAssetActualType = types.primaryAssetActualType
             }
 
             if (metaData.tags != null && metaData.tags.length > 0) {
