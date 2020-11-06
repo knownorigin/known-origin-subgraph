@@ -135,21 +135,10 @@ type ListedToken @entity { #For Token Secondary market
 
 type _Schema_
 @fulltext(
-    name: "search",
+    name: "listedTokenSearch",
     language: en
     algorithm: rank,
     include: [
-        {
-            entity: "Edition",
-            fields: [
-                { name: "metadataName" },
-                { name: "metadataArtist" },
-                { name: "metadataArtistAccount" },
-                { name: "metadataTagString" },
-                { name: "primaryAssetShortType" },
-                { name: "primaryAssetActualType" },
-            ]
-        },
         {
             entity: "ListedToken",
             fields: [
@@ -163,7 +152,24 @@ type _Schema_
         }
     ]
 )
-
+@fulltext(
+    name: "editionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
+            ]
+        }
+    ]
+)
 
 # A token/editions and its meta data
 type Edition @entity {
