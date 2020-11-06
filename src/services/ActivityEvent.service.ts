@@ -125,7 +125,7 @@ function createEditionEvent(
     event.edition = edition.id
     event.creator = edition.artistAccount || ZERO_ADDRESS;
     event.creatorCommission = edition.artistCommission || ZERO;
-    event.collaborator = edition.optionalCommissionAccount;
+    event.collaborator = Address.fromString(edition.optionalCommissionAccount);
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
@@ -252,7 +252,7 @@ function createTokenEvent(
     event.edition = edition.id
     event.creator = edition.artistAccount || ZERO_ADDRESS;
     event.creatorCommission = edition.artistCommission || ZERO;
-    event.collaborator = edition.optionalCommissionAccount;
+    event.collaborator = Address.fromString(edition.optionalCommissionAccount);
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;

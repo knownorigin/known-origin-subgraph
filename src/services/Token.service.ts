@@ -67,10 +67,6 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         tokenEntity.editionTotalAvailable = ZERO
         tokenEntity.editionActive = true
         tokenEntity.artistAccount = ZERO_ADDRESS
-        // tokenEntity.isListed = false
-        // tokenEntity.listPrice = ZERO_BIG_DECIMAL
-        // tokenEntity.lister = null
-        // tokenEntity.listingTimestamp = ZERO
 
         tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
         if (!tokenEntity) {

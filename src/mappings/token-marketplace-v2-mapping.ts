@@ -34,6 +34,7 @@ import {
 } from "../services/Collector.service";
 
 import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateListedToken} from "../services/ListedToken.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {
     recordDayBidAcceptedCount,
@@ -59,6 +60,8 @@ import {
 } from "../services/ActivityEvent.service";
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
 import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
+
+import {store} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -251,11 +254,8 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    //TODO: remove listing from store
-    // tokenEntity.isListed = false;
-    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    // tokenEntity.lister = null
-    // tokenEntity.listingTimestamp = ZERO
+    // Remove token listing from store
+    store.remove("ListedToken", event.params._tokenId.toString());
 
     // counts and offers
     clearTokenOffer(event.block, contract, event.params._tokenId)
@@ -291,11 +291,13 @@ export function handleTokenListed(event: TokenListed): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    //TODO: add ListedToken to store
-    // tokenEntity.isListed = true;
-    // tokenEntity.listPrice = toEther(event.params._price)
-    // tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
-    // tokenEntity.listingTimestamp = event.block.timestamp
+    // Add ListedToken to store
+    let listedToken = loadOrCreateListedToken(event.params._tokenId, tokenEntity.editionNumber, contract);
+    listedToken.listPrice = toEther(event.params._price)
+    listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    listedToken.listingTimestamp = event.block.timestamp
+    listedToken.save();
+
 
     // Save the lister
     let collector = loadOrCreateCollector(event.params._seller, event.block);
@@ -317,11 +319,8 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    //todo remove ListedToken from store
-    // tokenEntity.isListed = false;
-    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    // tokenEntity.lister = null
-    // tokenEntity.listingTimestamp = ZERO
+    // Remove ListedToken from store
+    store.remove("ListedToken", event.params._tokenId.toString());
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 

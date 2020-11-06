@@ -25,7 +25,7 @@ import {
     recordArtistIssued,
 } from "../services/Artist.service";
 import {loadOrCreateToken} from "../services/Token.service";
-import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
+import {ethereum, log, Address, store} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 import {createTransferEvent} from "../services/TransferEvent.factory";
@@ -161,11 +161,7 @@ export function handleTransfer(event: Transfer): void {
     ////////////////////////////////////////
 
     // Clear price listing
-    //TODO: replace this with removing the ListedToken entity from the store
-    // tokenEntity.isListed = false;
-    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    // tokenEntity.lister = null
-    // tokenEntity.listingTimestamp = ZERO
+    store.remove("ListedToken", event.params._tokenId.toString());
 
     // Persist
     tokenEntity.save();
