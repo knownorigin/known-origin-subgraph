@@ -115,22 +115,43 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
+}
 
-    ## Token secondary market
-    isListed: Boolean!
-    listPrice: BigDecimal
-    lister: Collector
-    listingTimestamp: BigInt
+type ListedToken @entity { #For Token Secondary market
+    id: ID!
+
+    listPrice: BigDecimal!
+    lister: Collector!
+    listingTimestamp: BigInt!
+
+    #metadata fields flattened for search
+    metadataName: String!
+    metadataArtist: String!
+    metadataArtistAccount: String!
+    metadataTagString: String!
+    primaryAssetShortType: String!
+    primaryAssetActualType: String!
 }
 
 type _Schema_
 @fulltext(
-    name: "editionSearch",
+    name: "search",
     language: en
     algorithm: rank,
     include: [
         {
             entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
+            ]
+        },
+        {
+            entity: "ListedToken",
             fields: [
                 { name: "metadataName" },
                 { name: "metadataArtist" },

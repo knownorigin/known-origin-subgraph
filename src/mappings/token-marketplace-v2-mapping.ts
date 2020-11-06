@@ -251,10 +251,11 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    tokenEntity.isListed = false;
-    tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    tokenEntity.lister = null
-    tokenEntity.listingTimestamp = ZERO
+    //TODO: remove listing from store
+    // tokenEntity.isListed = false;
+    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    // tokenEntity.lister = null
+    // tokenEntity.listingTimestamp = ZERO
 
     // counts and offers
     clearTokenOffer(event.block, contract, event.params._tokenId)
@@ -290,10 +291,11 @@ export function handleTokenListed(event: TokenListed): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    tokenEntity.isListed = true;
-    tokenEntity.listPrice = toEther(event.params._price)
-    tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
-    tokenEntity.listingTimestamp = event.block.timestamp
+    //TODO: add ListedToken to store
+    // tokenEntity.isListed = true;
+    // tokenEntity.listPrice = toEther(event.params._price)
+    // tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    // tokenEntity.listingTimestamp = event.block.timestamp
 
     // Save the lister
     let collector = loadOrCreateCollector(event.params._seller, event.block);
@@ -315,10 +317,11 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     let contract = getKnownOriginForAddress(event.address)
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
 
-    tokenEntity.isListed = false;
-    tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    tokenEntity.lister = null
-    tokenEntity.listingTimestamp = ZERO
+    //todo remove ListedToken from store
+    // tokenEntity.isListed = false;
+    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    // tokenEntity.lister = null
+    // tokenEntity.listingTimestamp = ZERO
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 

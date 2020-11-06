@@ -161,10 +161,11 @@ export function handleTransfer(event: Transfer): void {
     ////////////////////////////////////////
 
     // Clear price listing
-    tokenEntity.isListed = false;
-    tokenEntity.listPrice = ZERO_BIG_DECIMAL
-    tokenEntity.lister = null
-    tokenEntity.listingTimestamp = ZERO
+    //TODO: replace this with removing the ListedToken entity from the store
+    // tokenEntity.isListed = false;
+    // tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    // tokenEntity.lister = null
+    // tokenEntity.listingTimestamp = ZERO
 
     // Persist
     tokenEntity.save();

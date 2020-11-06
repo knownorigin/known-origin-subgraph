@@ -956,65 +956,117 @@ export class Token extends Entity {
   set editionActive(value: boolean) {
     this.set("editionActive", Value.fromBoolean(value));
   }
+}
 
-  get isListed(): boolean {
-    let value = this.get("isListed");
-    return value.toBoolean();
+export class ListedToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
   }
 
-  set isListed(value: boolean) {
-    this.set("isListed", Value.fromBoolean(value));
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save ListedToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save ListedToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("ListedToken", id.toString(), this);
   }
 
-  get listPrice(): BigDecimal | null {
+  static load(id: string): ListedToken | null {
+    return store.get("ListedToken", id) as ListedToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get listPrice(): BigDecimal {
     let value = this.get("listPrice");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
+    return value.toBigDecimal();
   }
 
-  set listPrice(value: BigDecimal | null) {
-    if (value === null) {
-      this.unset("listPrice");
-    } else {
-      this.set("listPrice", Value.fromBigDecimal(value as BigDecimal));
-    }
+  set listPrice(value: BigDecimal) {
+    this.set("listPrice", Value.fromBigDecimal(value));
   }
 
-  get lister(): string | null {
+  get lister(): string {
     let value = this.get("lister");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set lister(value: string | null) {
-    if (value === null) {
-      this.unset("lister");
-    } else {
-      this.set("lister", Value.fromString(value as string));
-    }
+  set lister(value: string) {
+    this.set("lister", Value.fromString(value));
   }
 
-  get listingTimestamp(): BigInt | null {
+  get listingTimestamp(): BigInt {
     let value = this.get("listingTimestamp");
-    if (value === null) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value.toBigInt();
   }
 
-  set listingTimestamp(value: BigInt | null) {
-    if (value === null) {
-      this.unset("listingTimestamp");
-    } else {
-      this.set("listingTimestamp", Value.fromBigInt(value as BigInt));
-    }
+  set listingTimestamp(value: BigInt) {
+    this.set("listingTimestamp", Value.fromBigInt(value));
+  }
+
+  get metadataName(): string {
+    let value = this.get("metadataName");
+    return value.toString();
+  }
+
+  set metadataName(value: string) {
+    this.set("metadataName", Value.fromString(value));
+  }
+
+  get metadataArtist(): string {
+    let value = this.get("metadataArtist");
+    return value.toString();
+  }
+
+  set metadataArtist(value: string) {
+    this.set("metadataArtist", Value.fromString(value));
+  }
+
+  get metadataArtistAccount(): string {
+    let value = this.get("metadataArtistAccount");
+    return value.toString();
+  }
+
+  set metadataArtistAccount(value: string) {
+    this.set("metadataArtistAccount", Value.fromString(value));
+  }
+
+  get metadataTagString(): string {
+    let value = this.get("metadataTagString");
+    return value.toString();
+  }
+
+  set metadataTagString(value: string) {
+    this.set("metadataTagString", Value.fromString(value));
+  }
+
+  get primaryAssetShortType(): string {
+    let value = this.get("primaryAssetShortType");
+    return value.toString();
+  }
+
+  set primaryAssetShortType(value: string) {
+    this.set("primaryAssetShortType", Value.fromString(value));
+  }
+
+  get primaryAssetActualType(): string {
+    let value = this.get("primaryAssetActualType");
+    return value.toString();
+  }
+
+  set primaryAssetActualType(value: string) {
+    this.set("primaryAssetActualType", Value.fromString(value));
   }
 }
 
