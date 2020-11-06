@@ -131,6 +131,8 @@ type ListedToken @entity { #For Token Secondary market
     metadataTagString: String!
     primaryAssetShortType: String!
     primaryAssetActualType: String!
+
+    optionalCommissionAccount: String!
 }
 
 type _Schema_
@@ -148,6 +150,7 @@ type _Schema_
                 { name: "metadataTagString" },
                 { name: "primaryAssetShortType" },
                 { name: "primaryAssetActualType" },
+                { name: "optionalCommissionAccount" },
             ]
         }
     ]
@@ -166,6 +169,7 @@ type _Schema_
                 { name: "metadataTagString" },
                 { name: "primaryAssetShortType" },
                 { name: "primaryAssetActualType" },
+                { name: "optionalCommissionAccount" },
             ]
         }
     ]
