@@ -131,6 +131,8 @@ type ListedToken @entity { #For Token Secondary market
     metadataTagString: String!
     primaryAssetShortType: String!
     primaryAssetActualType: String!
+
+    fullToken: Token!
 }
 
 type _Schema_

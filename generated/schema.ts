@@ -1068,6 +1068,15 @@ export class ListedToken extends Entity {
   set primaryAssetActualType(value: string) {
     this.set("primaryAssetActualType", Value.fromString(value));
   }
+
+  get fullToken(): string {
+    let value = this.get("fullToken");
+    return value.toString();
+  }
+
+  set fullToken(value: string) {
+    this.set("fullToken", Value.fromString(value));
+  }
 }
 
 export class Edition extends Entity {

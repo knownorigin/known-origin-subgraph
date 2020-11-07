@@ -19,6 +19,7 @@ export function loadOrCreateListedToken(
 
     if (listedToken == null) {
         listedToken = new ListedToken(tokenId.toString());
+        listedToken.fullToken = tokenId.toString();
         listedToken.listPrice = ZERO_BIG_DECIMAL;
         listedToken.lister = ZERO_ADDRESS.toHexString();
         listedToken.listingTimestamp = ZERO;
