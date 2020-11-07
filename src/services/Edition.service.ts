@@ -70,9 +70,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
-                if (_optionalCommission.value.value1) {
-                    editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1).toHexString()
-                }
+                editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1)
             }
 
             // Set genesis flag

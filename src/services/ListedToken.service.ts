@@ -28,7 +28,6 @@ export function loadOrCreateListedToken(
         listedToken.metadataTagString = "";
         listedToken.primaryAssetShortType = "";
         listedToken.primaryAssetActualType = "";
-        listedToken.optionalCommissionAccount = ZERO_ADDRESS.toHexString();
 
         // try and actually populate metadata
         let _editionDataResult = contract.try_detailsOfEdition(editionNumber)
@@ -55,10 +54,10 @@ export function loadOrCreateListedToken(
             log.error("Handled reverted detailsOfEdition() call for {}", [editionNumber.toString()]);
         }
 
-        let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
-        if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
-            listedToken.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1).toHexString();
-        }
+        // let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
+        // if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
+        //     listedToken.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1).toHexString();
+        // }
 
         listedToken.save();
     }

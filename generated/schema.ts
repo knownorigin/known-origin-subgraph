@@ -1068,15 +1068,6 @@ export class ListedToken extends Entity {
   set primaryAssetActualType(value: string) {
     this.set("primaryAssetActualType", Value.fromString(value));
   }
-
-  get optionalCommissionAccount(): string {
-    let value = this.get("optionalCommissionAccount");
-    return value.toString();
-  }
-
-  set optionalCommissionAccount(value: string) {
-    this.set("optionalCommissionAccount", Value.fromString(value));
-  }
 }
 
 export class Edition extends Entity {
@@ -1198,20 +1189,20 @@ export class Edition extends Entity {
     this.set("artistCommission", Value.fromBigInt(value));
   }
 
-  get optionalCommissionAccount(): string | null {
+  get optionalCommissionAccount(): Bytes | null {
     let value = this.get("optionalCommissionAccount");
     if (value === null) {
       return null;
     } else {
-      return value.toString();
+      return value.toBytes();
     }
   }
 
-  set optionalCommissionAccount(value: string | null) {
+  set optionalCommissionAccount(value: Bytes | null) {
     if (value === null) {
       this.unset("optionalCommissionAccount");
     } else {
-      this.set("optionalCommissionAccount", Value.fromString(value as string));
+      this.set("optionalCommissionAccount", Value.fromBytes(value as Bytes));
     }
   }
 
