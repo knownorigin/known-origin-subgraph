@@ -115,6 +115,13 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
+
+
+    ## Token secondary market
+    isListed: Boolean!
+    listPrice: BigDecimal
+    lister: Collector
+    listingTimestamp: BigInt
 }
 
 type ListedToken @entity { #For Token Secondary market
@@ -314,6 +321,8 @@ type Collector @entity {
     primaryPurchaseEthSpent: BigDecimal!
 
     # Secondary sales counts
+    secondarySaleCount: BigInt!
+    secondarySaleEthTotal: BigDecimal!
     secondaryPurchaseCount: BigInt!
     secondaryPurchaseEthSpent: BigDecimal!
 

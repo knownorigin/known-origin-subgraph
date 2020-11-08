@@ -28,7 +28,7 @@ import {
 
 import {
     addPrimarySaleToCollector,
-    addSecondarySaleToCollector,
+    addSecondaryPurchaseToCollector, addSecondarySaleToSeller,
     collectorInList,
     loadOrCreateCollector
 } from "../services/Collector.service";
@@ -171,7 +171,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayValue(event, event.params._tokenId, event.params._amount)
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
-    addSecondarySaleToCollector(event.block, event.params._bidder, event.params._amount);
+    addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
+    addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
     // recordArtistValue(editionEntity.artistAccount, event.params._tokenId, event.params._amount)

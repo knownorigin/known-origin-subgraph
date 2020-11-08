@@ -156,9 +156,15 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.lastTransferTimestamp = event.block.timestamp
     tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
 
-    ////////////////////////////////////////
-    // Secondary market - pricing listing //
-    ////////////////////////////////////////
+    // ////////////////////////////////////////
+    // // Secondary market - pricing listing //
+    // ////////////////////////////////////////
+
+    // Clear token price listing fields
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
 
     // Clear price listing
     store.remove("ListedToken", event.params._tokenId.toString());

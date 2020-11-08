@@ -16,6 +16,8 @@ export function loadOrCreateCollector(address: Address, block: ethereum.Block): 
         collectorEntity.primaryPurchaseCount = ZERO;
         collectorEntity.primaryPurchaseEthSpent = ZERO_BIG_DECIMAL;
 
+        collectorEntity.secondarySaleCount = ZERO;
+        collectorEntity.secondarySaleEthTotal = ZERO_BIG_DECIMAL;
         collectorEntity.secondaryPurchaseCount = ZERO;
         collectorEntity.secondaryPurchaseEthSpent = ZERO_BIG_DECIMAL;
 
@@ -56,7 +58,7 @@ export function addPrimarySaleToCollector(block: ethereum.Block, buyer: Address,
     collector.save()
 }
 
-export function addSecondarySaleToCollector(block: ethereum.Block, buyer: Address, value: BigInt): void {
+export function addSecondaryPurchaseToCollector(block: ethereum.Block, buyer: Address, value: BigInt): void {
     let collector = loadOrCreateCollector(buyer, block);
 
     if (!collector.firstPurchaseTimeStamp) {
@@ -69,6 +71,15 @@ export function addSecondarySaleToCollector(block: ethereum.Block, buyer: Addres
 
     collector.totalPurchaseCount = collector.totalPurchaseCount.plus(ONE);
     collector.totalPurchaseEthSpent = collector.totalPurchaseEthSpent.plus(toEther(value));
+
+    collector.save()
+}
+
+export function addSecondarySaleToSeller(block: ethereum.Block, buyer: Address, value: BigInt): void {
+    let collector = loadOrCreateCollector(buyer, block);
+
+    collector.secondarySaleCount = collector.secondarySaleCount.plus(ONE)
+    collector.secondarySaleEthTotal = collector.secondarySaleEthTotal.plus(toEther(value));
 
     collector.save()
 }

@@ -956,6 +956,66 @@ export class Token extends Entity {
   set editionActive(value: boolean) {
     this.set("editionActive", Value.fromBoolean(value));
   }
+
+  get isListed(): boolean {
+    let value = this.get("isListed");
+    return value.toBoolean();
+  }
+
+  set isListed(value: boolean) {
+    this.set("isListed", Value.fromBoolean(value));
+  }
+
+  get listPrice(): BigDecimal | null {
+    let value = this.get("listPrice");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set listPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("listPrice");
+    } else {
+      this.set("listPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get lister(): string | null {
+    let value = this.get("lister");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lister(value: string | null) {
+    if (value === null) {
+      this.unset("lister");
+    } else {
+      this.set("lister", Value.fromString(value as string));
+    }
+  }
+
+  get listingTimestamp(): BigInt | null {
+    let value = this.get("listingTimestamp");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set listingTimestamp(value: BigInt | null) {
+    if (value === null) {
+      this.unset("listingTimestamp");
+    } else {
+      this.set("listingTimestamp", Value.fromBigInt(value as BigInt));
+    }
+  }
 }
 
 export class ListedToken extends Entity {
@@ -2218,6 +2278,24 @@ export class Collector extends Entity {
 
   set primaryPurchaseEthSpent(value: BigDecimal) {
     this.set("primaryPurchaseEthSpent", Value.fromBigDecimal(value));
+  }
+
+  get secondarySaleCount(): BigInt {
+    let value = this.get("secondarySaleCount");
+    return value.toBigInt();
+  }
+
+  set secondarySaleCount(value: BigInt) {
+    this.set("secondarySaleCount", Value.fromBigInt(value));
+  }
+
+  get secondarySaleEthTotal(): BigDecimal {
+    let value = this.get("secondarySaleEthTotal");
+    return value.toBigDecimal();
+  }
+
+  set secondarySaleEthTotal(value: BigDecimal) {
+    this.set("secondarySaleEthTotal", Value.fromBigDecimal(value));
   }
 
   get secondaryPurchaseCount(): BigInt {
