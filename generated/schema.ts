@@ -1075,6 +1075,50 @@ export class ListedToken extends Entity {
     this.set("listingTimestamp", Value.fromBigInt(value));
   }
 
+  get seriesNumber(): BigInt | null {
+    let value = this.get("seriesNumber");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set seriesNumber(value: BigInt | null) {
+    if (value === null) {
+      this.unset("seriesNumber");
+    } else {
+      this.set("seriesNumber", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get isFirstEdition(): boolean {
+    let value = this.get("isFirstEdition");
+    return value.toBoolean();
+  }
+
+  set isFirstEdition(value: boolean) {
+    this.set("isFirstEdition", Value.fromBoolean(value));
+  }
+
+  get isLastEdition(): boolean {
+    let value = this.get("isLastEdition");
+    return value.toBoolean();
+  }
+
+  set isLastEdition(value: boolean) {
+    this.set("isLastEdition", Value.fromBoolean(value));
+  }
+
+  get isGenesisEdition(): boolean {
+    let value = this.get("isGenesisEdition");
+    return value.toBoolean();
+  }
+
+  set isGenesisEdition(value: boolean) {
+    this.set("isGenesisEdition", Value.fromBoolean(value));
+  }
+
   get metadataName(): string {
     let value = this.get("metadataName");
     return value.toString();
@@ -1136,42 +1180,6 @@ export class ListedToken extends Entity {
 
   set fullToken(value: string) {
     this.set("fullToken", Value.fromString(value));
-  }
-
-  get seriesNumber(): BigInt {
-    let value = this.get("seriesNumber");
-    return value.toBigInt();
-  }
-
-  set seriesNumber(value: BigInt) {
-    this.set("seriesNumber", Value.fromBigInt(value));
-  }
-
-  get isFirstEdition(): boolean {
-    let value = this.get("isFirstEdition");
-    return value.toBoolean();
-  }
-
-  set isFirstEdition(value: boolean) {
-    this.set("isFirstEdition", Value.fromBoolean(value));
-  }
-
-  get isLastEdition(): boolean {
-    let value = this.get("isLastEdition");
-    return value.toBoolean();
-  }
-
-  set isLastEdition(value: boolean) {
-    this.set("isLastEdition", Value.fromBoolean(value));
-  }
-
-  get isGenesisEdition(): boolean {
-    let value = this.get("isGenesisEdition");
-    return value.toBoolean();
-  }
-
-  set isGenesisEdition(value: boolean) {
-    this.set("isGenesisEdition", Value.fromBoolean(value));
   }
 }
 

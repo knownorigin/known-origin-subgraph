@@ -61,7 +61,7 @@ import {
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
-import {BigInt, store} from "@graphprotocol/graph-ts/index";
+import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -317,11 +317,18 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.listingTimestamp = event.block.timestamp
 
     // Add filter flags
-    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(ONE).plus(editionEntity.totalAvailable);
-    listedToken.seriesNumber = biggestTokenId.minus(event.params._tokenId)
-    listedToken.isFirstEdition = editionEntity.editionNmber.plus(ONE).equals(event.params._tokenId)
+    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);
+    let firstTokenId = editionEntity.editionNmber.plus(ONE);
+
+    listedToken.seriesNumber = biggestTokenId.plus(ONE).minus(event.params._tokenId)
+    listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
     listedToken.isGenesisEdition = editionEntity.isGenesisEdition
+    log.info("Token ID={} | biggestTokenId={} | seriesNumber={}", [
+        event.params._tokenId.toString(),
+        biggestTokenId.toString(),
+        listedToken.seriesNumber.toString()
+    ]);
     listedToken.save();
 
     // Save the lister
