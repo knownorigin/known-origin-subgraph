@@ -1137,6 +1137,42 @@ export class ListedToken extends Entity {
   set fullToken(value: string) {
     this.set("fullToken", Value.fromString(value));
   }
+
+  get seriesNumber(): BigInt {
+    let value = this.get("seriesNumber");
+    return value.toBigInt();
+  }
+
+  set seriesNumber(value: BigInt) {
+    this.set("seriesNumber", Value.fromBigInt(value));
+  }
+
+  get isFirstEdition(): boolean {
+    let value = this.get("isFirstEdition");
+    return value.toBoolean();
+  }
+
+  set isFirstEdition(value: boolean) {
+    this.set("isFirstEdition", Value.fromBoolean(value));
+  }
+
+  get isLastEdition(): boolean {
+    let value = this.get("isLastEdition");
+    return value.toBoolean();
+  }
+
+  set isLastEdition(value: boolean) {
+    this.set("isLastEdition", Value.fromBoolean(value));
+  }
+
+  get isGenesisEdition(): boolean {
+    let value = this.get("isGenesisEdition");
+    return value.toBoolean();
+  }
+
+  set isGenesisEdition(value: boolean) {
+    this.set("isGenesisEdition", Value.fromBoolean(value));
+  }
 }
 
 export class Edition extends Entity {
@@ -1167,6 +1203,15 @@ export class Edition extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get editionNmber(): BigInt {
+    let value = this.get("editionNmber");
+    return value.toBigInt();
+  }
+
+  set editionNmber(value: BigInt) {
+    this.set("editionNmber", Value.fromBigInt(value));
   }
 
   get editionType(): BigInt {

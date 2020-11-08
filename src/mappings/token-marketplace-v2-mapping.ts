@@ -59,9 +59,9 @@ import {
     recordSecondaryTokenListed
 } from "../services/ActivityEvent.service";
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
-import {ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
-import {store} from "@graphprotocol/graph-ts/index";
+import {BigInt, store} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -306,22 +306,29 @@ export function handleTokenListed(event: TokenListed): void {
     tokenEntity.listPrice = toEther(event.params._price)
     tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
     tokenEntity.listingTimestamp = event.block.timestamp
+    tokenEntity.save()
+
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 
     // Add ListedToken to store
     let listedToken = loadOrCreateListedToken(event.params._tokenId, tokenEntity.editionNumber, contract);
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
+
+    // Add filter flags
+    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(ONE).plus(editionEntity.totalAvailable);
+    listedToken.seriesNumber = biggestTokenId.minus(event.params._tokenId)
+    listedToken.isFirstEdition = editionEntity.editionNmber.plus(ONE).equals(event.params._tokenId)
+    listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
+    listedToken.isGenesisEdition = editionEntity.isGenesisEdition
     listedToken.save();
 
     // Save the lister
     let collector = loadOrCreateCollector(event.params._seller, event.block);
     collector.save();
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
-
     recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price)
-
     tokenEntity.save()
 }
 

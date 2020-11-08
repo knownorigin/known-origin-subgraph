@@ -16,6 +16,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
         // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
         editionEntity = new Edition(editionNumber.toString());
+        editionEntity.editionNmber = editionNumber
         editionEntity.tokenIds = new Array<BigInt>()
         editionEntity.auctionEnabled = false
         editionEntity.activeBid = null

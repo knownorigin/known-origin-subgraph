@@ -140,6 +140,10 @@ type ListedToken @entity { #For Token Secondary market
     primaryAssetActualType: String!
 
     fullToken: Token!
+    seriesNumber: BigInt! # i.e. edition no. in the series i.e. #10 from the an edition of 10
+    isFirstEdition: Boolean! # i.e. token number 1 from edition of 10
+    isLastEdition: Boolean! # i.e. token number 10 from edition of 10
+    isGenesisEdition: Boolean! # i.e. the first artwork from an artist
 }
 
 type _Schema_
@@ -183,6 +187,7 @@ type _Schema_
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
+    editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32
     startDate: BigInt!
