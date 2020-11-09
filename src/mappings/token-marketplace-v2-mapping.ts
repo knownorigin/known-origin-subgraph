@@ -320,14 +320,16 @@ export function handleTokenListed(event: TokenListed): void {
     let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);
     let firstTokenId = editionEntity.editionNmber.plus(ONE);
 
-    listedToken.seriesNumber = biggestTokenId.plus(ONE).minus(event.params._tokenId)
+    listedToken.seriesNumber = event.params._tokenId.minus(editionEntity.editionNmber)
     listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
     listedToken.isGenesisEdition = editionEntity.isGenesisEdition
-    log.info("Token ID={} | biggestTokenId={} | seriesNumber={}", [
+    log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={}", [
         event.params._tokenId.toString(),
         biggestTokenId.toString(),
-        listedToken.seriesNumber.toString()
+        listedToken.seriesNumber.toString(),
+        editionEntity.totalAvailable.toString(),
+        editionEntity.totalSupply.toString()
     ]);
     listedToken.save();
 
