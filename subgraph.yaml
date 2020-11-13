@@ -198,9 +198,9 @@ dataSources:
     name: TokenMarketplaceV2
     network: rinkeby
     source:
-      address: '0xc84d2Cd82967dB47AfeC1b4E06C30E5d35523d0B'
+      address: '0xdAc14EA324560DdC4d0722D8E7636F852697FB69'
       abi: TokenMarketplaceV2
-      startBlock: 7420527
+      startBlock: 7541509
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

@@ -302,6 +302,42 @@ export class AuctionDisabled__Params {
   }
 }
 
+export class ListingEnabled extends ethereum.Event {
+  get params(): ListingEnabled__Params {
+    return new ListingEnabled__Params(this);
+  }
+}
+
+export class ListingEnabled__Params {
+  _event: ListingEnabled;
+
+  constructor(event: ListingEnabled) {
+    this._event = event;
+  }
+
+  get _tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class ListingDisabled extends ethereum.Event {
+  get params(): ListingDisabled__Params {
+    return new ListingDisabled__Params(this);
+  }
+}
+
+export class ListingDisabled__Params {
+  _event: ListingDisabled;
+
+  constructor(event: ListingDisabled) {
+    this._event = event;
+  }
+
+  get _tokenId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
 export class Pause extends ethereum.Event {
   get params(): Pause__Params {
     return new Pause__Params(this);
@@ -411,6 +447,23 @@ export class OwnershipTransferred__Params {
 
   get newOwner(): Address {
     return this._event.parameters[1].value.toAddress();
+  }
+}
+
+export class TokenMarketplaceV2__offersResult {
+  value0: Address;
+  value1: BigInt;
+
+  constructor(value0: Address, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromAddress(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
   }
 }
 
@@ -531,6 +584,29 @@ export class TokenMarketplaceV2 extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
+  disabledTokens(param0: BigInt): boolean {
+    let result = super.call(
+      "disabledTokens",
+      "disabledTokens(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_disabledTokens(param0: BigInt): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "disabledTokens",
+      "disabledTokens(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   hasRole(_operator: Address, _role: string): boolean {
     let result = super.call("hasRole", "hasRole(address,string):(bool)", [
       ethereum.Value.fromAddress(_operator),
@@ -628,6 +704,35 @@ export class TokenMarketplaceV2 extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  offers(param0: BigInt): TokenMarketplaceV2__offersResult {
+    let result = super.call("offers", "offers(uint256):(address,uint256)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+
+    return new TokenMarketplaceV2__offersResult(
+      result[0].toAddress(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_offers(
+    param0: BigInt
+  ): ethereum.CallResult<TokenMarketplaceV2__offersResult> {
+    let result = super.tryCall("offers", "offers(uint256):(address,uint256)", [
+      ethereum.Value.fromUnsignedBigInt(param0)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new TokenMarketplaceV2__offersResult(
+        value[0].toAddress(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
   owner(): Address {
     let result = super.call("owner", "owner():(address)", []);
 
@@ -655,6 +760,29 @@ export class TokenMarketplaceV2 extends ethereum.SmartContract {
     let result = super.tryCall("whitelist", "whitelist(address):(bool)", [
       ethereum.Value.fromAddress(_operator)
     ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
+  disabledListings(param0: BigInt): boolean {
+    let result = super.call(
+      "disabledListings",
+      "disabledListings(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_disabledListings(param0: BigInt): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "disabledListings",
+      "disabledListings(uint256):(bool)",
+      [ethereum.Value.fromUnsignedBigInt(param0)]
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1381,6 +1509,66 @@ export class EnableAuctionCall__Outputs {
   _call: EnableAuctionCall;
 
   constructor(call: EnableAuctionCall) {
+    this._call = call;
+  }
+}
+
+export class DisableListingCall extends ethereum.Call {
+  get inputs(): DisableListingCall__Inputs {
+    return new DisableListingCall__Inputs(this);
+  }
+
+  get outputs(): DisableListingCall__Outputs {
+    return new DisableListingCall__Outputs(this);
+  }
+}
+
+export class DisableListingCall__Inputs {
+  _call: DisableListingCall;
+
+  constructor(call: DisableListingCall) {
+    this._call = call;
+  }
+
+  get _tokenId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class DisableListingCall__Outputs {
+  _call: DisableListingCall;
+
+  constructor(call: DisableListingCall) {
+    this._call = call;
+  }
+}
+
+export class EnableListingCall extends ethereum.Call {
+  get inputs(): EnableListingCall__Inputs {
+    return new EnableListingCall__Inputs(this);
+  }
+
+  get outputs(): EnableListingCall__Outputs {
+    return new EnableListingCall__Outputs(this);
+  }
+}
+
+export class EnableListingCall__Inputs {
+  _call: EnableListingCall;
+
+  constructor(call: EnableListingCall) {
+    this._call = call;
+  }
+
+  get _tokenId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class EnableListingCall__Outputs {
+  _call: EnableListingCall;
+
+  constructor(call: EnableListingCall) {
     this._call = call;
   }
 }
