@@ -324,7 +324,7 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
     listedToken.isGenesisEdition = editionEntity.isGenesisEdition
-    log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={}", [
+    log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
         event.params._tokenId.toString(),
         biggestTokenId.toString(),
         listedToken.seriesNumber.toString(),
