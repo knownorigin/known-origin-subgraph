@@ -1,3 +1,4 @@
+import {Address} from "@graphprotocol/graph-ts";
 import {
     BidAccepted,
     BidPlaced,
@@ -337,7 +338,7 @@ export function handleTokenListed(event: TokenListed): void {
     let collector = loadOrCreateCollector(event.params._seller, event.block);
     collector.save();
 
-    recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price)
+    recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price, event.params._seller)
     tokenEntity.save()
 }
 
@@ -359,7 +360,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 
-    recordSecondaryTokenDeListed(event, tokenEntity, editionEntity)
+    recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
 
     tokenEntity.save()
 }

@@ -201,25 +201,25 @@ export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Toke
     }
 }
 
-export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt): void {
+export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, owner: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
     let event: ActivityEvent | null = ActivityEvent.load(id)
 
     if (event == null) {
-        event = createTokenEvent(id, TOKEN_LISTED, rawEvent, edition, token, value, null)
+        event = createTokenEvent(id, TOKEN_LISTED, rawEvent, edition, token, value, owner)
         event.save()
     }
 }
-export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null): void {
+export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token | null, owner: Address, edition: Edition | null): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
     let event: ActivityEvent | null = ActivityEvent.load(id)
 
     if (event == null) {
-        event = createTokenEvent(id, TOKEN_DELISTED, rawEvent, edition, token, null, null)
+        event = createTokenEvent(id, TOKEN_DELISTED, rawEvent, edition, token, null, owner)
         event.save()
     }
 }
