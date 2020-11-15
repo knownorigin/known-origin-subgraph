@@ -312,7 +312,7 @@ export function handleTokenListed(event: TokenListed): void {
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 
     // Add ListedToken to store
-    let listedToken = loadOrCreateListedToken(event.params._tokenId, tokenEntity.editionNumber, contract);
+    let listedToken = loadOrCreateListedToken(event.params._tokenId, editionEntity);
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
