@@ -55,6 +55,7 @@ import {
     recordSecondaryBidWithdrawn,
     recordSecondarySale
 } from "../services/ActivityEvent.service";
+import {ONE} from "../constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -149,6 +150,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save();
 
     // Save the collector

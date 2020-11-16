@@ -230,6 +230,8 @@ export function handlePurchase(event: Purchase): void {
         let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
         tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
         tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
+        tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+        tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._priceInWei))
         tokenEntity.save()
     }
     editionEntity.save()

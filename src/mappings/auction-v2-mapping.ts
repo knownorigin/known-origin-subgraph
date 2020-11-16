@@ -172,7 +172,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.primaryValueInEth = toEther(event.params._amount)
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
-
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save()
 
     recordPrimaryBidAccepted(event, editionEntity, event.params._amount, event.params._bidder)

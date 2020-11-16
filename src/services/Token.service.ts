@@ -64,6 +64,8 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
         tokenEntity.lastTransferTimestamp = ZERO
         tokenEntity.primaryValueInEth = ZERO_BIG_DECIMAL
         tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
+        tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
+        tokenEntity.totalPurchaseCount = ZERO
         tokenEntity.editionTotalAvailable = ZERO
         tokenEntity.editionActive = true
         tokenEntity.artistAccount = ZERO_ADDRESS

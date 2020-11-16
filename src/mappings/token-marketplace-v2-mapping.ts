@@ -157,6 +157,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save();
 
     // Save the collector

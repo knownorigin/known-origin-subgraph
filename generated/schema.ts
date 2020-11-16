@@ -834,6 +834,24 @@ export class Token extends Entity {
     this.set("primaryValueInEth", Value.fromBigDecimal(value));
   }
 
+  get totalPurchaseValue(): BigDecimal {
+    let value = this.get("totalPurchaseValue");
+    return value.toBigDecimal();
+  }
+
+  set totalPurchaseValue(value: BigDecimal) {
+    this.set("totalPurchaseValue", Value.fromBigDecimal(value));
+  }
+
+  get totalPurchaseCount(): BigInt {
+    let value = this.get("totalPurchaseCount");
+    return value.toBigInt();
+  }
+
+  set totalPurchaseCount(value: BigInt) {
+    this.set("totalPurchaseCount", Value.fromBigInt(value));
+  }
+
   get lastSalePriceInEth(): BigDecimal {
     let value = this.get("lastSalePriceInEth");
     return value.toBigDecimal();

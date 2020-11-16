@@ -104,6 +104,8 @@ type Token @entity {
     metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
     primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
+    totalPurchaseValue: BigDecimal!     # tally of all purchases (primary & secondary)
+    totalPurchaseCount: BigInt!         # tally of the number of purchases (primary & secondary)
     lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!      # updated on ever Transfer
     currentOwner: Collector             # the current owner
