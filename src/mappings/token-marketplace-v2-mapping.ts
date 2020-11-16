@@ -360,7 +360,10 @@ export function handleTokenDeListed(event: TokenDeListed): void {
 
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 
-    recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+    // if value is found this means a buy has happened so we dont want to include an extra event in the histories
+    if (event.transaction.value === ZERO) {
+        recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+    }
 
     tokenEntity.save()
 }
