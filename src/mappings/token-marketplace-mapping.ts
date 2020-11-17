@@ -40,7 +40,7 @@ import {
     recordDayBidPlacedCount,
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
-    recordDayCounts,
+    recordDayCounts, recordDaySecondaryTotalValue,
     recordDayTotalValueCycledInBids,
     recordDayTotalValuePlaceInBids,
     recordDayValue
@@ -173,6 +173,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayCounts(event, event.params._amount)
     recordDayValue(event, event.params._tokenId, event.params._amount)
     recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDaySecondaryTotalValue(event, event.params._amount)
 
     addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);

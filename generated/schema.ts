@@ -652,6 +652,15 @@ export class Day extends Entity {
     this.set("totalValueCycledInBids", Value.fromBigDecimal(value));
   }
 
+  get secondarySalesValue(): BigDecimal {
+    let value = this.get("secondarySalesValue");
+    return value.toBigDecimal();
+  }
+
+  set secondarySalesValue(value: BigDecimal) {
+    this.set("secondarySalesValue", Value.fromBigDecimal(value));
+  }
+
   get issuedCount(): BigInt {
     let value = this.get("issuedCount");
     return value.toBigInt();

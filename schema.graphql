@@ -68,14 +68,17 @@ type Day @entity {
     transferCount: BigInt!
     editionsCount: BigInt!
 
-    # Bid/offer counts and values
-    bidsAcceptedCount: BigInt!
-    bidsPlacedCount: BigInt!
-    bidsRejectedCount: BigInt!
+    # Bid/offer counts and values (primary & secondary)
+    bidsAcceptedCount: BigInt! # Offers accepted
+    bidsPlacedCount: BigInt! # Offers made
+    bidsRejectedCount: BigInt! # Offers reject
     bidsWithdrawnCount: BigInt!
     bidsIncreasedCount: BigInt!
     totalValuePlaceInBids: BigDecimal!
     totalValueCycledInBids: BigDecimal!
+
+    # Secondary sales value in ETH today
+    secondarySalesValue: BigDecimal!
 
     # Sales/gifting counts and values
     issuedCount: BigInt!
