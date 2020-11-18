@@ -113,7 +113,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
     let isBurnt = isEditionBurnt(editionNumber);
     // If burnt and not already inactive - make edition burnt
     if (isBurnt && editionEntity.active) {
-        log.warning("isEditionBurnt() true for edition [{}]", [editionNumber.toString()]);
+        log.warning("isEditionBurnt() true for edition [{}] ", [editionNumber.toString()]);
         editionEntity.active = false
         editionEntity.totalAvailable = ZERO
 
