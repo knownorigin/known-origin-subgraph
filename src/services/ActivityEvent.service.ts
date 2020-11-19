@@ -13,6 +13,8 @@ const BID_ACCEPTED = "BidAccepted"
 const BID_INCREASED = "BidIncreased"
 const BID_REJECTED = "BidRejected"
 const BID_WITHDRAWN = "BidWithdrawn"
+const TOKEN_LISTED = "TokenListed"
+const TOKEN_DELISTED = "TokenDeListed"
 const TRANSFER = "Transfer"
 
 // Artwork management actions
@@ -123,7 +125,7 @@ function createEditionEvent(
     event.edition = edition.id
     event.creator = edition.artistAccount || ZERO_ADDRESS;
     event.creatorCommission = edition.artistCommission || ZERO;
-    event.collaborator = edition.optionalCommissionAccount;
+    event.collaborator = edition.optionalCommissionAccount || ZERO_ADDRESS;
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
@@ -199,6 +201,29 @@ export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Toke
     }
 }
 
+export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, owner: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event: ActivityEvent | null = ActivityEvent.load(id)
+
+    if (event == null) {
+        event = createTokenEvent(id, TOKEN_LISTED, rawEvent, edition, token, value, owner)
+        event.save()
+    }
+}
+export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token | null, owner: Address, edition: Edition | null): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event: ActivityEvent | null = ActivityEvent.load(id)
+
+    if (event == null) {
+        event = createTokenEvent(id, TOKEN_DELISTED, rawEvent, edition, token, null, owner)
+        event.save()
+    }
+}
+
 export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, buyer: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
@@ -227,7 +252,7 @@ function createTokenEvent(
     event.edition = edition.id
     event.creator = edition.artistAccount || ZERO_ADDRESS;
     event.creatorCommission = edition.artistCommission || ZERO;
-    event.collaborator = edition.optionalCommissionAccount;
+    event.collaborator = edition.optionalCommissionAccount || ZERO_ADDRESS;
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;

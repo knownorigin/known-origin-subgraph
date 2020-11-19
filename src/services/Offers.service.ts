@@ -7,8 +7,11 @@ import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadOrCreateToken} from "./Token.service";
 
-let EDITION_TYPE = "Edition"
-let TOKEN_TYPE = "Token"
+export const EDITION_TYPE = "Edition"
+export const TOKEN_TYPE = "Token"
+
+export const V1_CONTRACT = "1";
+export const V2_CONTRACT = "2";
 
 export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
@@ -49,7 +52,8 @@ export function recordTokenOffer(block: ethereum.Block,
                                  contract: KnownOrigin,
                                  bidder: Address,
                                  amount: BigInt,
-                                 tokenId: BigInt): Offer {
+                                 tokenId: BigInt,
+                                 secondaryMarketVersion: String): Offer {
 
     let tokenEntity = loadOrCreateToken(tokenId, contract, block);
 
@@ -65,18 +69,20 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.token = tokenEntity.id
     offer.type = TOKEN_TYPE
 
+    // FIXME Once all offers from V1 are removed, this fields can go - frontend switch also needs to be removed
+    offer.secondaryMarketVersion = secondaryMarketVersion
+
     offer.save()
 
     return offer as Offer
 }
 
-export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt): Offer {
-
-    let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
-    offer.isActive = false
-    offer.save()
-
-    return offer as Offer
+export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt):  void{
+    let offer: Offer | null = Offer.load(tokenId.toString());
+    if (offer !== null && offer.isActive) {
+        offer.isActive = false
+        offer.save()
+    }
 }
 
 export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {

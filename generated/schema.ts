@@ -652,6 +652,15 @@ export class Day extends Entity {
     this.set("totalValueCycledInBids", Value.fromBigDecimal(value));
   }
 
+  get secondarySalesValue(): BigDecimal {
+    let value = this.get("secondarySalesValue");
+    return value.toBigDecimal();
+  }
+
+  set secondarySalesValue(value: BigDecimal) {
+    this.set("secondarySalesValue", Value.fromBigDecimal(value));
+  }
+
   get issuedCount(): BigInt {
     let value = this.get("issuedCount");
     return value.toBigInt();
@@ -834,6 +843,24 @@ export class Token extends Entity {
     this.set("primaryValueInEth", Value.fromBigDecimal(value));
   }
 
+  get totalPurchaseValue(): BigDecimal {
+    let value = this.get("totalPurchaseValue");
+    return value.toBigDecimal();
+  }
+
+  set totalPurchaseValue(value: BigDecimal) {
+    this.set("totalPurchaseValue", Value.fromBigDecimal(value));
+  }
+
+  get totalPurchaseCount(): BigInt {
+    let value = this.get("totalPurchaseCount");
+    return value.toBigInt();
+  }
+
+  set totalPurchaseCount(value: BigInt) {
+    this.set("totalPurchaseCount", Value.fromBigInt(value));
+  }
+
   get lastSalePriceInEth(): BigDecimal {
     let value = this.get("lastSalePriceInEth");
     return value.toBigDecimal();
@@ -956,6 +983,231 @@ export class Token extends Entity {
   set editionActive(value: boolean) {
     this.set("editionActive", Value.fromBoolean(value));
   }
+
+  get isListed(): boolean {
+    let value = this.get("isListed");
+    return value.toBoolean();
+  }
+
+  set isListed(value: boolean) {
+    this.set("isListed", Value.fromBoolean(value));
+  }
+
+  get listPrice(): BigDecimal | null {
+    let value = this.get("listPrice");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set listPrice(value: BigDecimal | null) {
+    if (value === null) {
+      this.unset("listPrice");
+    } else {
+      this.set("listPrice", Value.fromBigDecimal(value as BigDecimal));
+    }
+  }
+
+  get lister(): string | null {
+    let value = this.get("lister");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set lister(value: string | null) {
+    if (value === null) {
+      this.unset("lister");
+    } else {
+      this.set("lister", Value.fromString(value as string));
+    }
+  }
+
+  get listingTimestamp(): BigInt | null {
+    let value = this.get("listingTimestamp");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set listingTimestamp(value: BigInt | null) {
+    if (value === null) {
+      this.unset("listingTimestamp");
+    } else {
+      this.set("listingTimestamp", Value.fromBigInt(value as BigInt));
+    }
+  }
+}
+
+export class ListedToken extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save ListedToken entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save ListedToken entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("ListedToken", id.toString(), this);
+  }
+
+  static load(id: string): ListedToken | null {
+    return store.get("ListedToken", id) as ListedToken | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get listPrice(): BigDecimal {
+    let value = this.get("listPrice");
+    return value.toBigDecimal();
+  }
+
+  set listPrice(value: BigDecimal) {
+    this.set("listPrice", Value.fromBigDecimal(value));
+  }
+
+  get lister(): string {
+    let value = this.get("lister");
+    return value.toString();
+  }
+
+  set lister(value: string) {
+    this.set("lister", Value.fromString(value));
+  }
+
+  get listingTimestamp(): BigInt {
+    let value = this.get("listingTimestamp");
+    return value.toBigInt();
+  }
+
+  set listingTimestamp(value: BigInt) {
+    this.set("listingTimestamp", Value.fromBigInt(value));
+  }
+
+  get seriesNumber(): BigInt | null {
+    let value = this.get("seriesNumber");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set seriesNumber(value: BigInt | null) {
+    if (value === null) {
+      this.unset("seriesNumber");
+    } else {
+      this.set("seriesNumber", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get isFirstEdition(): boolean {
+    let value = this.get("isFirstEdition");
+    return value.toBoolean();
+  }
+
+  set isFirstEdition(value: boolean) {
+    this.set("isFirstEdition", Value.fromBoolean(value));
+  }
+
+  get isLastEdition(): boolean {
+    let value = this.get("isLastEdition");
+    return value.toBoolean();
+  }
+
+  set isLastEdition(value: boolean) {
+    this.set("isLastEdition", Value.fromBoolean(value));
+  }
+
+  get isGenesisEdition(): boolean {
+    let value = this.get("isGenesisEdition");
+    return value.toBoolean();
+  }
+
+  set isGenesisEdition(value: boolean) {
+    this.set("isGenesisEdition", Value.fromBoolean(value));
+  }
+
+  get metadataName(): string {
+    let value = this.get("metadataName");
+    return value.toString();
+  }
+
+  set metadataName(value: string) {
+    this.set("metadataName", Value.fromString(value));
+  }
+
+  get metadataArtist(): string {
+    let value = this.get("metadataArtist");
+    return value.toString();
+  }
+
+  set metadataArtist(value: string) {
+    this.set("metadataArtist", Value.fromString(value));
+  }
+
+  get metadataArtistAccount(): string {
+    let value = this.get("metadataArtistAccount");
+    return value.toString();
+  }
+
+  set metadataArtistAccount(value: string) {
+    this.set("metadataArtistAccount", Value.fromString(value));
+  }
+
+  get metadataTagString(): string {
+    let value = this.get("metadataTagString");
+    return value.toString();
+  }
+
+  set metadataTagString(value: string) {
+    this.set("metadataTagString", Value.fromString(value));
+  }
+
+  get primaryAssetShortType(): string {
+    let value = this.get("primaryAssetShortType");
+    return value.toString();
+  }
+
+  set primaryAssetShortType(value: string) {
+    this.set("primaryAssetShortType", Value.fromString(value));
+  }
+
+  get primaryAssetActualType(): string {
+    let value = this.get("primaryAssetActualType");
+    return value.toString();
+  }
+
+  set primaryAssetActualType(value: string) {
+    this.set("primaryAssetActualType", Value.fromString(value));
+  }
+
+  get fullToken(): string {
+    let value = this.get("fullToken");
+    return value.toString();
+  }
+
+  set fullToken(value: string) {
+    this.set("fullToken", Value.fromString(value));
+  }
 }
 
 export class Edition extends Entity {
@@ -986,6 +1238,15 @@ export class Edition extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get editionNmber(): BigInt {
+    let value = this.get("editionNmber");
+    return value.toBigInt();
+  }
+
+  set editionNmber(value: BigInt) {
+    this.set("editionNmber", Value.fromBigInt(value));
   }
 
   get editionType(): BigInt {
@@ -1816,6 +2077,23 @@ export class Offer extends Entity {
   set isActive(value: boolean) {
     this.set("isActive", Value.fromBoolean(value));
   }
+
+  get secondaryMarketVersion(): string | null {
+    let value = this.get("secondaryMarketVersion");
+    if (value === null) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set secondaryMarketVersion(value: string | null) {
+    if (value === null) {
+      this.unset("secondaryMarketVersion");
+    } else {
+      this.set("secondaryMarketVersion", Value.fromString(value as string));
+    }
+  }
 }
 
 export class Artist extends Entity {
@@ -2080,6 +2358,24 @@ export class Collector extends Entity {
 
   set primaryPurchaseEthSpent(value: BigDecimal) {
     this.set("primaryPurchaseEthSpent", Value.fromBigDecimal(value));
+  }
+
+  get secondarySaleCount(): BigInt {
+    let value = this.get("secondarySaleCount");
+    return value.toBigInt();
+  }
+
+  set secondarySaleCount(value: BigInt) {
+    this.set("secondarySaleCount", Value.fromBigInt(value));
+  }
+
+  get secondarySaleEthTotal(): BigDecimal {
+    let value = this.get("secondarySaleEthTotal");
+    return value.toBigDecimal();
+  }
+
+  set secondarySaleEthTotal(value: BigDecimal) {
+    this.set("secondarySaleEthTotal", Value.fromBigDecimal(value));
   }
 
   get secondaryPurchaseCount(): BigInt {

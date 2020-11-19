@@ -1,3 +1,4 @@
+import {Address} from "@graphprotocol/graph-ts";
 import {
     BidAccepted,
     BidPlaced,
@@ -34,6 +35,7 @@ import {
 } from "../services/Collector.service";
 
 import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateListedToken} from "../services/ListedToken.service";
 import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
 import {
     recordDayBidAcceptedCount,
@@ -45,7 +47,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
-import {clearTokenOffer, recordTokenOffer, V1_CONTRACT} from "../services/Offers.service";
+import {clearTokenOffer, recordTokenOffer, V2_CONTRACT} from "../services/Offers.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
@@ -53,9 +55,14 @@ import {
     recordSecondaryBidPlaced,
     recordSecondaryBidRejected,
     recordSecondaryBidWithdrawn,
-    recordSecondarySale
+    recordSecondarySale,
+    recordSecondaryTokenDeListed,
+    recordSecondaryTokenListed
 } from "../services/ActivityEvent.service";
-import {ONE} from "../constants";
+import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+
+import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -127,7 +134,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, V1_CONTRACT);
+    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, V2_CONTRACT);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
@@ -238,4 +245,129 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     recordSecondaryBidWithdrawn(event, tokenEntity, editionEntity, event.params._bidder)
+}
+
+export function handleTokenPurchased(event: TokenPurchased): void {
+    /*
+      event TokenPurchased(
+        uint256 indexed _tokenId,
+        address indexed _buyer,
+        address indexed _seller,
+        uint256 _price
+      );
+     */
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
+
+    // Remove token listing from store
+    store.remove("ListedToken", event.params._tokenId.toString());
+
+    // counts and offers
+    clearTokenOffer(event.block, contract, event.params._tokenId)
+    recordDayCounts(event, event.params._price)
+    recordDayValue(event, event.params._tokenId, event.params._price)
+
+    // Save the collector
+    let buyer = loadOrCreateCollector(event.params._buyer, event.block);
+    buyer.save();
+
+    // Save the seller
+    let seller = loadOrCreateCollector(event.params._seller, event.block);
+    seller.save();
+
+    // Edition updates
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer)
+
+    tokenEntity.save()
+
+    // Transfer events handled somewhere else
+    addSecondarySaleToSeller(event.block, event.params._seller, event.params._price);
+    addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
+    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._price, event.params._buyer)
+    recordDaySecondaryTotalValue(event, event.params._price)
+
+    // FIXME record artist royalties
+}
+
+
+export function handleTokenListed(event: TokenListed): void {
+    /*
+     event TokenListed(
+        uint256 indexed _tokenId,
+        address indexed _seller,
+        uint256 _price
+      );
+     */
+
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.isListed = true;
+    tokenEntity.listPrice = toEther(event.params._price)
+    tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    tokenEntity.listingTimestamp = event.block.timestamp
+    tokenEntity.save()
+
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    // Add ListedToken to store
+    let listedToken = loadOrCreateListedToken(event.params._tokenId, editionEntity);
+    listedToken.listPrice = toEther(event.params._price)
+    listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    listedToken.listingTimestamp = event.block.timestamp
+
+    // Add filter flags
+    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);
+    let firstTokenId = editionEntity.editionNmber.plus(ONE);
+
+    listedToken.seriesNumber = event.params._tokenId.minus(editionEntity.editionNmber)
+    listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
+    listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
+    listedToken.isGenesisEdition = editionEntity.isGenesisEdition
+    log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
+        event.params._tokenId.toString(),
+        biggestTokenId.toString(),
+        listedToken.seriesNumber.toString(),
+        editionEntity.totalAvailable.toString(),
+        editionEntity.totalSupply.toString()
+    ]);
+    listedToken.save();
+
+    // Save the lister
+    let collector = loadOrCreateCollector(event.params._seller, event.block);
+    collector.save();
+
+    recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price, event.params._seller)
+    tokenEntity.save()
+}
+
+export function handleTokenDeListed(event: TokenDeListed): void {
+    /*
+      event TokenDeListed(
+        uint256 indexed _tokenId
+      );
+     */
+    let contract = getKnownOriginForAddress(event.address)
+    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    tokenEntity.isListed = false;
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
+
+    // Remove ListedToken from store
+    store.remove("ListedToken", event.params._tokenId.toString());
+
+    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+
+    // if value is found this means a buy has happened so we dont want to include an extra event in the histories
+    if (event.transaction.value === ZERO) {
+        recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+    }
+
+    tokenEntity.save()
 }

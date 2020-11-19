@@ -68,14 +68,17 @@ type Day @entity {
     transferCount: BigInt!
     editionsCount: BigInt!
 
-    # Bid/offer counts and values
-    bidsAcceptedCount: BigInt!
-    bidsPlacedCount: BigInt!
-    bidsRejectedCount: BigInt!
+    # Bid/offer counts and values (primary & secondary)
+    bidsAcceptedCount: BigInt! # Offers accepted
+    bidsPlacedCount: BigInt! # Offers made
+    bidsRejectedCount: BigInt! # Offers reject
     bidsWithdrawnCount: BigInt!
     bidsIncreasedCount: BigInt!
     totalValuePlaceInBids: BigDecimal!
     totalValueCycledInBids: BigDecimal!
+
+    # Secondary sales value in ETH today
+    secondarySalesValue: BigDecimal!
 
     # Sales/gifting counts and values
     issuedCount: BigInt!
@@ -104,6 +107,8 @@ type Token @entity {
     metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
     primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
+    totalPurchaseValue: BigDecimal!     # tally of all purchases (primary & secondary)
+    totalPurchaseCount: BigInt!         # tally of the number of purchases (primary & secondary)
     lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!      # updated on ever Transfer
     currentOwner: Collector             # the current owner
@@ -115,9 +120,56 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
+
+
+    ## Token secondary market
+    isListed: Boolean!
+    listPrice: BigDecimal
+    lister: Collector
+    listingTimestamp: BigInt
+}
+
+type ListedToken @entity { #For Token Secondary market
+    id: ID!
+
+    listPrice: BigDecimal!
+    lister: Collector!
+    listingTimestamp: BigInt!
+    seriesNumber: BigInt # i.e. edition no. in the series i.e. #10 from the an edition of 10
+    isFirstEdition: Boolean # i.e. token number 1 from edition of 10
+    isLastEdition: Boolean # i.e. token number 10 from edition of 10
+    isGenesisEdition: Boolean # i.e. the first artwork from an artist
+
+    #metadata fields flattened for search
+    metadataName: String!
+    metadataArtist: String!
+    metadataArtistAccount: String!
+    metadataTagString: String!
+    primaryAssetShortType: String!
+    primaryAssetActualType: String!
+
+    fullToken: Token!
 }
 
 type _Schema_
+@fulltext(
+    name: "listedTokenSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "ListedToken",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
+            ]
+        }
+    ]
+)
 @fulltext(
     name: "editionSearch",
     language: en
@@ -137,10 +189,10 @@ type _Schema_
     ]
 )
 
-
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
+    editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32
     startDate: BigInt!
@@ -230,6 +282,7 @@ type Offer @entity {
     timestamp: BigInt!
     transactionHash: Bytes!
     isActive: Boolean!              # Only active offers can be seen in the UI
+    secondaryMarketVersion: String  # helps denote what contract version the offer is against
 }
 
 ##########################
@@ -278,6 +331,8 @@ type Collector @entity {
     primaryPurchaseEthSpent: BigDecimal!
 
     # Secondary sales counts
+    secondarySaleCount: BigInt!
+    secondarySaleEthTotal: BigDecimal!
     secondaryPurchaseCount: BigInt!
     secondaryPurchaseEthSpent: BigDecimal!
 

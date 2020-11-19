@@ -236,7 +236,10 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEvent.currentOwner = loadOrCreateCollector(contract.ownerOf(event.params._tokenId), event.block).id
+    const owner = contract.try_ownerOf(event.params._tokenId);
+    if(!owner.reverted) {
+        tokenEvent.currentOwner = loadOrCreateCollector(owner.value, event.block).id
+    }
     tokenEvent.timestamp = timestamp
     tokenEvent.transactionHash = event.transaction.hash
 

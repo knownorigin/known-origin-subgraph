@@ -7,6 +7,7 @@ import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
 import {JSONValue} from "@graphprotocol/graph-ts/index";
+import {splitMimeType} from "../utils";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
@@ -15,6 +16,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
         // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
         editionEntity = new Edition(editionNumber.toString());
+        editionEntity.editionNmber = editionNumber
         editionEntity.tokenIds = new Array<BigInt>()
         editionEntity.auctionEnabled = false
         editionEntity.activeBid = null
@@ -93,13 +95,9 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.metadataArtist = metaData.artist
                 editionEntity.metadataArtistAccount = artistAddress.toHexString()
                 if (metaData.image_type) {
-                    let mimeTypes: string[] = metaData.image_type.split('/');
-                    if (mimeTypes.length >= 1 as boolean) {
-                        editionEntity.primaryAssetShortType = mimeTypes[0];
-                    }
-                    if ((mimeTypes.length >= 2 as boolean)) {
-                        editionEntity.primaryAssetActualType = mimeTypes[1];
-                    }
+                    let types = splitMimeType(metaData.image_type)
+                    editionEntity.primaryAssetShortType = types.primaryAssetShortType
+                    editionEntity.primaryAssetActualType = types.primaryAssetActualType
                 }
                 editionEntity.hasCoverImage = metaData.cover_image !== null;
                 if (metaData.tags != null && metaData.tags.length > 0) {
@@ -115,7 +113,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
     let isBurnt = isEditionBurnt(editionNumber);
     // If burnt and not already inactive - make edition burnt
     if (isBurnt && editionEntity.active) {
-        log.warning("isEditionBurnt() true for edition [{}]", [editionNumber.toString()]);
+        log.warning("isEditionBurnt() true for edition [{}] ", [editionNumber.toString()]);
         editionEntity.active = false
         editionEntity.totalAvailable = ZERO
 
