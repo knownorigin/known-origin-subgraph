@@ -106,7 +106,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save()
 
-    recordPrimaryBidAccepted(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimaryBidAccepted(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
     recordPrimarySale(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
 }
 
