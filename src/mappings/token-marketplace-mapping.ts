@@ -149,6 +149,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
+    tokenEntity.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
