@@ -47,7 +47,7 @@ dataSources:
         - name: KnownOrigin
           file: ./abis/KnownOrigin.json
       eventHandlers:
-        # All transfers to/from regardless of on KO or not
+          # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
 
@@ -206,12 +206,17 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
+        - AuctionEnabled
+        - AuctionDisabled
         - BidPlaced
         - BidWithdrawn
         - BidAccepted
         - BidRejected
         - AuctionEnabled
         - AuctionDisabled
+        - TokenPurchased
+        - TokenDeListed
+        - TokenListed
       abis:
         - name: TokenMarketplaceV2
           file: ./abis/TokenMarketplaceV2.json

@@ -63,7 +63,7 @@ export function recordPrimaryBidPlaced(rawEvent: ethereum.Event, edition: Editio
     }
 }
 
-export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edition | null, token: Token | null, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
@@ -71,6 +71,7 @@ export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edit
 
     if (event == null) {
         event = createEditionEvent(id, BID_ACCEPTED, rawEvent, edition, value, buyer)
+        event.token = token.id
         event.save()
     }
 }
@@ -212,6 +213,19 @@ export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Toke
         event.save()
     }
 }
+
+export function recordSecondaryTokenPurchased(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, owner: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event: ActivityEvent | null = ActivityEvent.load(id)
+
+    if (event == null) {
+        event = createTokenEvent(id, TOKEN_PURCHASED, rawEvent, edition, token, value, owner)
+        event.save()
+    }
+}
+
 export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token | null, owner: Address, edition: Edition | null): void {
 
     let id: string = tokenActivityId(token, rawEvent);

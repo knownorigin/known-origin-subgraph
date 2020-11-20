@@ -168,12 +168,17 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
+        - AuctionEnabled
+        - AuctionDisabled
         - BidPlaced
         - BidWithdrawn
         - BidAccepted
         - BidRejected
         - AuctionEnabled
         - AuctionDisabled
+        - TokenPurchased
+        - TokenDeListed
+        - TokenListed
       abis:
         - name: TokenMarketplaceV2
           file: TokenMarketplaceV2/abis/TokenMarketplaceV2.json
