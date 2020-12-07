@@ -28,8 +28,8 @@ import {
 } from "../utils";
 
 import {
-    addPrimarySaleToCollector,
-    addSecondaryPurchaseToCollector, addSecondarySaleToSeller,
+    addSecondaryPurchaseToCollector,
+    addSecondarySaleToSeller,
     collectorInList,
     loadOrCreateCollector
 } from "../services/Collector.service";
@@ -42,7 +42,8 @@ import {
     recordDayBidPlacedCount,
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
-    recordDayCounts, recordDaySecondaryTotalValue,
+    recordDayCounts,
+    recordDaySecondaryTotalValue,
     recordDayTotalValueCycledInBids,
     recordDayTotalValuePlaceInBids,
     recordDayValue
@@ -59,6 +60,7 @@ import {
     recordSecondaryTokenDeListed,
     recordSecondaryTokenListed
 } from "../services/ActivityEvent.service";
+
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
@@ -192,8 +194,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     editionEntity.save();
 
-    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
-    recordSecondarySale(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
+    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -287,14 +288,13 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     // Edition updates
     let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
 
-    recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer)
+    recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
 
     tokenEntity.save()
 
     // Transfer events handled somewhere else
     addSecondarySaleToSeller(event.block, event.params._seller, event.params._price);
     addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
-    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._price, event.params._buyer)
     recordDaySecondaryTotalValue(event, event.params._price)
 
     // FIXME record artist royalties

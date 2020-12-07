@@ -28,7 +28,8 @@ import {
 
 import {
     addPrimarySaleToCollector,
-    addSecondaryPurchaseToCollector, addSecondarySaleToSeller,
+    addSecondaryPurchaseToCollector,
+    addSecondarySaleToSeller,
     collectorInList,
     loadOrCreateCollector
 } from "../services/Collector.service";
@@ -40,7 +41,8 @@ import {
     recordDayBidPlacedCount,
     recordDayBidRejectedCount,
     recordDayBidWithdrawnCount,
-    recordDayCounts, recordDaySecondaryTotalValue,
+    recordDayCounts,
+    recordDaySecondaryTotalValue,
     recordDayTotalValueCycledInBids,
     recordDayTotalValuePlaceInBids,
     recordDayValue
@@ -52,8 +54,7 @@ import {
     recordSecondaryBidAccepted,
     recordSecondaryBidPlaced,
     recordSecondaryBidRejected,
-    recordSecondaryBidWithdrawn,
-    recordSecondarySale
+    recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
 import {ONE} from "../constants";
 
@@ -185,8 +186,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     editionEntity.save();
 
-    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
-    recordSecondarySale(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
+    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
 
 export function handleBidRejected(event: BidRejected): void {
