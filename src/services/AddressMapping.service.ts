@@ -74,5 +74,13 @@ export function getArtistAddress(address: Address): Address {
         return Address.fromString("0xCed2662Fe30D876bEf52F219eeAC67e2b328Effc");
     }
 
+    // matt-mills
+    if (address.equals(Address.fromString("0xe1fdd3ec9ce26249f79feff417805d66630864d4"))) {
+        log.info("Replacing address {} with {}", [
+            "0xe1fdd3ec9ce26249f79feff417805d66630864d4", "0xdeac2edfeb1c14e24288ce8eeb1cba59c03c818f"
+        ]);
+        return Address.fromString("0xdeac2edfeb1c14e24288ce8eeb1cba59c03c818f");
+    }
+
     return address;
 }
