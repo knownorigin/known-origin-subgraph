@@ -75,11 +75,10 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             }
 
             // Set genesis flag
-            let artistAddress = getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString()));
-            let artistEditions = contract.artistsEditions(artistAddress);
-            if (artistEditions.length === 0) {
+            let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
+            if (artistEditions.length === 1) {
                 log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {} ", [
-                    artistAddress.toHexString(),
+                    editionEntity.artistAccount.toHexString(),
                     editionNumber.toString(),
                     BigInt.fromI32(artistEditions.length).toString()
                 ]);
@@ -93,7 +92,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
 
                 editionEntity.metadataName = metaData.name
                 editionEntity.metadataArtist = metaData.artist
-                editionEntity.metadataArtistAccount = artistAddress.toHexString()
+                editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
                 if (metaData.image_type) {
                     let types = splitMimeType(metaData.image_type)
                     editionEntity.primaryAssetShortType = types.primaryAssetShortType
