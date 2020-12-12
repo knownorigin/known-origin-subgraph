@@ -1099,8 +1099,9 @@ inherits@2, inherits@^2.0.1, inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.1, 
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
 
 ini@~1.3.0:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.5.tgz#eee25f56db1c9ec6085e0c22778083f596abf927"
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
+  integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
 ip-regex@^2.0.0:
   version "2.1.0"
@@ -1445,10 +1446,10 @@ kind-of@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.2.tgz#01146b36a6218e64e58f3a8d66de5d7fc6f6d051"
 
-koda-contract-tools@1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/koda-contract-tools/-/koda-contract-tools-1.9.0.tgz#ff190e5ba38f91440625caa020a9fb07bebca50b"
-  integrity sha512-LjNOEiZO3SWqe57eqvIAsOFdosI7PFpkSrq6e1bGA+xqtmf6CQ9AMqrfWRspj4pQfWvu6h63zD5tAjtCLeMBvQ==
+koda-contract-tools@^1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/koda-contract-tools/-/koda-contract-tools-1.10.0.tgz#8315e8448e832509addfd1d7fc81700359606a06"
+  integrity sha512-vEbO5yhClNfP6TnDVJBaSWVaFJ+aKqzK2L+6EOAq+KIoL5XR53QQkHfUICnITtnadEqEgadIU5PvNMLvEfqIvA==
 
 ky-universal@^0.2.2:
   version "0.2.2"
