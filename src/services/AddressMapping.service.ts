@@ -15,7 +15,7 @@ export function getArtistAddress(address: Address): Address {
 
     // Aktiv Protesk
     if (address.equals(Address.fromString("0x7DEc37c03ea5ca2C47ad2509BE6abAf8C63CDB39"))) {
-        log.info(" Replacing address {}  with {}  ", [
+        log.info(" Replacing address {}  with {} ", [
             "0x7DEc37c03ea5ca2C47ad2509BE6abAf8C63CDB39", "0xa2cD656f8461d2C186D69fFB8A4a5c10EFF0914d"
         ]);
         return Address.fromString("0xa2cD656f8461d2C186D69fFB8A4a5c10EFF0914d");
