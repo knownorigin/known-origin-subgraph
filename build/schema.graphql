@@ -253,6 +253,9 @@ type MetaData @entity {
     cover_image_size_in_bytes: BigInt
     animation_url: String
 
+    # optional - only added Jan-21
+    image_sphere: String
+
     scarcity: String
     artist: String
     tags: [String!]

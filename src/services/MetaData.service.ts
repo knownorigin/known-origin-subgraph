@@ -43,6 +43,16 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
             }
 
+            if (isObject(jsonData) && jsonData.toObject().isSet('image_sphere')) {
+                let image_sphere: JSONValue | null = jsonData.toObject().get('image_sphere');
+                if (image_sphere) {
+                    let isNull: boolean = (image_sphere as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.image_sphere = image_sphere.toString()
+                    }
+                }
+            }
+
             if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
 
                 let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
