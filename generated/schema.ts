@@ -1813,6 +1813,15 @@ export class MetaData extends Entity {
     }
   }
 
+  get image_sphere(): boolean {
+    let value = this.get("image_sphere");
+    return value.toBoolean();
+  }
+
+  set image_sphere(value: boolean) {
+    this.set("image_sphere", Value.fromBoolean(value));
+  }
+
   get scarcity(): string | null {
     let value = this.get("scarcity");
     if (value === null) {
