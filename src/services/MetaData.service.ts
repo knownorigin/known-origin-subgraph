@@ -48,7 +48,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (image_sphere) {
                     let isNull: boolean = (image_sphere as JSONValue).isNull();
                     if (!isNull) {
-                        metaData.image_sphere = image_sphere.toString()
+                        metaData.image_sphere = image_sphere.toBool()
                     }
                 }
             }

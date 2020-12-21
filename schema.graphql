@@ -254,7 +254,7 @@ type MetaData @entity {
     animation_url: String
 
     # optional - only added Jan-21
-    image_sphere: String
+    image_sphere: Boolean
 
     scarcity: String
     artist: String
