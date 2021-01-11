@@ -1,6 +1,6 @@
 import {Bytes, ipfs, json, JSONValue, JSONValueKind} from "@graphprotocol/graph-ts";
 import {MetaData} from "../../generated/schema";
-import {log, Result} from "@graphprotocol/graph-ts/index";
+import {BigInt, log, Result} from "@graphprotocol/graph-ts/index";
 
 function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     let metaData: MetaData = new MetaData(ipfsHash);
@@ -38,6 +38,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (animation_url) {
                     let isNull: boolean = (animation_url as JSONValue).isNull();
                     if (!isNull) {
+                        log.info("Setting animation_url for {} ", [ipfsHash]);
                         metaData.animation_url = animation_url.toString()
                     }
                 }
@@ -48,6 +49,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (image_sphere) {
                     let isNull: boolean = (image_sphere as JSONValue).isNull();
                     if (!isNull) {
+                        log.info("Setting image_sphere for {} ", [ipfsHash]);
                         metaData.image_sphere = image_sphere.toBool()
                     }
                 }
