@@ -13,7 +13,7 @@ export function loadOrCreateListedToken(
     tokenId: BigInt,
     edition: Edition | null
 ): ListedToken | null {
-    log.info("loadOrCreateListedToken() called for token ID {}", [tokenId.toString()])
+    log.info("loadOrCreateListedToken() called  for token ID {}", [tokenId.toString()])
 
     let listedToken = ListedToken.load(tokenId.toString());
 
