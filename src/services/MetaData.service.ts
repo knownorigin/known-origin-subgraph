@@ -161,7 +161,12 @@ export function constructMetaData(tokenURI: string): MetaData | null {
             maxTries++;
         }
 
-        return metaData;
+        if (!metaData) {
+            return metaData;
+        }
+
+        log.error("FAILED IPFS token URI load {}", [tokenURI]);
+        return new MetaData(ipfsHash); // try and construct a object even if empty?
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
