@@ -161,7 +161,7 @@ export function constructMetaData(tokenURI: string): MetaData | null {
             maxTries++;
         }
 
-        if (!metaData) {
+        if (metaData) {
             return metaData;
         }
 
