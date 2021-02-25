@@ -1,11 +1,12 @@
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
-import {loadOrCreateEdition} from "./Edition.service";
+import {loadOrCreateV2Edition} from "./Edition.service";
 import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
 import {loadOrCreateCollector} from "./Collector.service";
 import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadOrCreateToken} from "./Token.service";
+import * as KodaVersions from "../KodaVersions";
 
 export const EDITION_TYPE = "Edition"
 export const TOKEN_TYPE = "Token"
@@ -20,7 +21,7 @@ export function recordEditionOffer(block: ethereum.Block,
                                    amount: BigInt,
                                    editionNumber: BigInt): Offer {
 
-    let editionEntity = loadOrCreateEdition(editionNumber, block, contract);
+    let editionEntity = loadOrCreateV2Edition(editionNumber, block, contract);
     editionEntity.save()
 
     let offer: Offer = initOffer(block, contract, EDITION_TYPE, editionNumber)
@@ -101,14 +102,15 @@ export function initOffer(block: ethereum.Block, contract: KnownOrigin, type: St
     if (offer == null) {
         offer = new Offer(id.toString());
         offer.type = type.toString()
+        offer.version = KodaVersions.KODA_V2
 
         if (type == EDITION_TYPE) {
-            offer.edition = loadOrCreateEdition(id, block, contract).id
+            offer.edition = loadOrCreateV2Edition(id, block, contract).id
         }
 
         if (type == TOKEN_TYPE) {
             let tokenEntity = loadOrCreateToken(id, contract, block);
-            offer.edition = loadOrCreateEdition(tokenEntity.editionNumber, block, contract).id
+            offer.edition = loadOrCreateV2Edition(tokenEntity.editionNumber, block, contract).id
             offer.token = tokenEntity.id
         }
     }

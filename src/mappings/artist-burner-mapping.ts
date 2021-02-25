@@ -1,6 +1,6 @@
-import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
 import {EditionDeactivated, EditionSupplyReduced} from "../../generated/ArtistEditionBurner/ArtistEditionBurner";
-import {loadOrCreateEdition} from "../services/Edition.service";
+import {loadOrCreateV2Edition} from "../services/Edition.service";
 import {ONE, ZERO} from "../constants";
 import {loadOrCreateArtist} from "../services/Artist.service";
 import {Address, log} from "@graphprotocol/graph-ts/index";
@@ -11,10 +11,10 @@ export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
         event.params._editionNumber.toString(),
         event.address.toHexString()
     ]);
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     // Deactivate the edition
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.active = false;
     editionEntity.totalAvailable = ZERO;
     editionEntity.remainingSupply = ZERO;
@@ -35,9 +35,9 @@ export function handleEditionSupplyReducedEvent(event: EditionSupplyReduced): vo
         event.params._editionNumber.toString(),
         event.address.toHexString()
     ]);
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
     let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
     // Reduce supply down

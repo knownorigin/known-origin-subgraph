@@ -122,6 +122,7 @@ function createEditionEvent(
 ): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(id.toString());
     event.type = TYPE_EDITION
+    event.version = edition.version
     event.eventType = eventType
     event.edition = edition.id
     event.creator = edition.artistAccount || ZERO_ADDRESS;
@@ -261,6 +262,7 @@ function createTokenEvent(
     seller: Address | null,
 ): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(id.toString());
+    event.version = edition.version
     event.type = TYPE_TOKEN
     event.eventType = eventType
     event.token = token.id

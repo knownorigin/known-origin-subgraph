@@ -8,8 +8,8 @@ import {
 } from "../../generated/KnownOrigin/KnownOrigin"
 
 import {
-    loadOrCreateEdition,
-    loadOrCreateEditionFromTokenId
+    loadOrCreateV2Edition,
+    loadOrCreateV2EditionFromTokenId
 } from "../services/Edition.service";
 import {
     addEditionToDay,
@@ -50,7 +50,7 @@ import {
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOrigin.bind(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
     addEditionToDay(event, editionEntity.id);
@@ -90,7 +90,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////////
 
     // Record transfer against the edition
-    let editionEntity = loadOrCreateEditionFromTokenId(event.params._tokenId, event.block, contract);
+    let editionEntity = loadOrCreateV2EditionFromTokenId(event.params._tokenId, event.block, contract);
 
     // Transfer Events
     let transferEvent = createTransferEvent(event, editionEntity);
@@ -203,7 +203,7 @@ export function handlePurchase(event: Purchase): void {
     recordArtistCounts(artistAddress, event.transaction.value)
 
     // Action edition data changes
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._priceInWei));
 
     // Only count Purchases with value attached as sale - primary sales trigger this event
@@ -243,7 +243,7 @@ export function handlePurchase(event: Purchase): void {
 export function handleMinted(event: Minted): void {
     let contract = KnownOrigin.bind(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
     // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
     editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
@@ -279,7 +279,7 @@ export function handleMinted(event: Minted): void {
 //
 //     let active = contract.editionActive(editionNumber);
 //
-//     let editionEntity = loadOrCreateEdition(editionNumber, call.block, contract)
+//     let editionEntity = loadOrCreateV2Edition(editionNumber, call.block, contract)
 //     editionEntity.active = active;
 //     editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
 //     editionEntity.save()

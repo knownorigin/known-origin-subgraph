@@ -6,6 +6,7 @@
 # Used for listing out token history on the token pages
 type TokenEvent @entity {
     id: ID!                     # Composite key made form multiple items
+    version: BigInt!            # KODA 2 or 3
     name: String!
     token: Token!
     edition: Edition!
@@ -20,6 +21,7 @@ type TokenEvent @entity {
 # Token events for transfers
 type TransferEvent @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     from: Bytes! # address
     to: Bytes! # address
     tokenId: BigInt!
@@ -31,6 +33,7 @@ type TransferEvent @entity {
 # Edition primary sale auction events
 type AuctionEvent @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     edition: Edition!
     name: String!
     bidder: Bytes!
@@ -44,6 +47,7 @@ type AuctionEvent @entity {
 type ActivityEvent @entity {
     id: ID!
     type: String!               # Token or Edition
+    version: BigInt!            # KODA 2 or 3
     eventType: String!          # Event types e.g. ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
     edition: Edition!           # All events relate to an edition
     token: Token                # (nullable) the token this relates to
@@ -99,6 +103,7 @@ type Day @entity {
 # A token and its details
 type Token @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!
@@ -131,6 +136,7 @@ type Token @entity {
 
 type ListedToken @entity { #For Token Secondary market
     id: ID!
+    version: BigInt! # KODA 2 or 3
 
     listPrice: BigDecimal!
     lister: Collector!
@@ -192,23 +198,24 @@ type _Schema_
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
-    editionData: Bytes # bytes32
-    startDate: BigInt!
-    endDate: BigInt!
+    editionData: Bytes # bytes32 - some data about the edition
+    startDate: BigInt! # date when the edition goes on sale
+    endDate: BigInt!   # date when the edition is available until
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
     tokenURI: String!
     artistAccount: Bytes! # address
-    artistCommission: BigInt!
+    artistCommission: BigInt! # base artists commission
     optionalCommissionAccount: Bytes # address
     optionalCommissionRate: BigInt
-    priceInWei: BigInt!
+    priceInWei: BigInt! # base price for edition
     offersOnly: Boolean!
-    totalSupply: BigInt!
-    totalAvailable: BigInt!
-    remainingSupply: BigInt!
+    totalSupply: BigInt!     # Total purchases or mints
+    totalAvailable: BigInt!  # Total number available to be purchased
+    remainingSupply: BigInt! # Total remaining
     totalSold: BigInt! # sold = purchase/bid accepted with price > 0
     sales: [Token!]!
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
@@ -239,6 +246,7 @@ type Edition @entity {
 # A token/editions and its meta data
 type MetaData @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     name: String
     description: String
 
@@ -264,6 +272,7 @@ type MetaData @entity {
 # Single high level entity capturing the top offer on the secondary marketplace
 type TokenOffer @entity {
     id: ID!
+    version: BigInt! # KODA 2 or 3
     token: Token!
     edition: Edition!
     ownerAtTimeOfBid: Collector!
@@ -275,6 +284,7 @@ type TokenOffer @entity {
 # Encapsulates all offers either on editions or tokens
 type Offer @entity {
     id: ID!                         # edition ID or token ID
+    version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
     token: Token                    # nullable token, as editions dont have tokens attached
     edition: Edition!               # All offers must be from an edition

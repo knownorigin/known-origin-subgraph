@@ -30,11 +30,11 @@ dataSources:
 
   ## KODA V2 (Current)
   - kind: ethereum/contract
-    name: KnownOrigin
+    name: KnownOriginV2
     network: {{network}}
     source:
       address: '{{koda-v2-address}}'
-      abi: KnownOrigin
+      abi: KnownOriginV2
       startBlock: {{koda-v2-startBlock}}
     mapping:
       kind: ethereum/events
@@ -44,8 +44,8 @@ dataSources:
         - Transfer
         - EditionCreated
       abis:
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
           # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
@@ -64,6 +64,29 @@ dataSources:
           handler: handleMinted
       file: ./src/mappings/known-origin-v2-mapping.ts
 
+  ## KODA V3 (Next Gen)
+  - kind: ethereum/contract
+    name: KnownOriginV3
+    network: {{network}}
+    source:
+      address: '{{koda-v3-address}}'
+      abi: KnownOriginV3
+      startBlock: {{koda-v3-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: KnownOriginV3
+          file: ./abis/KnownOriginV3.json
+      eventHandlers:
+          # All transfers to/from regardless of on KO or not
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/mappings/known-origin-v3-mapping.ts
+
   ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1
@@ -81,8 +104,8 @@ dataSources:
       abis:
         - name: ArtistAcceptingBidsV1
           file: ./abis/ArtistAcceptingBidsV1.json
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
         - event: BidPlaced(indexed address,indexed uint256,indexed uint256)
           handler: handleBidPlaced
@@ -120,8 +143,8 @@ dataSources:
       abis:
         - name: ArtistAcceptingBidsV2
           file: ./abis/ArtistAcceptingBidsV2.json
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -170,8 +193,8 @@ dataSources:
       abis:
         - name: TokenMarketplace
           file: ./abis/TokenMarketplace.json
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -220,8 +243,8 @@ dataSources:
       abis:
         - name: TokenMarketplaceV2
           file: ./abis/TokenMarketplaceV2.json
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -270,8 +293,8 @@ dataSources:
       abis:
         - name: ArtistEditionBurner
           file: ./abis/ArtistEditionBurner.json
-        - name: KnownOrigin
-          file: ./abis/KnownOrigin.json
+        - name: KnownOriginV2
+          file: ./abis/KnownOriginV2.json
       eventHandlers:
         - event: EditionDeactivated(indexed uint256)
           handler: handleEditionDeactivatedEvent

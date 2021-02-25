@@ -9,11 +9,13 @@ import {
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
+import * as KodaVersions from "../KodaVersions";
 
 function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
     let _tokenDataResult: ethereum.CallResult<KnownOrigin__tokenDataResult> = contract.try_tokenData(tokenId)
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
+        tokenEntity.version = KodaVersions.KODA_V2
         tokenEntity.editionNumber = _tokenData.value0
         tokenEntity.edition = _tokenData.value0.toString()
         tokenEntity.tokenURI = _tokenData.value3
@@ -50,6 +52,7 @@ export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block:
 
     if (tokenEntity == null) {
         tokenEntity = new Token(tokenId.toString())
+        tokenEntity.version = KodaVersions.KODA_V2
         tokenEntity.transfers = new Array<string>()
         tokenEntity.allOwners = new Array<string>()
         tokenEntity.openOffer = null

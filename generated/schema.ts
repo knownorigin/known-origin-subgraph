@@ -42,6 +42,15 @@ export class TokenEvent extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get name(): string {
     let value = this.get("name");
     return value.toString();
@@ -178,6 +187,15 @@ export class TransferEvent extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get from(): Bytes {
     let value = this.get("from");
     return value.toBytes();
@@ -261,6 +279,15 @@ export class AuctionEvent extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
   }
 
   get edition(): string {
@@ -364,6 +391,15 @@ export class ActivityEvent extends Entity {
 
   set type(value: string) {
     this.set("type", Value.fromString(value));
+  }
+
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
   }
 
   get eventType(): string {
@@ -763,6 +799,15 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get tokenId(): BigInt {
     let value = this.get("tokenId");
     return value.toBigInt();
@@ -1075,6 +1120,15 @@ export class ListedToken extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get listPrice(): BigDecimal {
     let value = this.get("listPrice");
     return value.toBigDecimal();
@@ -1238,6 +1292,15 @@ export class Edition extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
   }
 
   get editionNmber(): BigInt {
@@ -1660,6 +1723,15 @@ export class MetaData extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get name(): string | null {
     let value = this.get("name");
     if (value === null) {
@@ -1904,6 +1976,15 @@ export class TokenOffer extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
+  }
+
   get token(): string {
     let value = this.get("token");
     return value.toString();
@@ -1987,6 +2068,15 @@ export class Offer extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get version(): BigInt {
+    let value = this.get("version");
+    return value.toBigInt();
+  }
+
+  set version(value: BigInt) {
+    this.set("version", Value.fromBigInt(value));
   }
 
   get type(): string {

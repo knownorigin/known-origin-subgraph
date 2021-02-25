@@ -2,7 +2,7 @@ import {Address} from "@graphprotocol/graph-ts/index";
 import {TokenEvent} from "../../generated/schema";
 import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {toEther} from "../utils";
-import {loadOrCreateEdition} from "./Edition.service";
+import {loadOrCreateV2Edition} from "./Edition.service";
 import {
     BidAccepted,
     BidPlaced,
@@ -10,10 +10,11 @@ import {
     BidWithdrawn
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 import {loadOrCreateToken} from "./Token.service";
-import {getKnownOriginForAddress} from "./KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "./KnownOrigin.factory";
 import {getArtistAddress} from "./AddressMapping.service";
 import {Purchase, Transfer} from "../../generated/KnownOrigin/KnownOrigin";
 import {loadOrCreateCollector} from "./Collector.service";
+import * as KodaVersions from "../KodaVersions";
 
 export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     let timestamp = event.block.timestamp;
@@ -25,7 +26,7 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -36,10 +37,11 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenEvent.name = 'Purchase';
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.buyer = loadOrCreateCollector(event.params._buyer, event.block).id
@@ -63,7 +65,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -74,11 +76,12 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     // Show birth if first transfer
     tokenEvent.name = event.params._from.equals(ZERO_ADDRESS) ? 'Birth' : 'Transfer';
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.bidder = loadOrCreateCollector(event.params._to, event.block).id
@@ -102,7 +105,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -113,10 +116,11 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenEvent.name = 'BidPlaced'
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = toEther(event.params._amount)
@@ -140,7 +144,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -151,10 +155,11 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenEvent.name = 'BidAccepted'
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = toEther(event.params._amount)
@@ -179,7 +184,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -190,10 +195,11 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenEvent.name = 'BidRejected'
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = toEther(event.params._amount)
@@ -217,7 +223,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
         .concat("-")
         .concat(timestamp.toString());
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
@@ -228,10 +234,11 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenEvent.name = 'BidWithdrawn'
+    tokenEvent.version = KodaVersions.KODA_V2
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = ZERO_BIG_DECIMAL

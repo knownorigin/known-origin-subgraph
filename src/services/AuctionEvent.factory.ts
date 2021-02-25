@@ -2,7 +2,7 @@ import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/ind
 import {Artist, AuctionEvent, Edition} from "../../generated/schema";
 import {ONE, ZERO} from "../constants";
 import {toEther} from "../utils";
-import {loadEdition, loadOrCreateEdition} from "./Edition.service";
+import {loadV2Edition, loadOrCreateV2Edition} from "./Edition.service";
 import {
     BidAccepted,
     BidIncreased,
@@ -14,16 +14,17 @@ import {
 export function createBidPlacedEvent(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    editionNumber: BigInt,
+    edition: Edition | null,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(editionNumber.toString())
+    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidPlaced'
-    auctionEvent.edition = editionNumber.toString();
+    auctionEvent.version = edition.version
+    auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -36,16 +37,17 @@ export function createBidPlacedEvent(
 export function createBidAccepted(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    editionNumber: BigInt,
+    edition: Edition | null,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(editionNumber.toString())
+    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidAccepted'
-    auctionEvent.edition = editionNumber.toString();
+    auctionEvent.version = edition.version
+    auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -58,16 +60,17 @@ export function createBidAccepted(
 export function createBidRejected(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    editionNumber: BigInt,
+    edition: Edition | null,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(editionNumber.toString())
+    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidRejected'
-    auctionEvent.edition = editionNumber.toString();
+    auctionEvent.version = edition.version
+    auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -80,15 +83,16 @@ export function createBidRejected(
 export function createBidWithdrawn(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    editionNumber: BigInt,
+    edition: Edition | null,
     bidder: Address
 ): AuctionEvent {
     let timestamp = block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(editionNumber.toString())
+    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidWithdrawn'
-    auctionEvent.edition = editionNumber.toString();
+    auctionEvent.version = edition.version
+    auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = BigDecimal.fromString('0.0')
@@ -101,16 +105,17 @@ export function createBidWithdrawn(
 export function createBidIncreased(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    editionNumber: BigInt,
+    edition: Edition | null,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(editionNumber.toString())
+    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = 'BidIncreased'
-    auctionEvent.edition = editionNumber.toString();
+    auctionEvent.version = edition.version
+    auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
