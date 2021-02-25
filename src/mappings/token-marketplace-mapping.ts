@@ -34,7 +34,7 @@ import {
     loadOrCreateCollector
 } from "../services/Collector.service";
 
-import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateV2Token} from "../services/Token.service";
 import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
 import {
     recordDayBidAcceptedCount,
@@ -67,7 +67,7 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 }
 
@@ -80,7 +80,7 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
@@ -106,7 +106,7 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     let tokenOffer = new TokenOffer(id);
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
@@ -147,7 +147,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     createBidAcceptedEvent(event)
     clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
@@ -203,7 +203,7 @@ export function handleBidRejected(event: BidRejected): void {
     createBidRejectedEvent(event)
     clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
@@ -228,7 +228,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     createBidWithdrawnEvent(event)
     clearTokenOffer(event.block, contract, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();

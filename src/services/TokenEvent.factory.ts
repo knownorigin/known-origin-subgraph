@@ -9,10 +9,10 @@ import {
     BidRejected,
     BidWithdrawn
 } from "../../generated/TokenMarketplace/TokenMarketplace";
-import {loadOrCreateToken} from "./Token.service";
+import {loadOrCreateV2Token} from "./Token.service";
 import {getKnownOriginV2ForAddress} from "./KnownOrigin.factory";
 import {getArtistAddress} from "./AddressMapping.service";
-import {Purchase, Transfer} from "../../generated/KnownOrigin/KnownOrigin";
+import {Purchase, Transfer} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {loadOrCreateCollector} from "./Collector.service";
 import * as KodaVersions from "../KodaVersions";
 
@@ -31,7 +31,7 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -70,7 +70,7 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -110,7 +110,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -149,7 +149,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -189,7 +189,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
@@ -228,7 +228,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;

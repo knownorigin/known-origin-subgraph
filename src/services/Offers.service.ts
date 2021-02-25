@@ -1,11 +1,11 @@
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadOrCreateV2Edition} from "./Edition.service";
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {loadOrCreateCollector} from "./Collector.service";
 import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
-import {loadOrCreateToken} from "./Token.service";
+import {loadOrCreateV2Token} from "./Token.service";
 import * as KodaVersions from "../KodaVersions";
 
 export const EDITION_TYPE = "Edition"
@@ -16,7 +16,7 @@ export const V2_CONTRACT = "2";
 
 export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
-                                   contract: KnownOrigin,
+                                   contract: KnownOriginV2,
                                    bidder: Address,
                                    amount: BigInt,
                                    editionNumber: BigInt): Offer {
@@ -41,7 +41,7 @@ export function recordEditionOffer(block: ethereum.Block,
     return offer as Offer
 }
 
-export function clearEditionOffer(block: ethereum.Block, contract: KnownOrigin, editionNumber: BigInt): Offer {
+export function clearEditionOffer(block: ethereum.Block, contract: KnownOriginV2, editionNumber: BigInt): Offer {
     let offer: Offer = initOffer(block, contract, EDITION_TYPE, editionNumber)
     offer.isActive = false
     offer.save();
@@ -50,13 +50,13 @@ export function clearEditionOffer(block: ethereum.Block, contract: KnownOrigin, 
 
 export function recordTokenOffer(block: ethereum.Block,
                                  transaction: ethereum.Transaction,
-                                 contract: KnownOrigin,
+                                 contract: KnownOriginV2,
                                  bidder: Address,
                                  amount: BigInt,
                                  tokenId: BigInt,
                                  secondaryMarketVersion: String): Offer {
 
-    let tokenEntity = loadOrCreateToken(tokenId, contract, block);
+    let tokenEntity = loadOrCreateV2Token(tokenId, contract, block);
 
     let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
     offer.isActive = true
@@ -71,6 +71,7 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.type = TOKEN_TYPE
 
     // FIXME Once all offers from V1 are removed, this fields can go - frontend switch also needs to be removed
+    // @ts-ignore
     offer.secondaryMarketVersion = secondaryMarketVersion
 
     offer.save()
@@ -78,7 +79,7 @@ export function recordTokenOffer(block: ethereum.Block,
     return offer as Offer
 }
 
-export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt):  void{
+export function clearTokenOffer(block: ethereum.Block, contract: KnownOriginV2, tokenId: BigInt):  void{
     let offer: Offer | null = Offer.load(tokenId.toString());
     if (offer !== null && offer.isActive) {
         offer.isActive = false
@@ -86,7 +87,7 @@ export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, to
     }
 }
 
-export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
+export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOriginV2, tokenId: BigInt, newOwner: Address): void {
     let offer: Offer | null = Offer.load(tokenId.toString());
 
     // Only do this is there is an offer object set
@@ -97,7 +98,7 @@ export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrig
     }
 }
 
-export function initOffer(block: ethereum.Block, contract: KnownOrigin, type: String, id: BigInt): Offer {
+export function initOffer(block: ethereum.Block, contract: KnownOriginV2, type: String, id: BigInt): Offer {
     let offer: Offer | null = Offer.load(id.toString());
     if (offer == null) {
         offer = new Offer(id.toString());
@@ -109,7 +110,7 @@ export function initOffer(block: ethereum.Block, contract: KnownOrigin, type: St
         }
 
         if (type == TOKEN_TYPE) {
-            let tokenEntity = loadOrCreateToken(id, contract, block);
+            let tokenEntity = loadOrCreateV2Token(id, contract, block);
             offer.edition = loadOrCreateV2Edition(tokenEntity.editionNumber, block, contract).id
             offer.token = tokenEntity.id
         }

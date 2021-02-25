@@ -1,11 +1,11 @@
 import {
-    KnownOrigin,
+    KnownOriginV2,
     Purchase,
     Minted,
     EditionCreated,
     Transfer,
-    KnownOrigin__detailsOfEditionResult
-} from "../../generated/KnownOrigin/KnownOrigin"
+    KnownOriginV2__detailsOfEditionResult
+} from "../../generated/KnownOriginV2/KnownOriginV2"
 
 import {
     loadOrCreateV2Edition,
@@ -24,7 +24,7 @@ import {
     recordArtistCounts,
     recordArtistIssued,
 } from "../services/Artist.service";
-import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateV2Token} from "../services/Token.service";
 import {ethereum, log, Address, store} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
@@ -48,7 +48,7 @@ import {
 } from "../services/ActivityEvent.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
-    let contract = KnownOrigin.bind(event.address)
+    let contract = KnownOriginV2.bind(event.address)
 
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
@@ -56,7 +56,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     addEditionToDay(event, editionEntity.id);
 
     // Update artist
-    let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
+    let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
     if (!_editionDataResult.reverted) {
         let _editionData = _editionDataResult.value;
         addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
@@ -70,7 +70,7 @@ export function handleEditionCreated(event: EditionCreated): void {
 export function handleTransfer(event: Transfer): void {
     log.info("handleTransfer() called for event address {}", [event.address.toHexString()]);
 
-    let contract = KnownOrigin.bind(event.address)
+    let contract = KnownOriginV2.bind(event.address)
 
     ////////////////
     // Day Counts //
@@ -93,7 +93,7 @@ export function handleTransfer(event: Transfer): void {
     let editionEntity = loadOrCreateV2EditionFromTokenId(event.params._tokenId, event.block, contract);
 
     // Transfer Events
-    let transferEvent = createTransferEvent(event, editionEntity);
+    let transferEvent = createTransferEvent(event, event.params._tokenId, event.params._from, event.params._to, editionEntity);
     transferEvent.save();
 
     // Set Transfers on edition
@@ -130,7 +130,7 @@ export function handleTransfer(event: Transfer): void {
     /////////////////
 
     // TOKEN
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
@@ -182,10 +182,10 @@ export function handleTransfer(event: Transfer): void {
 
 // Direct primary "Buy it now" purchase form the website
 export function handlePurchase(event: Purchase): void {
-    let contract = KnownOrigin.bind(event.address)
+    let contract = KnownOriginV2.bind(event.address)
 
     // Create token
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save()
 
     // Create collector
@@ -227,7 +227,7 @@ export function handlePurchase(event: Purchase): void {
         tokenTransferEvent.save();
 
         // Set price against token
-        let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+        let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
         tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
         tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
         tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
@@ -241,7 +241,7 @@ export function handlePurchase(event: Purchase): void {
 
 // A token has been issued - could be purchase, gift, accepted offer
 export function handleMinted(event: Minted): void {
-    let contract = KnownOrigin.bind(event.address)
+    let contract = KnownOriginV2.bind(event.address)
 
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
@@ -259,7 +259,7 @@ export function handleMinted(event: Minted): void {
     // Save edition entity
     editionEntity.save();
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 
     // record running total of issued tokens

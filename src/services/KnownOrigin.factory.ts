@@ -1,8 +1,8 @@
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Address} from "@graphprotocol/graph-ts/index";
 import {KODA_MAINNET, KODA_RINKEBY} from "../constants";
 
-export function getKnownOriginV2ForAddress(address: Address): KnownOrigin {
+export function getKnownOriginV2ForAddress(address: Address): KnownOriginV2 {
 
     let mainnetAddresses = new Array<Address>();
     mainnetAddresses.push(Address.fromString("0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72")) // KODA v1
@@ -18,8 +18,8 @@ export function getKnownOriginV2ForAddress(address: Address): KnownOrigin {
 
     // Mainnet addresses
     if (mainnetAddresses.indexOf(address) > -1) {
-        return KnownOrigin.bind(Address.fromString(KODA_MAINNET))
+        return KnownOriginV2.bind(Address.fromString(KODA_MAINNET))
     }
 
-    return KnownOrigin.bind(Address.fromString(KODA_RINKEBY))
+    return KnownOriginV2.bind(Address.fromString(KODA_RINKEBY))
 }

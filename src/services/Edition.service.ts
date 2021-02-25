@@ -1,5 +1,5 @@
 import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
-import {KnownOrigin, KnownOrigin__detailsOfEditionResult} from "../../generated/KnownOrigin/KnownOrigin";
+import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {constructMetaData} from "./MetaData.service";
@@ -11,13 +11,13 @@ import {splitMimeType} from "../utils";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as KodaVersions from "../KodaVersions";
 
-export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
+export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition | null {
     let editionEntity: Edition | null = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
         editionEntity = createDefaultEdition(editionNumber, block);
 
-        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
@@ -97,7 +97,7 @@ export function loadV2Edition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
 }
 
-export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
+export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition | null {
     log.info("loadOrCreateV2EditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateV2Edition(_editionNumber, block, contract);

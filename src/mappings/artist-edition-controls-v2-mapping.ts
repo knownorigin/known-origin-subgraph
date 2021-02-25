@@ -1,10 +1,10 @@
 import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
 import {loadOrCreateV2Edition} from "../services/Edition.service";
-import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateV2Token} from "../services/Token.service";
 import {MAX_UINT_256} from "../constants";
 import {BigInt, log, ethereum} from "@graphprotocol/graph-ts/index";
 import {PriceChanged, EditionGifted} from "../../generated/ArtistEditionControlsV2/ArtistEditionControlsV2";
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 
 import {
     recordEditionGifted, recordPriceChanged,
@@ -46,13 +46,13 @@ export function handleEditionGiftedEvent(event: EditionGifted): void {
     let editionEntity = loadOrCreateV2Edition(editionNumber, event.block, contract)
     editionEntity.save()
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save()
 
     recordEditionGifted(event, tokenEntity, editionEntity)
 }
 
-export function handleEditionPriceChange(contract: KnownOrigin, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): Edition | null  {
+export function handleEditionPriceChange(contract: KnownOriginV2, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): Edition | null  {
     let editionEntity = loadOrCreateV2Edition(editionNumber, block, contract)
     editionEntity.priceInWei = priceInWei
     editionEntity.offersOnly = priceInWei.equals(MAX_UINT_256)

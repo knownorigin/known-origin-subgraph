@@ -49,7 +49,7 @@ export function handleTransfer(event: Transfer): void {
     // let contract = KnownOrigin.bind(event.address)
     //
     // // TOKEN
-    // let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    // let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract)
     //
     // // set birth on Token
     // if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {

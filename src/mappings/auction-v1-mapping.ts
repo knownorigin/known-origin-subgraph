@@ -34,7 +34,7 @@ import {
     addPrimarySaleToCollector
 } from "../services/Collector.service";
 import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
-import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateV2Token} from "../services/Token.service";
 import {
     recordPrimaryBidPlaced,
     recordPrimaryBidAccepted,
@@ -99,7 +99,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount);
 
     // Set price against token
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.primaryValueInEth = toEther(event.params._amount)
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)

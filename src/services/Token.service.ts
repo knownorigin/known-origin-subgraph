@@ -2,17 +2,48 @@ import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {
-    KnownOrigin,
-    KnownOrigin__detailsOfEditionResult,
-    KnownOrigin__tokenDataResult
-} from "../../generated/KnownOrigin/KnownOrigin";
+    KnownOriginV2,
+    KnownOriginV2__detailsOfEditionResult,
+    KnownOriginV2__tokenDataResult
+} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../KodaVersions";
 
-function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
-    let _tokenDataResult: ethereum.CallResult<KnownOrigin__tokenDataResult> = contract.try_tokenData(tokenId)
+function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
+    const tokenEntity = new Token(tokenId.toString())
+    tokenEntity.version = version
+    tokenEntity.transfers = new Array<string>()
+    tokenEntity.allOwners = new Array<string>()
+    tokenEntity.openOffer = null
+    tokenEntity.tokenEvents = new Array<string>()
+
+    // Entity fields can be set using simple assignments
+    tokenEntity.transferCount = ZERO // set up the owner count
+    tokenEntity.tokenId = tokenId
+    tokenEntity.editionNumber = ZERO
+    tokenEntity.tokenURI = ""
+    tokenEntity.birthTimestamp = ZERO
+    tokenEntity.lastTransferTimestamp = ZERO
+    tokenEntity.primaryValueInEth = ZERO_BIG_DECIMAL
+    tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
+    tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
+    tokenEntity.totalPurchaseCount = ZERO
+    tokenEntity.editionTotalAvailable = ZERO
+    tokenEntity.editionActive = true
+    tokenEntity.artistAccount = ZERO_ADDRESS
+    tokenEntity.isListed = false
+    tokenEntity.listPrice = ZERO_BIG_DECIMAL
+    tokenEntity.lister = null
+    tokenEntity.listingTimestamp = ZERO
+
+    return tokenEntity
+}
+
+
+function tryLoadTokenData(contract: KnownOriginV2, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
+    let _tokenDataResult: ethereum.CallResult<KnownOriginV2__tokenDataResult> = contract.try_tokenData(tokenId)
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
@@ -28,7 +59,7 @@ function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId:
         metaData.save()
         tokenEntity.metadata = metaData.id
 
-        let _editionDataResult: ethereum.CallResult<KnownOrigin__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
             tokenEntity.editionTotalAvailable = _editionData.value9
@@ -45,48 +76,34 @@ function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId:
     return tokenEntity;
 }
 
-export function loadOrCreateToken(tokenId: BigInt, contract: KnownOrigin, block: ethereum.Block): Token | null {
-    log.info("Calling loadOrCreateToken() call for {} ", [tokenId.toString()])
+export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token | null {
+    log.info("Calling loadOrCreateV2Token() call for {} ", [tokenId.toString()])
 
     let tokenEntity = Token.load(tokenId.toString())
 
     if (tokenEntity == null) {
-        tokenEntity = new Token(tokenId.toString())
-        tokenEntity.version = KodaVersions.KODA_V2
-        tokenEntity.transfers = new Array<string>()
-        tokenEntity.allOwners = new Array<string>()
-        tokenEntity.openOffer = null
-        tokenEntity.tokenEvents = new Array<string>()
+        // Create new instance
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2)
 
-        // Entity fields can be set using simple assignments
-        tokenEntity.transferCount = ZERO // set up the owner count
-        tokenEntity.tokenId = tokenId
-        tokenEntity.editionNumber = ZERO
-        tokenEntity.tokenURI = ""
-        tokenEntity.birthTimestamp = ZERO
-        tokenEntity.lastTransferTimestamp = ZERO
-        tokenEntity.primaryValueInEth = ZERO_BIG_DECIMAL
-        tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
-        tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
-        tokenEntity.totalPurchaseCount = ZERO
-        tokenEntity.editionTotalAvailable = ZERO
-        tokenEntity.editionActive = true
-        tokenEntity.artistAccount = ZERO_ADDRESS
-        tokenEntity.isListed = false
-        tokenEntity.listPrice = ZERO_BIG_DECIMAL
-        tokenEntity.lister = null
-        tokenEntity.listingTimestamp = ZERO
-
+        // Populate it
         tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
-        if (!tokenEntity) {
-            tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
-        }
-        if (!tokenEntity) {
-            tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
-        }
-        if (!tokenEntity) {
-            tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
-        }
+        tokenEntity.save();
+    }
+
+    return tokenEntity;
+}
+
+export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token | null {
+    log.info("Calling loadOrCreateV3Token() call for {} ", [tokenId.toString()])
+
+    let tokenEntity = Token.load(tokenId.toString())
+
+    if (tokenEntity == null) {
+        // Create new instance
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3)
+
+        // Populate it
+        tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
         tokenEntity.save();
     }
 
