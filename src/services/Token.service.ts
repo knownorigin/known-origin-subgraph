@@ -10,6 +10,7 @@ import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../KodaVersions";
+import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     const tokenEntity = new Token(tokenId.toString())
@@ -41,8 +42,7 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     return tokenEntity
 }
 
-
-function tryLoadTokenData(contract: KnownOriginV2, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
+function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
     let _tokenDataResult: ethereum.CallResult<KnownOriginV2__tokenDataResult> = contract.try_tokenData(tokenId)
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
@@ -86,14 +86,46 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
         tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2)
 
         // Populate it
-        tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
+        tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
         tokenEntity.save();
     }
 
     return tokenEntity;
 }
 
-export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token | null {
+///////////////
+// V3 tokens //
+///////////////
+
+function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
+
+    //address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
+    const editionDetails = contract.getEditionDetails(tokenId);
+    const editionNumber = contract.getEditionIdOfToken(tokenId);
+    const tokenURI = contract.tokenURI(tokenId);
+    const ownerOf = contract.ownerOf(tokenId);
+
+    tokenEntity.version = KodaVersions.KODA_V3
+    tokenEntity.editionNumber = editionNumber
+    tokenEntity.edition = editionNumber.toString()
+    tokenEntity.tokenURI = tokenURI
+
+    let collector = loadOrCreateCollector(ownerOf, block);
+    collector.save();
+    tokenEntity.currentOwner = collector.id
+
+    let metaData = constructMetaData(tokenURI);
+    metaData.save()
+    tokenEntity.metadata = metaData.id
+
+    tokenEntity.editionTotalAvailable = editionDetails.value3
+    tokenEntity.editionActive = contract.reportedEditionIds(editionNumber)
+    tokenEntity.artistAccount = editionDetails.value1
+
+    return tokenEntity;
+}
+
+export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, block: ethereum.Block): Token | null {
     log.info("Calling loadOrCreateV3Token() call for {} ", [tokenId.toString()])
 
     let tokenEntity = Token.load(tokenId.toString())
@@ -103,7 +135,7 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV2, bl
         tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3)
 
         // Populate it
-        tokenEntity = tryLoadTokenData(contract, block, tokenId, tokenEntity);
+        tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity);
         tokenEntity.save();
     }
 

@@ -109,10 +109,7 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 
 
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition | null {
-    // FIXME
-    // create edition
-
-    //address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
+    // address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     const _originalCreator = editionDetails.value0;
     const _owner = editionDetails.value1;

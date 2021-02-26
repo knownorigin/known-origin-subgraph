@@ -1,26 +1,24 @@
-import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
+import {log, store} from "@graphprotocol/graph-ts/index";
 import {Transfer, KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
-import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {
-    loadOrCreateV2Edition,
-    loadOrCreateV2EditionFromTokenId,
     loadOrCreateV3EditionFromTokenId
 } from "../services/Edition.service";
 import {addEditionToDay, recordDayTransfer} from "../services/Day.service";
-import {KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {addEditionToArtist} from "../services/Artist.service";
 import {recordEditionCreated, recordTransfer} from "../services/ActivityEvent.service";
 import {collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../services/TokenEvent.factory";
-import {loadOrCreateV2Token} from "../services/Token.service";
-import {updateTokenOfferOwner} from "../services/Offers.service";
+import {loadOrCreateV3Token} from "../services/Token.service";
+import * as KodaVersions from "../KodaVersions";
 
 
 export function handleTransfer(event: Transfer): void {
     log.info("handleTransfer() called for event address {}", [event.address.toHexString()]);
 
     if (event.params.from === ZERO_ADDRESS) {
+
         // FIXME
         // create edition
         const kodaV3Contract = KnownOriginV3.bind(event.address);
@@ -36,9 +34,7 @@ export function handleTransfer(event: Transfer): void {
 
             recordEditionCreated(event, editionEntity)
         }
-
     } else {
-
         ////////////////
         // Day Counts //
         ////////////////
@@ -90,64 +86,64 @@ export function handleTransfer(event: Transfer): void {
         ///////////////
 
         // Token Events
-        // let tokenTransferEvent = createTokenTransferEvent(event);
-        // tokenTransferEvent.save();
+        let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, event.params.tokenId, event.params.from, event.params.to);
+        tokenTransferEvent.save();
 
         /////////////////
         // Token Logic //
         /////////////////
 
-        // // TOKEN
-        // let tokenEntity = loadOrCreateV2Token(event.params.tokenId, contract, event.block)
-        //
-        // // FIXME assume this logic is valid?
-        // // set birth of the token to when the edition was created as we dont add subgraph token data until this event
-        // if (tokenEntity.birthTimestamp.equals(ZERO)) {
-        //     tokenEntity.birthTimestamp = editionEntity.createdTimestamp
+        // TOKEN
+        let tokenEntity = loadOrCreateV3Token(event.params.tokenId, kodaV3Contract, event.block)
+
+        // FIXME assume this logic is valid?
+        // set birth of the token to when the edition was created as we dont add subgraph token data until this event
+        if (tokenEntity.birthTimestamp.equals(ZERO)) {
+            tokenEntity.birthTimestamp = editionEntity.createdTimestamp
+        }
+
+        // Record transfer against token
+        let tokenTransfers = tokenEntity.transfers;
+        tokenTransfers.push(transferEvent.id);
+        tokenEntity.transfers = tokenTransfers;
+
+        // Check if the token already has the owner
+        if (!collectorInList(collector, tokenEntity.allOwners)) {
+            let allOwners = tokenEntity.allOwners;
+            allOwners.push(collector.id);
+            tokenEntity.allOwners = allOwners;
+        }
+
+        // Keep track of current owner
+        tokenEntity.currentOwner = collector.id;
+
+        // Update counters and timestamps
+        tokenEntity.lastTransferTimestamp = event.block.timestamp
+        tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+        // ////////////////////////////////////////
+        // // Secondary market - pricing listing //
+        // ////////////////////////////////////////
+
+        // Clear token price listing fields
+        tokenEntity.isListed = false;
+        tokenEntity.listPrice = ZERO_BIG_DECIMAL
+        tokenEntity.lister = null
+        tokenEntity.listingTimestamp = ZERO
+
+        // Clear price listing
+        store.remove("ListedToken", event.params.tokenId.toString());
+
+        // Persist
+        tokenEntity.save();
+
+        // Update token offer owner
+        // FIXME re-enable this
+        // if (event.params.to !== event.params.from) {
+        //     updateTokenOfferOwner(event.block, contract, event.params.tokenId, event.params.to)
         // }
-        //
-        // // Record transfer against token
-        // let tokenTransfers = tokenEntity.transfers;
-        // tokenTransfers.push(transferEvent.id);
-        // tokenEntity.transfers = tokenTransfers;
-        //
-        // // Check if the token already has the owner
-        // if (!collectorInList(collector, tokenEntity.allOwners)) {
-        //     let allOwners = tokenEntity.allOwners;
-        //     allOwners.push(collector.id);
-        //     tokenEntity.allOwners = allOwners;
-        // }
-        //
-        // // Keep track of current owner
-        // tokenEntity.currentOwner = collector.id;
-        //
-        // // Update counters and timestamps
-        // tokenEntity.lastTransferTimestamp = event.block.timestamp
-        // tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
-        //
-        // // ////////////////////////////////////////
-        // // // Secondary market - pricing listing //
-        // // ////////////////////////////////////////
-        //
-        // // Clear token price listing fields
-        // tokenEntity.isListed = false;
-        // tokenEntity.listPrice = ZERO_BIG_DECIMAL
-        // tokenEntity.lister = null
-        // tokenEntity.listingTimestamp = ZERO
-        //
-        // // Clear price listing
-        // store.remove("ListedToken", event.params.tokenId.toString());
-        //
-        // // Persist
-        // tokenEntity.save();
-        //
-        // // Update token offer owner
-        // // FIXME re-enable this
-        // // if (event.params.to !== event.params.from) {
-        // //     updateTokenOfferOwner(event.block, contract, event.params.tokenId, event.params.to)
-        // // }
-        //
-        // recordTransfer(event, tokenEntity, editionEntity, event.params.to)
+
+        recordTransfer(event, tokenEntity, editionEntity, event.params.to)
     }
 }
 

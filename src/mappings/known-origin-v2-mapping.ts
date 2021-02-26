@@ -46,6 +46,7 @@ import {
     recordTransfer,
     recordPrimarySale,
 } from "../services/ActivityEvent.service";
+import * as KodaVersions from "../KodaVersions";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -122,7 +123,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////
 
     // Token Events
-    let tokenTransferEvent = createTokenTransferEvent(event);
+    let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, event.params._tokenId, event.params._from, event.params._to);
     tokenTransferEvent.save();
 
     /////////////////
