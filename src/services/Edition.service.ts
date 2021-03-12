@@ -69,16 +69,16 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
 
-            let collaborators = editionEntity.collaborators
+            let collaborators:Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
                 editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1)
-                collaborators.push(editionEntity.optionalCommissionAccount)
+                collaborators.push(getArtistAddress(_optionalCommission.value.value1))
             }
-    
+
             editionEntity.collaborators = collaborators
 
             // Set genesis flag
