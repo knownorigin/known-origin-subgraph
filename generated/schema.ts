@@ -1372,6 +1372,15 @@ export class Edition extends Entity {
     }
   }
 
+  get collaborators(): Array<Bytes> {
+    let value = this.get("collaborators");
+    return value.toBytesArray();
+  }
+
+  set collaborators(value: Array<Bytes>) {
+    this.set("collaborators", Value.fromBytesArray(value));
+  }
+
   get priceInWei(): BigInt {
     let value = this.get("priceInWei");
     return value.toBigInt();

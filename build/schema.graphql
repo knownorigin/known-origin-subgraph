@@ -204,6 +204,7 @@ type Edition @entity {
     artistCommission: BigInt!
     optionalCommissionAccount: Bytes # address
     optionalCommissionRate: BigInt
+    collaborators: [Bytes!]!
     priceInWei: BigInt!
     offersOnly: Boolean!
     totalSupply: BigInt!
