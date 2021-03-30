@@ -1,13 +1,9 @@
 import {
     Edition,
-    ListedToken, Token
+    ListedToken
 } from "../../generated/schema";
-import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {BigInt, log} from "@graphprotocol/graph-ts/index";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
-import {constructMetaData} from "./MetaData.service";
-import {getArtistAddress} from "./AddressMapping.service";
-import {splitMimeType} from "../utils";
 
 export function loadOrCreateListedToken(
     tokenId: BigInt,
