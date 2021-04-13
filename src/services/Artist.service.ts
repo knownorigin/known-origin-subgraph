@@ -4,7 +4,7 @@ import {ONE, ZERO} from "../constants";
 import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 
-export function loadOrCreateArtist(address: Address): Artist | null {
+export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
 
     let artist: Artist | null = Artist.load(artistAddress.toHexString())
@@ -28,7 +28,7 @@ export function loadOrCreateArtist(address: Address): Artist | null {
         artist.lastEditionTimestamp = ZERO
     }
 
-    return artist;
+    return artist as Artist;
 }
 
 export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): void {

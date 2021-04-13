@@ -21,7 +21,7 @@ export function handleTransfer(event: Transfer): void {
 
         // FIXME
         // create edition
-        const kodaV3Contract = KnownOriginV3.bind(event.address);
+        let kodaV3Contract = KnownOriginV3.bind(event.address);
         let editionEntity = loadOrCreateV3EditionFromTokenId(event.params.tokenId, event.block, kodaV3Contract);
         editionEntity.save()
 
@@ -29,7 +29,7 @@ export function handleTransfer(event: Transfer): void {
         if (editionEntity.editionNmber.equals(event.params.tokenId)) {
             addEditionToDay(event, editionEntity.id);
 
-            const creator = kodaV3Contract.getCreatorOfToken(event.params.tokenId);
+            let creator = kodaV3Contract.getCreatorOfToken(event.params.tokenId);
             addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
 
             recordEditionCreated(event, editionEntity)
@@ -51,7 +51,7 @@ export function handleTransfer(event: Transfer): void {
         ///////////////////
         // Edition Logic //
         ///////////////////
-        const kodaV3Contract = KnownOriginV3.bind(event.address);
+        let kodaV3Contract = KnownOriginV3.bind(event.address);
 
         // Record transfer against the edition
         let editionEntity = loadOrCreateV3EditionFromTokenId(event.params.tokenId, event.block, kodaV3Contract);

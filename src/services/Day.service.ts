@@ -4,7 +4,7 @@ import {BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {toEther} from "../utils";
 import {dayMonthYearFromEventTimestamp} from "../DateConverter";
 
-export function loadOrCreateDay(date: string): Day | null {
+export function loadOrCreateDay(date: string): Day {
     let dayEntity: Day | null = Day.load(date)
 
     if (dayEntity === null) {
@@ -28,10 +28,10 @@ export function loadOrCreateDay(date: string): Day | null {
         dayEntity.editions = new Array<string>()
     }
 
-    return dayEntity;
+    return dayEntity as Day;
 }
 
-export function loadDayFromEvent(event: ethereum.Event): Day | null {
+export function loadDayFromEvent(event: ethereum.Event): Day {
     let dayMonthYear = dayMonthYearFromEventTimestamp(event)
 
     let month = dayMonthYear.month.toString();

@@ -6,7 +6,6 @@ import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
-import {JSONValue} from "@graphprotocol/graph-ts/index";
 import {splitMimeType} from "../utils";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as KodaVersions from "../KodaVersions";
@@ -53,13 +52,14 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
                 editionEntity.isGenesisEdition = true
             }
 
-            let metaData = constructMetaData(_editionData.value7)
+            let metaData = constructMetaData(editionNumber, _editionData.value7)
+
             if (metaData != null) {
                 metaData.save()
                 editionEntity.metadata = metaData.id
 
-                editionEntity.metadataName = metaData.name
-                editionEntity.metadataArtist = metaData.artist
+                editionEntity.metadataName = metaData.name ? metaData.name : ''
+                editionEntity.metadataArtist = metaData.artist ? metaData.artist : ''
                 editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
                 if (metaData.image_type) {
                     let types = splitMimeType(metaData.image_type)
@@ -111,11 +111,11 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition | null {
     // address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
-    const _originalCreator = editionDetails.value0;
-    const _owner = editionDetails.value1;
-    const _editionId = editionDetails.value2;
-    const _size = editionDetails.value3;
-    const _uri = editionDetails.value4;
+    let _originalCreator = editionDetails.value0;
+    let _owner = editionDetails.value1;
+    let _editionId = editionDetails.value2;
+    let _size = editionDetails.value3;
+    let _uri = editionDetails.value4;
 
     let editionEntity: Edition | null = Edition.load(_editionId.toString());
 
@@ -148,13 +148,13 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
         // Set genesis flag
         // editionEntity.isGenesisEdition = true
 
-        let metaData = constructMetaData(_uri)
+        let metaData = constructMetaData(_editionId, _uri)
         if (metaData != null) {
             metaData.save()
             editionEntity.metadata = metaData.id
 
-            editionEntity.metadataName = metaData.name
-            editionEntity.metadataArtist = metaData.artist
+            editionEntity.metadataName = metaData.name ? metaData.name : ""
+            editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
             editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
             if (metaData.image_type) {
                 let types = splitMimeType(metaData.image_type)
@@ -173,7 +173,7 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
 
 function createDefaultEdition(_editionId: BigInt, block: ethereum.Block): Edition {
     // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
-    const editionEntity = new Edition(_editionId.toString());
+    let editionEntity = new Edition(_editionId.toString());
     editionEntity.version = KodaVersions.KODA_V2
     editionEntity.editionNmber = _editionId
     editionEntity.tokenIds = new Array<BigInt>()

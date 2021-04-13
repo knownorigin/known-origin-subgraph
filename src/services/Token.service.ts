@@ -13,7 +13,7 @@ import * as KodaVersions from "../KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
-    const tokenEntity = new Token(tokenId.toString())
+    let tokenEntity = new Token(tokenId.toString())
     tokenEntity.version = version
     tokenEntity.transfers = new Array<string>()
     tokenEntity.allOwners = new Array<string>()
@@ -55,7 +55,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         collector.save();
         tokenEntity.currentOwner = collector.id
 
-        let metaData = constructMetaData(_tokenData.value3);
+        let metaData = constructMetaData(_tokenData.value0, _tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id
 
@@ -100,10 +100,10 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
 
     //address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
-    const editionDetails = contract.getEditionDetails(tokenId);
-    const editionNumber = contract.getEditionIdOfToken(tokenId);
-    const tokenURI = contract.tokenURI(tokenId);
-    const ownerOf = contract.ownerOf(tokenId);
+    let editionDetails = contract.getEditionDetails(tokenId);
+    let editionNumber = contract.getEditionIdOfToken(tokenId);
+    let tokenURI = contract.tokenURI(tokenId);
+    let ownerOf = contract.ownerOf(tokenId);
 
     tokenEntity.version = KodaVersions.KODA_V3
     tokenEntity.editionNumber = editionNumber
@@ -114,7 +114,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     collector.save();
     tokenEntity.currentOwner = collector.id
 
-    let metaData = constructMetaData(tokenURI);
+    let metaData = constructMetaData(editionNumber, tokenURI);
     metaData.save()
     tokenEntity.metadata = metaData.id
 

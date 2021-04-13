@@ -79,7 +79,7 @@ function createV2TokenTransferEvent(event: ethereum.Event, tokenId: BigInt, from
 
 function createV3TokenTransferEvent(event: ethereum.Event, tokenId: BigInt, from: Address, to: Address): TokenEvent {
     // Setup token and add history
-    const kodaV3Contract = KnownOriginV3.bind(event.address);
+    let kodaV3Contract = KnownOriginV3.bind(event.address);
 
     // Save the V2 token
     let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
@@ -303,7 +303,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
     tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    const owner = contract.try_ownerOf(event.params._tokenId);
+    let owner = contract.try_ownerOf(event.params._tokenId);
     if (!owner.reverted) {
         tokenEvent.currentOwner = loadOrCreateCollector(owner.value, event.block).id
     }

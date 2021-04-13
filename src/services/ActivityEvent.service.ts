@@ -2,23 +2,23 @@ import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../constants";
 
-const TYPE_EDITION = "EDITION";
-const TYPE_TOKEN = "TOKEN";
+let TYPE_EDITION = "EDITION";
+let TYPE_TOKEN = "TOKEN";
 
-const EDITION_CREATED = "EditionCreated"
-const EDITION_GIFTED = "EditionGifted"
-const PURCHASE = "Purchase"
-const BID_PLACED = "BidPlaced"
-const BID_ACCEPTED = "BidAccepted"
-const BID_INCREASED = "BidIncreased"
-const BID_REJECTED = "BidRejected"
-const BID_WITHDRAWN = "BidWithdrawn"
-const TOKEN_LISTED = "TokenListed"
-const TOKEN_DELISTED = "TokenDeListed"
-const TRANSFER = "Transfer"
+let EDITION_CREATED = "EditionCreated"
+let EDITION_GIFTED = "EditionGifted"
+let PURCHASE = "Purchase"
+let BID_PLACED = "BidPlaced"
+let BID_ACCEPTED = "BidAccepted"
+let BID_INCREASED = "BidIncreased"
+let BID_REJECTED = "BidRejected"
+let BID_WITHDRAWN = "BidWithdrawn"
+let TOKEN_LISTED = "TokenListed"
+let TOKEN_DELISTED = "TokenDeListed"
+let TRANSFER = "Transfer"
 
 // Artwork management actions
-const PRICE_CHANGED = "PriceChanged"
+let PRICE_CHANGED = "PriceChanged"
 
 //////////////////////////////
 // Primary sales - editions //
