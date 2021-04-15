@@ -1,5 +1,14 @@
-import {log, store} from "@graphprotocol/graph-ts/index";
-import {Transfer, KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
+import {
+    Transfer,
+    KnownOriginV3,
+    ConsecutiveTransfer,
+    AdminRoyaltiesRegistryProxySet,
+    AdminTokenUriResolverSet,
+    AdminUpdateSecondaryRoyalty,
+    AdminArtistAccountReported,
+    AdminEditionReported,
+} from "../../generated/KnownOriginV3/KnownOriginV3";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {
     loadOrCreateV3EditionFromTokenId
@@ -12,52 +21,66 @@ import {createTransferEvent} from "../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../services/Token.service";
 import * as KodaVersions from "../KodaVersions";
+import {BigInt} from "@graphprotocol/graph-ts";
+import {getPlatformConfig} from "../services/PlatformConfig.factory";
 
 
 export function handleTransfer(event: Transfer): void {
-    log.info("handleTransfer() called for event address {}", [event.address.toHexString()]);
+    log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
+    _handlerTransfer(event, event.params.from, event.params.to, event.params.tokenId);
+}
 
-    if (event.params.from === ZERO_ADDRESS) {
+export function handleConsecutiveTransfer(event: ConsecutiveTransfer): void {
+    log.info("KO V3 handleConsecutiveTransfer() called for token from {} to {}", [
+        event.params.fromTokenId.toString(),
+        event.params.toTokenId.toString(),
+    ]);
+    let fromId = event.params.fromTokenId.toI32();
+    let toId = event.params.toTokenId.toI32();
+    for (let i = fromId; i < toId; i++) {
+        _handlerTransfer(event, event.params.fromAddress, event.params.toAddress, BigInt.fromI32(i));
+    }
+}
 
-        // FIXME
+function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tokenId: BigInt): void {
+
+    let kodaV3Contract = KnownOriginV3.bind(event.address);
+
+    // From zero - token birth
+    if (from === ZERO_ADDRESS) {
+
+        // FIXME proper mappings for V3 addresses
         // create edition
-        let kodaV3Contract = KnownOriginV3.bind(event.address);
-        let editionEntity = loadOrCreateV3EditionFromTokenId(event.params.tokenId, event.block, kodaV3Contract);
+        let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
         editionEntity.save()
 
-        // We only need to record the edition being created one
-        if (editionEntity.editionNmber.equals(event.params.tokenId)) {
+        // We only need to record the edition being created once
+        if (editionEntity.editionNmber.equals(tokenId)) {
             addEditionToDay(event, editionEntity.id);
 
-            let creator = kodaV3Contract.getCreatorOfToken(event.params.tokenId);
+            let creator = kodaV3Contract.getCreatorOfToken(tokenId);
             addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
 
             recordEditionCreated(event, editionEntity)
         }
+
     } else {
-        ////////////////
-        // Day Counts //
-        ////////////////
+        // Day Counts
 
         recordDayTransfer(event);
 
-        /////////////////////
-        // Collector Logic //
-        /////////////////////
+        // Collector Logic
 
-        let collector = loadOrCreateCollector(event.params.to, event.block);
+        let collector = loadOrCreateCollector(to, event.block);
         collector.save();
 
-        ///////////////////
-        // Edition Logic //
-        ///////////////////
-        let kodaV3Contract = KnownOriginV3.bind(event.address);
+        // Edition Logic
 
         // Record transfer against the edition
-        let editionEntity = loadOrCreateV3EditionFromTokenId(event.params.tokenId, event.block, kodaV3Contract);
+        let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
 
         // Transfer Events
-        let transferEvent = createTransferEvent(event, event.params.tokenId, event.params.from, event.params.to, editionEntity);
+        let transferEvent = createTransferEvent(event, tokenId, from, to, editionEntity);
         transferEvent.save();
 
         // Set Transfers on edition
@@ -81,22 +104,17 @@ export function handleTransfer(event: Transfer): void {
 
         editionEntity.save();
 
-        ///////////////
-        // Transfers //
-        ///////////////
+        // Transfers
 
         // Token Events
-        let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, event.params.tokenId, event.params.from, event.params.to);
+        let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, tokenId, from, to);
         tokenTransferEvent.save();
 
-        /////////////////
-        // Token Logic //
-        /////////////////
+        // Token Logic
 
         // TOKEN
-        let tokenEntity = loadOrCreateV3Token(event.params.tokenId, kodaV3Contract, event.block)
+        let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
 
-        // FIXME assume this logic is valid?
         // set birth of the token to when the edition was created as we dont add subgraph token data until this event
         if (tokenEntity.birthTimestamp.equals(ZERO)) {
             tokenEntity.birthTimestamp = editionEntity.createdTimestamp
@@ -121,9 +139,7 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.lastTransferTimestamp = event.block.timestamp
         tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
 
-        // ////////////////////////////////////////
-        // // Secondary market - pricing listing //
-        // ////////////////////////////////////////
+        // Secondary market - pricing listing
 
         // Clear token price listing fields
         tokenEntity.isListed = false;
@@ -132,19 +148,43 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.listingTimestamp = ZERO
 
         // Clear price listing
-        store.remove("ListedToken", event.params.tokenId.toString());
+        store.remove("ListedToken", tokenId.toString());
 
         // Persist
         tokenEntity.save();
 
         // Update token offer owner
         // FIXME re-enable this
-        // if (event.params.to !== event.params.from) {
-        //     updateTokenOfferOwner(event.block, contract, event.params.tokenId, event.params.to)
+        // if (to !== from) {
+        //     updateTokenOfferOwner(event.block, contract, tokenId, to)
         // }
 
-        recordTransfer(event, tokenEntity, editionEntity, event.params.to)
+        recordTransfer(event, tokenEntity, editionEntity, to)
     }
 }
 
+export function handleAdminRoyaltiesRegistryProxySet(event: AdminRoyaltiesRegistryProxySet): void {
+    let marketConfig = getPlatformConfig()
+    marketConfig.royaltiesRegistry = event.params._royaltiesRegistryProxy;
+    marketConfig.save();
+}
 
+export function handleAdminTokenUriResolverSet(event: AdminTokenUriResolverSet): void {
+    let marketConfig = getPlatformConfig()
+    marketConfig.tokenUriResolver = event.params._tokenUriResolver;
+    marketConfig.save();
+}
+
+export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
+    let marketConfig = getPlatformConfig()
+    marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
+    marketConfig.save();
+}
+
+export function handleAdminArtistAccountReported(event: AdminArtistAccountReported): void {
+    // FIXME finds all editions from the artist - disable them
+}
+
+export function handleAdminEditionReported(event: AdminEditionReported): void {
+    // FIXME find edition and disable
+}

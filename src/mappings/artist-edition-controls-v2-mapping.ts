@@ -52,7 +52,7 @@ export function handleEditionGiftedEvent(event: EditionGifted): void {
     recordEditionGifted(event, tokenEntity, editionEntity)
 }
 
-export function handleEditionPriceChange(contract: KnownOriginV2, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): Edition | null  {
+export function handleEditionPriceChange(contract: KnownOriginV2, editionNumber: BigInt, block: ethereum.Block, priceInWei: BigInt): Edition {
     let editionEntity = loadOrCreateV2Edition(editionNumber, block, contract)
     editionEntity.priceInWei = priceInWei
     editionEntity.offersOnly = priceInWei.equals(MAX_UINT_256)

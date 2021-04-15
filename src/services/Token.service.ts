@@ -13,6 +13,8 @@ import * as KodaVersions from "../KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
+    log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])
+
     let tokenEntity = new Token(tokenId.toString())
     tokenEntity.version = version
     tokenEntity.transfers = new Array<string>()
@@ -43,6 +45,8 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
 }
 
 function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
+    log.info("Calling attemptToLoadV2TokenData() call for {} ", [tokenId.toString()])
+
     let _tokenDataResult: ethereum.CallResult<KnownOriginV2__tokenDataResult> = contract.try_tokenData(tokenId)
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
@@ -76,7 +80,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
     return tokenEntity;
 }
 
-export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token | null {
+export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token {
     log.info("Calling loadOrCreateV2Token() call for {} ", [tokenId.toString()])
 
     let tokenEntity = Token.load(tokenId.toString())
@@ -89,15 +93,15 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
         tokenEntity.save();
     }
-
-    return tokenEntity;
+    return tokenEntity as Token;
 }
 
 ///////////////
 // V3 tokens //
 ///////////////
 
-function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token | null): Token | null {
+function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token): Token {
+    log.info("Calling attemptToLoadV3TokenData() call for {} ", [tokenId.toString()])
 
     //address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
     let editionDetails = contract.getEditionDetails(tokenId);
@@ -125,7 +129,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     return tokenEntity;
 }
 
-export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, block: ethereum.Block): Token | null {
+export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, block: ethereum.Block): Token {
     log.info("Calling loadOrCreateV3Token() call for {} ", [tokenId.toString()])
 
     let tokenEntity = Token.load(tokenId.toString())
@@ -135,9 +139,9 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
         tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3)
 
         // Populate it
-        tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity);
+        tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity as Token);
         tokenEntity.save();
     }
 
-    return tokenEntity;
+    return tokenEntity as Token;
 }

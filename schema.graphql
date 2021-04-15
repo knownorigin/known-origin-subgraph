@@ -100,6 +100,26 @@ type Day @entity {
 ## Main entities ##
 ###################
 
+# FIXME Only for V3 atm
+type PlatformConfig @entity {
+    id: ID!
+    # NFT
+    royaltiesRegistry: Bytes # address
+    tokenUriResolver: Bytes # address
+    # Marketplace
+    modulo: BigInt
+    primarySaleCommission: BigInt
+    secondarySaleRoyalty: BigInt
+    marketplaceSecondarySaleRoyalty: BigInt
+    minBidAmount: BigInt
+}
+
+type AccessControls @entity {
+    id: ID!
+    merkleProofRoot: String
+    merkleProofIpfsHash: String
+}
+
 # A token and its details
 type Token @entity {
     id: ID!
@@ -246,7 +266,6 @@ type Edition @entity {
 # A token/editions and its meta data
 type MetaData @entity {
     id: ID!
-    version: BigInt! # KODA 2 or 3
     name: String
     description: String
 

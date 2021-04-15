@@ -11,9 +11,6 @@ import * as KodaVersions from "../KodaVersions";
 export let EDITION_TYPE = "Edition"
 export let TOKEN_TYPE = "Token"
 
-export let V1_CONTRACT = "1";
-export let V2_CONTRACT = "2";
-
 export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
                                    contract: KnownOriginV2,

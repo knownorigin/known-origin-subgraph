@@ -69,7 +69,7 @@ export function handleEditionCreated(event: EditionCreated): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-    log.info("handleTransfer() called for event address {}", [event.address.toHexString()]);
+    log.info("KO V2 handleTransfer() called for event address {}", [event.params._tokenId.toString()]);
 
     let contract = KnownOriginV2.bind(event.address)
 
@@ -123,7 +123,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////
 
     // Token Events
-    let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, event.params._tokenId, event.params._from, event.params._to);
+    let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V2, event.params._tokenId, event.params._from, event.params._to);
     tokenTransferEvent.save();
 
     /////////////////
@@ -183,6 +183,8 @@ export function handleTransfer(event: Transfer): void {
 
 // Direct primary "Buy it now" purchase form the website
 export function handlePurchase(event: Purchase): void {
+    log.info("KO V2 handlePurchase() called for event edition {}", [event.params._editionNumber.toHexString()]);
+
     let contract = KnownOriginV2.bind(event.address)
 
     // Create token

@@ -4,8 +4,6 @@
   "koda-v1-startBlock": 2054121,
   "koda-v2-address": "0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e",
   "koda-v2-startBlock": 2932902,
-  "koda-v3-address": "0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e",
-  "koda-v3-startBlock": 2932902,
   "auction-v1-address": "0xC68373E4BCCA5630A82b35b989e9F4Adb1d375c8",
   "auction-v1-startBlock": 3211004,
   "auction-v2-address": "0xb05DA17AA04ac6f57821513572fb7760a203cd98",
@@ -18,5 +16,12 @@
   "artist-burner-address": "0x9dd4cf0a7f1c195cc42c3bfaaa92c70c039058e9",
   "artist-burner-startBlock": 6514505,
   "artist-edition-controls-v2-address": "0xC2d4Df7b146a5e5898e66DAa759213882e06dE59",
-  "artist-edition-controls-v2-startBlock": 3919265
+  "artist-edition-controls-v2-startBlock": 3919265,
+
+  "koda-v3-address": "0x9028b16494a9363F3EAaf381a6Fde67296abc68C",
+  "koda-v3-startBlock": 8332450,
+  "koda-v3-marketplace-address": "0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A",
+  "koda-v3-marketplace-startBlock": 8407084,
+  "accesscontrols-v3-address": "0x224aab6dbc8d8ee00f98e070dfed92b946208c6d",
+  "accesscontrols-v3-startBlock": 8331391
 }

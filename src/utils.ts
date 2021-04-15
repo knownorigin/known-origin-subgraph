@@ -21,3 +21,7 @@ export function splitMimeType(image_type: String): ImageType {
     }
     return types
 }
+
+export function toBigInt(integer: i32): BigInt {
+    return BigInt.fromI32(integer)
+}

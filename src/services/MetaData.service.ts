@@ -18,23 +18,25 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
         let result: Result<JSONValue, boolean> = json.try_fromBytes(data as Bytes)
 
         if (result.isOk) {
-
             // Do something with the JSON value
             let jsonData = result.value;
 
             if (isObject(jsonData) && jsonData.toObject().isSet('name')) {
+                // @ts-ignore
                 metaData.name = jsonData.toObject().get('name').toString()
             } else {
                 metaData.name = ""
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('description')) {
+                // @ts-ignore
                 metaData.description = jsonData.toObject().get('description').toString()
             } else {
                 metaData.description = ""
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('image')) {
+                // @ts-ignore
                 metaData.image = jsonData.toObject().get('image').toString()
             } else {
                 metaData.image = ""
@@ -63,7 +65,6 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
-
                 let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
 
                 ///////////////////////////////
@@ -71,12 +72,17 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 ///////////////////////////////
 
                 if (isObject(attributes) && attributes.toObject().isSet('scarcity')) {
+                    // @ts-ignore
                     metaData.scarcity = attributes.toObject().get('scarcity').toString()
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('artist')) {
+                    // @ts-ignore
                     metaData.artist = attributes.toObject().get('artist').toString()
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet("tags")) {
+                    // @ts-ignore
                     let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
                     let tags: Array<string> = rawTags.map<string>((value, i, values) => {
                         return value.toString();
@@ -97,6 +103,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
                     let assetSizeInBytes: JSONValue | null = attributes.toObject().get('asset_size_in_bytes');
                     if (assetSizeInBytes) {
@@ -120,6 +127,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
                     let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
                     if (coverImageType) {
@@ -129,6 +137,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
                     let coverImageSizeInBytes: JSONValue | null = attributes.toObject().get('cover_image_size_in_bytes');
                     if (coverImageSizeInBytes) {
@@ -151,7 +160,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     return metaData;
 }
 
-export function constructMetaData(editionNumber: BigInt, tokenURI: string): MetaData | null {
+export function constructMetaData(editionNumber: BigInt, tokenURI: string): MetaData {
     log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
@@ -168,6 +177,12 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
             ipfsHash = override;
         }
 
+        // Check IPFS length is valid, some rinkeby IPFS hashes are bust so we need to handle this special case atm
+        if (!ipfsHash || ipfsHash.length < 46) {
+            log.error("Skipping invalid IPFS hash lookup", []);
+            return new MetaData("invalid-ipfs-hash-" + ipfsHash);
+        }
+
         let metaData: MetaData | null = loadIpfsData(tokenURI, ipfsHash);
 
         let maxTries = 1;
@@ -178,7 +193,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
         }
 
         if (metaData) {
-            return metaData;
+            return metaData as MetaData;
         }
 
         log.error("FAILED IPFS token URI load {}", [tokenURI]);
@@ -186,7 +201,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
-    return null;
+    return new MetaData("failed-ipfs-hash");
 }
 
 function isObject(jsonData: JSONValue): boolean {

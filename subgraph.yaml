@@ -47,7 +47,7 @@ dataSources:
         - name: KnownOriginV2
           file: ./abis/KnownOriginV2.json
       eventHandlers:
-          # All transfers to/from regardless of on KO or not
+        # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
 
@@ -63,29 +63,6 @@ dataSources:
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
       file: ./src/mappings/known-origin-v2-mapping.ts
-
-  ## KODA V3 (Next Gen)
-  - kind: ethereum/contract
-    name: KnownOriginV3
-    network: rinkeby
-    source:
-      address: '0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e'
-      abi: KnownOriginV3
-      startBlock: 2932902
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-      abis:
-        - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
-      eventHandlers:
-          # All transfers to/from regardless of on KO or not
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-      file: ./src/mappings/known-origin-v3-mapping.ts
 
   ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
@@ -325,3 +302,160 @@ dataSources:
         - event: PriceChanged(indexed uint256,indexed address,uint256)
           handler: handlePriceChangedEvent
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
+
+
+  ## KODA V3 (Next Gen)
+  - kind: ethereum/contract
+    name: KnownOriginV3
+    network: rinkeby
+    source:
+      address: '0x9028b16494a9363F3EAaf381a6Fde67296abc68C'
+      abi: KnownOriginV3
+      startBlock: 8332450
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+        - ConsecutiveTransfer
+        - AdminRoyaltiesRegistryProxySet
+        - AdminTokenUriResolverSet
+        - AdminUpdateSecondaryRoyalty
+        - AdminArtistAccountReported
+        - AdminEditionReported
+      abis:
+        - name: KnownOriginV3
+          file: ./abis/KnownOriginV3.json
+      eventHandlers:
+        # All transfers to/from regardless of on KO or not
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+
+        - event: ConsecutiveTransfer(indexed uint256,uint256,indexed address,indexed address)
+          handler: handleConsecutiveTransfer
+
+        # Marketplace/KODA V3 Config
+        - event: AdminRoyaltiesRegistryProxySet(indexed address)
+          handler: handleAdminRoyaltiesRegistryProxySet
+
+        - event: AdminTokenUriResolverSet(indexed address)
+          handler: handleAdminTokenUriResolverSet
+
+        - event: AdminUpdateSecondaryRoyalty(uint256)
+          handler: handleAdminUpdateSecondaryRoyalty
+
+        - event: AdminArtistAccountReported(indexed address,indexed bool)
+          handler: handleAdminArtistAccountReported
+
+        - event: AdminEditionReported(indexed uint256,indexed bool)
+          handler: handleAdminEditionReported
+      file: ./src/mappings/known-origin-v3-mapping.ts
+
+        # medium priority
+        # (composable)
+        # ReceivedERC20
+        # ReceivedERC20ForEdition
+        # TransferERC20
+        # ContractWhitelisted
+        # WhitelistRemoved
+        # MaxERC20sPerNFTUpdated
+        # ReceivedRoyalties
+
+        # (low) priority
+        # ApprovalForAll
+        # Approval
+        # AdditionalEditionUnlockableSet
+      # AdditionalEditionMetaDataSet
+
+
+  ## KOAccessControls for KODA V3 (Next Gen)
+  - kind: ethereum/contract
+    name: KOAccessControls
+    network: rinkeby
+    source:
+      address: '0x224aab6dbc8d8ee00f98e070dfed92b946208c6d'
+      abi: KOAccessControls
+      startBlock: 8331391
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - AdminUpdateArtistAccessMerkleRoot
+        - AdminUpdateArtistAccessMerkleRootIpfsHash
+      abis:
+        - name: KOAccessControls
+          file: ./abis/KOAccessControls.json
+      eventHandlers:
+        - event: AdminUpdateArtistAccessMerkleRoot(bytes32)
+          handler: handleAdminUpdateArtistAccessMerkleRoot
+
+        - event: AdminUpdateArtistAccessMerkleRootIpfsHash(string)
+          handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
+      file: ./src/mappings/accesscontrols-v3-mapping.ts
+
+  # Token Marketplace V3 (primary & secondary for V3 NFT)
+#  - kind: ethereum/contract
+#    name: KODAV3Marketplace
+#    network: rinkeby
+#    source:
+#      address: '0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A'
+#      abi: KODAV3Marketplace
+#      startBlock: 8407084
+#    mapping:
+#      kind: ethereum/events
+#      apiVersion: 0.0.4
+#      language: wasm/assemblyscript
+#      entities:
+#        - AdminUpdateSecondaryRoyalty
+#        - AdminUpdatePlatformPrimarySaleCommission
+#        - AdminUpdateSecondarySaleCommission
+#        - AdminUpdateModulo
+#        - AdminUpdateMinBidAmount
+#      abis:
+#        - name: KODAV3Marketplace
+#          file: ./abis/KODAV3Marketplace.json
+#        - name: KnownOriginV3
+#          file: ./abis/KnownOriginV3.json
+#      eventHandlers:
+#        # Admin handlers
+#        - event: AdminUpdateSecondaryRoyalty(uint256)
+#          handler: handleAdminUpdateSecondaryRoyalty
+#
+#        - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
+#          handler: handleAdminUpdatePlatformPrimarySaleCommission
+#
+#        - event: AdminUpdateSecondarySaleCommission(uint256)
+#          handler: handleAdminUpdateSecondarySaleCommission
+#
+#        - event: AdminUpdateModulo(uint256)
+#          handler: handleAdminUpdateModulo
+#
+#        - event: AdminUpdateMinBidAmount(uint256)
+#          handler: handleAdminUpdateMinBidAmount
+#      file: ./src/mappings/known-origin-v3-marketplace-mapping.ts
+#
+#        # TODO events to map Marketplace
+#        # (high)
+#        # EditionListed
+#        # EditionPriceChanged
+#        # EditionDeListed
+#        # EditionPurchased
+#        #
+#        # EditionAcceptingOffer
+#        # EditionBidPlaced
+#        # EditionBidWithdrawn
+#        # EditionBidAccepted
+#        # EditionBidRejected
+#        #
+#        # EditionSteppedSaleListed
+#        # EditionSteppedSaleBuy
+#        #
+#        # TokenListed
+#        # TokenDeListed
+#        # TokenPurchased
+#        # TokenBidPlaced
+#        # TokenBidAccepted
+#        # TokenBidRejected
+#        # TokenBidWithdrawn

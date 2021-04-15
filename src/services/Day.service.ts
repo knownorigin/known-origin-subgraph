@@ -5,7 +5,7 @@ import {toEther} from "../utils";
 import {dayMonthYearFromEventTimestamp} from "../DateConverter";
 
 export function loadOrCreateDay(date: string): Day {
-    let dayEntity: Day | null = Day.load(date)
+    let dayEntity = Day.load(date)
 
     if (dayEntity === null) {
         dayEntity = new Day(date)

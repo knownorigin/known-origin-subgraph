@@ -10,11 +10,11 @@ import {splitMimeType} from "../utils";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as KodaVersions from "../KodaVersions";
 
-export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition | null {
-    let editionEntity: Edition | null = Edition.load(editionNumber.toString());
+export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition {
+    let editionEntity = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(editionNumber, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V2, editionNumber, block);
 
         let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
@@ -90,14 +90,14 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
         artist.save()
     }
 
-    return editionEntity;
+    return editionEntity as Edition;
 }
 
 export function loadV2Edition(editionNumber: BigInt): Edition | null {
     return Edition.load(editionNumber.toString())
 }
 
-export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition | null {
+export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition {
     log.info("loadOrCreateV2EditionFromTokenId() called for tokenId [{}]", [tokenId.toString()]);
     let _editionNumber = contract.editionOfTokenId(tokenId);
     return loadOrCreateV2Edition(_editionNumber, block, contract);
@@ -108,7 +108,9 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 //////////////
 
 
-export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition | null {
+export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
+    log.info("Calling loadOrCreateV3EditionFromTokenId() call for {} ", [tokenId.toString()])
+
     // address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     let _originalCreator = editionDetails.value0;
@@ -117,16 +119,15 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
     let _size = editionDetails.value3;
     let _uri = editionDetails.value4;
 
-    let editionEntity: Edition | null = Edition.load(_editionId.toString());
-
+    let editionEntity = Edition.load(_editionId.toString());
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(_editionId, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block);
 
         editionEntity.version = KodaVersions.KODA_V3
         editionEntity.editionType = ONE
         editionEntity.startDate = ZERO
         editionEntity.endDate = MAX_UINT_256
-        editionEntity.artistCommission = kodaV3Contract.modulo().minus(kodaV3Contract.platformPrimarySaleCommission())
+        editionEntity.artistCommission = BigInt.fromI32(85) // TODO hard coded for now, is there a better way?
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
@@ -168,13 +169,13 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
         }
     }
 
-    return editionEntity;
+    return editionEntity as Edition;
 }
 
-function createDefaultEdition(_editionId: BigInt, block: ethereum.Block): Edition {
+function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block): Edition {
     // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
     let editionEntity = new Edition(_editionId.toString());
-    editionEntity.version = KodaVersions.KODA_V2
+    editionEntity.version = version
     editionEntity.editionNmber = _editionId
     editionEntity.tokenIds = new Array<BigInt>()
     editionEntity.auctionEnabled = false

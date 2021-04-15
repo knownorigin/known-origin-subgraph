@@ -7,23 +7,17 @@ import {getArtistAddress} from "./AddressMapping.service";
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
 
-    let artist: Artist | null = Artist.load(artistAddress.toHexString())
+    let artist = Artist.load(artistAddress.toHexString())
 
     if (artist === null) {
         artist = new Artist(artistAddress.toHexString())
-
         artist.address = artistAddress
-
         artist.editionsCount = ZERO
-
         artist.issuedCount = ZERO
         artist.salesCount = ZERO
-
         artist.supply = ZERO
         artist.totalValueInEth = new BigDecimal(ZERO)
-
         artist.highestSaleValueInEth = new BigDecimal(ZERO)
-
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
     }

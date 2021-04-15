@@ -26,24 +26,22 @@ let PRICE_CHANGED = "PriceChanged"
 
 // ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
 
-export function recordEditionCreated(rawEvent: ethereum.Event, edition: Edition | null): void {
+export function recordEditionCreated(rawEvent: ethereum.Event, edition: Edition): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EDITION_CREATED, rawEvent, edition, null, null)
         event.save()
     }
 }
 
-export function recordPrimarySale(rawEvent: ethereum.Event, edition: Edition | null, token: Token | null, value: BigInt, buyer: Address): void {
+export function recordPrimarySale(rawEvent: ethereum.Event, edition: Edition, token: Token, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, PURCHASE, rawEvent, edition, value, buyer)
         event.token = token.id
@@ -51,24 +49,22 @@ export function recordPrimarySale(rawEvent: ethereum.Event, edition: Edition | n
     }
 }
 
-export function recordPrimaryBidPlaced(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordPrimaryBidPlaced(rawEvent: ethereum.Event, edition: Edition, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, BID_PLACED, rawEvent, edition, value, buyer)
         event.save()
     }
 }
 
-export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edition | null, token: Token | null, value: BigInt, buyer: Address): void {
+export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edition, token: Token, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, BID_ACCEPTED, rawEvent, edition, value, buyer)
         event.token = token.id
@@ -76,36 +72,33 @@ export function recordPrimaryBidAccepted(rawEvent: ethereum.Event, edition: Edit
     }
 }
 
-export function recordPrimaryBidIncreased(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordPrimaryBidIncreased(rawEvent: ethereum.Event, edition: Edition, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, BID_INCREASED, rawEvent, edition, value, buyer)
         event.save()
     }
 }
 
-export function recordPrimaryBidRejected(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordPrimaryBidRejected(rawEvent: ethereum.Event, edition: Edition, value: BigInt, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, BID_REJECTED, rawEvent, edition, value, buyer)
         event.save()
     }
 }
 
-export function recordPrimaryBidWithdrawn(rawEvent: ethereum.Event, edition: Edition | null, buyer: Address): void {
+export function recordPrimaryBidWithdrawn(rawEvent: ethereum.Event, edition: Edition, buyer: Address): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, BID_WITHDRAWN, rawEvent, edition, null, buyer)
         event.save()
@@ -116,7 +109,7 @@ function createEditionEvent(
     id: string,
     eventType: string,
     rawEvent: ethereum.Event,
-    edition: Edition | null,
+    edition: Edition,
     value: BigInt | null,
     buyer: Address | null
 ): ActivityEvent {
@@ -139,7 +132,7 @@ function createEditionEvent(
     return event
 }
 
-function editionActivityId(edition: Edition | null, rawEvent: ethereum.Event): string {
+function editionActivityId(edition: Edition, rawEvent: ethereum.Event): string {
     return "edition"
         .concat("-")
         .concat(edition.id)
@@ -155,96 +148,88 @@ function editionActivityId(edition: Edition | null, rawEvent: ethereum.Event): s
 
 // ['Purchase', 'BidRejected', 'BidPlaced', 'BidAccepted', ''BidWithdrawn']
 
-export function recordSecondarySale(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, buyer: Address, seller: Address): void {
+export function recordSecondarySale(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, PURCHASE, rawEvent, edition, token, value, buyer, seller)
         event.save()
     }
 }
 
-export function recordSecondaryBidRejected(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordSecondaryBidRejected(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, BID_REJECTED, rawEvent, edition, token, value, buyer, null)
         event.save()
     }
 }
 
-export function recordSecondaryBidPlaced(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, buyer: Address): void {
+export function recordSecondaryBidPlaced(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, BID_PLACED, rawEvent, edition, token, value, buyer, null)
         event.save()
     }
 }
 
-export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, buyer: Address, seller:Address): void {
+export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller:Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, BID_ACCEPTED, rawEvent, edition, token, value, buyer, seller)
         event.save()
     }
 }
 
-export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, owner: Address): void {
+export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, TOKEN_LISTED, rawEvent, edition, token, value, owner, null)
         event.save()
     }
 }
 
-export function recordSecondaryTokenPurchased(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, value: BigInt, owner: Address): void {
+export function recordSecondaryTokenPurchased(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, PURCHASE, rawEvent, edition, token, value, owner, null)
         event.save()
     }
 }
 
-export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token | null, owner: Address, edition: Edition | null): void {
+export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token, owner: Address, edition: Edition): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, TOKEN_DELISTED, rawEvent, edition, token, null, owner, null)
         event.save()
     }
 }
 
-export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, buyer: Address): void {
+export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Token, edition: Edition, buyer: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, BID_WITHDRAWN, rawEvent, edition, token, null, buyer, null)
         event.save()
@@ -255,8 +240,8 @@ function createTokenEvent(
     id: string,
     eventType: string,
     rawEvent: ethereum.Event,
-    edition: Edition | null,
-    token: Token | null,
+    edition: Edition,
+    token: Token,
     value: BigInt | null,
     buyer: Address | null,
     seller: Address | null,
@@ -282,7 +267,7 @@ function createTokenEvent(
     return event
 }
 
-function tokenActivityId(token: Token | null, rawEvent: ethereum.Event): string {
+function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
     return "token"
         .concat("-")
         .concat(token.id)
@@ -298,36 +283,33 @@ function tokenActivityId(token: Token | null, rawEvent: ethereum.Event): string 
 
 // ['Transfer'', 'EditionGifted', 'PriceChanged']
 
-export function recordTransfer(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null, to: Address): void {
+export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, to: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, TRANSFER, rawEvent, edition, token, null, to, null)
         event.save()
     }
 }
 
-export function recordEditionGifted(rawEvent: ethereum.Event, token: Token | null, edition: Edition | null): void {
+export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
 
     let id: string = tokenActivityId(token, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
         event.save()
     }
 }
 
-export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition | null, value: BigInt): void {
+export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, value: BigInt): void {
 
     let id: string = editionActivityId(edition, rawEvent);
 
-    let event: ActivityEvent | null = ActivityEvent.load(id)
-
+    let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, PRICE_CHANGED, rawEvent, edition, value, null)
         event.save()

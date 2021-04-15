@@ -1,8 +1,6 @@
 import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {Artist, AuctionEvent, Edition} from "../../generated/schema";
-import {ONE, ZERO} from "../constants";
+import {AuctionEvent, Edition} from "../../generated/schema";
 import {toEther} from "../utils";
-import {loadV2Edition, loadOrCreateV2Edition} from "./Edition.service";
 import {
     BidAccepted,
     BidIncreased,
@@ -14,7 +12,7 @@ import {
 export function createBidPlacedEvent(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    edition: Edition | null,
+    edition: Edition,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
@@ -37,7 +35,7 @@ export function createBidPlacedEvent(
 export function createBidAccepted(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    edition: Edition | null,
+    edition: Edition,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
@@ -60,7 +58,7 @@ export function createBidAccepted(
 export function createBidRejected(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    edition: Edition | null,
+    edition: Edition,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {
@@ -83,7 +81,7 @@ export function createBidRejected(
 export function createBidWithdrawn(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    edition: Edition | null,
+    edition: Edition,
     bidder: Address
 ): AuctionEvent {
     let timestamp = block.timestamp
@@ -105,7 +103,7 @@ export function createBidWithdrawn(
 export function createBidIncreased(
     block: ethereum.Block,
     transaction: ethereum.Transaction,
-    edition: Edition | null,
+    edition: Edition,
     bidder: Address,
     ethValue: BigInt
 ): AuctionEvent {

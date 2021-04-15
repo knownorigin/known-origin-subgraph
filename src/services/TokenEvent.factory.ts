@@ -108,7 +108,7 @@ export function createTokenTransferEvent(event: ethereum.Event, version: BigInt,
         log.debug("Handle V3 token event [{}]", [tokenId.toString()]);
         return createV3TokenTransferEvent(event, tokenId, from, to);
     }
-    log.debug("Handle V3 token event [{}]", [tokenId.toString()]);
+    log.debug("Handle V2 token event [{}]", [tokenId.toString()]);
     return createV2TokenTransferEvent(event, tokenId, from, to);
 }
 
@@ -129,6 +129,7 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = KodaVersions.KODA_V2
 
     // Setup token and add history
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -168,6 +169,7 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = KodaVersions.KODA_V2
 
     // Setup token and add history
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -207,6 +209,7 @@ export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = KodaVersions.KODA_V2
 
     // Setup token and add history
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -247,6 +250,7 @@ export function createBidRejectedEvent(event: BidRejected): TokenEvent {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = KodaVersions.KODA_V2
 
     // Setup token and add history
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -286,6 +290,7 @@ export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = KodaVersions.KODA_V2
 
     // Setup token and add history
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)

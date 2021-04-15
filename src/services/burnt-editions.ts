@@ -1,5 +1,7 @@
 import {BigInt} from "@graphprotocol/graph-ts/index";
 
+// A list of manually burnt editions before the new burner contract was deployed and had proper events
+// This hack is to speed up subgraph sync'ing so we dont have to use call handler mappings
 let burntEditions: Array<number> = [101800, 102000, 102875, 103400, 103525, 103600, 104125, 104525, 104950, 105325,
     105475, 105825, 105850, 106300, 106700, 107000, 107425, 107800, 108300, 108800, 109150, 109525, 110000, 110500,
     110800, 111375, 111825, 112300, 112325, 112500, 112850, 113125, 113450, 114000, 114500, 115100, 115325,

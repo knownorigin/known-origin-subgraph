@@ -5,7 +5,7 @@ import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
 export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector {
-    let collectorEntity: Collector | null = Collector.load(address.toHexString());
+    let collectorEntity = Collector.load(address.toHexString());
     if (collectorEntity == null) {
         collectorEntity = new Collector(address.toHexString());
         collectorEntity.address = address;

@@ -23,4 +23,7 @@ yarn-error.log*
 package-lock.json
 /graph-known-origin.iml
 node_modules*
+generated
 generated/*
+build
+build/*

@@ -10,6 +10,7 @@ import {
 import {
     TokenOffer
 } from "../../generated/schema";
+import * as KodaVersions from "../KodaVersions";
 
 import {
     loadOrCreateV2Edition
@@ -47,7 +48,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
-import {clearTokenOffer, recordTokenOffer, V1_CONTRACT} from "../services/Offers.service";
+import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
@@ -57,6 +58,7 @@ import {
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
 import {ONE} from "../constants";
+import {MARKETPLACE_V1} from "../KodaVersions";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -105,6 +107,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
 
     let tokenOffer = new TokenOffer(id);
+    tokenOffer.version = KodaVersions.KODA_V2
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.currentTopBidder = event.params._bidder
@@ -128,7 +131,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, V1_CONTRACT);
+    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, MARKETPLACE_V1);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
