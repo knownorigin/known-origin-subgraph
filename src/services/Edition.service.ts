@@ -6,6 +6,7 @@ import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
+import {Bytes, JSONValue} from "@graphprotocol/graph-ts/index";
 import {splitMimeType} from "../utils";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
@@ -25,6 +26,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
         editionEntity.allOwners = new Array<string>()
         editionEntity.currentOwners = new Array<string>()
         editionEntity.primaryOwners = new Array<string>()
+        editionEntity.collaborators = new Array<Bytes>()
         editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
         editionEntity.totalSold = ZERO
         editionEntity.createdTimestamp = block.timestamp
@@ -67,11 +69,17 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
 
+            let collaborators: Array<Bytes> = editionEntity.collaborators
+            collaborators.push(editionEntity.artistAccount)
+
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
                 editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1)
+                collaborators.push(getArtistAddress(_optionalCommission.value.value1))
             }
+
+            editionEntity.collaborators = collaborators
 
             // Set genesis flag
             let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
