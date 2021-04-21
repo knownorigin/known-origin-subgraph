@@ -22,7 +22,7 @@ function tryLoadTokenData(contract: KnownOrigin, block: ethereum.Block, tokenId:
         collector.save();
         tokenEntity.currentOwner = collector.id
 
-        let metaData = constructMetaData(_tokenData.value3);
+        let metaData = constructMetaData(_tokenData.value0, _tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id
 

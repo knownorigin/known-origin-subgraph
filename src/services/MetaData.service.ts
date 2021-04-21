@@ -2,6 +2,13 @@ import {Bytes, ipfs, json, JSONValue, JSONValueKind} from "@graphprotocol/graph-
 import {MetaData} from "../../generated/schema";
 import {BigInt, log, Result} from "@graphprotocol/graph-ts/index";
 
+
+// Static list of manual overrides
+// Historic legacy minting errors which have since been fixed and are not indexed due to slowness of indexing speed when crawling .call() methods
+const MAPPING_OVERRIDES = new Map<String, String>();
+// Edition ID to IPFS hash
+MAPPING_OVERRIDES.set("23000", "QmQfekqvArSBwqUZisArmXpsZDb9cqyauHkyJBh141sR8Y")
+
 function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     let metaData: MetaData = new MetaData(ipfsHash);
 
@@ -144,13 +151,22 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     return metaData;
 }
 
-export function constructMetaData(tokenURI: string): MetaData | null {
+export function constructMetaData(editionNumber: BigInt, tokenURI: string): MetaData | null {
     log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
 
     if (ipfsParts.length > 0) {
         let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
+
+        if (MAPPING_OVERRIDES.has(editionNumber.toString())) {
+            let override = MAPPING_OVERRIDES.get(editionNumber.toString()) as string;
+            log.warning("Edition mapping override found for ID {} - mapped hash {}", [
+                editionNumber.toString(),
+                override
+            ])
+            ipfsHash = override;
+        }
 
         let metaData: MetaData | null = loadIpfsData(tokenURI, ipfsHash);
 

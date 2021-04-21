@@ -6,7 +6,10 @@ import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
+<<<<<<< HEAD
 import {Bytes, JSONValue} from "@graphprotocol/graph-ts/index";
+=======
+>>>>>>> c349ca184bf81e822b38a153258dc4e3bf56136f
 import {splitMimeType} from "../utils";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
@@ -92,7 +95,8 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
                 editionEntity.isGenesisEdition = true
             }
 
-            let metaData = constructMetaData(_editionData.value7)
+            let metaData = constructMetaData(editionNumber, _editionData.value7)
+
             if (metaData != null) {
                 metaData.save()
                 editionEntity.metadata = metaData.id
