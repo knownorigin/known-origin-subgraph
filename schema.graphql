@@ -6,6 +6,7 @@
 # Used for listing out token history on the token pages
 type TokenEvent @entity {
     id: ID!                     # Composite key made form multiple items
+    version: BigInt
     name: String!
     token: Token!
     edition: Edition!
@@ -20,6 +21,7 @@ type TokenEvent @entity {
 # Token events for transfers
 type TransferEvent @entity {
     id: ID!
+    version: BigInt
     from: Bytes! # address
     to: Bytes! # address
     tokenId: BigInt!
@@ -31,6 +33,7 @@ type TransferEvent @entity {
 # Edition primary sale auction events
 type AuctionEvent @entity {
     id: ID!
+    version: BigInt
     edition: Edition!
     name: String!
     bidder: Bytes!
@@ -99,6 +102,7 @@ type Day @entity {
 # A token and its details
 type Token @entity {
     id: ID!
+    version: BigInt
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!
@@ -131,6 +135,7 @@ type Token @entity {
 
 type ListedToken @entity { #For Token Secondary market
     id: ID!
+    version: BigInt
 
     listPrice: BigDecimal!
     lister: Collector!
@@ -192,6 +197,7 @@ type _Schema_
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
+    version: BigInt
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32
@@ -265,6 +271,7 @@ type MetaData @entity {
 # Single high level entity capturing the top offer on the secondary marketplace
 type TokenOffer @entity {
     id: ID!
+    version: BigInt
     token: Token!
     edition: Edition!
     ownerAtTimeOfBid: Collector!
@@ -276,6 +283,7 @@ type TokenOffer @entity {
 # Encapsulates all offers either on editions or tokens
 type Offer @entity {
     id: ID!                         # edition ID or token ID
+    version: BigInt
     type: String!                   # either Token or Edition
     token: Token                    # nullable token, as editions dont have tokens attached
     edition: Edition!               # All offers must be from an edition

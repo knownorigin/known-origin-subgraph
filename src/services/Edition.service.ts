@@ -6,10 +6,7 @@ import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
-<<<<<<< HEAD
 import {Bytes, JSONValue} from "@graphprotocol/graph-ts/index";
-=======
->>>>>>> c349ca184bf81e822b38a153258dc4e3bf56136f
 import {splitMimeType} from "../utils";
 
 export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOrigin): Edition | null {
@@ -72,7 +69,7 @@ export function loadOrCreateEdition(editionNumber: BigInt, block: ethereum.Block
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
 
-            let collaborators:Array<Bytes> = editionEntity.collaborators
+            let collaborators: Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)
 
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
