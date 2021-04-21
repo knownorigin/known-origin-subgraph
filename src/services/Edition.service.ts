@@ -133,9 +133,22 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
         editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
+        editionEntity.active = true;
 
-        // Check the edition or artist is not in the disabled list
-        editionEntity.active = kodaV3Contract.reportedEditionIds(_editionId) || kodaV3Contract.reportedArtistAccounts(_owner);
+        // if we have reported this edition, assume its disabled
+        if (kodaV3Contract.reportedEditionIds(_editionId)) {
+            log.debug("Edition {} reported - setting edition to inactive", [_editionId.toString()]);
+            editionEntity.active = false
+        }
+
+        // if this artist has been reported, always disable their work
+        if (kodaV3Contract.reportedArtistAccounts(_owner)) {
+            log.debug("Artist {} reported - setting edition {} to inactive", [
+                _owner.toHexString(),
+                _editionId.toString()
+            ]);
+            editionEntity.active = false
+        }
 
         // Pricing logic
         // FIXME plug in once we have a marketplace
