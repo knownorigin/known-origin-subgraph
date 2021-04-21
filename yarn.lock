@@ -1445,10 +1445,10 @@ kind-of@^6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.2.tgz#01146b36a6218e64e58f3a8d66de5d7fc6f6d051"
 
-koda-contract-tools@1.9.0:
-  version "1.9.0"
-  resolved "https://registry.yarnpkg.com/koda-contract-tools/-/koda-contract-tools-1.9.0.tgz#ff190e5ba38f91440625caa020a9fb07bebca50b"
-  integrity sha512-LjNOEiZO3SWqe57eqvIAsOFdosI7PFpkSrq6e1bGA+xqtmf6CQ9AMqrfWRspj4pQfWvu6h63zD5tAjtCLeMBvQ==
+koda-contract-tools@^1.10.0:
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/koda-contract-tools/-/koda-contract-tools-1.10.1.tgz#6fa1b7489c0acb95b5213ac5caa974d17de81332"
+  integrity sha512-XHXBqeYjINKO1tQP3tI4OAgP8aBQmsUXkHjIvF9A5nw75OVTzEHEr8EcQiXVWHT42P8X6qRrVrDGrs+VG2jRgA==
 
 ky-universal@^0.2.2:
   version "0.2.2"

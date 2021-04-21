@@ -35,11 +35,17 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
 
+            let collaborators: Array<Bytes> = editionEntity.collaborators
+            collaborators.push(editionEntity.artistAccount)
+
             let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
             if (!_editionDataResult.reverted && _optionalCommission.value.value0 > ZERO) {
                 editionEntity.optionalCommissionRate = _optionalCommission.value.value0
                 editionEntity.optionalCommissionAccount = getArtistAddress(_optionalCommission.value.value1)
+                collaborators.push(getArtistAddress(_optionalCommission.value.value1))
             }
+
+            editionEntity.collaborators = collaborators
 
             // Set genesis flag
             let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
@@ -150,6 +156,11 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
             editionEntity.active = false
         }
 
+        // add creator to collaborators list
+        let collaborators: Array<Bytes> = editionEntity.collaborators
+        collaborators.push(editionEntity.artistAccount)
+        editionEntity.collaborators = collaborators
+
         // Pricing logic
         // FIXME plug in once we have a marketplace
         // editionEntity.artistCommission = _editionData.value5
@@ -203,6 +214,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.allOwners = new Array<string>()
     editionEntity.currentOwners = new Array<string>()
     editionEntity.primaryOwners = new Array<string>()
+    editionEntity.collaborators = new Array<Bytes>()
     editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
     editionEntity.totalSold = ZERO
     editionEntity.createdTimestamp = block.timestamp

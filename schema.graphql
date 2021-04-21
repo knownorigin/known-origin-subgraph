@@ -232,6 +232,7 @@ type Edition @entity {
     optionalCommissionAccount: Bytes # address
     optionalCommissionRate: BigInt
     priceInWei: BigInt! # base price for edition
+    collaborators: [Bytes!]!
     offersOnly: Boolean!
     totalSupply: BigInt!     # Total purchases or mints
     totalAvailable: BigInt!  # Total number available to be purchased

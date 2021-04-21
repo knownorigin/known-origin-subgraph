@@ -1,18 +1,20 @@
 import {log} from "@graphprotocol/graph-ts/index";
 
 import {
+    EditionAcceptingOffer,
+    EditionBidAccepted,
+    EditionBidPlaced,
+    EditionBidRejected,
+    EditionBidWithdrawn,
+    EditionDeListed,
+    EditionListed,
+    EditionPriceChanged,
+    EditionPurchased,
     AdminUpdateModulo,
     AdminUpdateMinBidAmount,
     AdminUpdateSecondaryRoyalty,
     AdminUpdatePlatformPrimarySaleCommission,
     AdminUpdateSecondarySaleCommission
-} from "../../generated/KnownOriginV3/KnownOriginV3";
-
-import {
-    EditionAcceptingOffer, EditionBidAccepted, EditionBidPlaced, EditionBidRejected, EditionBidWithdrawn,
-    EditionDeListed,
-    EditionListed,
-    EditionPriceChanged, EditionPurchased
 } from "../../generated/KODAV3Marketplace/KODAV3Marketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
