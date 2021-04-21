@@ -433,21 +433,33 @@ dataSources:
 
         - event: AdminUpdateMinBidAmount(uint256)
           handler: handleAdminUpdateMinBidAmount
+
+        # Buy Now - primary
+        - event: EditionPriceChanged(indexed uint256,uint256)
+          handler: handleEditionPriceChanged
+        - event: EditionDeListed(indexed uint256)
+          handler: handleEditionDeListed
+        - event: EditionListed(indexed uint256,uint256,uint256)
+          handler: handleEditionListed
+        - event: EditionPurchased(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleEditionPurchased
+
+        # Offers - primary
+        - event: EditionAcceptingOffer(indexed uint256,uint128)
+          handler: handleEditionAcceptingOffer
+        - event: EditionBidPlaced(indexed uint256,indexed address,uint256)
+          handler: handleEditionBidPlaced
+        - event: EditionBidWithdrawn(indexed uint256,indexed address)
+          handler: handleEditionBidWithdrawn
+        - event: EditionBidAccepted(indexed uint256,indexed uint256,indexed address,uint256)
+          handler: handleEditionBidAccepted
+        - event: EditionBidRejected(indexed uint256,indexed address,uint256)
+          handler: handleEditionBidRejected(indexed unit256, indexed
+
       file: ./src/mappings/known-origin-v3-marketplace-mapping.ts
 
 #        # TODO events to map Marketplace
 #        # (high)
-#        # EditionListed
-#        # EditionPriceChanged
-#        # EditionDeListed
-#        # EditionPurchased
-#        #
-#        # EditionAcceptingOffer
-#        # EditionBidPlaced
-#        # EditionBidWithdrawn
-#        # EditionBidAccepted
-#        # EditionBidRejected
-#        #
 #        # EditionSteppedSaleListed
 #        # EditionSteppedSaleBuy
 #        #
