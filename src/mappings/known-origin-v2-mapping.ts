@@ -157,9 +157,9 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.lastTransferTimestamp = event.block.timestamp
     tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
 
-    // ////////////////////////////////////////
-    // // Secondary market - pricing listing //
-    // ////////////////////////////////////////
+    ////////////////////////////////////////
+    // Secondary market - pricing listing //
+    ////////////////////////////////////////
 
     // Clear token price listing fields
     tokenEntity.isListed = false;
@@ -175,7 +175,7 @@ export function handleTransfer(event: Transfer): void {
 
     // Update token offer owner
     if (event.params._to !== event.params._from) {
-        updateTokenOfferOwner(event.block, contract, event.params._tokenId, event.params._to)
+        updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
     recordTransfer(event, tokenEntity, editionEntity, event.params._to)

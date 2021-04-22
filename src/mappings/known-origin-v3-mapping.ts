@@ -104,13 +104,17 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         editionEntity.save();
 
-        // Transfers
+        ///////////////
+        // Transfers //
+        ///////////////
 
         // Token Events
         let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, tokenId, from, to);
         tokenTransferEvent.save();
 
-        // Token Logic
+        /////////////////
+        // Token Logic //
+        /////////////////
 
         // TOKEN
         let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
@@ -139,7 +143,9 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenEntity.lastTransferTimestamp = event.block.timestamp
         tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
 
-        // Secondary market - pricing listing
+        ////////////////////////////////////////
+        // Secondary market - pricing listing //
+        ////////////////////////////////////////
 
         // Clear token price listing fields
         tokenEntity.isListed = false;

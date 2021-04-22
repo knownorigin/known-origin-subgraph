@@ -87,7 +87,7 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    clearTokenOffer(event.block, event.params._tokenId)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -131,7 +131,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, MARKETPLACE_V1);
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, MARKETPLACE_V1);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
@@ -148,7 +148,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     createBidAcceptedEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
@@ -204,7 +204,7 @@ export function handleBidRejected(event: BidRejected): void {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     createBidRejectedEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
@@ -229,7 +229,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     createBidWithdrawnEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
