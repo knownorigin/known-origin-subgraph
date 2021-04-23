@@ -6,8 +6,6 @@ import {toEther} from "../utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadNonNullableToken} from "./Token.service";
 
-import * as KodaVersions from "../KodaVersions";
-
 export let EDITION_TYPE = "Edition"
 export let TOKEN_TYPE = "Token"
 
@@ -102,15 +100,17 @@ function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
         // TODO how does this work when the edition and token ID are the same ID, we may need to add a composite ID of type and ID?
         offer = new Offer(id.toString());
         offer.type = type.toString()
-        offer.version = KodaVersions.KODA_V2
 
         if (type == EDITION_TYPE) {
-            offer.edition = loadNonNullableEdition(id).id
+            let edition = loadNonNullableEdition(id);
+            offer.edition = edition.id
+            offer.version = edition.version
         }
 
         if (type == TOKEN_TYPE) {
             let tokenEntity = loadNonNullableToken(id);
             offer.edition = loadNonNullableEdition(tokenEntity.editionNumber).id
+            offer.version = tokenEntity.version
             offer.token = tokenEntity.id
         }
     }

@@ -46,7 +46,6 @@ import {
     recordTransfer,
     recordPrimarySale,
 } from "../services/ActivityEvent.service";
-import * as KodaVersions from "../KodaVersions";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -118,14 +117,6 @@ export function handleTransfer(event: Transfer): void {
 
     editionEntity.save();
 
-    ///////////////
-    // Transfers //
-    ///////////////
-
-    // Token Events
-    let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V2, event.params._tokenId, event.params._from, event.params._to);
-    tokenTransferEvent.save();
-
     /////////////////
     // Token Logic //
     /////////////////
@@ -179,6 +170,14 @@ export function handleTransfer(event: Transfer): void {
     }
 
     recordTransfer(event, tokenEntity, editionEntity, event.params._to)
+
+    ///////////////
+    // Transfers //
+    ///////////////
+
+    // Token Events
+    let tokenTransferEvent = createTokenTransferEvent(event, event.params._tokenId, event.params._from, event.params._to);
+    tokenTransferEvent.save();
 }
 
 // Direct primary "Buy it now" purchase form the website
@@ -226,7 +225,7 @@ export function handlePurchase(event: Purchase): void {
 
         addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei);
 
-        let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event);
+        let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._priceInWei);
         tokenTransferEvent.save();
 
         // Set price against token

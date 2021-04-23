@@ -167,6 +167,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
 
     if (ipfsParts.length > 0) {
         let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
+        log.info("constructMetaData() token URI ipfsHash [{}]", [ipfsHash]);
 
         if (MAPPING_OVERRIDES.has(editionNumber.toString())) {
             let override = MAPPING_OVERRIDES.get(editionNumber.toString()) as string;

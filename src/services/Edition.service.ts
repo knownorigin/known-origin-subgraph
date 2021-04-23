@@ -162,16 +162,13 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
         editionEntity.collaborators = collaborators
 
         // Pricing logic
-        // FIXME plug in once we have a marketplace
-        // editionEntity.artistCommission = _editionData.value5
-        // editionEntity.priceInWei = _editionData.value6
         editionEntity.offersOnly = false
 
         // FIXME handle multiple commission splits ..
 
-        // FIXME
+        // FIXME once we know how to work this out ...
         // Set genesis flag
-        // editionEntity.isGenesisEdition = true
+        editionEntity.isGenesisEdition = false
 
         let metaData = constructMetaData(_editionId, _uri)
         if (metaData != null) {

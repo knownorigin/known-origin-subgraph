@@ -101,7 +101,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidPlacedEvent(event)
+    createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
@@ -147,7 +147,8 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidAcceptedEvent(event)
+    createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+
     clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -203,7 +204,7 @@ export function handleBidRejected(event: BidRejected): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidRejectedEvent(event)
+    createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
     clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -228,7 +229,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidWithdrawnEvent(event)
+    createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
     clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)

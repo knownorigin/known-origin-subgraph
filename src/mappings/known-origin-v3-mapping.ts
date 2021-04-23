@@ -20,7 +20,6 @@ import {collectorInList, loadOrCreateCollector} from "../services/Collector.serv
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../services/Token.service";
-import * as KodaVersions from "../KodaVersions";
 import {BigInt} from "@graphprotocol/graph-ts";
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
 
@@ -104,14 +103,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         editionEntity.save();
 
-        ///////////////
-        // Transfers //
-        ///////////////
-
-        // Token Events
-        let tokenTransferEvent = createTokenTransferEvent(event, KodaVersions.KODA_V3, tokenId, from, to);
-        tokenTransferEvent.save();
-
         /////////////////
         // Token Logic //
         /////////////////
@@ -166,6 +157,14 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // }
 
         recordTransfer(event, tokenEntity, editionEntity, to)
+
+        ///////////////
+        // Transfers //
+        ///////////////
+
+        // Token Events
+        let tokenTransferEvent = createTokenTransferEvent(event, tokenId, from, to);
+        tokenTransferEvent.save();
     }
 }
 
