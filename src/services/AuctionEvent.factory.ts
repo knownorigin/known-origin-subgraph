@@ -1,7 +1,7 @@
 import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {AuctionEvent, Edition} from "../../generated/schema";
-import {toEther} from "../utils";
-import * as EVENT_TYPES from "../services/EventTypes";
+import {toEther} from "../utils/utils";
+import * as EVENT_TYPES from "../utils/EventTypes";
 
 export function createBidPlacedEvent(
     block: ethereum.Block,

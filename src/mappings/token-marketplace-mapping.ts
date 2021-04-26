@@ -10,7 +10,7 @@ import {
 import {
     TokenOffer
 } from "../../generated/schema";
-import * as KodaVersions from "../KodaVersions";
+import * as KodaVersions from "../utils/KodaVersions";
 
 import {
     loadOrCreateV2Edition
@@ -25,7 +25,7 @@ import {
 
 import {
     toEther
-} from "../utils";
+} from "../utils/utils";
 
 import {
     addPrimarySaleToCollector,
@@ -36,7 +36,7 @@ import {
 } from "../services/Collector.service";
 
 import {loadOrCreateV2Token} from "../services/Token.service";
-import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
@@ -57,8 +57,7 @@ import {
     recordSecondaryBidRejected,
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
-import {ONE} from "../constants";
-import {MARKETPLACE_V1} from "../KodaVersions";
+import {ONE} from "../utils/constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -131,7 +130,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, MARKETPLACE_V1);
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, KodaVersions.MARKETPLACE_V1);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }

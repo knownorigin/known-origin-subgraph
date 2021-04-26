@@ -1,7 +1,7 @@
 import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Artist} from "../../generated/schema";
-import {ONE, ZERO} from "../constants";
-import {toEther} from "../utils";
+import {ONE, ZERO} from "../utils/constants";
+import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 
 export function loadOrCreateArtist(address: Address): Artist {

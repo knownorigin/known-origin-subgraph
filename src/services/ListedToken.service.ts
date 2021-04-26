@@ -3,7 +3,7 @@ import {
     ListedToken
 } from "../../generated/schema";
 import {BigInt, log} from "@graphprotocol/graph-ts/index";
-import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): ListedToken {
     log.info("loadOrCreateListedToken() called  for token ID {}", [tokenId.toString()])

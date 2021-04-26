@@ -25,7 +25,7 @@ import {
 
 import {
     toEther
-} from "../utils";
+} from "../utils/utils";
 
 import {
     addSecondaryPurchaseToCollector,
@@ -36,7 +36,7 @@ import {
 
 import {loadOrCreateV2Token} from "../services/Token.service";
 import {loadOrCreateListedToken} from "../services/ListedToken.service";
-import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
@@ -61,10 +61,10 @@ import {
 } from "../services/ActivityEvent.service";
 
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
-import * as KodaVersions from "../KodaVersions";
+import * as KodaVersions from "../utils/KodaVersions";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*

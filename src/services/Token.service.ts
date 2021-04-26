@@ -1,6 +1,6 @@
 import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
-import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,
@@ -9,7 +9,7 @@ import {
 import {constructMetaData} from "./MetaData.service";
 import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
-import * as KodaVersions from "../KodaVersions";
+import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {

@@ -2,7 +2,7 @@ import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadNonNullableEdition} from "./Edition.service";
 import {loadOrCreateCollector} from "./Collector.service";
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadNonNullableToken} from "./Token.service";
 

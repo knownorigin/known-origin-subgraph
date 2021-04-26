@@ -26,8 +26,8 @@ import {
 } from "../services/Artist.service";
 import {loadOrCreateV2Token} from "../services/Token.service";
 import {ethereum, log, Address, store} from "@graphprotocol/graph-ts/index";
-import {toEther} from "../utils";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {toEther} from "../utils/utils";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {
     addPrimarySaleToCollector,
@@ -47,7 +47,7 @@ import {
     recordPrimarySaleEvent,
 } from "../services/ActivityEvent.service";
 
-import * as EVENT_TYPES from "../services/EventTypes";
+import * as EVENT_TYPES from "../utils/EventTypes";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)

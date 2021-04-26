@@ -1,6 +1,6 @@
 import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Address} from "@graphprotocol/graph-ts/index";
-import {KODA_MAINNET, KODA_RINKEBY} from "../constants";
+import {KODA_MAINNET, KODA_RINKEBY} from "./constants";
 
 export function getKnownOriginV2ForAddress(address: Address): KnownOriginV2 {
 
@@ -13,8 +13,6 @@ export function getKnownOriginV2ForAddress(address: Address): KnownOriginV2 {
     mainnetAddresses.push(Address.fromString("0xc322cdd03f34b6d25633c2abbc8716a058c7fe9e")) // token marketplace V2
     mainnetAddresses.push(Address.fromString("0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166")) // artist burner V1
     mainnetAddresses.push(Address.fromString("0x5327cf8b4127e81013d706330043e8bf5673f50d")) // artist tools v2
-
-    // TODO handle V3 things in here ...
 
     // Mainnet addresses
     if (mainnetAddresses.indexOf(address) > -1) {

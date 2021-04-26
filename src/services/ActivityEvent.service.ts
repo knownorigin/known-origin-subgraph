@@ -1,7 +1,7 @@
 import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
-import {ZERO, ZERO_ADDRESS} from "../constants";
-import * as EVENT_TYPES from "./EventTypes";
+import {ZERO, ZERO_ADDRESS} from "../utils/constants";
+import * as EVENT_TYPES from "../utils/EventTypes";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";

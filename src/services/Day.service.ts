@@ -1,8 +1,8 @@
 import {Day} from "../../generated/schema";
-import {ONE, ZERO} from "../constants";
+import {ONE, ZERO} from "../utils/constants";
 import {BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {toEther} from "../utils";
-import {dayMonthYearFromEventTimestamp} from "../DateConverter";
+import {toEther} from "../utils/utils";
+import {dayMonthYearFromEventTimestamp} from "../utils/DateConverter";
 
 export function loadOrCreateDay(date: string): Day {
     let dayEntity = Day.load(date)

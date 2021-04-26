@@ -1,14 +1,15 @@
 import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
 import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Edition} from "../../generated/schema";
-import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
 import {loadOrCreateArtist} from "./Artist.service";
-import {splitMimeType} from "../utils";
+import {splitMimeType} from "../utils/utils";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
-import * as KodaVersions from "../KodaVersions";
+import * as SaleTypes from "../utils/SaleTypes";
+import * as KodaVersions from "../utils/KodaVersions";
 
 export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition {
     let editionEntity = Edition.load(editionNumber.toString());
@@ -212,6 +213,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     let editionEntity = new Edition(_editionId.toString());
     editionEntity.version = version
     editionEntity.editionNmber = _editionId
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY // TODO is it right to assume offers are always the default state
     editionEntity.tokenIds = new Array<BigInt>()
     editionEntity.auctionEnabled = false
     editionEntity.activeBid = null

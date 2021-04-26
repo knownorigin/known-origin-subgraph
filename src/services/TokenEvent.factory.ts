@@ -1,21 +1,16 @@
 import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
 import {TokenEvent} from "../../generated/schema";
-import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
-import {toEther} from "../utils";
+import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {toEther} from "../utils/utils";
 import {loadNonNullableEdition} from "./Edition.service";
-import {
-    BidAccepted,
-    BidPlaced,
-    BidRejected,
-    BidWithdrawn
-} from "../../generated/TokenMarketplace/TokenMarketplace";
 import {loadNonNullableToken} from "./Token.service";
-import {getKnownOriginV2ForAddress} from "./KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {getArtistAddress} from "./AddressMapping.service";
-import {Purchase, Transfer} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {loadOrCreateCollector} from "./Collector.service";
-import * as KodaVersions from "../KodaVersions";
+import * as KodaVersions from "../utils/KodaVersions";
 import {BigInt} from "@graphprotocol/graph-ts";
+
+import * as EVENT_TYPES from "../utils/EventTypes";
 
 function generateTokenEventId(name: String, tokenId: BigInt, from: Address, to: Address, timestamp: BigInt): string {
     return name
@@ -29,13 +24,13 @@ function generateTokenEventId(name: String, tokenId: BigInt, from: Address, to: 
 
 function populateEventData(event: ethereum.Event, tokenId: BigInt, from: Address, to: Address): TokenEvent {
     let timestamp = event.block.timestamp;
-    let tokenEventId = generateTokenEventId("Transfer", tokenId, from, to, timestamp);
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.TRANSFER, tokenId, from, to, timestamp);
 
     let tokenEvent = new TokenEvent(tokenEventId);
     tokenEvent.version = KodaVersions.KODA_V2
 
     // Show birth if first transfer
-    tokenEvent.name = from.equals(ZERO_ADDRESS) ? 'Birth' : 'Transfer';
+    tokenEvent.name = from.equals(ZERO_ADDRESS) ? EVENT_TYPES.BIRTH : EVENT_TYPES.TRANSFER;
     tokenEvent.bidder = loadOrCreateCollector(to, event.block).id
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
     tokenEvent.currentOwner = loadOrCreateCollector(from, event.block).id
@@ -79,7 +74,7 @@ export function createTokenTransferEvent(event: ethereum.Event, tokenId: BigInt,
 export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: BigInt, buyer: Address, priceInWei: BigInt): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "Purchase-"
+    let tokenEventId = `${EVENT_TYPES.PURCHASE}-`
         .concat(tokenId.toString())
         .concat("-")
         .concat(buyer.toHexString())
@@ -99,7 +94,7 @@ export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: 
     let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'Purchase';
+    tokenEvent.name = EVENT_TYPES.PURCHASE;
     tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
@@ -119,7 +114,7 @@ export function createBidPlacedEvent(
 ): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidPlaced-"
+    let tokenEventId = `${EVENT_TYPES.BID_PLACED}-`
         .concat(tokenId.toString())
         .concat("-")
         .concat(bidder.toHexString())
@@ -138,7 +133,7 @@ export function createBidPlacedEvent(
     let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidPlaced'
+    tokenEvent.name = EVENT_TYPES.BID_PLACED
     tokenEvent.version = tokenEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
@@ -157,7 +152,7 @@ export function createBidAcceptedEvent(
 ): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidAccepted-"
+    let tokenEventId = `${EVENT_TYPES.BID_ACCEPTED}-`
         .concat(tokenId.toString())
         .concat("-")
         .concat(bidder.toHexString())
@@ -176,7 +171,7 @@ export function createBidAcceptedEvent(
     let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidAccepted'
+    tokenEvent.name = EVENT_TYPES.BID_ACCEPTED
     tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
@@ -197,7 +192,7 @@ export function createBidRejectedEvent(
 ): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidRejected-"
+    let tokenEventId = `${EVENT_TYPES.BID_REJECTED}-`
         .concat(tokenId.toString())
         .concat("-")
         .concat(bidder.toHexString())
@@ -216,7 +211,7 @@ export function createBidRejectedEvent(
     let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidRejected'
+    tokenEvent.name = EVENT_TYPES.BID_REJECTED
     tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
@@ -236,7 +231,7 @@ export function createBidWithdrawnEvent(
 ): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidWithdrawn-"
+    let tokenEventId = `${EVENT_TYPES.BID_WITHDRAWN}-`
         .concat(tokenId.toString())
         .concat("-")
         .concat(bidder.toHexString())
@@ -257,7 +252,7 @@ export function createBidWithdrawnEvent(
     let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidWithdrawn'
+    tokenEvent.name = EVENT_TYPES.BID_WITHDRAWN
     tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;

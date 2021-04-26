@@ -222,6 +222,7 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
+    salesType: BigInt! # The current sales mechnic being used on this edition
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
     tokenURI: String!

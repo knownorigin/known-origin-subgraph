@@ -17,7 +17,7 @@ import {
     recordArtistIssued,
     recordArtistValue
 } from "../services/Artist.service";
-import {ONE} from "../constants";
+import {ONE} from "../utils/constants";
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {addPrimarySaleToCollector} from "../services/Collector.service";
 import {log} from "@graphprotocol/graph-ts/index";

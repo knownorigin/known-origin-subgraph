@@ -24,7 +24,7 @@ import {
     recordDayCounts
 } from "../services/Day.service";
 
-import {ONE} from "../constants";
+import {ONE} from "../utils/constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
@@ -38,21 +38,23 @@ import {
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
 
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
-import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
 import {loadOrCreateV2Token} from "../services/Token.service";
 
 import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
-import * as EVENT_TYPES from "../services/EventTypes";
+import * as EVENT_TYPES from "../utils/EventTypes";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = getKnownOriginV2ForAddress(event.address)
 
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
+    editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
     editionEntity.save()
 }
 
@@ -65,6 +67,7 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.save()
 
     removeActiveBidOnEdition(event.params._editionNumber)

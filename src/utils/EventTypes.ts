@@ -1,6 +1,7 @@
 // Shared event types for primary and secondary
 export const PURCHASE = "Purchase";
 export const TRANSFER = "Transfer";
+export const BIRTH = "Birth";
 export const TOKEN_DELISTED = "TokenDeListed";
 export const TOKEN_LISTED = "TokenListed";
 export const BID_WITHDRAWN = "BidWithdrawn";

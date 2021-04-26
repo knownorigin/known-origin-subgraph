@@ -1,7 +1,7 @@
-import {ONE, ZERO} from "../constants";
+import {ONE, ZERO} from "../utils/constants";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, log} from "@graphprotocol/graph-ts/index";
-
+import {BigInt} from "@graphprotocol/graph-ts";
 import {
     EditionAcceptingOffer,
     EditionBidAccepted,
@@ -20,7 +20,7 @@ import {
 } from "../../generated/KODAV3Marketplace/KODAV3Marketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 
 import {
     loadNonNullableEdition, loadOrCreateV3Edition,
@@ -47,8 +47,8 @@ import {loadNonNullableToken, loadOrCreateV3Token} from "../services/Token.servi
 import {createTokenPrimaryPurchaseEvent} from "../services/TokenEvent.factory";
 
 import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
-import * as EVENT_TYPES from "../services/EventTypes";
-import {BigInt} from "@graphprotocol/graph-ts";
+import * as EVENT_TYPES from "../utils/EventTypes";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -109,9 +109,12 @@ export function handleEditionListed(event: EditionListed): void {
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
     editionEntity.startDate = event.params._startDate;
+    editionEntity.salesType = SaleTypes.BUY_NOW
+    // clear stepped sale
+    editionEntity.stepSaleStepPrice = ZERO
+    editionEntity.stepSaleBasePrice = ZERO
+    editionEntity.currentStep = ZERO
     editionEntity.save()
-
-    // TODO clear stepped sale
 }
 
 export function handleEditionDeListed(event: EditionDeListed): void {
@@ -123,6 +126,7 @@ export function handleEditionDeListed(event: EditionDeListed): void {
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.priceInWei = ZERO;
     editionEntity.startDate = ZERO
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY // fall back to offers
     editionEntity.save()
 }
 
@@ -209,6 +213,7 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.auctionEnabled = true
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.offersOnly = true
     editionEntity.activeBid = null
     editionEntity.save()
@@ -420,7 +425,7 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     editionEntity.stepSaleBasePrice = event.params._basePrice;
     editionEntity.stepSaleStepPrice = event.params._stepPrice;
     editionEntity.currentStep = ZERO // assume when listed we are on step 0
-
+    editionEntity.salesType = SaleTypes.STEPPED_SALE
     editionEntity.startDate = event.params._startDate;
     editionEntity.priceInWei = event.params._basePrice
 

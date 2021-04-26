@@ -1,8 +1,8 @@
 import {Collector} from "../../generated/schema";
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector {
     let collectorEntity = Collector.load(address.toHexString());

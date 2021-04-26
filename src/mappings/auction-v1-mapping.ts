@@ -19,7 +19,7 @@ import {
     recordDayCounts
 } from "../services/Day.service";
 
-import {ONE} from "../constants";
+import {ONE} from "../utils/constants";
 import {recordActiveEditionBid, removeActiveBidOnEdition} from "../services/AuctionEvent.service";
 import {
     createBidAccepted,
@@ -27,16 +27,16 @@ import {
     createBidPlacedEvent,
     createBidWithdrawn
 } from "../services/AuctionEvent.factory";
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 import {getArtistAddress} from "../services/AddressMapping.service";
 
 import {
     addPrimarySaleToCollector
 } from "../services/Collector.service";
-import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {loadOrCreateV2Token} from "../services/Token.service";
 import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
-import * as EVENT_TYPES from "../services/EventTypes";
+import * as EVENT_TYPES from "../utils/EventTypes";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginV2ForAddress(event.address)

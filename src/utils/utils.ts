@@ -2,11 +2,14 @@ import {BigDecimal, BigInt,} from "@graphprotocol/graph-ts/index";
 import {ONE_ETH} from "./constants";
 
 export function toEther(value: BigInt): BigDecimal {
+    // @ts-ignore
     return new BigDecimal(value) / ONE_ETH
 }
 
 export class ImageType {
+    // @ts-ignore
     primaryAssetShortType: string;
+    // @ts-ignore
     primaryAssetActualType: string;
 }
 

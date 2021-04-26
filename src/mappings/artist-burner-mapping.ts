@@ -1,7 +1,7 @@
-import {getKnownOriginV2ForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {EditionDeactivated, EditionSupplyReduced} from "../../generated/ArtistEditionBurner/ArtistEditionBurner";
 import {loadOrCreateV2Edition} from "../services/Edition.service";
-import {ONE, ZERO} from "../constants";
+import {ONE, ZERO} from "../utils/constants";
 import {loadOrCreateArtist} from "../services/Artist.service";
 import {Address, log} from "@graphprotocol/graph-ts/index";
 import {isEditionBurnt} from "../services/burnt-editions";

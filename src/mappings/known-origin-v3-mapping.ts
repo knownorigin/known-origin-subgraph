@@ -9,7 +9,7 @@ import {
     AdminArtistAccountReported,
     AdminEditionReported,
 } from "../../generated/KnownOriginV3/KnownOriginV3";
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {
     loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
