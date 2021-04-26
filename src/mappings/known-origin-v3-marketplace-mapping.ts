@@ -110,10 +110,16 @@ export function handleEditionListed(event: EditionListed): void {
     editionEntity.priceInWei = event.params._price;
     editionEntity.startDate = event.params._startDate;
     editionEntity.salesType = SaleTypes.BUY_NOW
+
     // clear stepped sale
     editionEntity.stepSaleStepPrice = ZERO
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.currentStep = ZERO
+
+    // clear offers
+    editionEntity.offersOnly = false
+    editionEntity.auctionEnabled = false
+
     editionEntity.save()
 }
 
@@ -127,6 +133,11 @@ export function handleEditionDeListed(event: EditionDeListed): void {
     editionEntity.priceInWei = ZERO;
     editionEntity.startDate = ZERO
     editionEntity.salesType = SaleTypes.OFFERS_ONLY // fall back to offers
+
+    // set offers
+    editionEntity.offersOnly = true
+    editionEntity.auctionEnabled = true
+
     editionEntity.save()
 }
 
@@ -215,6 +226,7 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     editionEntity.auctionEnabled = true
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.offersOnly = true
+    editionEntity.auctionEnabled = true
     editionEntity.activeBid = null
     editionEntity.save()
 }
@@ -428,6 +440,10 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     editionEntity.salesType = SaleTypes.STEPPED_SALE
     editionEntity.startDate = event.params._startDate;
     editionEntity.priceInWei = event.params._basePrice
+
+    // clear offers
+    editionEntity.offersOnly = false
+    editionEntity.auctionEnabled = false
 
     editionEntity.save()
 }

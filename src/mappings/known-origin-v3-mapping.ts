@@ -23,6 +23,7 @@ import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../services/Token.service";
 import {BigInt} from "@graphprotocol/graph-ts";
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
+import {updateTokenOfferOwner} from "../services/Offers.service";
 
 
 export function handleTransfer(event: Transfer): void {
@@ -52,7 +53,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
     let kodaV3Contract = KnownOriginV3.bind(event.address);
 
     // From zero - token birth
-    if (from === ZERO_ADDRESS) {
+    if (from.equals(ZERO_ADDRESS)) {
 
         // create edition
         let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
@@ -177,10 +178,9 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenTransferEvent.save();
 
         // Update token offer owner
-        // FIXME re-enable this
-        // if (to !== from) {
-        //     updateTokenOfferOwner(event.block, contract, tokenId, to)
-        // }
+        if (to !== from) {
+            updateTokenOfferOwner(event.block, tokenId, to)
+        }
 
         /////////////////////
         // Handle transfer //

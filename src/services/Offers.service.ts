@@ -2,7 +2,7 @@ import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadNonNullableEdition} from "./Edition.service";
 import {loadOrCreateCollector} from "./Collector.service";
-import {toEther} from "../utils/utils";
+import {toEther, toLowerCase} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadNonNullableToken} from "./Token.service";
 
@@ -94,11 +94,15 @@ export function updateTokenOfferOwner(block: ethereum.Block, tokenId: BigInt, ne
 }
 
 function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
-    let offer: Offer | null = Offer.load(id.toString());
-    if (offer == null) {
 
-        // TODO how does this work when the edition and token ID are the same ID, we may need to add a composite ID of type and ID?
-        offer = new Offer(id.toString());
+    // Offers now need to include type as in V3 ID for edition and Token clash for the first token e.g Token-1234
+    let offerId: string = toLowerCase(type)
+        .concat("-")
+        .concat(id.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
+    if (offer == null) {
+        offer = new Offer(offerId);
         offer.type = type.toString()
 
         if (type == EDITION_TYPE) {
