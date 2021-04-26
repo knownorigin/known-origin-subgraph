@@ -421,16 +421,12 @@ dataSources:
         # Admin handlers
         - event: AdminUpdateSecondaryRoyalty(uint256)
           handler: handleAdminUpdateSecondaryRoyalty
-
         - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
           handler: handleAdminUpdatePlatformPrimarySaleCommission
-
         - event: AdminUpdateSecondarySaleCommission(uint256)
           handler: handleAdminUpdateSecondarySaleCommission
-
         - event: AdminUpdateModulo(uint256)
           handler: handleAdminUpdateModulo
-
         - event: AdminUpdateMinBidAmount(uint256)
           handler: handleAdminUpdateMinBidAmount
 
@@ -456,13 +452,16 @@ dataSources:
         - event: EditionBidRejected(indexed uint256,indexed address,uint256)
           handler: handleEditionBidRejected(indexed unit256, indexed
 
+        # Stepped Sales
+        - event: EditionSteppedSaleListed(indexed uint256,uint128,uint128,uint128)
+          handler: handleEditionSteppedSaleListed
+        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
+          handler: handleEditionSteppedSaleBuy
+
       file: ./src/mappings/known-origin-v3-marketplace-mapping.ts
 
 #        # TODO events to map Marketplace
 #        # (high)
-#        # EditionSteppedSaleListed
-#        # EditionSteppedSaleBuy
-#        #
 #        # TokenListed
 #        # TokenDeListed
 #        # TokenPurchased

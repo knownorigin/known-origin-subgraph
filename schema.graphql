@@ -222,8 +222,6 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
-    startDate: BigInt! # date when the edition goes on sale
-    endDate: BigInt!   # date when the edition is available until
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
     tokenURI: String!
@@ -231,8 +229,7 @@ type Edition @entity {
     artistCommission: BigInt! # base artists commission
     optionalCommissionAccount: Bytes # address
     optionalCommissionRate: BigInt
-    priceInWei: BigInt! # base price for edition
-    collaborators: [Bytes!]!
+    collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
     offersOnly: Boolean!
     totalSupply: BigInt!     # Total purchases or mints
     totalAvailable: BigInt!  # Total number available to be purchased
@@ -243,6 +240,31 @@ type Edition @entity {
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
+    isGenesisEdition: Boolean! # set true if edition is an artists first edition
+    hasCoverImage: Boolean! # set to true if non-image asset with cover image
+
+    # Buy now price / current step price
+    priceInWei: BigInt!
+
+    # date when the edition goes on sale
+    startDate: BigInt!
+    endDate: BigInt!   # date when the edition is available until (only applicable for V2)
+
+    # step sale
+    stepSaleBasePrice: BigInt!
+    stepSaleStepPrice: BigInt!
+    currentStep: BigInt!
+
+    # Offers logic
+    auctionEnabled: Boolean!
+    activeBid: AuctionEvent # if present, an active bid should be open
+
+    # Events and histories
+    biddingHistory: [AuctionEvent!]!
+    transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
+    allOwners: [Collector]! # list (set) of all unique owners for all tokens
+    currentOwners: [Collector!]! # Current set of owners for this edition
+    primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
 
     # START: freetext search fields
     metadataName: String!
@@ -252,16 +274,6 @@ type Edition @entity {
     primaryAssetShortType: String # null-able leading mime-type field i.e. image or video etc
     primaryAssetActualType: String # null-able ending mime-type field e.g. mp4, gif, png etc
     # END: freetext search fields
-
-    auctionEnabled: Boolean!
-    activeBid: AuctionEvent # if present, an active bid should be open
-    biddingHistory: [AuctionEvent!]!
-    transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
-    allOwners: [Collector]! # list (set) of all unique owners for all tokens
-    currentOwners: [Collector!]! # Current set of owners for this edition
-    primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
-    isGenesisEdition: Boolean! # set true if edition is an artists first edition
-    hasCoverImage: Boolean! # set to true if non-image asset with cover image
 }
 
 # A token/editions and its meta data
@@ -287,6 +299,11 @@ type MetaData @entity {
     scarcity: String
     artist: String
     tags: [String!]
+
+    # New tags added in V3
+    production_year: String
+    category: String
+    nsfw: Boolean
 }
 
 # Single high level entity capturing the top offer on the secondary marketplace

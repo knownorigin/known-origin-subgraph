@@ -113,18 +113,33 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 // V3 stuff //
 //////////////
 
+export function loadNonNullableEdition(editionNumber: BigInt): Edition {
+    return Edition.load(editionNumber.toString()) as Edition
+}
 
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
-    log.info("Calling loadOrCreateV3EditionFromTokenId() call for {} ", [tokenId.toString()])
+    log.info("Calling loadOrCreateV3EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
-    // address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     let _originalCreator = editionDetails.value0;
-    let _owner = editionDetails.value1;
     let _editionId = editionDetails.value2;
     let _size = editionDetails.value3;
     let _uri = editionDetails.value4;
 
+    return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract)
+}
+
+export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
+    log.info("Calling loadOrCreateV3Edition() call for edition ID {} ", [_editionId.toString()])
+
+    let _originalCreator = kodaV3Contract.getCreatorOfEdition(_editionId);
+    let _size = kodaV3Contract.getSizeOfEdition(_editionId);
+    let _uri = kodaV3Contract.editionURI(_editionId);
+
+    return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract);
+}
+
+function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     let editionEntity = Edition.load(_editionId.toString());
     if (editionEntity == null) {
         editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block);
@@ -148,9 +163,9 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
         }
 
         // if this artist has been reported, always disable their work
-        if (kodaV3Contract.reportedArtistAccounts(_owner)) {
+        if (kodaV3Contract.reportedArtistAccounts(_originalCreator)) {
             log.debug("Artist {} reported - setting edition {} to inactive", [
-                _owner.toHexString(),
+                _originalCreator.toHexString(),
                 _editionId.toString()
             ]);
             editionEntity.active = false
@@ -189,12 +204,7 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
             }
         }
     }
-
     return editionEntity as Edition;
-}
-
-export function loadNonNullableEdition(editionNumber: BigInt): Edition {
-    return Edition.load(editionNumber.toString()) as Edition
 }
 
 function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block): Edition {
@@ -229,6 +239,9 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.offersOnly = false
     editionEntity.isGenesisEdition = false
     editionEntity.hasCoverImage = false
+    editionEntity.stepSaleBasePrice = ZERO
+    editionEntity.stepSaleStepPrice = ZERO
+    editionEntity.currentStep = ZERO
 
     // set to empty string for text string although Ford is fixing this for us to handle nulls
     editionEntity.metadataName = ""

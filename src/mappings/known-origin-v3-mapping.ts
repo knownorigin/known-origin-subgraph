@@ -11,6 +11,7 @@ import {
 } from "../../generated/KnownOriginV3/KnownOriginV3";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
 import {
+    loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
 } from "../services/Edition.service";
 import {addEditionToDay, recordDayTransfer} from "../services/Day.service";
@@ -42,6 +43,11 @@ export function handleConsecutiveTransfer(event: ConsecutiveTransfer): void {
 }
 
 function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tokenId: BigInt): void {
+    log.info("KO V3 _handlerTransfer() called for token {} - address from {} to {}", [
+        tokenId.toString(),
+        from.toHexString(),
+        to.toHexString(),
+    ]);
 
     let kodaV3Contract = KnownOriginV3.bind(event.address);
 
@@ -62,21 +68,39 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
             recordEditionCreated(event, editionEntity)
         }
-
     } else {
-        // Day Counts
+        ////////////////
+        // Day Counts //
+        ////////////////
 
         recordDayTransfer(event);
 
-        // Collector Logic
+        /////////////////////
+        // Collector Logic //
+        /////////////////////
 
         let collector = loadOrCreateCollector(to, event.block);
         collector.save();
 
+        /////////////////
+        // Token Logic //
+        /////////////////
+
+        // Token - save it so down stream things can use the token relationship
+        let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
+        tokenEntity.save();
+
+        // Load it again
+        tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
+
+        ///////////////
+        // Transfers //
+        ///////////////
+
         // Edition Logic
 
         // Record transfer against the edition
-        let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
+        let editionEntity = loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
 
         // Transfer Events
         let transferEvent = createTransferEvent(event, tokenId, from, to, editionEntity);
@@ -87,6 +111,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         editionTransfers.push(transferEvent.id);
         editionEntity.transfers = editionTransfers;
 
+        // @ts-ignore
         // Check if the edition already has the owner
         if (!collectorInList(collector, editionEntity.allOwners)) {
             let allOwners = editionEntity.allOwners;
@@ -103,12 +128,9 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         editionEntity.save();
 
-        /////////////////
-        // Token Logic //
-        /////////////////
-
-        // TOKEN
-        let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
+        ////////////////////
+        // Set token data //
+        ////////////////////
 
         // set birth of the token to when the edition was created as we dont add subgraph token data until this event
         if (tokenEntity.birthTimestamp.equals(ZERO)) {
@@ -117,6 +139,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // Record transfer against token
         let tokenTransfers = tokenEntity.transfers;
+        // @ts-ignore
         tokenTransfers.push(transferEvent.id);
         tokenEntity.transfers = tokenTransfers;
 
@@ -150,21 +173,21 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Persist
         tokenEntity.save();
 
+        // Token Events
+        let tokenTransferEvent = createTokenTransferEvent(event, tokenId, from, to);
+        tokenTransferEvent.save();
+
         // Update token offer owner
         // FIXME re-enable this
         // if (to !== from) {
         //     updateTokenOfferOwner(event.block, contract, tokenId, to)
         // }
 
-        recordTransfer(event, tokenEntity, editionEntity, to)
+        /////////////////////
+        // Handle transfer //
+        /////////////////////
 
-        ///////////////
-        // Transfers //
-        ///////////////
-
-        // Token Events
-        let tokenTransferEvent = createTokenTransferEvent(event, tokenId, from, to);
-        tokenTransferEvent.save();
+        recordTransfer(event, tokenEntity, editionEntity, to);
     }
 }
 

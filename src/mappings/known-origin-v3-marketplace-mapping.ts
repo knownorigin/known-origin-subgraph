@@ -14,7 +14,7 @@ import {
     AdminUpdateMinBidAmount,
     AdminUpdateSecondaryRoyalty,
     AdminUpdatePlatformPrimarySaleCommission,
-    AdminUpdateSecondarySaleCommission, KODAV3Marketplace
+    AdminUpdateSecondarySaleCommission, KODAV3Marketplace, EditionSteppedSaleBuy, EditionSteppedSaleListed
 } from "../../generated/KODAV3Marketplace/KODAV3Marketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
@@ -114,6 +114,8 @@ export function handleEditionListed(event: EditionListed): void {
     editionEntity.priceInWei = event.params._price;
     editionEntity.startDate = event.params._startDate;
     editionEntity.save()
+
+    // TODO clear stepped sale
 }
 
 export function handleEditionDeListed(event: EditionDeListed): void {
@@ -353,4 +355,45 @@ export function handleEditionBidRejected(event: EditionBidRejected): void {
     clearEditionOffer(event.block, event.params._editionId)
 
     recordPrimaryBidRejected(event, editionEntity, event.params._amount, event.params._bidder)
+}
+
+export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void {
+    log.info("KO V3 handleEditionSteppedSaleBuy() called - editionId {}", [event.params._editionId.toString()]);
+
+    let editionEntity = loadNonNullableEdition(event.params._editionId)
+    editionEntity.priceInWei = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
+
+    // TODO handle purchase logic for edition
+    // TODO currentStep mapping
+
+    editionEntity.save()
+
+    // EditionSteppedSaleBuy(
+    //      uint256 indexed _editionId,
+    //      uint256 indexed _tokenId,
+    //      address indexed _buyer,
+    //      uint256 _price,
+    //      uint16 _currentStep
+    // );
+}
+
+export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed): void {
+    log.info("KO V3 handleEditionSteppedSaleListed() called - editionId {}", [event.params._editionId.toString()]);
+
+    let editionEntity = loadNonNullableEdition(event.params._editionId)
+    editionEntity.stepSaleBasePrice = event.params._basePrice;
+    editionEntity.stepSaleStepPrice = event.params._stepPrice;
+    editionEntity.startDate = event.params._startDate;
+    editionEntity.priceInWei = event.params._basePrice
+
+    // TODO currentStep mapping
+
+    editionEntity.save()
+
+    // EditionSteppedSaleListed(
+    //  uint256 indexed _editionId,
+    //  uint128 _basePrice,
+    //  uint128 _stepPrice,
+    //  uint128 _startDate
+    // )
 }

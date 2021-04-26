@@ -81,13 +81,46 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                     metaData.artist = attributes.toObject().get('artist').toString()
                 }
 
+                if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
+                    const rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
+                    let isNull: boolean = (rawProductionYear as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.production_year = rawProductionYear.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('category')) {
+                    const rawCategory: JSONValue | null = attributes.toObject().get('category');
+                    let isNull: boolean = (rawCategory as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.category = rawCategory.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('nsfw')) {
+                    const rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
+                    let isNull: boolean = (rawNsfw as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.nsfw = rawNsfw.toBool()
+                    }
+                }
+
                 if (isObject(attributes) && attributes.toObject().isSet("tags")) {
-                    // @ts-ignore
-                    let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
-                    let tags: Array<string> = rawTags.map<string>((value, i, values) => {
-                        return value.toString();
-                    });
-                    metaData.tags = tags;
+                    const rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
+                    if (rawTagsObj) {
+                        let isNull: boolean = (rawTagsObj as JSONValue).isNull();
+                        if (!isNull) {
+                            // @ts-ignore
+                            let rawTags: JSONValue[] = rawTagsObj.toArray();
+                            let tags: Array<string> = rawTags.map<string>((value, i, values) => {
+                                return value.toString();
+                            });
+                            metaData.tags = tags;
+                        }
+                    }
                 }
 
                 ///////////
@@ -180,8 +213,8 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
 
         // Check IPFS length is valid, some rinkeby IPFS hashes are bust so we need to handle this special case atm
         if (!ipfsHash || ipfsHash.length < 46) {
-            log.error("Skipping invalid IPFS hash lookup", []);
-            return new MetaData("invalid-ipfs-hash-" + ipfsHash);
+            log.error("Skipping invalid IPFS hash lookup", [(ipfsHash || "N/A")]);
+            return new MetaData("invalid-ipfs-hash-" + (ipfsHash || "N/A"));
         }
 
         let metaData: MetaData | null = loadIpfsData(tokenURI, ipfsHash);
