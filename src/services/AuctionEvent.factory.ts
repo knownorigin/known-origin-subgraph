@@ -1,13 +1,7 @@
 import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {AuctionEvent, Edition} from "../../generated/schema";
 import {toEther} from "../utils";
-import {
-    BidAccepted,
-    BidIncreased,
-    BidPlaced,
-    BidRejected,
-    BidWithdrawn
-} from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
+import * as EVENT_TYPES from "../services/EventTypes";
 
 export function createBidPlacedEvent(
     block: ethereum.Block,
@@ -20,7 +14,7 @@ export function createBidPlacedEvent(
     let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
-    auctionEvent.name = 'BidPlaced'
+    auctionEvent.name = EVENT_TYPES.BID_PLACED
     auctionEvent.version = edition.version
     auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
@@ -43,7 +37,7 @@ export function createBidAccepted(
     let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
-    auctionEvent.name = 'BidAccepted'
+    auctionEvent.name = EVENT_TYPES.BID_ACCEPTED
     auctionEvent.version = edition.version
     auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
@@ -66,7 +60,7 @@ export function createBidRejected(
     let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
-    auctionEvent.name = 'BidRejected'
+    auctionEvent.name = EVENT_TYPES.BID_REJECTED
     auctionEvent.version = edition.version
     auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
@@ -88,7 +82,7 @@ export function createBidWithdrawn(
     let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
-    auctionEvent.name = 'BidWithdrawn'
+    auctionEvent.name = EVENT_TYPES.BID_WITHDRAWN
     auctionEvent.version = edition.version
     auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder
@@ -111,7 +105,7 @@ export function createBidIncreased(
     let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber.toString())
     let auctionEvent = new AuctionEvent(auctionEventId);
 
-    auctionEvent.name = 'BidIncreased'
+    auctionEvent.name = EVENT_TYPES.BID_INCREASED
     auctionEvent.version = edition.version
     auctionEvent.edition = edition.editionNmber.toString();
     auctionEvent.bidder = bidder

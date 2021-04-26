@@ -44,8 +44,10 @@ import {updateTokenOfferOwner} from "../services/Offers.service";
 import {
     recordEditionCreated,
     recordTransfer,
-    recordPrimarySale,
+    recordPrimarySaleEvent,
 } from "../services/ActivityEvent.service";
+
+import * as EVENT_TYPES from "../services/EventTypes";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -238,7 +240,7 @@ export function handlePurchase(event: Purchase): void {
     }
     editionEntity.save()
 
-    recordPrimarySale(event, editionEntity, tokenEntity, event.params._priceInWei, event.params._buyer)
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._priceInWei, event.params._buyer)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer

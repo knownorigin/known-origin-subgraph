@@ -64,7 +64,6 @@ import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenM
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
 
 import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
-import {MARKETPLACE_V2} from "../KodaVersions";
 import * as KodaVersions from "../KodaVersions";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
@@ -138,7 +137,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, MARKETPLACE_V2);
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, KodaVersions.MARKETPLACE_V2);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }

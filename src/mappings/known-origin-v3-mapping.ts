@@ -54,7 +54,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
     // From zero - token birth
     if (from === ZERO_ADDRESS) {
 
-        // FIXME proper mappings for V3 addresses
         // create edition
         let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
         editionEntity.save()

@@ -82,7 +82,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
-                    const rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
+                    let rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
                     let isNull: boolean = (rawProductionYear as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
@@ -91,7 +91,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet('category')) {
-                    const rawCategory: JSONValue | null = attributes.toObject().get('category');
+                    let rawCategory: JSONValue | null = attributes.toObject().get('category');
                     let isNull: boolean = (rawCategory as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
@@ -100,7 +100,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet('nsfw')) {
-                    const rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
+                    let rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
                     let isNull: boolean = (rawNsfw as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
@@ -109,7 +109,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet("tags")) {
-                    const rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
+                    let rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
                     if (rawTagsObj) {
                         let isNull: boolean = (rawTagsObj as JSONValue).isNull();
                         if (!isNull) {

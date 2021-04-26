@@ -1,3 +1,5 @@
+import {ONE, ZERO} from "../constants";
+import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, log} from "@graphprotocol/graph-ts/index";
 
 import {
@@ -18,10 +20,10 @@ import {
 } from "../../generated/KODAV3Marketplace/KODAV3Marketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
+import {toEther} from "../utils";
 
 import {
-    loadNonNullableEdition,
-    loadOrCreateV2Edition,
+    loadNonNullableEdition, loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
 } from "../services/Edition.service";
 import {
@@ -37,22 +39,16 @@ import {
     recordDayTotalValuePlaceInBids, recordDayValue
 } from "../services/Day.service";
 import {recordActiveEditionBid, removeActiveBidOnEdition} from "../services/AuctionEvent.service";
-import {
-    recordPrimaryBidAccepted,
-    recordPrimaryBidPlaced,
-    recordPrimaryBidRejected,
-    recordPrimaryBidWithdrawn, recordPrimarySale
-} from "../services/ActivityEvent.service";
+
 import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
-import {getArtistAddress} from "../services/AddressMapping.service";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
-import {toEther} from "../utils";
-import {ONE, ZERO} from "../constants";
 import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../services/Artist.service";
-import {loadNonNullableToken, loadOrCreateV2Token, loadOrCreateV3Token} from "../services/Token.service";
-import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
-import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
+import {loadNonNullableToken, loadOrCreateV3Token} from "../services/Token.service";
 import {createTokenPrimaryPurchaseEvent} from "../services/TokenEvent.factory";
+
+import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
+import * as EVENT_TYPES from "../services/EventTypes";
+import {BigInt} from "@graphprotocol/graph-ts";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -197,7 +193,7 @@ export function handleEditionPurchased(event: EditionPurchased): void {
     // record running total of issued tokens
     recordDayIssued(event, event.params._tokenId)
 
-    recordPrimarySale(event, editionEntity, tokenEntity, event.params._price, event.params._buyer)
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._price, event.params._buyer)
 }
 
 ////////////////////
@@ -221,7 +217,11 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
 export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     log.info("KO V3 handleEditionBidPlaced() called - editionId {}", [event.params._editionId.toString()]);
 
-    let editionEntity = loadNonNullableEdition(event.params._editionId)
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3Marketplace.bind(event.address).koda()
+    )
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.save()
 
     let auctionEvent = createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
@@ -230,6 +230,8 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     biddingHistory.push(auctionEvent.id.toString())
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
+
+    // TODO handle user lockout period before then can withdraw
 
     recordDayBidPlacedCount(event)
 
@@ -240,7 +242,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
 
     recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionId)
 
-    recordPrimaryBidPlaced(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 }
 
 export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
@@ -262,7 +264,7 @@ export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
 
     clearEditionOffer(event.block, event.params._editionId)
 
-    recordPrimaryBidWithdrawn(event, editionEntity, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_WITHDRAWN, editionEntity, null, null, event.params._bidder)
 }
 
 export function handleEditionBidAccepted(event: EditionBidAccepted): void {
@@ -299,8 +301,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
 
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
 
-    // BidAccepted emit Transfer & Minted events
-    // COUNTS HANDLED IN MINTED
+    // BidAccepted emit Transfer events
     recordDayValue(event, event.params._tokenId, event.params._amount)
     recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
 
@@ -329,8 +330,9 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save()
 
-    recordPrimaryBidAccepted(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
-    recordPrimarySale(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_ACCEPTED, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleEditionBidRejected(event: EditionBidRejected): void {
@@ -354,46 +356,73 @@ export function handleEditionBidRejected(event: EditionBidRejected): void {
 
     clearEditionOffer(event.block, event.params._editionId)
 
-    recordPrimaryBidRejected(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_REJECTED, editionEntity, null, event.params._amount, event.params._bidder)
 }
 
 export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void {
     log.info("KO V3 handleEditionSteppedSaleBuy() called - editionId {}", [event.params._editionId.toString()]);
 
+    let collector = loadOrCreateCollector(event.params._buyer, event.block);
+    collector.save();
+
     let editionEntity = loadNonNullableEdition(event.params._editionId)
+    editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._price));
     editionEntity.priceInWei = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
+    editionEntity.currentStep = BigInt.fromI32(event.params._currentStep)
 
-    // TODO handle purchase logic for edition
-    // TODO currentStep mapping
+    // Record sale against the edition
+    let sales = editionEntity.sales
+    sales.push(event.params._tokenId.toString())
+    editionEntity.sales = sales
+    editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
 
+    // Tally up primary sale owners
+    if (!collectorInList(collector, editionEntity.primaryOwners)) {
+        let primaryOwners = editionEntity.primaryOwners;
+        primaryOwners.push(collector.id);
+        editionEntity.primaryOwners = primaryOwners;
+    }
     editionEntity.save()
 
-    // EditionSteppedSaleBuy(
-    //      uint256 indexed _editionId,
-    //      uint256 indexed _tokenId,
-    //      address indexed _buyer,
-    //      uint256 _price,
-    //      uint16 _currentStep
-    // );
+    let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
+
+    // BidAccepted emit Transfer events
+    recordDayValue(event, event.params._tokenId, event.params._price)
+    recordArtistValue(artistAddress, event.params._tokenId, event.params._price)
+
+    recordDayCounts(event, event.params._price)
+    recordArtistCounts(artistAddress, event.params._price)
+
+    addPrimarySaleToCollector(event.block, event.params._buyer, event.params._price);
+
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3Marketplace.bind(event.address).koda()
+    );
+
+    // Set price against token
+    let tokenEntity = loadOrCreateV3Token(event.params._tokenId, kodaV3Contract, event.block)
+    tokenEntity.primaryValueInEth = toEther(event.params._price)
+    tokenEntity.lastSalePriceInEth = toEther(event.params._price)
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._price))
+    tokenEntity.save()
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._price, event.params._buyer)
 }
 
 export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed): void {
     log.info("KO V3 handleEditionSteppedSaleListed() called - editionId {}", [event.params._editionId.toString()]);
 
-    let editionEntity = loadNonNullableEdition(event.params._editionId)
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3Marketplace.bind(event.address).koda()
+    )
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.stepSaleBasePrice = event.params._basePrice;
     editionEntity.stepSaleStepPrice = event.params._stepPrice;
+    editionEntity.currentStep = ZERO // assume when listed we are on step 0
+
     editionEntity.startDate = event.params._startDate;
     editionEntity.priceInWei = event.params._basePrice
 
-    // TODO currentStep mapping
-
     editionEntity.save()
-
-    // EditionSteppedSaleListed(
-    //  uint256 indexed _editionId,
-    //  uint128 _basePrice,
-    //  uint128 _stepPrice,
-    //  uint128 _startDate
-    // )
 }
