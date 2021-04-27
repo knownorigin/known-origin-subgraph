@@ -1,3 +1,4 @@
+import {BigInt} from "@graphprotocol/graph-ts";
 import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {
     Transfer,
@@ -9,11 +10,14 @@ import {
     AdminArtistAccountReported,
     AdminEditionReported,
 } from "../../generated/KnownOriginV3/KnownOriginV3";
+
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+
 import {
     loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
 } from "../services/Edition.service";
+
 import {addEditionToDay, recordDayTransfer} from "../services/Day.service";
 import {addEditionToArtist} from "../services/Artist.service";
 import {recordEditionCreated, recordTransfer} from "../services/ActivityEvent.service";
@@ -21,7 +25,6 @@ import {collectorInList, loadOrCreateCollector} from "../services/Collector.serv
 import {createTransferEvent} from "../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../services/Token.service";
-import {BigInt} from "@graphprotocol/graph-ts";
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
 
@@ -128,11 +131,17 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // Maintain a list of tokenId issued from the edition
         let tokenIds = editionEntity.tokenIds
+
+        let foundTokenId = false;
         for (let i = 0; i < tokenIds.length; i++) {
-            if (!tokenId.equals(tokenIds[i])) {
-                tokenIds.push(tokenIds[i])
+            if (tokenIds[i].equals(tokenId)) {
+                foundTokenId = true;
             }
         }
+        if (!foundTokenId) {
+            tokenIds.push(tokenId);
+        }
+
         editionEntity.tokenIds = tokenIds
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
