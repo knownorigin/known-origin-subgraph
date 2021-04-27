@@ -126,6 +126,20 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             editionEntity.currentOwners = currentOwners;
         }
 
+        // Maintain a list of tokenId issued from the edition
+        let tokenIds = editionEntity.tokenIds
+        for (let i = 0; i < tokenIds.length; i++) {
+            if (!tokenId.equals(tokenIds[i])) {
+                tokenIds.push(tokenIds[i])
+            }
+        }
+        editionEntity.tokenIds = tokenIds
+
+        let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
+
+        // Total number available to be purchased
+        editionEntity.totalAvailable = maxSize.minus(BigInt.fromI32(tokenIds.length));
+
         editionEntity.save();
 
         ////////////////////
