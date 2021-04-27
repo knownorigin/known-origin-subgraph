@@ -24,7 +24,7 @@ import {
     recordDayCounts
 } from "../services/Day.service";
 
-import {ONE} from "../utils/constants";
+import {MAX_UINT_256, ONE} from "../utils/constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
@@ -54,7 +54,16 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
 
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
-    editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
+
+    const priceInWei = contract.priceInWeiEdition(event.params._editionNumber)
+    if (priceInWei.equals(MAX_UINT_256)) {
+        editionEntity.offersOnly = true;
+        editionEntity.salesType = SaleTypes.OFFERS_ONLY
+    } else {
+        editionEntity.offersOnly = false;
+        editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
+    }
+
     editionEntity.save()
 }
 
@@ -67,6 +76,7 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
+    editionEntity.offersOnly = false
     editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.save()
 

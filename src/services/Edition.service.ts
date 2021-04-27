@@ -35,6 +35,9 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
+            if (editionEntity.offersOnly) {
+                editionEntity.salesType = SaleTypes.OFFERS_ONLY
+            }
 
             let collaborators: Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)

@@ -60,8 +60,6 @@ export function handleEditionPriceChange(contract: KnownOriginV2, editionNumber:
 
     if (editionEntity.offersOnly) {
         editionEntity.salesType = SaleTypes.OFFERS_ONLY
-    } else {
-        editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
     }
 
     editionEntity.save()

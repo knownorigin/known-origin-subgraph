@@ -187,6 +187,10 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     editionEntity.offersOnly = true
     editionEntity.auctionEnabled = true
     editionEntity.activeBid = null
+
+    removeActiveBidOnEdition(event.params._editionId)
+    clearEditionOffer(event.block, event.params._editionId)
+
     editionEntity.save()
 }
 
@@ -238,7 +242,6 @@ export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     removeActiveBidOnEdition(event.params._editionId)
-
     clearEditionOffer(event.block, event.params._editionId)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_WITHDRAWN, editionEntity, null, null, event.params._bidder)
@@ -298,11 +301,9 @@ export function handleEditionBidRejected(event: EditionBidRejected): void {
     editionEntity.save()
 
     recordDayBidRejectedCount(event)
-
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionId)
-
     clearEditionOffer(event.block, event.params._editionId)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_REJECTED, editionEntity, null, event.params._amount, event.params._bidder)
