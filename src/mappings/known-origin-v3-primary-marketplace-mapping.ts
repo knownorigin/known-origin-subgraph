@@ -14,10 +14,11 @@ import {
     EditionPurchased,
     AdminUpdateModulo,
     AdminUpdateMinBidAmount,
-    AdminUpdateSecondaryRoyalty,
     AdminUpdatePlatformPrimarySaleCommission,
-    AdminUpdateSecondarySaleCommission, KODAV3Marketplace, EditionSteppedSaleBuy, EditionSteppedSaleListed
-} from "../../generated/KODAV3Marketplace/KODAV3Marketplace";
+    KODAV3PrimaryMarketplace,
+    EditionSteppedSaleBuy,
+    EditionSteppedSaleListed
+} from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
 import {toEther} from "../utils/utils";
@@ -65,12 +66,13 @@ export function handleAdminUpdateMinBidAmount(event: AdminUpdateMinBidAmount): v
     marketConfig.save();
 }
 
-export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
-    log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
-    let marketConfig = getPlatformConfig()
-    marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
-    marketConfig.save();
-}
+// todo move to secondary mapping
+// export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
+//     log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
+//     let marketConfig = getPlatformConfig()
+//     marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
+//     marketConfig.save();
+// }
 
 export function handleAdminUpdatePlatformPrimarySaleCommission(event: AdminUpdatePlatformPrimarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformPrimarySaleCommission {}", [event.params._platformPrimarySaleCommission.toString()]);
@@ -79,12 +81,13 @@ export function handleAdminUpdatePlatformPrimarySaleCommission(event: AdminUpdat
     marketConfig.save();
 }
 
-export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
-    log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
-    let marketConfig = getPlatformConfig()
-    marketConfig.marketplaceSecondarySaleRoyalty = event.params._platformSecondarySaleCommission;
-    marketConfig.save();
-}
+// todo move to secondary mapping
+// export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
+//     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
+//     let marketConfig = getPlatformConfig()
+//     marketConfig.marketplaceSecondarySaleRoyalty = event.params._platformSecondarySaleCommission;
+//     marketConfig.save();
+// }
 
 /////////////////////
 // Edition Buy Now //
@@ -94,7 +97,7 @@ export function handleEditionPriceChanged(event: EditionPriceChanged): void {
     log.info("KO V3 handleEditionPriceChanged() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
@@ -105,7 +108,7 @@ export function handleEditionListed(event: EditionListed): void {
     log.info("KO V3 handleEditionListed() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
@@ -128,7 +131,7 @@ export function handleEditionDeListed(event: EditionDeListed): void {
     log.info("KO V3 handleEditionDeListed() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
 
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
@@ -179,7 +182,7 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     log.info("KO V3 handleEditionAcceptingOffer() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.auctionEnabled = true
@@ -198,7 +201,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     log.info("KO V3 handleEditionBidPlaced() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     )
 
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
@@ -251,7 +254,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
     log.info("KO V3 handleEditionBidAccepted() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
 
     let collector = loadOrCreateCollector(event.params._bidder, event.block);
@@ -313,7 +316,7 @@ export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void 
     log.info("KO V3 handleEditionSteppedSaleBuy() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
 
     let collector = loadOrCreateCollector(event.params._buyer, event.block);
@@ -340,7 +343,7 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     log.info("KO V3 handleEditionSteppedSaleListed() called - editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
     )
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.stepSaleBasePrice = event.params._basePrice;
