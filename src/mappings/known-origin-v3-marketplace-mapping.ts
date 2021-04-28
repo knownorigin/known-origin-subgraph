@@ -197,9 +197,9 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
 export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     log.info("KO V3 handleEditionBidPlaced() called - editionId {}", [event.params._editionId.toString()]);
 
-    let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3Marketplace.bind(event.address).koda()
-    )
+    let kodav3Marketplace = KODAV3Marketplace.bind(event.address)
+
+    let kodaV3Contract = KnownOriginV3.bind(kodav3Marketplace.koda())
 
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.save()
@@ -212,12 +212,13 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
-    // TODO handle user lockout period before then can withdraw
-
     recordDayBidPlacedCount(event)
 
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
+
+    let offer = kodav3Marketplace.editionOffers(event.params._editionId)
+    auctionEvent.lockupUntil = offer.value2
 
     recordActiveEditionBid(event.params._editionId, auctionEvent)
 

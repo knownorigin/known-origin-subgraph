@@ -35,10 +35,20 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
+
+            // Define sales type
             if (editionEntity.offersOnly) {
                 editionEntity.salesType = SaleTypes.OFFERS_ONLY
             }
 
+            let artistsAccount = Address.fromString(editionEntity.artistAccount.toHexString());
+
+            // Add artist
+            let artistEntity = loadOrCreateArtist(artistsAccount);
+            artistEntity.save()
+            editionEntity.artist = artistEntity.id
+
+            // Specify collabs (FIXME this will need to change in V3)
             let collaborators: Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)
 
@@ -52,7 +62,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.collaborators = collaborators
 
             // Set genesis flag
-            let artistEditions = contract.artistsEditions(Address.fromString(editionEntity.artistAccount.toHexString()));
+            let artistEditions = contract.artistsEditions(artistsAccount);
             if (artistEditions.length === 1) {
                 log.info("Setting isGenesisEdition TRUE for artist {} on edition {} total found {} ", [
                     editionEntity.artistAccount.toHexString(),
@@ -101,10 +111,6 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
     }
 
     return editionEntity as Edition;
-}
-
-export function loadV2Edition(editionNumber: BigInt): Edition | null {
-    return Edition.load(editionNumber.toString())
 }
 
 export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition {
@@ -185,9 +191,11 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
         // FIXME handle multiple commission splits ..
 
-        // FIXME once we know how to work this out ...
-        // Set genesis flag
-        editionEntity.isGenesisEdition = false
+        // Set genesis flag if not existing editions created
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
+        if (!artist.isSet("editions")) {
+            editionEntity.isGenesisEdition = true;
+        }
 
         let metaData = constructMetaData(_editionId, _uri)
         if (metaData != null) {
@@ -247,6 +255,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.stepSaleStepPrice = ZERO
     editionEntity.currentStep = ZERO
+    editionEntity.notForSale = false
 
     // set to empty string for text string although Ford is fixing this for us to handle nulls
     editionEntity.metadataName = ""

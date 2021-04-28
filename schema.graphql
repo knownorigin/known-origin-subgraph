@@ -41,6 +41,7 @@ type AuctionEvent @entity {
     timestamp: BigInt!
     ethValue: BigDecimal!
     transactionHash: Bytes!
+    lockupUntil: BigInt # when set the bidder who set this is locked out
 }
 
 
@@ -136,7 +137,7 @@ type Token @entity {
     totalPurchaseCount: BigInt!         # tally of the number of purchases (primary & secondary)
     lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!      # updated on ever Transfer
-    currentOwner: Collector             # the current owner
+    currentOwner: Collector             # the current owner - also has a derived field linking to this from Collector.tokens
     allOwners: [Collector!]!            # list (set) of all unique owners
     transfers: [TransferEvent!]!        # total number of token transfers made
     tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
@@ -146,6 +147,7 @@ type Token @entity {
     editionTotalAvailable: BigInt!
     editionActive: Boolean!
 
+    notForSale: Boolean! # set to true if the over removes approval for the marketplace's
 
     ## Token secondary market
     isListed: Boolean!
@@ -222,7 +224,10 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
+
     salesType: BigInt! # The current sales mechnic being used on this edition
+    notForSale: Boolean! # set to true if the primary seller removes approval for the marketplace
+
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
     tokenURI: String!
@@ -246,6 +251,9 @@ type Edition @entity {
 
     # Buy now price / current step price
     priceInWei: BigInt!
+
+    # Reference to the primary minter - see derived field {Artist.editions}
+    artist: Artist
 
     # date when the edition goes on sale
     startDate: BigInt!
@@ -365,6 +373,8 @@ type Artist @entity {
     lastEdition: Edition
     lastEditionTimestamp: BigInt!
 
+    editions: [Edition!]! @derivedFrom(field: "artist")
+
     # FIXME handle secondary sales payments
 }
 
@@ -390,4 +400,7 @@ type Collector @entity {
     # Primary & secondary sales counts
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
+
+    # all tokekns currently owned by this account
+    tokens: [Token!]! @derivedFrom(field: "currentOwner")
 }

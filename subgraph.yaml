@@ -324,32 +324,36 @@ dataSources:
         - AdminUpdateSecondaryRoyalty
         - AdminArtistAccountReported
         - AdminEditionReported
+        - ApprovalForAll
+        - Approval
       abis:
         - name: KnownOriginV3
           file: ./abis/KnownOriginV3.json
       eventHandlers:
-        # All transfers to/from regardless of on KO or not
-        - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransfer
-
-        - event: ConsecutiveTransfer(indexed uint256,uint256,indexed address,indexed address)
-          handler: handleConsecutiveTransfer
-
         # Marketplace/KODA V3 Config
         - event: AdminRoyaltiesRegistryProxySet(indexed address)
           handler: handleAdminRoyaltiesRegistryProxySet
-
         - event: AdminTokenUriResolverSet(indexed address)
           handler: handleAdminTokenUriResolverSet
-
         - event: AdminUpdateSecondaryRoyalty(uint256)
           handler: handleAdminUpdateSecondaryRoyalty
-
         - event: AdminArtistAccountReported(indexed address,indexed bool)
           handler: handleAdminArtistAccountReported
-
         - event: AdminEditionReported(indexed uint256,indexed bool)
           handler: handleAdminEditionReported
+
+        # All transfers to/from regardless of on KO or not
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: ConsecutiveTransfer(indexed uint256,uint256,indexed address,indexed address)
+          handler: handleConsecutiveTransfer
+
+        # Approvals
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+
       file: ./src/mappings/known-origin-v3-mapping.ts
 
         # medium priority
@@ -363,10 +367,8 @@ dataSources:
         # ReceivedRoyalties
 
         # (low) priority
-        # ApprovalForAll
-        # Approval
-        # AdditionalEditionUnlockableSet
-        # AdditionalEditionMetaDataSet
+      # AdditionalEditionUnlockableSet
+      # AdditionalEditionMetaDataSet
 
   ## KOAccessControls for KODA V3 (Next Gen)
   - kind: ethereum/contract

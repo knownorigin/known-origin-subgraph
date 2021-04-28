@@ -8,12 +8,13 @@ import {
     AdminTokenUriResolverSet,
     AdminUpdateSecondaryRoyalty,
     AdminArtistAccountReported,
-    AdminEditionReported,
+    AdminEditionReported, Approval, ApprovalForAll,
 } from "../../generated/KnownOriginV3/KnownOriginV3";
 
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {
+    loadNonNullableEdition,
     loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
 } from "../services/Edition.service";
@@ -27,7 +28,8 @@ import {createTokenTransferEvent} from "../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../services/Token.service";
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
-
+import {Artist, Collector, Token} from "../../generated/schema";
+import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../utils/KODAV3";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -96,6 +98,12 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Load it again
         tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
 
+        // Ensure approval for token ID is cleared
+        let approved = kodaV3Contract.getApproved(tokenId);
+        if (!approved.equals(ZERO_ADDRESS)) {
+            tokenEntity.notForSale = false;
+        }
+
         ///////////////
         // Transfers //
         ///////////////
@@ -131,17 +139,14 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // Maintain a list of tokenId issued from the edition
         let tokenIds = editionEntity.tokenIds
-
         let foundTokenId = false;
         for (let i = 0; i < tokenIds.length; i++) {
             if (tokenIds[i].equals(tokenId)) {
                 foundTokenId = true;
             }
         }
-        if (!foundTokenId) {
-            tokenIds.push(tokenId);
-        }
-
+        // if we dont know about this token, add it to the list
+        if (!foundTokenId) tokenIds.push(tokenId)
         editionEntity.tokenIds = tokenIds
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
@@ -232,9 +237,103 @@ export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoy
 }
 
 export function handleAdminArtistAccountReported(event: AdminArtistAccountReported): void {
+    log.info("KO V3 handleAdminArtistAccountReported() - disable account {}", [
+        event.params._account.toHexString()
+    ]);
+
     // FIXME finds all editions from the artist - disable them
 }
 
 export function handleAdminEditionReported(event: AdminEditionReported): void {
-    // FIXME find edition and disable
+    log.info("KO V3 handleAdminEditionReported() - disable edition {}", [
+        event.params._editionId.toString()
+    ]);
+
+    // find edition and disable
+    let edition = loadNonNullableEdition(event.params._editionId)
+    edition.active = false
+    edition.save()
+}
+
+export function handleApprovalForAll(event: ApprovalForAll): void {
+    log.info("KO V3 handleApprovalForAll() called - owner {} operator {} approved {}", [
+        event.params.owner.toHexString(),
+        event.params.operator.toHexString(),
+        event.params.approved ? "TURE" : "FALSE",
+    ]);
+
+    let kodaV3Contract = KnownOriginV3.bind(event.address);
+
+    // TODO handle mainnet
+
+    // Primary Sale Marketplace V3 (rinkeby)
+    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
+        // clear the edition
+        _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+
+        // clear any tokens being sold from the owner
+        _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+    }
+
+    // Second Sale Marketplace V3 (rinkeby)
+    if (event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+        // clear the edition
+        _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+
+        // clear any tokens being sold from the owner
+        _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+    }
+}
+
+export function handleApproval(event: Approval): void {
+
+    // TODO handle mainnet
+
+    // Primary Sale Marketplace V3 (rinkeby)
+    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
+        let token: Token | null = Token.load(event.params.tokenId.toString())
+        if (token) {
+            token.notForSale = false;
+            token.save()
+        }
+    }
+
+    // Second Sale Marketplace V3 (rinkeby)
+    if (event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+        let token: Token | null = Token.load(event.params.tokenId.toString())
+        if (token) {
+            token.notForSale = false;
+            token.save()
+        }
+    }
+}
+
+function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, notForSale: boolean, kodaV3Contract: KnownOriginV3): void {
+    let artist: Artist | null = Artist.load(artistAddress.toHexString())
+    if (artist) {
+        if (artist.isSet("editions")) {
+            let editionIds = artist.editions
+            for (let i = 0; i < editionIds.length; i++) {
+                let editionId = editionIds[i];
+                let edition = loadOrCreateV3Edition(BigInt.fromString(editionId), block, kodaV3Contract);
+                edition.notForSale = notForSale
+                edition.save()
+            }
+        }
+    }
+}
+
+function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, notForSale: boolean, kodaV3Contract: KnownOriginV3): void {
+    let collector: Collector | null = Collector.load(collectorAddress.toHexString())
+    if (collector) {
+        if (collector.isSet("tokens")) {
+            let tokensIds = collector.tokens
+            for (let i = 0; i < tokensIds.length; i++) {
+                let tokensId = tokensIds[i];
+                let token = loadOrCreateV3Token(BigInt.fromString(tokensId), kodaV3Contract, block);
+                token.notForSale = notForSale
+                token.save()
+            }
+        }
+    }
 }
