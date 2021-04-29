@@ -397,12 +397,78 @@ dataSources:
       file: ./src/mappings/accesscontrols-v3-mapping.ts
 
   # Token Marketplace V3 (primary & secondary for V3 NFT)
+#  - kind: ethereum/contract
+#    name: KODAV3Marketplace
+#    network: rinkeby
+#    source:
+#      address: ''
+#      abi: KODAV3Marketplace
+#      startBlock: 
+#    mapping:
+#      kind: ethereum/events
+#      apiVersion: 0.0.4
+#      language: wasm/assemblyscript
+#      entities:
+#        - AdminUpdateSecondaryRoyalty
+#        - AdminUpdatePlatformPrimarySaleCommission
+#        - AdminUpdateSecondarySaleCommission
+#        - AdminUpdateModulo
+#        - AdminUpdateMinBidAmount
+#      abis:
+#        - name: KODAV3Marketplace
+#          file: ./abis/KODAV3Marketplace.json
+#        - name: KnownOriginV3
+#          file: ./abis/KnownOriginV3.json
+#      eventHandlers:
+#        # Admin handlers
+#        - event: AdminUpdateSecondaryRoyalty(uint256)
+#          handler: handleAdminUpdateSecondaryRoyalty
+#        - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
+#          handler: handleAdminUpdatePlatformPrimarySaleCommission
+#        - event: AdminUpdateSecondarySaleCommission(uint256)
+#          handler: handleAdminUpdateSecondarySaleCommission
+#        - event: AdminUpdateModulo(uint256)
+#          handler: handleAdminUpdateModulo
+#        - event: AdminUpdateMinBidAmount(uint256)
+#          handler: handleAdminUpdateMinBidAmount
+#
+#        # Buy Now - primary
+#        - event: EditionPriceChanged(indexed uint256,uint256)
+#          handler: handleEditionPriceChanged
+#        - event: EditionDeListed(indexed uint256)
+#          handler: handleEditionDeListed
+#        - event: EditionListed(indexed uint256,uint256,uint256)
+#          handler: handleEditionListed
+#        - event: EditionPurchased(indexed uint256,indexed uint256,indexed address,uint256)
+#          handler: handleEditionPurchased
+#
+#        # Offers - primary
+#        - event: EditionAcceptingOffer(indexed uint256,uint128)
+#          handler: handleEditionAcceptingOffer
+#        - event: EditionBidPlaced(indexed uint256,indexed address,uint256)
+#          handler: handleEditionBidPlaced
+#        - event: EditionBidWithdrawn(indexed uint256,indexed address)
+#          handler: handleEditionBidWithdrawn
+#        - event: EditionBidAccepted(indexed uint256,indexed uint256,indexed address,uint256)
+#          handler: handleEditionBidAccepted
+#        - event: EditionBidRejected(indexed uint256,indexed address,uint256)
+#          handler: handleEditionBidRejected
+#
+#        # Stepped Sales
+#        - event: EditionSteppedSaleListed(indexed uint256,uint128,uint128,uint128)
+#          handler: handleEditionSteppedSaleListed
+#        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
+#          handler: handleEditionSteppedSaleBuy
+#
+#      file: ./src/mappings/known-origin-v3-marketplace-mapping.ts
+
+  # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
-    name: KODAV3Marketplace
+    name: KODAV3PrimaryMarketplace
     network: rinkeby
     source:
       address: '0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A'
-      abi: KODAV3Marketplace
+      abi: KODAV3PrimaryMarketplace
       startBlock: 8407084
     mapping:
       kind: ethereum/events
@@ -415,18 +481,14 @@ dataSources:
         - AdminUpdateModulo
         - AdminUpdateMinBidAmount
       abis:
-        - name: KODAV3Marketplace
-          file: ./abis/KODAV3Marketplace.json
+        - name: KODAV3PrimaryMarketplace
+          file: ./abis/KODAV3PrimaryMarketplace.json
         - name: KnownOriginV3
           file: ./abis/KnownOriginV3.json
       eventHandlers:
         # Admin handlers
-        - event: AdminUpdateSecondaryRoyalty(uint256)
-          handler: handleAdminUpdateSecondaryRoyalty
         - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
           handler: handleAdminUpdatePlatformPrimarySaleCommission
-        - event: AdminUpdateSecondarySaleCommission(uint256)
-          handler: handleAdminUpdateSecondarySaleCommission
         - event: AdminUpdateModulo(uint256)
           handler: handleAdminUpdateModulo
         - event: AdminUpdateMinBidAmount(uint256)
@@ -460,7 +522,9 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
-      file: ./src/mappings/known-origin-v3-marketplace-mapping.ts
+      file: ./src/mappings/known-origin-v3-primary-marketplace-mapping.ts
+
+  # Token Secondary Marketplace V3 (V3 NFT)
 
 #        # TODO events to map Marketplace
 #        # (high)
