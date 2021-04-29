@@ -303,8 +303,9 @@ dataSources:
           handler: handlePriceChangedEvent
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
 
-
-  ## KODA V3 (Next Gen)
+  # only include the below in V3
+  {{#include-koda-v3}}
+  ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
     network: {{network}}
@@ -370,7 +371,7 @@ dataSources:
       # AdditionalEditionUnlockableSet
       # AdditionalEditionMetaDataSet
 
-  ## KOAccessControls for KODA V3 (Next Gen)
+  ## KOAccessControls for KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KOAccessControls
     network: {{network}}
@@ -500,3 +501,4 @@ dataSources:
 #        # TokenBidAccepted
 #        # TokenBidRejected
 #        # TokenBidWithdrawn
+  {{/include-koda-v3}}

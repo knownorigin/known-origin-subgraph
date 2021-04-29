@@ -18,6 +18,7 @@
   "artist-edition-controls-v2-address": "0xC2d4Df7b146a5e5898e66DAa759213882e06dE59",
   "artist-edition-controls-v2-startBlock": 3919265,
 
+  "include-koda-v3": true,
   "koda-v3-address": "0x9028b16494a9363F3EAaf381a6Fde67296abc68C",
   "koda-v3-startBlock": 8332450,
   "koda-v3-primary-marketplace-address": "0xfAfEDFa41BEA1C68b4121d0dFF26081676A7B9c2",
