@@ -66,28 +66,12 @@ export function handleAdminUpdateMinBidAmount(event: AdminUpdateMinBidAmount): v
     marketConfig.save();
 }
 
-// todo move to secondary mapping
-// export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
-//     log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
-//     let marketConfig = getPlatformConfig()
-//     marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
-//     marketConfig.save();
-// }
-
 export function handleAdminUpdatePlatformPrimarySaleCommission(event: AdminUpdatePlatformPrimarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformPrimarySaleCommission {}", [event.params._platformPrimarySaleCommission.toString()]);
     let marketConfig = getPlatformConfig()
     marketConfig.primarySaleCommission = event.params._platformPrimarySaleCommission;
     marketConfig.save();
 }
-
-// todo move to secondary mapping
-// export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
-//     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
-//     let marketConfig = getPlatformConfig()
-//     marketConfig.marketplaceSecondarySaleRoyalty = event.params._platformSecondarySaleCommission;
-//     marketConfig.save();
-// }
 
 /////////////////////
 // Edition Buy Now //

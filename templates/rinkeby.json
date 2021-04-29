@@ -22,6 +22,8 @@
   "koda-v3-startBlock": 8332450,
   "koda-v3-primary-marketplace-address": "0xfAfEDFa41BEA1C68b4121d0dFF26081676A7B9c2",
   "koda-v3-primary-marketplace-startBlock": 8491897,
+  "koda-v3-secondary-marketplace-address": "0xf69881f9e3F9aD0B3c59Fa7Ab293A28FB7048db5",
+  "koda-v3-secondary-marketplace-startBlock": 8491907,
   "accesscontrols-v3-address": "0x224aab6dbc8d8ee00f98e070dfed92b946208c6d",
   "accesscontrols-v3-startBlock": 8331391
 }
