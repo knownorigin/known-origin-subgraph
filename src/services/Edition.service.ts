@@ -24,6 +24,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.version = KodaVersions.KODA_V2
             editionEntity.editionData = _editionData.value0
             editionEntity.editionType = _editionData.value1
+            editionEntity.salesType = SaleTypes.BUY_NOW
             editionEntity.startDate = _editionData.value2
             editionEntity.endDate = _editionData.value3
             editionEntity.artistAccount = getArtistAddress(_editionData.value4)
