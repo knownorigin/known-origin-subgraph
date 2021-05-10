@@ -1,5 +1,5 @@
 import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
-import {Artist} from "../../generated/schema";
+import {Artist, ArtistMintingConfig} from "../../generated/schema";
 import {ONE, ZERO} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
@@ -20,6 +20,14 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist.highestSaleValueInEth = new BigDecimal(ZERO)
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
+
+        const mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
+        mintConfig.mints = ZERO;
+        mintConfig.firstMintInPeriod = ZERO;
+        mintConfig.frequencyOverride = false;
+        mintConfig.save()
+
+        artist.mintingConfig = mintConfig.id
     }
 
     return artist as Artist;

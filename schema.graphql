@@ -104,20 +104,24 @@ type Day @entity {
 # FIXME Only for V3 atm
 type PlatformConfig @entity {
     id: ID!
+
     # NFT
     royaltiesRegistry: Bytes # address
     tokenUriResolver: Bytes # address
+
     # Marketplace
     modulo: BigInt
     primarySaleCommission: BigInt
     secondarySaleRoyalty: BigInt
     marketplaceSecondarySaleRoyalty: BigInt
     minBidAmount: BigInt
-}
 
-type AccessControls @entity {
-    id: ID!
-    merkleProofRoot: String
+    # Minting factory
+    mintingPeriod: BigInt!  # Minting allowance period
+    maxMintsInPeriod: BigInt! # Limit of mints with in the period
+
+    # Access controls
+    merkleProofRoot: Bytes
     merkleProofIpfsHash: String
 }
 
@@ -348,6 +352,13 @@ type Offer @entity {
 ## Accountable entities ##
 ##########################
 
+type ArtistMintingConfig @entity {
+    id: ID!
+    mints: BigInt!
+    firstMintInPeriod: BigInt!
+    frequencyOverride: Boolean! # set to true if the user can mint as much as possible
+}
+
 # An artists who has created editions/tokens
 type Artist @entity {
     id: ID!
@@ -374,6 +385,8 @@ type Artist @entity {
     lastEditionTimestamp: BigInt!
 
     editions: [Edition!]! @derivedFrom(field: "artist")
+
+    mintingConfig: ArtistMintingConfig!
 
     # FIXME handle secondary sales payments
 }

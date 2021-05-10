@@ -232,11 +232,10 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         address indexed _bidder
       );
     */
-    let contract = getKnownOriginV2ForAddress(event.address)
-
     createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
     clearTokenOffer(event.block, event.params._tokenId)
 
+    let contract = getKnownOriginV2ForAddress(event.address)
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
@@ -368,10 +367,9 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // Remove ListedToken from store
     store.remove("ListedToken", event.params._tokenId.toString());
 
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
-
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
+        let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
         recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
     }
 

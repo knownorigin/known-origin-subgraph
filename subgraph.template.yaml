@@ -304,7 +304,7 @@ dataSources:
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
 
   # only include the below in V3
-  {{#include-koda-v3}}
+{{#include-koda-v3}}
   ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
@@ -354,20 +354,26 @@ dataSources:
           handler: handleApprovalForAll
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
-
       file: ./src/mappings/known-origin-v3-mapping.ts
 
-        # medium priority
-        # (composable)
-        # ReceivedERC20
-        # ReceivedERC20ForEdition
-        # TransferERC20
-        # ContractWhitelisted
-        # WhitelistRemoved
-        # MaxERC20sPerNFTUpdated
-        # ReceivedRoyalties
+      # medium priority
+      #
+      # (update/burn)
+      # EditionURIUpdated
+      # EditionSalesDisabledToggled
+      #
+      # (composable)
+      # ReceivedERC20
+      # ReceivedERC20ForEdition
+      # TransferERC20
+      # ContractWhitelisted
+      # WhitelistRemoved
+      # MaxERC20sPerNFTUpdated
+      # ReceivedRoyalties
 
-        # (low) priority
+      # low priority
+      #
+      # (permweb and unlockable content)
       # AdditionalEditionUnlockableSet
       # AdditionalEditionMetaDataSet
 
@@ -395,7 +401,40 @@ dataSources:
 
         - event: AdminUpdateArtistAccessMerkleRootIpfsHash(string)
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
-      file: ./src/mappings/accesscontrols-v3-mapping.ts
+      file: ./src/mappings/platform-config-mapping.ts
+
+  ## MintingFactory for KODA V3
+  - kind: ethereum/contract
+    name: MintingFactory
+    network: {{network}}
+    source:
+      address: '{{koda-v3-minting-factory-address}}'
+      abi: MintingFactory
+      startBlock: {{koda-v3-minting-factory-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - MintingFactoryCreated
+        - AdminMintingPeriodChanged
+        - AdminMaxMintsInPeriodChanged
+        - AdminFrequencyOverrideChanged
+      abis:
+        - name: MintingFactory
+          file: ./abis/MintingFactory.json
+      eventHandlers:
+        - event: EditionMintedAndListed(indexed uint256,uint8)
+          handler: handleEditionMintedAndListed
+        - event: MintingFactoryCreated()
+          handler: handleMintingFactoryCreated
+        - event: AdminMintingPeriodChanged(uint256)
+          handler: handleAdminMintingPeriodChanged
+        - event: AdminMaxMintsInPeriodChanged(uint256)
+          handler: handleAdminMaxMintsInPeriodChanged
+        - event: AdminFrequencyOverrideChanged(address,bool)
+          handler: handleAdminFrequencyOverrideChanged
+      file: ./src/mappings/platform-config-mapping.ts
 
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -455,6 +494,15 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
+
+        # TODO reserve
+        #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
+        #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);
+        #    event ReserveAuctionResulted(uint256 indexed _tokenId, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
+        #    event BidWithdrawnFromReserveAuction(uint256 _tokenId, address indexed _bidder, uint128 _bid);
+        #    event ReservePriceUpdated(uint256 indexed _tokenId, uint256 _reservePrice);
+        #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
+
       file: ./src/mappings/known-origin-v3-primary-marketplace-mapping.ts
 
   # Token Secondary Marketplace V3 (V3 NFT)
@@ -487,18 +535,37 @@ dataSources:
           handler: handleAdminUpdateMinBidAmount
         - event: AdminUpdateModulo(uint256)
           handler: handleAdminUpdateModulo
-        - event: AdminUpdateMinBidAmount(uint256)
-          handler: handleAdminUpdateMinBidAmount
 
+        # TODO
+        # AdminUpdateBidLockupPeriod
+        # AdminUpdateSecondaryRoyalty
+        # AdminUpdateSecondarySaleCommission
+        # AdminUpdateReserveAuctionBidExtensionWindow
+        # AdminUpdateReserveAuctionLengthOnceReserveMet
+
+        # TODO Reserve
+        #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
+        #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);
+        #    event ReserveAuctionResulted(uint256 indexed _tokenId, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
+        #    event BidWithdrawnFromReserveAuction(uint256 _tokenId, address indexed _bidder, uint128 _bid);
+        #    event ReservePriceUpdated(uint256 indexed _tokenId, uint256 _reservePrice);
+        #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
+
+        # marketplace mappings
+        - event: TokenListed(indexed uint256,indexed address,uint256)
+          handler: handleTokenListed
+        - event: TokenDeListed(indexed uint256)
+          handler: handleTokenDeListed
+        - event:  TokenPurchased(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenPurchased
+        - event: TokenBidPlaced(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenBidPlaced
+        - event: TokenBidAccepted(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenBidAccepted
+        - event: TokenBidRejected(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTokenBidRejected
+        - event: TokenBidWithdrawn(indexed uint256,indexed address)
+          handler: handleTokenBidWithdrawn
       file: ./src/mappings/known-origin-v3-secondary-marketplace-mapping.ts
 
-#        # TODO events to map Marketplace
-#        # (high)
-#        # TokenListed
-#        # TokenDeListed
-#        # TokenPurchased
-#        # TokenBidPlaced
-#        # TokenBidAccepted
-#        # TokenBidRejected
-#        # TokenBidWithdrawn
   {{/include-koda-v3}}
