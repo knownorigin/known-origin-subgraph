@@ -13,6 +13,8 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
     if (listedToken == null) {
         listedToken = new ListedToken(tokenId.toString());
         listedToken.version = edition.version;
+        listedToken.editionNumber = ZERO;
+
         listedToken.fullToken = tokenId.toString();
         listedToken.listPrice = ZERO_BIG_DECIMAL;
         listedToken.lister = ZERO_ADDRESS.toHexString();
@@ -26,6 +28,8 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.primaryAssetActualType = edition.primaryAssetActualType || "";
         listedToken.save();
     }
+
+    listedToken.editionNumber = edition.editionNmber;
 
     return listedToken as ListedToken;
 }

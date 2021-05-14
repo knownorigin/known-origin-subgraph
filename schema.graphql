@@ -44,7 +44,6 @@ type AuctionEvent @entity {
     lockupUntil: BigInt # when set the bidder who set this is locked out
 }
 
-
 type ActivityEvent @entity {
     id: ID!
     type: String!               # Token or Edition
@@ -163,6 +162,8 @@ type Token @entity {
 type ListedToken @entity { #For Token Secondary market
     id: ID!
     version: BigInt! # KODA 2 or 3
+
+    editionNumber: BigInt!
 
     listPrice: BigDecimal!
     lister: Collector!
