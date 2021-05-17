@@ -41,8 +41,8 @@ let BURNT_EDITIONS: Array<number> = [101800, 102000, 102875, 103400, 103525, 103
 
 let CEASE_AND_DESIST: Array<number> = [
     // JMB - 15th May 2021
-    208250,
-    159100
+    // 208250,
+    // 159100
 ];
 
 export function isEditionBurnt(editionNumber: BigInt): boolean {
