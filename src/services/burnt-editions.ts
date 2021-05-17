@@ -2,7 +2,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 
 // A list of manually burnt editions before the new burner contract was deployed and had proper events
 // This hack is to speed up subgraph sync'ing so we dont have to use call handler mappings
-let burntEditions: Array<number> = [101800, 102000, 102875, 103400, 103525, 103600, 104125, 104525, 104950, 105325,
+let BURNT_EDITIONS: Array<number> = [101800, 102000, 102875, 103400, 103525, 103600, 104125, 104525, 104950, 105325,
     105475, 105825, 105850, 106300, 106700, 107000, 107425, 107800, 108300, 108800, 109150, 109525, 110000, 110500,
     110800, 111375, 111825, 112300, 112325, 112500, 112850, 113125, 113450, 114000, 114500, 115100, 115325,
     115475, 115850, 116000, 116525, 116875, 117175, 117625, 117975, 118025, 118400, 118775, 118950, 119200, 119850,
@@ -39,6 +39,12 @@ let burntEditions: Array<number> = [101800, 102000, 102875, 103400, 103525, 1036
     95025, 95275, 95425, 95500, 95600, 95875, 95975, 96100, 96200, 96250, 96325, 96500, 96600, 96750, 97025, 97175,
     97500, 97600, 97650, 97850, 97900, 98050, 98275, 98600, 99900, 50100, 39400, 39900, 42200]
 
+let CEASE_AND_DESIST: Array<number> = [
+    // JMB - 15th May 2021
+    208250,
+    159100
+];
+
 export function isEditionBurnt(editionNumber: BigInt): boolean {
-    return burntEditions.indexOf(editionNumber.toI32()) > -1;
+    return BURNT_EDITIONS.indexOf(editionNumber.toI32()) > -1 || CEASE_AND_DESIST.indexOf(editionNumber.toI32()) > -1;
 }
