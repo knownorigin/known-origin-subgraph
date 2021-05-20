@@ -30,6 +30,7 @@ import {getPlatformConfig} from "../services/PlatformConfig.factory";
 import {updateTokenOfferOwner} from "../services/Offers.service";
 import {Artist, Collector, Token} from "../../generated/schema";
 import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../utils/KODAV3";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -191,6 +192,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // Clear token price listing fields
         tokenEntity.isListed = false;
+        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
         tokenEntity.listPrice = ZERO_BIG_DECIMAL
         tokenEntity.lister = null
         tokenEntity.listingTimestamp = ZERO

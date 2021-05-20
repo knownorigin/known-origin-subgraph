@@ -11,6 +11,7 @@ import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import * as SaleTypes from "../utils/SaleTypes";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])
@@ -21,6 +22,7 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.allOwners = new Array<string>()
     tokenEntity.openOffer = null
     tokenEntity.tokenEvents = new Array<string>()
+    tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
     // Entity fields can be set using simple assignments
     tokenEntity.transferCount = ZERO // set up the owner count
@@ -37,6 +39,7 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.editionActive = true
     tokenEntity.artistAccount = ZERO_ADDRESS
     tokenEntity.isListed = false
+    tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listingTimestamp = ZERO

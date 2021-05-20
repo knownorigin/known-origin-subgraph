@@ -128,6 +128,7 @@ type PlatformConfig @entity {
 type Token @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
+    salesType: BigInt! # The current sales mechnic being used on this edition
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!

@@ -58,6 +58,7 @@ import {
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
 import {ONE} from "../utils/constants";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*

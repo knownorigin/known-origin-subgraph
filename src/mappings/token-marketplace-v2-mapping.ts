@@ -65,6 +65,7 @@ import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
 import * as KodaVersions from "../utils/KodaVersions";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -261,6 +262,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = false;
+    tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.currentOwner = loadOrCreateCollector(event.params._buyer, event.block).id
     tokenEntity.lastSalePriceInEth = toEther(event.params._price)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
@@ -313,6 +315,7 @@ export function handleTokenListed(event: TokenListed): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = true;
+    tokenEntity.salesType = SaleTypes.BUY_NOW
     tokenEntity.listPrice = toEther(event.params._price)
     tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
     tokenEntity.listingTimestamp = event.block.timestamp
@@ -360,6 +363,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = false;
+    tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listingTimestamp = ZERO

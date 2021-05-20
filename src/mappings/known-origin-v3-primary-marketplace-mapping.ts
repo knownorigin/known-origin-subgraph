@@ -78,7 +78,7 @@ export function handleAdminUpdatePlatformPrimarySaleCommission(event: AdminUpdat
 /////////////////////
 
 export function handleEditionPriceChanged(event: EditionPriceChanged): void {
-    log.info("KO V3 handleEditionPriceChanged() called - editionId {}", [event.params._editionId.toString()]);
+    log.info("KO V3 handleEditionPriceChanged() called -  editionId {}", [event.params._editionId.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
         KODAV3PrimaryMarketplace.bind(event.address).koda()

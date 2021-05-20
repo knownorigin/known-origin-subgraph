@@ -26,7 +26,7 @@ export function handleAdminUpdateArtistAccessMerkleRoot(event: AdminUpdateArtist
     config.save()
 }
 
-export function handleAdminUpdateMintingPeriod(event: AdminUpdateArtistAccessMerkleRootIpfsHash): void {
+export function handleAdminUpdateArtistAccessMerkleRootIpfsHash(event: AdminUpdateArtistAccessMerkleRootIpfsHash): void {
     log.info("KO V3 handleAdminUpdateArtistAccessMerkleRootIpfsHash() called - hash {}", [
         event.params._artistAccessMerkleRootIpfsHash.toString()
     ]);
@@ -34,7 +34,6 @@ export function handleAdminUpdateMintingPeriod(event: AdminUpdateArtistAccessMer
     config.merkleProofIpfsHash = event.params._artistAccessMerkleRootIpfsHash;
     config.save()
 }
-
 
 export function handleMintingFactoryCreated(event: MintingFactoryCreated): void {
     log.info("Minting factory - handleMintingFactoryCreated() called", []);

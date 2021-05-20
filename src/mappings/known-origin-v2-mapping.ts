@@ -48,6 +48,7 @@ import {
 } from "../services/ActivityEvent.service";
 
 import * as EVENT_TYPES from "../utils/EventTypes";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -156,6 +157,7 @@ export function handleTransfer(event: Transfer): void {
 
     // Clear token price listing fields
     tokenEntity.isListed = false;
+    tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listingTimestamp = ZERO

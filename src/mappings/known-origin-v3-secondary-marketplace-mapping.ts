@@ -50,6 +50,7 @@ import {
     createBidWithdrawnEvent
 } from "../services/TokenEvent.factory";
 import * as KodaVersions from "../utils/KodaVersions";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
     log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
@@ -87,6 +88,7 @@ export function handleTokenListed(event: TokenListed): void {
 
     let token = loadNonNullableToken(event.params._tokenId)
     token.isListed = true;
+    token.salesType = SaleTypes.BUY_NOW
     token.listPrice = toEther(event.params._price)
     token.lister = loadOrCreateCollector(event.params._seller, event.block).id
     token.listingTimestamp = event.block.timestamp
@@ -129,6 +131,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     let token = loadNonNullableToken(event.params._tokenId)
 
     token.isListed = false;
+    token.salesType = SaleTypes.OFFERS_ONLY
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
     token.listingTimestamp = ZERO
@@ -152,6 +155,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let edition = Edition.load(token.edition) as Edition
 
     token.isListed = false;
+    token.salesType = SaleTypes.OFFERS_ONLY
     token.currentOwner = loadOrCreateCollector(event.params._buyer, event.block).id
     token.lastSalePriceInEth = toEther(event.params._price)
     token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
