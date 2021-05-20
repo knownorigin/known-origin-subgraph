@@ -494,7 +494,6 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
-
         # TODO reserve
         #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
         #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);

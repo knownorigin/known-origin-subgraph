@@ -60,7 +60,7 @@ export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
 }
 
 export function handleAdminUpdateMinBidAmount(event: AdminUpdateMinBidAmount): void {
-    log.info("KO V3 handleAdminUpdateModulo() called - minBidAmount {}", [event.params._minBidAmount.toString()]);
+    log.info("KO V3 handleAdminUpdateMinBidAmount() called - minBidAmount {}", [event.params._minBidAmount.toString()]);
     let marketConfig = getPlatformConfig()
     marketConfig.modulo = event.params._minBidAmount;
     marketConfig.save();
