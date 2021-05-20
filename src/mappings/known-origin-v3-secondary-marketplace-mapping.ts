@@ -8,9 +8,10 @@ import {
     TokenBidRejected,
     TokenBidPlaced,
     TokenBidAccepted,
-    TokenPurchased,
+    BuyNowPurchased,
     TokenDeListed,
-    TokenListed,
+    ListedForBuyNow,
+    KODAV3SecondaryMarketplace
 } from "../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
@@ -80,37 +81,41 @@ export function handleAdminUpdateMinBidAmount(event: AdminUpdateMinBidAmount): v
     marketConfig.save();
 }
 
-export function handleTokenListed(event: TokenListed): void {
-    log.info("KO V3 handleTokenListed() called - _tokenId {}", [event.params._tokenId.toString()]);
+export function handleTokenListed(event: ListedForBuyNow): void {
+    log.info("KO V3 handleTokenListed() called - _tokenId {}", [event.params._id.toString()]);
 
     // let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
     // let koContract = KnownOriginV3.bind(marketplace.koda())
 
-    let token = loadNonNullableToken(event.params._tokenId)
+    let contract = KODAV3SecondaryMarketplace.bind(event.address)
+    let listing = contract.editionOrTokenListings(event.params._id)
+    let listingSeller = listing.value2
+
+    let token = loadNonNullableToken(event.params._id)
     token.isListed = true;
     token.salesType = SaleTypes.BUY_NOW
     token.listPrice = toEther(event.params._price)
-    token.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    token.lister = loadOrCreateCollector(listingSeller, event.block).id
     token.listingTimestamp = event.block.timestamp
     token.save()
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = loadOrCreateListedToken(event.params._tokenId, edition);
+    let listedToken = loadOrCreateListedToken(event.params._id, edition);
     listedToken.listPrice = toEther(event.params._price)
-    listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    listedToken.lister = loadOrCreateCollector(listingSeller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
 
     // Add filter flags
     let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
     let firstTokenId = edition.editionNmber.plus(ONE);
 
-    listedToken.seriesNumber = event.params._tokenId.minus(edition.editionNmber)
-    listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
-    listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
+    listedToken.seriesNumber = event.params._id.minus(edition.editionNmber)
+    listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
+    listedToken.isLastEdition = biggestTokenId.equals(event.params._id)
     listedToken.isGenesisEdition = edition.isGenesisEdition
     log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
-        event.params._tokenId.toString(),
+        event.params._id.toString(),
         biggestTokenId.toString(),
         listedToken.seriesNumber.toString(),
         edition.totalAvailable.toString(),
@@ -119,10 +124,10 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.save();
 
     // Save the lister
-    let collector = loadOrCreateCollector(event.params._seller, event.block);
+    let collector = loadOrCreateCollector(listingSeller, event.block);
     collector.save();
 
-    recordSecondaryTokenListed(event, token, edition, event.params._price, event.params._seller)
+    recordSecondaryTokenListed(event, token, edition, event.params._price, listingSeller)
     token.save()
 }
 
@@ -148,7 +153,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     token.save()
 }
 
-export function handleTokenPurchased(event: TokenPurchased): void {
+export function handleTokenPurchased(event: BuyNowPurchased): void {
     log.info("KO V3 handleTokenPurchased() called - _tokenId {}", [event.params._tokenId.toString()]);
 
     let token = loadNonNullableToken(event.params._tokenId)
@@ -177,11 +182,14 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     buyer.save();
 
     // Save the seller
-    let seller = loadOrCreateCollector(event.params._seller, event.block);
+    let contract = KODAV3SecondaryMarketplace.bind(event.address)
+    let listing = contract.editionOrTokenListings(event.params._tokenId)
+    let listingSeller = listing.value2
+    let seller = loadOrCreateCollector(listingSeller, event.block);
     seller.save();
 
     // Edition updates
-    recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, event.params._seller)
+    recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
 
     token.save()
 }

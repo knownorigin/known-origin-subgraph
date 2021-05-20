@@ -8,10 +8,9 @@ import {
     EditionBidPlaced,
     EditionBidRejected,
     EditionBidWithdrawn,
-    EditionDeListed,
-    EditionListed,
-    EditionPriceChanged,
-    EditionPurchased,
+    ListedForBuyNow,
+    BuyNowPriceChanged,
+    BuyNowPurchased,
     AdminUpdateModulo,
     AdminUpdateMinBidAmount,
     AdminUpdatePlatformPrimarySaleCommission,
@@ -77,24 +76,24 @@ export function handleAdminUpdatePlatformPrimarySaleCommission(event: AdminUpdat
 // Edition Buy Now //
 /////////////////////
 
-export function handleEditionPriceChanged(event: EditionPriceChanged): void {
-    log.info("KO V3 handleEditionPriceChanged() called -  editionId {}", [event.params._editionId.toString()]);
+export function handleEditionPriceChanged(event: BuyNowPriceChanged): void {
+    log.info("KO V3 handleEditionPriceChanged() called -  editionId {}", [event.params._id.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
         KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
-    let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
+    let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._id, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
     editionEntity.save()
 }
 
-export function handleEditionListed(event: EditionListed): void {
-    log.info("KO V3 handleEditionListed() called - editionId {}", [event.params._editionId.toString()]);
+export function handleEditionListed(event: ListedForBuyNow): void {
+    log.info("KO V3 handleEditionListed() called - editionId {}", [event.params._id.toString()]);
 
     let kodaV3Contract = KnownOriginV3.bind(
         KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
-    let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
+    let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._id, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
     editionEntity.startDate = event.params._startDate;
     editionEntity.salesType = SaleTypes.BUY_NOW
@@ -111,30 +110,17 @@ export function handleEditionListed(event: EditionListed): void {
     editionEntity.save()
 }
 
-export function handleEditionDeListed(event: EditionDeListed): void {
-    log.info("KO V3 handleEditionDeListed() called - editionId {}", [event.params._editionId.toString()]);
-
+export function handleEditionPurchased(event: BuyNowPurchased): void {
     let kodaV3Contract = KnownOriginV3.bind(
         KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
 
-    let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
-    editionEntity.priceInWei = ZERO;
-    editionEntity.startDate = ZERO
-    editionEntity.salesType = SaleTypes.OFFERS_ONLY // fall back to offers
+    let editionId = kodaV3Contract.getEditionIdOfToken(event.params._tokenId)
 
-    // set offers
-    editionEntity.offersOnly = true
-    editionEntity.auctionEnabled = true
-
-    editionEntity.save()
-}
-
-export function handleEditionPurchased(event: EditionPurchased): void {
-    log.info("KO V3 handleEditionPurchased() called - editionId {}", [event.params._editionId.toString()]);
+    log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
 
     // Action edition data changes
-    let editionEntity = loadNonNullableEdition(event.params._editionId)
+    let editionEntity = loadNonNullableEdition(editionId)
 
     // Create collector
     let collector = loadOrCreateCollector(event.params._buyer, event.block);

@@ -466,13 +466,11 @@ dataSources:
           handler: handleAdminUpdateMinBidAmount
 
         # Buy Now - primary
-        - event: EditionPriceChanged(indexed uint256,uint256)
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
           handler: handleEditionPriceChanged
-        - event: EditionDeListed(indexed uint256)
-          handler: handleEditionDeListed
-        - event: EditionListed(indexed uint256,uint256,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
           handler: handleEditionListed
-        - event: EditionPurchased(indexed uint256,indexed uint256,indexed address,uint256)
+        - event: BuyNowPurchased(indexed uint256,indexed address,uint256)
           handler: handleEditionPurchased
 
         # Offers - primary
@@ -492,7 +490,6 @@ dataSources:
           handler: handleEditionSteppedSaleListed
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
-
 
         # TODO reserve
         #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
@@ -551,11 +548,11 @@ dataSources:
         #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
 
         # marketplace mappings
-        - event: TokenListed(indexed uint256,indexed address,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
-        - event:  TokenPurchased(indexed uint256,indexed address,indexed address,uint256)
+        - event:  BuyNowPurchased(indexed uint256,indexed address,uint256)
           handler: handleTokenPurchased
         - event: TokenBidPlaced(indexed uint256,indexed address,indexed address,uint256)
           handler: handleTokenBidPlaced
