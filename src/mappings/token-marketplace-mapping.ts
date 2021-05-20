@@ -49,7 +49,6 @@ import {
     recordDayValue
 } from "../services/Day.service";
 import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
-import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
     recordSecondaryBidAccepted,
@@ -58,7 +57,6 @@ import {
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
 import {ONE} from "../utils/constants";
-import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*

@@ -35,7 +35,12 @@ export function recordEditionOffer(block: ethereum.Block,
 }
 
 export function clearEditionOffer(block: ethereum.Block, editionNumber: BigInt): void {
-    let offer: Offer | null = Offer.load(editionNumber.toString());
+
+    let offerId: string = toLowerCase(EDITION_TYPE)
+        .concat("-")
+        .concat(editionNumber.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
     if (offer !== null && offer.isActive) {
         offer.isActive = false
         offer.save()
@@ -75,7 +80,12 @@ export function recordTokenOffer(block: ethereum.Block,
 }
 
 export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
-    let offer: Offer | null = Offer.load(tokenId.toString());
+
+    let offerId: string = toLowerCase(TOKEN_TYPE)
+        .concat("-")
+        .concat(tokenId.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
     if (offer !== null && offer.isActive) {
         offer.isActive = false
         offer.save()
@@ -83,7 +93,12 @@ export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
 }
 
 export function updateTokenOfferOwner(block: ethereum.Block, tokenId: BigInt, newOwner: Address): void {
-    let offer: Offer | null = Offer.load(tokenId.toString());
+
+    let offerId: string = toLowerCase(TOKEN_TYPE)
+        .concat("-")
+        .concat(tokenId.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
 
     // Only do this is there is an offer object set
     if (offer !== null && offer.isActive) {
