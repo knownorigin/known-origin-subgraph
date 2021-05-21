@@ -255,6 +255,24 @@ type Edition @entity {
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
+    # ---- Reserve auction fields --------- #
+    reserveAuctionSeller: Bytes!
+    reserveAuctionBidder: Bytes!
+    reservePrice: BigInt!
+    reserveAuctionBid: BigInt!
+    reserveAuctionStartDate: BigInt!
+
+    lastReserveAuctionEndTimestamp: BigInt!
+    currentReserveAuctionEndTimestamp: BigInt!
+    reserveAuctionNumTimesExtended: BigInt!
+    reserveAuctionTotalExtensionLengthInSeconds: BigInt!
+
+    isReserveAuctionResulted: Boolean!
+    reserveAuctionResulter: Bytes!
+
+    reserveAuctionCanEmergencyExit: Boolean!
+    # ----- End of reserve auction fields - #
+
     # Buy now price / current step price
     priceInWei: BigInt!
 

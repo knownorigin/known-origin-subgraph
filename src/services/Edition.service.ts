@@ -257,6 +257,18 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.stepSaleStepPrice = ZERO
     editionEntity.currentStep = ZERO
     editionEntity.notForSale = false
+    editionEntity.reserveAuctionSeller = ZERO_ADDRESS
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reservePrice = ZERO
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionStartDate = ZERO
+    editionEntity.lastReserveAuctionEndTimestamp = ZERO
+    editionEntity.currentReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionNumTimesExtended = ZERO
+    editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+    editionEntity.isReserveAuctionResulted = false
+    editionEntity.reserveAuctionResulter = ZERO_ADDRESS
+    editionEntity.reserveAuctionCanEmergencyExit = false
 
     // set to empty string for text string although Ford is fixing this for us to handle nulls
     editionEntity.metadataName = ""

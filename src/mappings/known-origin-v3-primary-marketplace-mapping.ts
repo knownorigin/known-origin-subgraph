@@ -16,7 +16,9 @@ import {
     AdminUpdatePlatformPrimarySaleCommission,
     KODAV3PrimaryMarketplace,
     EditionSteppedSaleBuy,
-    EditionSteppedSaleListed
+    EditionSteppedSaleListed,
+    ListedForReserveAuction,
+    BidPlacedOnReserveAuction
 } from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
@@ -328,6 +330,58 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     // clear offers
     editionEntity.offersOnly = false
     editionEntity.auctionEnabled = false
+
+    editionEntity.save()
+}
+
+export function handleEditionListedForReserveAuction(event: ListedForReserveAuction): void {
+    log.info("KO V3 handleEditionListedForReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+
+    editionEntity.reserveAuctionSeller = reserveAuction.value0
+    editionEntity.reservePrice = event.params._reservePrice
+    editionEntity.reserveAuctionStartDate = event.params._startDate
+
+    editionEntity.save()
+}
+
+export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction): void {
+    log.info("KO V3 handleBidPlacedOnReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.reserveAuctionBidder = event.params._bidder
+    editionEntity.reserveAuctionBid = event.params._amount
+
+    // Check if the bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
+    if (editionEntity.reserveAuctionBid.ge(editionEntity.reservePrice)) {
+        let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+        let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
+
+        // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
+        editionEntity.lastReserveAuctionEndTimestamp = editionEntity.currentReserveAuctionEndTimestamp.equals(ZERO) ? bidEnd : editionEntity.currentReserveAuctionEndTimestamp
+        editionEntity.currentReserveAuctionEndTimestamp = bidEnd
+
+        // when the two values above are not the same, auction has been extended
+        if (editionEntity.lastReserveAuctionEndTimestamp.notEqual(editionEntity.currentReserveAuctionEndTimestamp)) {
+            editionEntity.reserveAuctionNumTimesExtended = editionEntity.reserveAuctionNumTimesExtended.plus(ONE)
+            editionEntity.reserveAuctionTotalExtensionLengthInSeconds = editionEntity.currentReserveAuctionEndTimestamp.minus(
+                editionEntity.lastReserveAuctionEndTimestamp
+            )
+        }
+    }
 
     editionEntity.save()
 }
