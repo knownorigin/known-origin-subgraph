@@ -498,6 +498,7 @@ dataSources:
           #
           #   - has the edition reached is reserve price - view on the data?
           #   - when does the reserve end?
+                # - lastAuctionEndTimestamp, currentAuctionEndTimestamp, numTimesExtended, totalExtensionLengthInSeconds
           #   - has the reserve moved into sudden death?
           #   - has the item been resulted and by who?
           #   - model all events, placed, withdraw - copy/look at existing auction logic for this
