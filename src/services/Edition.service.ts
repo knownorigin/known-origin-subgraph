@@ -262,8 +262,8 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.reservePrice = ZERO
     editionEntity.reserveAuctionBid = ZERO
     editionEntity.reserveAuctionStartDate = ZERO
-    editionEntity.lastReserveAuctionEndTimestamp = ZERO
-    editionEntity.currentReserveAuctionEndTimestamp = ZERO
+    editionEntity.previousReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionEndTimestamp = ZERO
     editionEntity.reserveAuctionNumTimesExtended = ZERO
     editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
     editionEntity.isReserveAuctionResulted = false

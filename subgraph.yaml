@@ -503,6 +503,10 @@ dataSources:
 
         - event: BidWithdrawnFromReserveAuction(uint256,indexed address,uint128)
           handler: handleBidWithdrawnFromReserveAuction
+
+        - event: ReservePriceUpdated(indexed uint256,uint256)
+          handler: handleReservePriceUpdated
+
           #   - all fields in ReserveAuction
           #   - capture all configuration fields PlatformConfig
           #
@@ -516,10 +520,6 @@ dataSources:
           #   - are we in an emergency exit state?
 
         # TODO reserve
-#        event BidPlacedOnReserveAuction(uint256 indexed _id, address indexed _bidder, uint256 _amount);
-#        event ReserveAuctionResulted(uint256 indexed _id, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
-#        event BidWithdrawnFromReserveAuction(uint256 _id, address indexed _bidder, uint128 _bid);
-#        event ReservePriceUpdated(uint256 indexed _id, uint256 _reservePrice);
 #        event ReserveAuctionConvertedToBuyItNow(uint256 indexed _id, uint128 _listingPrice, uint128 _startDate);
 #        event EmergencyBidWithdrawFromReserveAuction(uint256 indexed _id, address _bidder, uint128 _bid);
 

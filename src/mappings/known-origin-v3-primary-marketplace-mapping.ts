@@ -375,18 +375,18 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
         let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
 
         // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
-        editionEntity.lastReserveAuctionEndTimestamp = editionEntity.currentReserveAuctionEndTimestamp.equals(ZERO)
+        editionEntity.previousReserveAuctionEndTimestamp = editionEntity.reserveAuctionEndTimestamp.equals(ZERO)
             ? bidEnd
-            : editionEntity.currentReserveAuctionEndTimestamp
+            : editionEntity.reserveAuctionEndTimestamp
 
-        editionEntity.currentReserveAuctionEndTimestamp = bidEnd
+        editionEntity.reserveAuctionEndTimestamp = bidEnd
 
         // when the two values above are not the same, auction has been extended
-        if (editionEntity.lastReserveAuctionEndTimestamp.notEqual(editionEntity.currentReserveAuctionEndTimestamp)) {
+        if (editionEntity.previousReserveAuctionEndTimestamp.notEqual(editionEntity.reserveAuctionEndTimestamp)) {
             editionEntity.reserveAuctionNumTimesExtended = editionEntity.reserveAuctionNumTimesExtended.plus(ONE)
-            editionEntity.reserveAuctionTotalExtensionLengthInSeconds = editionEntity.currentReserveAuctionEndTimestamp.minus(
-                editionEntity.lastReserveAuctionEndTimestamp
-            )
+            editionEntity.reserveAuctionTotalExtensionLengthInSeconds = editionEntity.reserveAuctionTotalExtensionLengthInSeconds.plus(editionEntity.reserveAuctionEndTimestamp.minus(
+                editionEntity.previousReserveAuctionEndTimestamp
+            ))
         }
     }
 
@@ -452,8 +452,8 @@ function handleReservePriceUpdated(event: ReservePriceUpdated): void {
         let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
 
         // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
-        editionEntity.lastReserveAuctionEndTimestamp = bidEnd
-        editionEntity.currentReserveAuctionEndTimestamp = bidEnd
+        editionEntity.previousReserveAuctionEndTimestamp = bidEnd
+        editionEntity.reserveAuctionEndTimestamp = bidEnd
     }
 
     editionEntity.save()
