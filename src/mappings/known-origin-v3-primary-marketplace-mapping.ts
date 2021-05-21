@@ -351,6 +351,7 @@ export function handleEditionListedForReserveAuction(event: ListedForReserveAuct
     editionEntity.reserveAuctionSeller = reserveAuction.value0
     editionEntity.reservePrice = event.params._reservePrice
     editionEntity.reserveAuctionStartDate = event.params._startDate
+    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
 
     editionEntity.save()
 }
@@ -365,7 +366,6 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
 
-    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
     editionEntity.reserveAuctionBidder = event.params._bidder
     editionEntity.reserveAuctionBid = event.params._amount
 
@@ -375,7 +375,10 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
         let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
 
         // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
-        editionEntity.lastReserveAuctionEndTimestamp = editionEntity.currentReserveAuctionEndTimestamp.equals(ZERO) ? bidEnd : editionEntity.currentReserveAuctionEndTimestamp
+        editionEntity.lastReserveAuctionEndTimestamp = editionEntity.currentReserveAuctionEndTimestamp.equals(ZERO)
+            ? bidEnd
+            : editionEntity.currentReserveAuctionEndTimestamp
+
         editionEntity.currentReserveAuctionEndTimestamp = bidEnd
 
         // when the two values above are not the same, auction has been extended
@@ -388,6 +391,9 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     }
 
     editionEntity.save()
+
+    // TODO similar stuff to handleEditionBidPlaced()
+
 }
 
 function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
@@ -404,6 +410,9 @@ function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
     editionEntity.reserveAuctionResulter = event.params._resulter
 
     editionEntity.save()
+
+    // TODO similar stuff to handleEditionPurchased()
+
 }
 
 function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuction): void {
@@ -420,6 +429,9 @@ function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuct
     editionEntity.reserveAuctionBid = ZERO
 
     editionEntity.save()
+
+    // TODO similar stuff to handleEditionBidWithdrawn()
+
 }
 
 function handleReservePriceUpdated(event: ReservePriceUpdated): void {
