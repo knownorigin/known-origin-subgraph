@@ -492,6 +492,18 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
+          # Reserve Auction
+          #   - all fields in ReserveAuction
+          #   - capture all configuration fields PlatformConfig
+          #
+          #   - has the edition reached is reserve price - view on the data?
+          #   - when does the reserve end?
+          #   - has the reserve moved into sudden death?
+          #   - has the item been resulted and by who?
+          #   - model all events, placed, withdraw - copy/look at existing auction logic for this
+          #   - new sale type Edition
+          #   - are we in an emergency exit state?
+
         # TODO reserve
         #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
         #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);

@@ -116,8 +116,8 @@ type PlatformConfig @entity {
     minBidAmount: BigInt
 
     # Minting factory
-    mintingPeriod: BigInt!  # Minting allowance period
-    maxMintsInPeriod: BigInt! # Limit of mints with in the period
+    mintingPeriod: BigInt  # Minting allowance period
+    maxMintsInPeriod: BigInt # Limit of mints with in the period
 
     # Access controls
     merkleProofRoot: Bytes
