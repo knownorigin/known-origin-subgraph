@@ -1,4 +1,4 @@
-import {ONE, ZERO} from "../utils/constants";
+import {ONE, ZERO, ZERO_ADDRESS} from "../utils/constants";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {BigInt} from "@graphprotocol/graph-ts";
@@ -18,7 +18,9 @@ import {
     EditionSteppedSaleBuy,
     EditionSteppedSaleListed,
     ListedForReserveAuction,
-    BidPlacedOnReserveAuction
+    BidPlacedOnReserveAuction,
+    ReserveAuctionResulted,
+    BidWithdrawnFromReserveAuction
 } from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
@@ -382,6 +384,38 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
             )
         }
     }
+
+    editionEntity.save()
+}
+
+function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
+    log.info("KO V3 handleReserveAuctionResulted() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.isReserveAuctionResulted = true
+    editionEntity.reserveAuctionResulter = event.params._resulter
+
+    editionEntity.save()
+}
+
+function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuction): void {
+    log.info("KO V3 handleBidWithdrawnFromReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reserveAuctionBid = ZERO
 
     editionEntity.save()
 }

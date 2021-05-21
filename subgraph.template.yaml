@@ -498,6 +498,12 @@ dataSources:
 
         - event: BidPlacedOnReserveAuction(indexed uint256,indexed address,uint256)
           handler: handleBidPlacedOnReserveAuction
+
+        - event: ReserveAuctionResulted(indexed uint256,uint256,indexed address,indexed address)
+          handler: handleReserveAuctionResulted
+
+        - event: BidWithdrawnFromReserveAuction(uint256,indexed address,uint128)
+          handler: handleBidWithdrawnFromReserveAuction
           #   - all fields in ReserveAuction
           #   - capture all configuration fields PlatformConfig
           #
