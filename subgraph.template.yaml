@@ -504,6 +504,9 @@ dataSources:
 
         - event: BidWithdrawnFromReserveAuction(uint256,indexed address,uint128)
           handler: handleBidWithdrawnFromReserveAuction
+
+        - event: ReservePriceUpdated(indexed uint256,uint256)
+          handler: handleReservePriceUpdated
           #   - all fields in ReserveAuction
           #   - capture all configuration fields PlatformConfig
           #

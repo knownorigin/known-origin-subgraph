@@ -20,7 +20,8 @@ import {
     ListedForReserveAuction,
     BidPlacedOnReserveAuction,
     ReserveAuctionResulted,
-    BidWithdrawnFromReserveAuction
+    BidWithdrawnFromReserveAuction,
+    ReservePriceUpdated
 } from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../services/PlatformConfig.factory";
@@ -364,6 +365,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
 
+    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
     editionEntity.reserveAuctionBidder = event.params._bidder
     editionEntity.reserveAuctionBid = event.params._amount
 
@@ -416,6 +418,31 @@ function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuct
 
     editionEntity.reserveAuctionBidder = ZERO_ADDRESS
     editionEntity.reserveAuctionBid = ZERO
+
+    editionEntity.save()
+}
+
+function handleReservePriceUpdated(event: ReservePriceUpdated): void {
+    log.info("KO V3 handleReservePriceUpdated() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.reservePrice = event.params._reservePrice
+
+    // Check if the current bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
+    if (editionEntity.reserveAuctionBid.ge(event.params._reservePrice)) {
+        let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+        let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
+
+        // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
+        editionEntity.lastReserveAuctionEndTimestamp = bidEnd
+        editionEntity.currentReserveAuctionEndTimestamp = bidEnd
+    }
 
     editionEntity.save()
 }
