@@ -55,6 +55,7 @@ import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../utils/EventTypes";
 import * as SaleTypes from "../utils/SaleTypes";
 import {Collector, Edition, Token} from "../../generated/schema";
+import {RESERVE_BID_WITHDRAWN} from "../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -392,7 +393,14 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     editionEntity.save()
 
-    // TODO similar stuff to handleEditionBidPlaced()
+    recordDayBidPlacedCount(event)
+
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDayTotalValuePlaceInBids(event, event.params._amount)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
+
+    // TODO - check if there is anything missing from handleEditionBidPlaced()
 
 }
 
@@ -409,10 +417,26 @@ function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
     editionEntity.isReserveAuctionResulted = true
     editionEntity.reserveAuctionResulter = event.params._resulter
 
+    // Create collector
+    let collector = loadOrCreateCollector(event.params._winner, event.block);
+    collector.save();
+
+    _handleEditionPrimarySale(editionEntity, collector, event.params._id, event.params._finalPrice)
     editionEntity.save()
 
-    // TODO similar stuff to handleEditionPurchased()
+    let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event, event.params._id, event.params._winner, event.params._finalPrice);
+    tokenTransferEvent.save();
 
+    // Set price against token
+    let tokenEntity = loadNonNullableToken(event.params._id)
+    _handleTokenPrimarySale(tokenEntity, event.params._finalPrice)
+    tokenEntity.save()
+
+    // Record Artist Data
+    let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
+    _handleArtistAndDayCounts(event, event.params._id, event.params._finalPrice, artistAddress, event.params._winner);
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._finalPrice, event.params._winner)
 }
 
 function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuction): void {
@@ -430,7 +454,14 @@ function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuct
 
     editionEntity.save()
 
-    // TODO similar stuff to handleEditionBidWithdrawn()
+    recordDayBidWithdrawnCount(event)
+
+    removeActiveBidOnEdition(event.params._id)
+    clearEditionOffer(event.block, event.params._id)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_WITHDRAWN, editionEntity, null, null, event.params._bidder)
+
+    // TODO check if anything missed - handleEditionBidWithdrawn()
 
 }
 

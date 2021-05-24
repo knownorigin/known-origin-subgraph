@@ -9,6 +9,8 @@ export const BID_REJECTED = "BidRejected";
 export const BID_INCREASED = "BidIncreased";
 export const BID_ACCEPTED = "BidAccepted";
 export const BID_PLACED = "BidPlaced";
+export const RESERVE_BID_PLACED = "ReserveBidPlaced";
+export const RESERVE_BID_WITHDRAWN = "ReserveBidWithdrawn";
 export const EDITION_GIFTED = "EditionGifted";
 export const EDITION_CREATED = "EditionCreated";
 
