@@ -55,7 +55,12 @@ import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../utils/EventTypes";
 import * as SaleTypes from "../utils/SaleTypes";
 import {Collector, Edition, Token} from "../../generated/schema";
-import {RESERVE_BID_WITHDRAWN} from "../utils/EventTypes";
+import {
+    RESERVE_AUCTION_LISTED,
+    RESERVE_BID_WITHDRAWN,
+    RESERVE_COUNTDOWN_STARTED, RESERVE_PRICE_CHANGED,
+    STEPPED_AUCTION_LISTED
+} from "../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -337,7 +342,7 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
 
     editionEntity.save()
 
-    // FIXME Do we need an activity event ...?
+    recordPrimarySaleEvent(event, EVENT_TYPES.STEPPED_AUCTION_LISTED, editionEntity, null, event.params._basePrice, ZERO_ADDRESS)
 }
 
 export function handleEditionListedForReserveAuction(event: ListedForReserveAuction): void {
@@ -356,7 +361,7 @@ export function handleEditionListedForReserveAuction(event: ListedForReserveAuct
     editionEntity.reserveAuctionStartDate = event.params._startDate
     editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
 
-    // FIXME Do we need an activity event ...?
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_AUCTION_LISTED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
 
     editionEntity.save()
 }
@@ -374,8 +379,6 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     editionEntity.reserveAuctionBidder = event.params._bidder
     editionEntity.reserveAuctionBid = event.params._amount
 
-    // TODO activity event for is auction countdown start & reserve time extended
-
     // Check if the bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
     if (editionEntity.reserveAuctionBid.ge(editionEntity.reservePrice)) {
         let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
@@ -388,12 +391,16 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
         editionEntity.reserveAuctionEndTimestamp = bidEnd
 
+        recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_COUNTDOWN_STARTED, editionEntity, null, editionEntity.reserveAuctionBid, event.params._bidder)
+
         // when the two values above are not the same, auction has been extended
         if (editionEntity.previousReserveAuctionEndTimestamp.notEqual(editionEntity.reserveAuctionEndTimestamp)) {
             editionEntity.reserveAuctionNumTimesExtended = editionEntity.reserveAuctionNumTimesExtended.plus(ONE)
             editionEntity.reserveAuctionTotalExtensionLengthInSeconds = editionEntity.reserveAuctionTotalExtensionLengthInSeconds.plus(editionEntity.reserveAuctionEndTimestamp.minus(
                 editionEntity.previousReserveAuctionEndTimestamp
             ))
+
+            recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_EXTENDED, editionEntity, null, editionEntity.reserveAuctionBid, event.params._bidder)
         }
     }
 
@@ -406,19 +413,17 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 
-    // TODO
-    // let auctionEvent = createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
-    // auctionEvent.save()
-    // let biddingHistory = editionEntity.biddingHistory
-    // biddingHistory.push(auctionEvent.id.toString())
-    // editionEntity.biddingHistory = biddingHistory
-    // editionEntity.save()
+    let auctionEvent = createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    auctionEvent.save()
 
-    // TODO
-    // recordActiveEditionBid(event.params._editionId, auctionEvent)
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
+    editionEntity.save()
 
-    // TODO and add sales type
-    // recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionId)
+    recordActiveEditionBid(event.params._id, auctionEvent)
+
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._id)
 
 }
 
@@ -440,13 +445,13 @@ function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
     collector.save();
 
     // TODO Auction resulted
-    // let auctionEvent = createBidAccepted(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
-    // auctionEvent.save()
-    //
-    // // Maintain bidding history list
-    // let biddingHistory = editionEntity.biddingHistory
-    // biddingHistory.push(auctionEvent.id.toString())
-    // editionEntity.biddingHistory = biddingHistory
+    let auctionEvent = createBidAccepted(event.block, event.transaction, editionEntity, event.params._winner, event.params._finalPrice);
+    auctionEvent.save()
+
+    // Maintain bidding history list
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
 
     _handleEditionPrimarySale(editionEntity, collector, event.params._id, event.params._finalPrice)
     editionEntity.save()
@@ -463,10 +468,9 @@ function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
     _handleArtistAndDayCounts(event, event.params._id, event.params._finalPrice, artistAddress, event.params._winner);
 
-    // TODO
-    // recordDayBidAcceptedCount(event)
-    // removeActiveBidOnEdition(event.params._editionId)
-    // clearEditionOffer(event.block, event.params._editionId)
+    recordDayBidAcceptedCount(event)
+    removeActiveBidOnEdition(event.params._id)
+    clearEditionOffer(event.block, event.params.id)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._finalPrice, event.params._winner)
 }
@@ -516,7 +520,7 @@ function handleReservePriceUpdated(event: ReservePriceUpdated): void {
         editionEntity.reserveAuctionEndTimestamp = bidEnd
     }
 
-    // TODO add event about price change EventTypes.RESERVE_PRICE_CHANGED
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_PRICE_CHANGED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
 
     editionEntity.save()
 }

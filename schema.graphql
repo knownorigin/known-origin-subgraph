@@ -356,6 +356,7 @@ type Offer @entity {
     id: ID!                         # edition ID or token ID
     version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
+    salesType: BigInt!              # The current sales mechnic being used on this offer
     token: Token                    # nullable token, as editions dont have tokens attached
     edition: Edition!               # All offers must be from an edition
     currentOwner: Collector!        # This is either the token holder or the edition artist
