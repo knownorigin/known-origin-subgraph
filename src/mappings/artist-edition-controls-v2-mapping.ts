@@ -60,6 +60,13 @@ export function handleEditionPriceChange(contract: KnownOriginV2, editionNumber:
 
     if (editionEntity.offersOnly) {
         editionEntity.salesType = SaleTypes.OFFERS_ONLY
+        log.debug("handleEditionPriceChange() setting sales type [{}]", [SaleTypes.OFFERS_ONLY.toString()]);
+    } else if (editionEntity.auctionEnabled) {
+        editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
+        log.debug("handleEditionPriceChange() setting sales type [{}]", [SaleTypes.BUY_NOW_AND_OFFERS.toString()]);
+    } else {
+        editionEntity.salesType = SaleTypes.BUY_NOW
+        log.debug("handleEditionPriceChange() setting sales type [{}]", [SaleTypes.BUY_NOW.toString()]);
     }
 
     editionEntity.save()
