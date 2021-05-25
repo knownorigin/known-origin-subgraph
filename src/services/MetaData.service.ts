@@ -5,7 +5,7 @@ import {BigInt, log, Result} from "@graphprotocol/graph-ts/index";
 
 // Static list of manual overrides
 // Historic legacy minting errors which have since been fixed and are not indexed due to slowness of indexing speed when crawling .call() methods
-const MAPPING_OVERRIDES = new Map<String, String>();
+let MAPPING_OVERRIDES = new Map<String, String>();
 // Edition ID to IPFS hash
 MAPPING_OVERRIDES.set("23000", "QmQfekqvArSBwqUZisArmXpsZDb9cqyauHkyJBh141sR8Y")
 
@@ -18,23 +18,25 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
         let result: Result<JSONValue, boolean> = json.try_fromBytes(data as Bytes)
 
         if (result.isOk) {
-
             // Do something with the JSON value
             let jsonData = result.value;
 
             if (isObject(jsonData) && jsonData.toObject().isSet('name')) {
+                // @ts-ignore
                 metaData.name = jsonData.toObject().get('name').toString()
             } else {
                 metaData.name = ""
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('description')) {
+                // @ts-ignore
                 metaData.description = jsonData.toObject().get('description').toString()
             } else {
                 metaData.description = ""
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('image')) {
+                // @ts-ignore
                 metaData.image = jsonData.toObject().get('image').toString()
             } else {
                 metaData.image = ""
@@ -63,7 +65,6 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
             }
 
             if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
-
                 let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
 
                 ///////////////////////////////
@@ -71,17 +72,55 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 ///////////////////////////////
 
                 if (isObject(attributes) && attributes.toObject().isSet('scarcity')) {
+                    // @ts-ignore
                     metaData.scarcity = attributes.toObject().get('scarcity').toString()
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('artist')) {
+                    // @ts-ignore
                     metaData.artist = attributes.toObject().get('artist').toString()
                 }
+
+                if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
+                    let rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
+                    let isNull: boolean = (rawProductionYear as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.production_year = rawProductionYear.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('category')) {
+                    let rawCategory: JSONValue | null = attributes.toObject().get('category');
+                    let isNull: boolean = (rawCategory as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.category = rawCategory.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('nsfw')) {
+                    let rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
+                    let isNull: boolean = (rawNsfw as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.nsfw = rawNsfw.toBool()
+                    }
+                }
+
                 if (isObject(attributes) && attributes.toObject().isSet("tags")) {
-                    let rawTags: JSONValue[] = attributes.toObject().get("tags").toArray();
-                    let tags: Array<string> = rawTags.map<string>((value, i, values) => {
-                        return value.toString();
-                    });
-                    metaData.tags = tags;
+                    let rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
+                    if (rawTagsObj) {
+                        let isNull: boolean = (rawTagsObj as JSONValue).isNull();
+                        if (!isNull) {
+                            // @ts-ignore
+                            let rawTags: JSONValue[] = rawTagsObj.toArray();
+                            let tags: Array<string> = rawTags.map<string>((value, i, values) => {
+                                return value.toString();
+                            });
+                            metaData.tags = tags;
+                        }
+                    }
                 }
 
                 ///////////
@@ -97,6 +136,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
                     let assetSizeInBytes: JSONValue | null = attributes.toObject().get('asset_size_in_bytes');
                     if (assetSizeInBytes) {
@@ -120,6 +160,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
                     let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
                     if (coverImageType) {
@@ -129,6 +170,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         }
                     }
                 }
+
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
                     let coverImageSizeInBytes: JSONValue | null = attributes.toObject().get('cover_image_size_in_bytes');
                     if (coverImageSizeInBytes) {
@@ -151,13 +193,14 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     return metaData;
 }
 
-export function constructMetaData(editionNumber: BigInt, tokenURI: string): MetaData | null {
+export function constructMetaData(editionNumber: BigInt, tokenURI: string): MetaData {
     log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
 
     if (ipfsParts.length > 0) {
         let ipfsHash: string = ipfsParts[ipfsParts.length - 1];
+        log.info("constructMetaData() token URI ipfsHash [{}]", [ipfsHash]);
 
         if (MAPPING_OVERRIDES.has(editionNumber.toString())) {
             let override = MAPPING_OVERRIDES.get(editionNumber.toString()) as string;
@@ -166,6 +209,12 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
                 override
             ])
             ipfsHash = override;
+        }
+
+        // Check IPFS length is valid, some rinkeby IPFS hashes are bust so we need to handle this special case atm
+        if (!ipfsHash || ipfsHash.length < 46) {
+            log.error("Skipping invalid IPFS hash lookup", [(ipfsHash || "N/A")]);
+            return new MetaData("invalid-ipfs-hash-" + (ipfsHash || "N/A"));
         }
 
         let metaData: MetaData | null = loadIpfsData(tokenURI, ipfsHash);
@@ -178,7 +227,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
         }
 
         if (metaData) {
-            return metaData;
+            return metaData as MetaData;
         }
 
         log.error("FAILED IPFS token URI load {}", [tokenURI]);
@@ -186,7 +235,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
-    return null;
+    return new MetaData("failed-ipfs-hash");
 }
 
 function isObject(jsonData: JSONValue): boolean {

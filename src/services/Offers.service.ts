@@ -1,29 +1,23 @@
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
-import {loadOrCreateEdition} from "./Edition.service";
-import {KnownOrigin} from "../../generated/KnownOrigin/KnownOrigin";
+import {loadNonNullableEdition} from "./Edition.service";
 import {loadOrCreateCollector} from "./Collector.service";
-import {toEther} from "../utils";
+import {toEther, toLowerCase} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
-import {loadOrCreateToken} from "./Token.service";
+import {loadNonNullableToken} from "./Token.service";
 
-export const EDITION_TYPE = "Edition"
-export const TOKEN_TYPE = "Token"
-
-export const V1_CONTRACT = "1";
-export const V2_CONTRACT = "2";
+export let EDITION_TYPE = "Edition"
+export let TOKEN_TYPE = "Token"
 
 export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
-                                   contract: KnownOrigin,
                                    bidder: Address,
                                    amount: BigInt,
                                    editionNumber: BigInt): Offer {
 
-    let editionEntity = loadOrCreateEdition(editionNumber, block, contract);
-    editionEntity.save()
+    let editionEntity = loadNonNullableEdition(editionNumber);
 
-    let offer: Offer = initOffer(block, contract, EDITION_TYPE, editionNumber)
+    let offer: Offer = initOffer(block, EDITION_TYPE, editionNumber)
     offer.isActive = true
     offer.bidder = loadOrCreateCollector(bidder, block).id
     offer.ethValue = toEther(amount)
@@ -40,28 +34,35 @@ export function recordEditionOffer(block: ethereum.Block,
     return offer as Offer
 }
 
-export function clearEditionOffer(block: ethereum.Block, contract: KnownOrigin, editionNumber: BigInt): Offer {
-    let offer: Offer = initOffer(block, contract, EDITION_TYPE, editionNumber)
-    offer.isActive = false
-    offer.save();
-    return offer as Offer
+export function clearEditionOffer(block: ethereum.Block, editionNumber: BigInt): void {
+
+    let offerId: string = toLowerCase(EDITION_TYPE)
+        .concat("-")
+        .concat(editionNumber.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
+    if (offer !== null && offer.isActive) {
+        offer.isActive = false
+        offer.save()
+    }
 }
 
 export function recordTokenOffer(block: ethereum.Block,
                                  transaction: ethereum.Transaction,
-                                 contract: KnownOrigin,
                                  bidder: Address,
                                  amount: BigInt,
                                  tokenId: BigInt,
                                  secondaryMarketVersion: String): Offer {
 
-    let tokenEntity = loadOrCreateToken(tokenId, contract, block);
+    let tokenEntity = loadNonNullableToken(tokenId);
 
-    let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
+    let offer: Offer = initOffer(block, TOKEN_TYPE, tokenId)
     offer.isActive = true
     offer.bidder = loadOrCreateCollector(bidder, block).id
     offer.ethValue = toEther(amount)
     offer.weiValue = amount
+
+    // @ts-ignore
     // Token holders own token
     offer.currentOwner = loadOrCreateCollector(Address.fromString(tokenEntity.currentOwner), block).id
     offer.timestamp = block.timestamp
@@ -70,6 +71,7 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.type = TOKEN_TYPE
 
     // FIXME Once all offers from V1 are removed, this fields can go - frontend switch also needs to be removed
+    // @ts-ignore
     offer.secondaryMarketVersion = secondaryMarketVersion
 
     offer.save()
@@ -77,38 +79,57 @@ export function recordTokenOffer(block: ethereum.Block,
     return offer as Offer
 }
 
-export function clearTokenOffer(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt):  void{
-    let offer: Offer | null = Offer.load(tokenId.toString());
+export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
+
+    let offerId: string = toLowerCase(TOKEN_TYPE)
+        .concat("-")
+        .concat(tokenId.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
     if (offer !== null && offer.isActive) {
         offer.isActive = false
         offer.save()
     }
 }
 
-export function updateTokenOfferOwner(block: ethereum.Block, contract: KnownOrigin, tokenId: BigInt, newOwner: Address): void {
-    let offer: Offer | null = Offer.load(tokenId.toString());
+export function updateTokenOfferOwner(block: ethereum.Block, tokenId: BigInt, newOwner: Address): void {
+
+    let offerId: string = toLowerCase(TOKEN_TYPE)
+        .concat("-")
+        .concat(tokenId.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
 
     // Only do this is there is an offer object set
     if (offer !== null && offer.isActive) {
-        let offer: Offer = initOffer(block, contract, TOKEN_TYPE, tokenId)
+        let offer: Offer = initOffer(block, TOKEN_TYPE, tokenId)
         offer.currentOwner = loadOrCreateCollector(Address.fromString(newOwner.toHexString()), block).id
         offer.save()
     }
 }
 
-export function initOffer(block: ethereum.Block, contract: KnownOrigin, type: String, id: BigInt): Offer {
-    let offer: Offer | null = Offer.load(id.toString());
+function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
+
+    // Offers now need to include type as in V3 ID for edition and Token clash for the first token e.g Token-1234
+    let offerId: string = toLowerCase(type)
+        .concat("-")
+        .concat(id.toString());
+
+    let offer: Offer | null = Offer.load(offerId);
     if (offer == null) {
-        offer = new Offer(id.toString());
+        offer = new Offer(offerId);
         offer.type = type.toString()
 
         if (type == EDITION_TYPE) {
-            offer.edition = loadOrCreateEdition(id, block, contract).id
+            let edition = loadNonNullableEdition(id);
+            offer.edition = edition.id
+            offer.version = edition.version
         }
 
         if (type == TOKEN_TYPE) {
-            let tokenEntity = loadOrCreateToken(id, contract, block);
-            offer.edition = loadOrCreateEdition(tokenEntity.editionNumber, block, contract).id
+            let tokenEntity = loadNonNullableToken(id);
+            offer.edition = loadNonNullableEdition(tokenEntity.editionNumber).id
+            offer.version = tokenEntity.version
             offer.token = tokenEntity.id
         }
     }

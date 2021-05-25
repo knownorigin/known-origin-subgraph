@@ -1,34 +1,36 @@
-import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {Artist} from "../../generated/schema";
-import {ONE, ZERO} from "../constants";
-import {toEther} from "../utils";
+import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
+import {Artist, ArtistMintingConfig} from "../../generated/schema";
+import {ONE, ZERO} from "../utils/constants";
+import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 
-export function loadOrCreateArtist(address: Address): Artist | null {
+export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
 
-    let artist: Artist | null = Artist.load(artistAddress.toHexString())
+    let artist = Artist.load(artistAddress.toHexString())
 
     if (artist === null) {
         artist = new Artist(artistAddress.toHexString())
-
         artist.address = artistAddress
-
         artist.editionsCount = ZERO
-
         artist.issuedCount = ZERO
         artist.salesCount = ZERO
-
         artist.supply = ZERO
         artist.totalValueInEth = new BigDecimal(ZERO)
-
         artist.highestSaleValueInEth = new BigDecimal(ZERO)
-
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
+
+        const mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
+        mintConfig.mints = ZERO;
+        mintConfig.firstMintInPeriod = ZERO;
+        mintConfig.frequencyOverride = false;
+        mintConfig.save()
+
+        artist.mintingConfig = mintConfig.id
     }
 
-    return artist;
+    return artist as Artist;
 }
 
 export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): void {

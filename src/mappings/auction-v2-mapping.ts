@@ -9,7 +9,7 @@ import {
     AuctionCancelled,
 } from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
 
-import {loadOrCreateEdition} from "../services/Edition.service";
+import {loadOrCreateV2Edition} from "../services/Edition.service";
 import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
 
 import {
@@ -24,7 +24,7 @@ import {
     recordDayCounts
 } from "../services/Day.service";
 
-import {ONE} from "../constants";
+import {MAX_UINT_256, ONE} from "../utils/constants";
 import {
     createBidPlacedEvent,
     createBidAccepted,
@@ -38,27 +38,32 @@ import {
     removeActiveBidOnEdition
 } from "../services/AuctionEvent.service";
 
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
 import {getArtistAddress} from "../services/AddressMapping.service";
-import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
-import {loadOrCreateToken} from "../services/Token.service";
+import {loadOrCreateV2Token} from "../services/Token.service";
 
-import {
-    recordPrimaryBidPlaced,
-    recordPrimaryBidAccepted,
-    recordPrimaryBidIncreased,
-    recordPrimaryBidRejected,
-    recordPrimarySale,
-    recordPrimaryBidWithdrawn
-} from "../services/ActivityEvent.service";
+import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
+import * as EVENT_TYPES from "../utils/EventTypes";
+import * as SaleTypes from "../utils/SaleTypes";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = true
+
+    const priceInWei = contract.priceInWeiEdition(event.params._editionNumber)
+    if (priceInWei.equals(MAX_UINT_256)) {
+        editionEntity.offersOnly = true;
+        editionEntity.salesType = SaleTypes.OFFERS_ONLY
+    } else {
+        editionEntity.offersOnly = false;
+        editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
+    }
+
     editionEntity.save()
 }
 
@@ -68,14 +73,16 @@ export function handleAuctionCancelled(event: AuctionCancelled): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let contract = getKnownOriginV2ForAddress(event.address)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.auctionEnabled = false
+    editionEntity.offersOnly = false
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.save()
 
     removeActiveBidOnEdition(event.params._editionNumber)
 
-    clearEditionOffer(event.block, contract, event.params._editionNumber)
+    clearEditionOffer(event.block, event.params._editionNumber)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -86,10 +93,10 @@ export function handleBidPlaced(event: BidPlaced): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let contract = getKnownOriginV2ForAddress(event.address)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = createBidPlacedEvent(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
+    let auctionEvent = createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -104,9 +111,9 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
 
-    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionNumber)
 
-    recordPrimaryBidPlaced(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -119,17 +126,17 @@ export function handleBidAccepted(event: BidAccepted): void {
       );
     */
 
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
     let artistAddress = getArtistAddress(contract.artistCommission(event.params._editionNumber).value0)
 
     let collector = loadOrCreateCollector(event.params._bidder, event.block);
     collector.save();
 
-    let auctionEvent = createBidAccepted(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
-    auctionEvent.save()
-
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._amount));
+
+    let auctionEvent = createBidAccepted(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    auctionEvent.save()
 
     // Record sale against the edition
     let sales = editionEntity.sales
@@ -164,20 +171,21 @@ export function handleBidAccepted(event: BidAccepted): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
-    clearEditionOffer(event.block, contract, event.params._editionNumber)
+    clearEditionOffer(event.block, event.params._editionNumber)
 
     addPrimarySaleToCollector(event.block, event.params._bidder, event.params._amount);
 
     // Set price against token
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.primaryValueInEth = toEther(event.params._amount)
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save()
 
-    recordPrimaryBidAccepted(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
-    recordPrimarySale(event, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_ACCEPTED, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -189,10 +197,10 @@ export function handleBidRejected(event: BidRejected): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let contract = getKnownOriginV2ForAddress(event.address)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = createBidRejected(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
+    let auctionEvent = createBidRejected(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -205,9 +213,9 @@ export function handleBidRejected(event: BidRejected): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
 
     removeActiveBidOnEdition(event.params._editionNumber)
-    clearEditionOffer(event.block, contract, event.params._editionNumber)
+    clearEditionOffer(event.block, event.params._editionNumber)
 
-    recordPrimaryBidRejected(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_REJECTED, editionEntity, null, event.params._amount, event.params._bidder)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -217,10 +225,10 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         uint256 indexed _editionNumber
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let contract = getKnownOriginV2ForAddress(event.address)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = createBidWithdrawn(event.block, event.transaction, event.params._editionNumber, event.params._bidder);
+    let auctionEvent = createBidWithdrawn(event.block, event.transaction, editionEntity, event.params._bidder);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -231,9 +239,9 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     recordDayBidWithdrawnCount(event)
 
     removeActiveBidOnEdition(event.params._editionNumber)
-    clearEditionOffer(event.block, contract, event.params._editionNumber)
+    clearEditionOffer(event.block, event.params._editionNumber)
 
-    recordPrimaryBidWithdrawn(event, editionEntity, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_WITHDRAWN, editionEntity, null, null, event.params._bidder)
 }
 
 export function handleBidIncreased(event: BidIncreased): void {
@@ -244,10 +252,10 @@ export function handleBidIncreased(event: BidIncreased): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
-    let editionEntity = loadOrCreateEdition(event.params._editionNumber, event.block, contract)
+    let contract = getKnownOriginV2ForAddress(event.address)
+    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = createBidIncreased(event.block, event.transaction, event.params._editionNumber, event.params._bidder, event.params._amount);
+    let auctionEvent = createBidIncreased(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -260,9 +268,9 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
-    recordEditionOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._editionNumber)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionNumber)
 
-    recordPrimaryBidIncreased(event, editionEntity, event.params._amount, event.params._bidder)
+    recordPrimarySaleEvent(event, EVENT_TYPES.BID_INCREASED, editionEntity, null, event.params._amount, event.params._bidder)
 }
 
 export function handleBidderRefunded(event: BidderRefunded): void {

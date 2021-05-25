@@ -1,49 +1,103 @@
-import {Address} from "@graphprotocol/graph-ts/index";
-import {TokenEvent} from "../../generated/schema";
-import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../constants";
-import {toEther} from "../utils";
-import {loadOrCreateEdition} from "./Edition.service";
-import {
-    BidAccepted,
-    BidPlaced,
-    BidRejected,
-    BidWithdrawn
-} from "../../generated/TokenMarketplace/TokenMarketplace";
-import {loadOrCreateToken} from "./Token.service";
-import {getKnownOriginForAddress} from "./KnownOrigin.factory";
+import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
+import {Token, TokenEvent} from "../../generated/schema";
+import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {toEther} from "../utils/utils";
+import {loadNonNullableEdition} from "./Edition.service";
+import {loadNonNullableToken} from "./Token.service";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {getArtistAddress} from "./AddressMapping.service";
-import {Purchase, Transfer} from "../../generated/KnownOrigin/KnownOrigin";
 import {loadOrCreateCollector} from "./Collector.service";
+import {BigInt} from "@graphprotocol/graph-ts";
 
-export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
-    let timestamp = event.block.timestamp;
+import * as EVENT_TYPES from "../utils/EventTypes";
 
-    let tokenEventId = "Purchase-"
-        .concat(event.params._tokenId.toString())
+function generateTokenEventId(name: String, tokenEntity: Token, from: Address, timestamp: BigInt): string {
+    return name
         .concat("-")
-        .concat(event.params._buyer.toHexString())
+        .concat(tokenEntity.tokenId.toString())
+        .concat("-")
+        .concat(tokenEntity.version.toString())
+        .concat("-")
+        .concat(from.toHexString())
         .concat("-")
         .concat(timestamp.toString());
+}
 
-    let contract = getKnownOriginForAddress(event.address)
+function populateEventData(event: ethereum.Event, tokenEntity: Token, from: Address, to: Address): TokenEvent {
+    let timestamp = event.block.timestamp;
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.TRANSFER, tokenEntity, from, timestamp);
 
     let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = tokenEntity.version
+
+    // Show birth if first transfer
+    tokenEvent.name = from.equals(ZERO_ADDRESS) ? EVENT_TYPES.BIRTH : EVENT_TYPES.TRANSFER;
+    tokenEvent.bidder = loadOrCreateCollector(to, event.block).id
+    tokenEvent.ethValue = ZERO_BIG_DECIMAL
+    tokenEvent.currentOwner = loadOrCreateCollector(from, event.block).id
+    tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
+
+    return tokenEvent
+}
+
+///////////////
+// Transfers //
+///////////////
+
+export function createTokenTransferEvent(event: ethereum.Event, tokenId: BigInt, from: Address, to: Address): TokenEvent {
+
+    // Save the token
+    let tokenEntity = loadNonNullableToken(tokenId)
+
+    // Load edition
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
+    editionEntity.save()
+
+    // Populate data
+    let tokenEvent = populateEventData(event, tokenEntity, from, to);
+    tokenEvent.edition = editionEntity.id;
+    tokenEvent.token = tokenEntity.id;
+
+    let tokenEvents = tokenEntity.tokenEvents;
+    tokenEvents.push(tokenEvent.id);
+    tokenEntity.tokenEvents = tokenEvents;
+    tokenEvent.save()
+
+    tokenEntity.save()
+
+    return tokenEvent
+}
+
+///////////////////////
+// Purchasing & Bids //
+///////////////////////
+
+export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: BigInt, buyer: Address, priceInWei: BigInt): TokenEvent {
+    let timestamp = event.block.timestamp;
+
+    let tokenEntity = loadNonNullableToken(tokenId)
+
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.PURCHASE, tokenEntity, buyer, timestamp);
+
+    let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = tokenEntity.version
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'Purchase';
+    tokenEvent.name = EVENT_TYPES.PURCHASE;
+    tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
-    tokenEvent.buyer = loadOrCreateCollector(event.params._buyer, event.block).id
-    tokenEvent.ethValue = event.params._priceInWei.toBigDecimal()
+    tokenEvent.buyer = loadOrCreateCollector(buyer, event.block).id
+    tokenEvent.ethValue = priceInWei.toBigDecimal()
     tokenEvent.currentOwner = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), event.block).id
     tokenEvent.timestamp = timestamp
     tokenEvent.transactionHash = event.transaction.hash
@@ -53,37 +107,68 @@ export function createTokenPrimaryPurchaseEvent(event: Purchase): TokenEvent {
     return tokenEvent
 }
 
-export function createTokenTransferEvent(event: Transfer): TokenEvent {
+export function createBidPlacedEvent(
+    event: ethereum.Event, tokenId: BigInt, currentOwner: Address, bidder: Address, priceInWei: BigInt
+): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "Transfer-"
-        .concat(event.params._tokenId.toString())
-        .concat("-")
-        .concat(event.params._to.toHexString())
-        .concat("-")
-        .concat(timestamp.toString());
+    let tokenEntity = loadNonNullableToken(tokenId)
 
-    let contract = getKnownOriginForAddress(event.address)
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.BID_PLACED, tokenEntity, bidder, timestamp);
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    // Show birth if first transfer
-    tokenEvent.name = event.params._from.equals(ZERO_ADDRESS) ? 'Birth' : 'Transfer';
+    tokenEvent.name = EVENT_TYPES.BID_PLACED
+    tokenEvent.version = tokenEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
-    tokenEvent.bidder = loadOrCreateCollector(event.params._to, event.block).id
-    tokenEvent.ethValue = ZERO_BIG_DECIMAL
-    tokenEvent.currentOwner = loadOrCreateCollector(event.params._from, event.block).id
+    tokenEvent.ethValue = toEther(priceInWei)
+    tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
+    tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
+    tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
+    tokenEvent.save()
+
+    return tokenEvent
+}
+
+export function createBidAcceptedEvent(
+    event: ethereum.Event, tokenId: BigInt, currentOwner: Address, bidder: Address, priceInWei: BigInt
+): TokenEvent {
+    let timestamp = event.block.timestamp;
+
+    let tokenEntity = loadNonNullableToken(tokenId)
+
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.BID_ACCEPTED, tokenEntity, bidder, timestamp);
+
+    let tokenEvent = new TokenEvent(tokenEventId);
+
+    // Setup token and add history
+    let tokenEvents = tokenEntity.tokenEvents;
+    tokenEvents.push(tokenEvent.id);
+    tokenEntity.tokenEvents = tokenEvents;
+    tokenEntity.save()
+
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
+    editionEntity.save()
+
+    tokenEvent.name = EVENT_TYPES.BID_ACCEPTED
+    tokenEvent.version = editionEntity.version
+    tokenEvent.token = tokenEntity.id;
+    tokenEvent.edition = editionEntity.id;
+    tokenEvent.ethValue = toEther(priceInWei)
+    tokenEvent.buyer = loadOrCreateCollector(bidder, event.block).id
+    tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
+    tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
     tokenEvent.transactionHash = event.transaction.hash
 
@@ -92,36 +177,33 @@ export function createTokenTransferEvent(event: Transfer): TokenEvent {
     return tokenEvent
 }
 
-export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
+export function createBidRejectedEvent(
+    event: ethereum.Event, tokenId: BigInt, currentOwner: Address, bidder: Address, priceInWei: BigInt
+): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidPlaced-"
-        .concat(event.params._tokenId.toString())
-        .concat("-")
-        .concat(event.params._bidder.toHexString())
-        .concat("-")
-        .concat(timestamp.toString());
+    let tokenEntity = loadNonNullableToken(tokenId)
 
-    let contract = getKnownOriginForAddress(event.address)
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.BID_REJECTED, tokenEntity, bidder, timestamp);
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidPlaced'
+    tokenEvent.name = EVENT_TYPES.BID_REJECTED
+    tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
-    tokenEvent.ethValue = toEther(event.params._amount)
-    tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
+    tokenEvent.ethValue = toEther(priceInWei)
+    tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
+    tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
     tokenEvent.timestamp = timestamp
     tokenEvent.transactionHash = event.transaction.hash
 
@@ -130,119 +212,40 @@ export function createBidPlacedEvent(event: BidPlaced): TokenEvent {
     return tokenEvent
 }
 
-export function createBidAcceptedEvent(event: BidAccepted): TokenEvent {
+export function createBidWithdrawnEvent(
+    event: ethereum.Event, tokenId: BigInt, bidder: Address
+): TokenEvent {
     let timestamp = event.block.timestamp;
 
-    let tokenEventId = "BidAccepted-"
-        .concat(event.params._tokenId.toString())
-        .concat("-")
-        .concat(event.params._bidder.toHexString())
-        .concat("-")
-        .concat(timestamp.toString());
+    let tokenEntity = loadNonNullableToken(tokenId)
 
-    let contract = getKnownOriginForAddress(event.address)
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.BID_WITHDRAWN, tokenEntity, bidder, timestamp);
+
+    let contract = getKnownOriginV2ForAddress(event.address)
 
     let tokenEvent = new TokenEvent(tokenEventId);
 
     // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
     editionEntity.save()
 
-    tokenEvent.name = 'BidAccepted'
-    tokenEvent.token = tokenEntity.id;
-    tokenEvent.edition = editionEntity.id;
-    tokenEvent.ethValue = toEther(event.params._amount)
-    tokenEvent.buyer = loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
-
-    tokenEvent.save()
-
-    return tokenEvent
-}
-
-export function createBidRejectedEvent(event: BidRejected): TokenEvent {
-    let timestamp = event.block.timestamp;
-
-    let tokenEventId = "BidRejected-"
-        .concat(event.params._tokenId.toString())
-        .concat("-")
-        .concat(event.params._bidder.toHexString())
-        .concat("-")
-        .concat(timestamp.toString());
-
-    let contract = getKnownOriginForAddress(event.address)
-
-    let tokenEvent = new TokenEvent(tokenEventId);
-
-    // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
-    let tokenEvents = tokenEntity.tokenEvents;
-    tokenEvents.push(tokenEvent.id);
-    tokenEntity.tokenEvents = tokenEvents;
-    tokenEntity.save()
-
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
-    editionEntity.save()
-
-    tokenEvent.name = 'BidRejected'
-    tokenEvent.token = tokenEntity.id;
-    tokenEvent.edition = editionEntity.id;
-    tokenEvent.ethValue = toEther(event.params._amount)
-    tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEvent.currentOwner = loadOrCreateCollector(event.params._currentOwner, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
-
-    tokenEvent.save()
-
-    return tokenEvent
-}
-
-export function createBidWithdrawnEvent(event: BidWithdrawn): TokenEvent {
-    let timestamp = event.block.timestamp;
-
-    let tokenEventId = "BidWithdrawn-"
-        .concat(event.params._tokenId.toString())
-        .concat("-")
-        .concat(event.params._bidder.toHexString())
-        .concat("-")
-        .concat(timestamp.toString());
-
-    let contract = getKnownOriginForAddress(event.address)
-
-    let tokenEvent = new TokenEvent(tokenEventId);
-
-    // Setup token and add history
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
-    let tokenEvents = tokenEntity.tokenEvents;
-    tokenEvents.push(tokenEvent.id);
-    tokenEntity.tokenEvents = tokenEvents;
-    tokenEntity.save()
-
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
-    editionEntity.save()
-
-    tokenEvent.name = 'BidWithdrawn'
+    tokenEvent.name = EVENT_TYPES.BID_WITHDRAWN
+    tokenEvent.version = editionEntity.version
     tokenEvent.token = tokenEntity.id;
     tokenEvent.edition = editionEntity.id;
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
-    tokenEvent.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
-    const owner = contract.try_ownerOf(event.params._tokenId);
-    if(!owner.reverted) {
+    tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
+    let owner = contract.try_ownerOf(tokenId);
+    if (!owner.reverted) {
         tokenEvent.currentOwner = loadOrCreateCollector(owner.value, event.block).id
     }
     tokenEvent.timestamp = timestamp
     tokenEvent.transactionHash = event.transaction.hash
-
     tokenEvent.save()
 
     return tokenEvent

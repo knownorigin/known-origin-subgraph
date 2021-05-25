@@ -17,12 +17,15 @@ import {
     recordArtistIssued,
     recordArtistValue
 } from "../services/Artist.service";
-import {ONE} from "../constants";
+import {ONE} from "../utils/constants";
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {addPrimarySaleToCollector} from "../services/Collector.service";
+import {log} from "@graphprotocol/graph-ts/index";
 
 // FIXME need to think about this a bit more...
 export function handlePurchase(event: PurchasedWithEther): void {
+    log.info("KO V1 handlePurchase() called for event address {}", [event.address.toHexString()]);
+
     let contract = KnownOriginV1.bind(event.address)
 
     // Record Artist Data
@@ -46,10 +49,12 @@ export function handlePurchase(event: PurchasedWithEther): void {
 }
 
 export function handleTransfer(event: Transfer): void {
+    log.info("KO V1 handleTransfer() called for event address {}", [event.params._tokenId.toString()]);
+
     // let contract = KnownOrigin.bind(event.address)
     //
     // // TOKEN
-    // let tokenEntity = loadOrCreateToken(event.params._tokenId, contract)
+    // let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract)
     //
     // // set birth on Token
     // if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {

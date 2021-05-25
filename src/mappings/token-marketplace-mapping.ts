@@ -10,9 +10,10 @@ import {
 import {
     TokenOffer
 } from "../../generated/schema";
+import * as KodaVersions from "../utils/KodaVersions";
 
 import {
-    loadOrCreateEdition
+    loadOrCreateV2Edition
 } from "../services/Edition.service";
 
 import {
@@ -24,7 +25,7 @@ import {
 
 import {
     toEther
-} from "../utils";
+} from "../utils/utils";
 
 import {
     addPrimarySaleToCollector,
@@ -34,8 +35,8 @@ import {
     loadOrCreateCollector
 } from "../services/Collector.service";
 
-import {loadOrCreateToken} from "../services/Token.service";
-import {getKnownOriginForAddress} from "../services/KnownOrigin.factory";
+import {loadOrCreateV2Token} from "../services/Token.service";
+import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
@@ -47,8 +48,7 @@ import {
     recordDayTotalValuePlaceInBids,
     recordDayValue
 } from "../services/Day.service";
-import {clearTokenOffer, recordTokenOffer, V1_CONTRACT} from "../services/Offers.service";
-import {recordArtistCounts, recordArtistValue} from "../services/Artist.service";
+import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
 
 import {
     recordSecondaryBidAccepted,
@@ -56,7 +56,7 @@ import {
     recordSecondaryBidRejected,
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
-import {ONE} from "../constants";
+import {ONE} from "../utils/constants";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -65,9 +65,9 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
         address indexed _auctioneer
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 }
 
@@ -78,14 +78,14 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
         address indexed _auctioneer
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    clearTokenOffer(event.block, event.params._tokenId)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -97,20 +97,21 @@ export function handleBidPlaced(event: BidPlaced): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidPlacedEvent(event)
+    createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
 
     let tokenOffer = new TokenOffer(id);
+    tokenOffer.version = KodaVersions.KODA_V2
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenOffer.timestamp = timestamp;
@@ -128,7 +129,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, contract, event.params._bidder, event.params._amount, event.params._tokenId, V1_CONTRACT);
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, KodaVersions.MARKETPLACE_V1);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
@@ -142,12 +143,13 @@ export function handleBidAccepted(event: BidAccepted): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidAcceptedEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    clearTokenOffer(event.block, event.params._tokenId)
+
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
@@ -161,7 +163,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collector.save();
 
     // Edition updates
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
     // Tally up primary sale owners
     if (!collectorInList(collector, editionEntity.primaryOwners)) {
@@ -198,17 +200,17 @@ export function handleBidRejected(event: BidRejected): void {
         uint256 _amount
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidRejectedEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    clearTokenOffer(event.block, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
     editionEntity.save();
 
     recordDayBidRejectedCount(event)
@@ -223,17 +225,17 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         address indexed _bidder
       );
     */
-    let contract = getKnownOriginForAddress(event.address)
+    let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidWithdrawnEvent(event)
-    clearTokenOffer(event.block, contract, event.params._tokenId)
+    createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
+    clearTokenOffer(event.block, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateToken(event.params._tokenId, contract, event.block)
+    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = loadOrCreateEdition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
     editionEntity.save();
 
     recordDayBidWithdrawnCount(event)

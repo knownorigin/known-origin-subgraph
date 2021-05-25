@@ -1,11 +1,11 @@
 import {Collector} from "../../generated/schema";
-import {toEther} from "../utils";
+import {toEther} from "../utils/utils";
 
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../constants";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
-export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector | null {
-    let collectorEntity: Collector | null = Collector.load(address.toHexString());
+export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector {
+    let collectorEntity = Collector.load(address.toHexString());
     if (collectorEntity == null) {
         collectorEntity = new Collector(address.toHexString());
         collectorEntity.address = address;
@@ -25,7 +25,7 @@ export function loadOrCreateCollector(address: Address, block: ethereum.Block): 
         collectorEntity.totalPurchaseEthSpent = ZERO_BIG_DECIMAL;
     }
     collectorEntity.save()
-    return collectorEntity;
+    return collectorEntity as Collector;
 }
 
 export function collectorInList(collector: Collector | null, owners: string[]): boolean {
