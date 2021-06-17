@@ -1,5 +1,5 @@
-import {ONE, ZERO} from "../utils/constants";
-import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import {ONE, ZERO, ZERO_ADDRESS} from "../../utils/constants";
+import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {BigInt} from "@graphprotocol/graph-ts";
 import {
@@ -16,40 +16,52 @@ import {
     AdminUpdatePlatformPrimarySaleCommission,
     KODAV3PrimaryMarketplace,
     EditionSteppedSaleBuy,
-    EditionSteppedSaleListed
-} from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
+    EditionSteppedSaleListed,
+    ListedForReserveAuction,
+    BidPlacedOnReserveAuction,
+    ReserveAuctionResulted,
+    BidWithdrawnFromReserveAuction,
+    ReservePriceUpdated
+} from "../../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
-import {getPlatformConfig} from "../services/PlatformConfig.factory";
-import {toEther} from "../utils/utils";
+import {getPlatformConfig} from "../../services/PlatformConfig.factory";
+import {toEther} from "../../utils/utils";
 
 import {
     loadNonNullableEdition, loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
-} from "../services/Edition.service";
+} from "../../services/Edition.service";
 import {
     createBidAccepted,
     createBidPlacedEvent,
     createBidRejected,
     createBidWithdrawn
-} from "../services/AuctionEvent.factory";
+} from "../../services/AuctionEvent.factory";
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount, recordDayBidRejectedCount, recordDayBidWithdrawnCount, recordDayCounts, recordDayIssued,
     recordDayTotalValueCycledInBids,
     recordDayTotalValuePlaceInBids, recordDayValue
-} from "../services/Day.service";
-import {recordActiveEditionBid, removeActiveBidOnEdition} from "../services/AuctionEvent.service";
+} from "../../services/Day.service";
+import {recordActiveEditionBid, removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
-import {clearEditionOffer, recordEditionOffer} from "../services/Offers.service";
-import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../services/Collector.service";
-import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../services/Artist.service";
-import {loadNonNullableToken, loadOrCreateV3Token} from "../services/Token.service";
-import {createTokenPrimaryPurchaseEvent} from "../services/TokenEvent.factory";
+import {clearEditionOffer, recordEditionOffer} from "../../services/Offers.service";
+import {addPrimarySaleToCollector, collectorInList, loadOrCreateCollector} from "../../services/Collector.service";
+import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../../services/Artist.service";
+import {loadNonNullableToken, loadOrCreateV3Token} from "../../services/Token.service";
+import {createTokenPrimaryPurchaseEvent} from "../../services/TokenEvent.factory";
 
-import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
-import * as EVENT_TYPES from "../utils/EventTypes";
-import * as SaleTypes from "../utils/SaleTypes";
-import {Collector, Edition, Token} from "../../generated/schema";
+import {recordPrimarySaleEvent} from "../../services/ActivityEvent.service";
+import * as EVENT_TYPES from "../../utils/EventTypes";
+import * as SaleTypes from "../../utils/SaleTypes";
+import {Collector, Edition, Token} from "../../../generated/schema";
+import {
+    RESERVE_AUCTION_LISTED,
+    RESERVE_BID_WITHDRAWN,
+    RESERVE_COUNTDOWN_STARTED,
+    RESERVE_PRICE_CHANGED,
+    STEPPED_AUCTION_LISTED
+} from "../../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -328,6 +340,178 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     // clear offers
     editionEntity.offersOnly = false
     editionEntity.auctionEnabled = false
+
+    editionEntity.save()
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.STEPPED_AUCTION_LISTED, editionEntity, null, event.params._basePrice, ZERO_ADDRESS)
+}
+
+export function handleEditionListedForReserveAuction(event: ListedForReserveAuction): void {
+    log.info("KO V3 handleEditionListedForReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(
+        marketplace.koda()
+    )
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+
+    editionEntity.reserveAuctionSeller = reserveAuction.value0
+    editionEntity.reservePrice = event.params._reservePrice
+    editionEntity.reserveAuctionStartDate = event.params._startDate
+    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_AUCTION_LISTED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
+
+    editionEntity.save()
+}
+
+export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction): void {
+    log.info("KO V3 handleBidPlacedOnReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.reserveAuctionBidder = event.params._bidder
+    editionEntity.reserveAuctionBid = event.params._amount
+
+    // Check if the bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
+    if (editionEntity.reserveAuctionBid.ge(editionEntity.reservePrice)) {
+        let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+        let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
+
+        // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
+        editionEntity.previousReserveAuctionEndTimestamp = editionEntity.reserveAuctionEndTimestamp.equals(ZERO)
+            ? bidEnd
+            : editionEntity.reserveAuctionEndTimestamp
+
+        editionEntity.reserveAuctionEndTimestamp = bidEnd
+
+        recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_COUNTDOWN_STARTED, editionEntity, null, editionEntity.reserveAuctionBid, event.params._bidder)
+
+        // when the two values above are not the same, auction has been extended
+        if (editionEntity.previousReserveAuctionEndTimestamp.notEqual(editionEntity.reserveAuctionEndTimestamp)) {
+            editionEntity.reserveAuctionNumTimesExtended = editionEntity.reserveAuctionNumTimesExtended.plus(ONE)
+            editionEntity.isReserveAuctionInSuddenDeath = true
+            editionEntity.reserveAuctionTotalExtensionLengthInSeconds = editionEntity.reserveAuctionTotalExtensionLengthInSeconds.plus(editionEntity.reserveAuctionEndTimestamp.minus(
+                editionEntity.previousReserveAuctionEndTimestamp
+            ))
+
+            recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_EXTENDED, editionEntity, null, editionEntity.reserveAuctionBid, event.params._bidder)
+        }
+    }
+
+    editionEntity.save()
+
+    recordDayBidPlacedCount(event)
+
+    recordDayTotalValueCycledInBids(event, event.params._amount)
+    recordDayTotalValuePlaceInBids(event, event.params._amount)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
+
+    let auctionEvent = createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    auctionEvent.save()
+
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
+    editionEntity.save()
+
+    recordActiveEditionBid(event.params._id, auctionEvent)
+
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._id)
+}
+
+export function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
+    log.info("KO V3 handleReserveAuctionResulted() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.isReserveAuctionResulted = true
+    editionEntity.isReserveAuctionResultedDateTime = event.block.timestamp
+    editionEntity.reserveAuctionResulter = event.params._resulter
+
+    // Create collector
+    let collector = loadOrCreateCollector(event.params._winner, event.block);
+    collector.save();
+
+    let auctionEvent = createBidAccepted(event.block, event.transaction, editionEntity, event.params._winner, event.params._finalPrice);
+    auctionEvent.save()
+
+    // Maintain bidding history list
+    let biddingHistory = editionEntity.biddingHistory
+    biddingHistory.push(auctionEvent.id.toString())
+    editionEntity.biddingHistory = biddingHistory
+
+    _handleEditionPrimarySale(editionEntity, collector, event.params._id, event.params._finalPrice)
+    editionEntity.save()
+
+    let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event, event.params._id, event.params._winner, event.params._finalPrice);
+    tokenTransferEvent.save();
+
+    // Set price against token
+    let tokenEntity = loadNonNullableToken(event.params._id)
+    _handleTokenPrimarySale(tokenEntity, event.params._finalPrice)
+    tokenEntity.save()
+
+    // Record Artist Data
+    let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
+    _handleArtistAndDayCounts(event, event.params._id, event.params._finalPrice, artistAddress, event.params._winner);
+
+    recordDayBidAcceptedCount(event)
+    removeActiveBidOnEdition(event.params._id)
+    clearEditionOffer(event.block, event.params._id)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._finalPrice, event.params._winner)
+}
+
+export function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuction): void {
+    log.info("KO V3 handleBidWithdrawnFromReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.save()
+
+    recordDayBidWithdrawnCount(event)
+
+    removeActiveBidOnEdition(event.params._id)
+    clearEditionOffer(event.block, event.params._id)
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_WITHDRAWN, editionEntity, null, null, event.params._bidder)
+}
+
+export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
+    log.info("KO V3 handleReservePriceUpdated() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+
+    editionEntity.reservePrice = event.params._reservePrice
+
+    // Check if the current bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
+    if (editionEntity.reserveAuctionBid.ge(event.params._reservePrice)) {
+        let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
+        let bidEnd = reserveAuction.value5 // get the timestamp for the end of the reserve auction or when the bids end
+
+        // these two values are the same until the point that someone bids near the end of the auction and the end of the auction is extended - sudden death
+        editionEntity.previousReserveAuctionEndTimestamp = bidEnd
+        editionEntity.reserveAuctionEndTimestamp = bidEnd
+    }
+
+    recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_PRICE_CHANGED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
 
     editionEntity.save()
 }

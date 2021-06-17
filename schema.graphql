@@ -255,9 +255,6 @@ type Edition @entity {
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
-    # Buy now price / current step price
-    priceInWei: BigInt!
-
     # Reference to the primary minter - see derived field {Artist.editions}
     artist: Artist
 
@@ -265,14 +262,40 @@ type Edition @entity {
     startDate: BigInt!
     endDate: BigInt!   # date when the edition is available until (only applicable for V2)
 
-    # step sale
+    # ---- Reserve auction fields --------- #
+    reserveAuctionSeller: Bytes!     # edition seller
+    reserveAuctionBidder: Bytes!     # current bidder
+    reservePrice: BigInt!            # listed reserve price
+    reserveAuctionBid: BigInt!       # current bid
+    reserveAuctionStartDate: BigInt! # auction start
+
+    previousReserveAuctionEndTimestamp: BigInt! # set to the same as reserve unless an extension is in flight
+    reserveAuctionEndTimestamp: BigInt!         # when the auction will end
+    reserveAuctionNumTimesExtended: BigInt!     # number of times auction has been extended
+    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in suden death
+    reserveAuctionTotalExtensionLengthInSeconds: BigInt! # total extension
+
+    isReserveAuctionResulted: Boolean!
+    isReserveAuctionResultedDateTime: BigInt!
+    reserveAuctionResulter: Bytes!
+
+    reserveAuctionCanEmergencyExit: Boolean!
+    # ----- End of reserve auction fields - #
+
+    # ----- Buy now price / current step price - #
+    priceInWei: BigInt!
+    # ----- Buy now price / current step price - #
+
+    # ----- step sale - #
     stepSaleBasePrice: BigInt!
     stepSaleStepPrice: BigInt!
     currentStep: BigInt!
+    # ----- step sale - #
 
-    # Offers logic
+    # ----- Offers logic - #
     auctionEnabled: Boolean!
     activeBid: AuctionEvent # if present, an active bid should be open
+    # ----- Offers logic - #
 
     # Events and histories
     biddingHistory: [AuctionEvent!]!
@@ -338,6 +361,7 @@ type Offer @entity {
     id: ID!                         # edition ID or token ID
     version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
+    salesType: BigInt!              # The current sales mechnic being used on this offer
     token: Token                    # nullable token, as editions dont have tokens attached
     edition: Edition!               # All offers must be from an edition
     currentOwner: Collector!        # This is either the token holder or the edition artist

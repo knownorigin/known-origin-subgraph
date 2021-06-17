@@ -1,4 +1,4 @@
-// Shared event types for primary and secondary
+// Shared event types for primary and secondary (V2 + V3)
 export const PURCHASE = "Purchase";
 export const TRANSFER = "Transfer";
 export const BIRTH = "Birth";
@@ -14,3 +14,12 @@ export const EDITION_CREATED = "EditionCreated";
 
 // Artwork management actions
 export const PRICE_CHANGED = "PriceChanged";
+
+// V3 + events
+export const STEPPED_AUCTION_LISTED = "ReserveListed";
+export const RESERVE_AUCTION_LISTED = "ReserveListed";
+export const RESERVE_BID_PLACED = "ReserveBidPlaced";
+export const RESERVE_BID_WITHDRAWN = "ReserveBidWithdrawn";
+export const RESERVE_COUNTDOWN_STARTED = "ReserveCountdownStarted";
+export const RESERVE_EXTENDED = "ReserveExtended";
+export const RESERVE_PRICE_CHANGED = "ReservePriceChanged";

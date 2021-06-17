@@ -354,7 +354,7 @@ dataSources:
           handler: handleApprovalForAll
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
-      file: ./src/mappings/known-origin-v3-mapping.ts
+      file: ./src/mappings/v3/known-origin-v3-mapping.ts
 
       # medium priority
       #
@@ -401,11 +401,11 @@ dataSources:
 
         - event: AdminUpdateArtistAccessMerkleRootIpfsHash(string)
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
-      file: ./src/mappings/platform-config-mapping.ts
+      file: ./src/mappings/v3/platform-config-mapping.ts
 
   ## MintingFactory for KODA V3
   - kind: ethereum/contract
-    name: MintingFactory
+    name: MintingFactoryConfig
     network: {{network}}
     source:
       address: '{{koda-v3-minting-factory-address}}'
@@ -423,9 +423,9 @@ dataSources:
       abis:
         - name: MintingFactory
           file: ./abis/MintingFactory.json
+        - name: KnownOriginV3
+          file: ./abis/KnownOriginV3.json
       eventHandlers:
-        - event: EditionMintedAndListed(indexed uint256,uint8)
-          handler: handleEditionMintedAndListed
         - event: MintingFactoryCreated()
           handler: handleMintingFactoryCreated
         - event: AdminMintingPeriodChanged(uint256)
@@ -434,7 +434,31 @@ dataSources:
           handler: handleAdminMaxMintsInPeriodChanged
         - event: AdminFrequencyOverrideChanged(address,bool)
           handler: handleAdminFrequencyOverrideChanged
-      file: ./src/mappings/platform-config-mapping.ts
+      file: ./src/mappings/v3/platform-config-mapping.ts
+
+  ## MintingFactory for KODA V3
+  - kind: ethereum/contract
+    name: MintingFactoryCreations
+    network: {{network}}
+    source:
+      address: '{{koda-v3-minting-factory-address}}'
+      abi: MintingFactory
+      startBlock: {{koda-v3-minting-factory-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - EditionMintedAndListed
+      abis:
+        - name: MintingFactory
+          file: ./abis/MintingFactory.json
+        - name: KnownOriginV3
+          file: ./abis/KnownOriginV3.json
+      eventHandlers:
+        - event: EditionMintedAndListed(indexed uint256,uint8)
+          handler: handleEditionMintedAndListed
+      file: ./src/mappings/v3/minting-factory-mapping.ts
 
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -492,27 +516,41 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
-          # Reserve Auction
-          #   - all fields in ReserveAuction
-          #   - capture all configuration fields PlatformConfig
+        # Reserve Auction
+        - event: ListedForReserveAuction(indexed uint256,uint256,uint128)
+          handler: handleEditionListedForReserveAuction
+
+        - event: BidPlacedOnReserveAuction(indexed uint256,address,address,uint256,uint256,uint256)
+          handler: handleBidPlacedOnReserveAuction
+
+        - event: ReserveAuctionResulted(indexed uint256,uint256,address,address,address)
+          handler: handleReserveAuctionResulted
+
+        - event: BidWithdrawnFromReserveAuction(uint256,address,uint128)
+          handler: handleBidWithdrawnFromReserveAuction
+
+        - event: ReservePriceUpdated(indexed uint256,uint256)
+          handler: handleReservePriceUpdated
+
+          # Reserve Auction - data questions to answer
+          #   - DONE has the edition reached is reserve price - see: isReserveAuctionInSuddenDeath || reserveAuctionEndTimestamp > 0
+          #   - DONE when does the reserve end?
+          #       - reserveAuctionEndTimestamp - current end time
+          #       - previousReserveAuctionEndTimestamp - after extension - this is set
+          #       - reserveAuctionNumTimesExtended - number of times extended into sudden death
+          #       - reserveAuctionTotalExtensionLengthInSeconds - total extension time
           #
-          #   - has the edition reached is reserve price - view on the data?
-          #   - when does the reserve end?
-          #   - has the reserve moved into sudden death?
-          #   - has the item been resulted and by who?
-          #   - model all events, placed, withdraw - copy/look at existing auction logic for this
-          #   - new sale type Edition
-          #   - are we in an emergency exit state?
+          #   - DONE - has the reserve moved into sudden death? - see: reserveAuctionNumTimesExtended > 0
+          #   - DONE - has the item been resulted and by who? - see: isReserveAuctionResulted, isReserveAuctionResultedDateTime, reserveAuctionResulter
+          #   - DONE - model all events, placed, withdraw - copy/look at existing auction logic for this
+          #   - DONE - new sale type Edition - SaleTypes.RESERVE_COUNTDOWN_AUCTION (int 5)
+          #   - DONE - are we in an emergency exit state? - see: reserveAuctionCanEmergencyExit
 
-        # TODO reserve
-        #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
-        #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);
-        #    event ReserveAuctionResulted(uint256 indexed _tokenId, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
-        #    event BidWithdrawnFromReserveAuction(uint256 _tokenId, address indexed _bidder, uint128 _bid);
-        #    event ReservePriceUpdated(uint256 indexed _tokenId, uint256 _reservePrice);
-        #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
+          # TODO reserve
+          # event ReserveAuctionConvertedToBuyItNow(uint256 indexed _id, uint128 _listingPrice, uint128 _startDate);
+          # event EmergencyBidWithdrawFromReserveAuction(uint256 indexed _id, address _bidder, uint128 _bid);
 
-      file: ./src/mappings/known-origin-v3-primary-marketplace-mapping.ts
+      file: ./src/mappings/v3/known-origin-v3-primary-marketplace-mapping.ts
 
   # Token Secondary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -575,6 +613,6 @@ dataSources:
           handler: handleTokenBidRejected
         - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
-      file: ./src/mappings/known-origin-v3-secondary-marketplace-mapping.ts
+      file: ./src/mappings/v3/known-origin-v3-secondary-marketplace-mapping.ts
 
   {{/include-koda-v3}}

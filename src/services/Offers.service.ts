@@ -124,6 +124,7 @@ function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
             let edition = loadNonNullableEdition(id);
             offer.edition = edition.id
             offer.version = edition.version
+            offer.salesType = edition.salesType
         }
 
         if (type == TOKEN_TYPE) {
@@ -131,6 +132,7 @@ function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
             offer.edition = loadNonNullableEdition(tokenEntity.editionNumber).id
             offer.version = tokenEntity.version
             offer.token = tokenEntity.id
+            offer.salesType = tokenEntity.salesType
         }
     }
 
