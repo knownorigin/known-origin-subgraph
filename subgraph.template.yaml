@@ -469,27 +469,27 @@ dataSources:
         # Buy Now - primary
         - event: BuyNowPriceChanged(indexed uint256,uint256)
           handler: handleEditionPriceChanged
-        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,address,uint256)
           handler: handleEditionListed
-        - event: BuyNowPurchased(indexed uint256,indexed address,uint256)
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleEditionPurchased
 
         # Offers - primary
         - event: EditionAcceptingOffer(indexed uint256,uint128)
           handler: handleEditionAcceptingOffer
-        - event: EditionBidPlaced(indexed uint256,indexed address,uint256)
+        - event: EditionBidPlaced(indexed uint256,address,uint256)
           handler: handleEditionBidPlaced
-        - event: EditionBidWithdrawn(indexed uint256,indexed address)
+        - event: EditionBidWithdrawn(indexed uint256,address)
           handler: handleEditionBidWithdrawn
-        - event: EditionBidAccepted(indexed uint256,indexed uint256,indexed address,uint256)
+        - event: EditionBidAccepted(indexed uint256,indexed uint256,address,uint256)
           handler: handleEditionBidAccepted
-        - event: EditionBidRejected(indexed uint256,indexed address,uint256)
+        - event: EditionBidRejected(indexed uint256,address,uint256)
           handler: handleEditionBidRejected
 
         # Stepped Sales
         - event: EditionSteppedSaleListed(indexed uint256,uint128,uint128,uint128)
           handler: handleEditionSteppedSaleListed
-        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
+        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
           # Reserve Auction
@@ -561,19 +561,19 @@ dataSources:
         #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
 
         # marketplace mappings
-        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,address,uint256)
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
-        - event:  BuyNowPurchased(indexed uint256,indexed address,uint256)
+        - event:  BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleTokenPurchased
-        - event: TokenBidPlaced(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidPlaced(indexed uint256,address,address,uint256)
           handler: handleTokenBidPlaced
-        - event: TokenBidAccepted(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidAccepted(indexed uint256,address,address,uint256)
           handler: handleTokenBidAccepted
-        - event: TokenBidRejected(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidRejected(indexed uint256,address,address,uint256)
           handler: handleTokenBidRejected
-        - event: TokenBidWithdrawn(indexed uint256,indexed address)
+        - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
       file: ./src/mappings/known-origin-v3-secondary-marketplace-mapping.ts
 

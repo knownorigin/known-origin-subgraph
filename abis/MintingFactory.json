@@ -12,7 +12,7 @@
         "type": "address"
       },
       {
-        "internalType": "contract IKODAV3PrimarySaleMarketplace",
+        "internalType": "contract KODAV3PrimaryMarketplace",
         "name": "_marketplace",
         "type": "address"
       }
@@ -183,7 +183,7 @@
     "name": "marketplace",
     "outputs": [
       {
-        "internalType": "contract IKODAV3PrimarySaleMarketplace",
+        "internalType": "contract KODAV3PrimaryMarketplace",
         "name": "",
         "type": "address"
       }
@@ -293,6 +293,87 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MintingFactory.SaleType",
+        "name": "_saleType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint128[]",
+        "name": "_config",
+        "type": "uint128[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_erc20s",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_amounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "mintBatchEditionAndComposeERC20sAsProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MintingFactory.SaleType",
+        "name": "_saleType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_editionSize",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_basePrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_stepPrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "mintBatchEditionAsProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "enum MintingFactory.SaleType",
         "name": "_saleType",
         "type": "uint8"
@@ -341,6 +422,49 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MintingFactory.SaleType",
+        "name": "_saleType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_editionSize",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_basePrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_stepPrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "mintConsecutiveBatchEditionAsProxy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "enum MintingFactory.SaleType",
         "name": "_saleType",
         "type": "uint8"
@@ -377,6 +501,44 @@
       }
     ],
     "name": "mintToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "enum MintingFactory.SaleType",
+        "name": "_saleType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_basePrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_stepPrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "mintTokenAsProxy",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

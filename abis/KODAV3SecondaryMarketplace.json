@@ -26,19 +26,19 @@
       {
         "indexed": true,
         "internalType": "contract IERC20",
-        "name": "token",
+        "name": "_token",
         "type": "address"
       },
       {
         "indexed": true,
         "internalType": "address",
-        "name": "recipient",
+        "name": "_recipient",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
@@ -51,13 +51,13 @@
       {
         "indexed": true,
         "internalType": "address payable",
-        "name": "recipient",
+        "name": "_recipient",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
@@ -216,7 +216,13 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -225,6 +231,18 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "_amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_originalBiddingEnd",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_currentBiddingEnd",
         "type": "uint256"
       }
     ],
@@ -241,7 +259,7 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -249,7 +267,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bid",
+        "name": "_bid",
         "type": "uint256"
       }
     ],
@@ -266,7 +284,7 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -291,7 +309,7 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -299,7 +317,19 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "bid",
+        "name": "_bid",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newBidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newOffer",
         "type": "uint256"
       }
     ],
@@ -348,9 +378,15 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_buyer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
         "type": "address"
       },
       {
@@ -421,6 +457,12 @@
         "internalType": "uint256",
         "name": "_price",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -524,13 +566,19 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "_winner",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_resulter",
         "type": "address"
@@ -574,13 +622,13 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_currentOwner",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -605,13 +653,13 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_currentOwner",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -636,13 +684,13 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_currentOwner",
         "type": "address"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -667,7 +715,7 @@
         "type": "uint256"
       },
       {
-        "indexed": true,
+        "indexed": false,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
