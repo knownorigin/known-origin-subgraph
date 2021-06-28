@@ -152,8 +152,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
 
-        // Total number available to be purchased
-        editionEntity.totalAvailable = maxSize.minus(BigInt.fromI32(tokenIds.length));
+        // Reduce remaining supply for each mint
+        editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
+
+        // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
+        editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
 
         editionEntity.save();
 

@@ -243,9 +243,9 @@ type Edition @entity {
     optionalCommissionRate: BigInt
     collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
     offersOnly: Boolean!
-    totalSupply: BigInt!     # Total purchases or mints
-    totalAvailable: BigInt!  # Total number available to be purchased
-    remainingSupply: BigInt! # Total remaining
+    totalSupply: BigInt!     # Total purchases or mints i.e. total number of primary transfers
+    totalAvailable: BigInt!  # Total number available to be purchased i.e. edition size
+    remainingSupply: BigInt! # Total remaining i.e. number of primary sale tokens left to buy from this edition
     totalSold: BigInt! # sold = purchase/bid accepted with price > 0
     sales: [Token!]!
     #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
