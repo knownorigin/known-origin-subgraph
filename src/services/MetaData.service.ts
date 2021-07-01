@@ -151,16 +151,6 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 // Cover image //
                 /////////////////
 
-                if (isObject(attributes) && attributes.toObject().isSet('cover_image')) {
-                    let coverImage: JSONValue | null = attributes.toObject().get('cover_image');
-                    if (coverImage) {
-                        let isNull: boolean = (coverImage as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.cover_image = coverImage.toString()
-                        }
-                    }
-                }
-
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
                     let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
                     if (coverImageType) {
@@ -168,6 +158,9 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         if (!isNull) {
                             metaData.cover_image_type = coverImageType.toString()
                         }
+
+                        // Set cover image to image if cover image is found
+                        metaData.cover_image = metaData.image
                     }
                 }
 
