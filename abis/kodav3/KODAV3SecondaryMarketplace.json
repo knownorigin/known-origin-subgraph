@@ -69,44 +69,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_creator",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_koCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "AdminSetKoCommissionOverrideForCreator",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_koCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "AdminSetKoCommissionOverrideForEdition",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "contract IKOAccessControlsLookup",
         "name": "_oldAddress",
         "type": "address"
@@ -222,6 +184,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_platformSecondarySaleCommission",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminUpdateSecondarySaleCommission",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "uint256",
         "name": "_id",
@@ -259,31 +234,6 @@
       }
     ],
     "name": "BidPlacedOnReserveAuction",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_bid",
-        "type": "uint256"
-      }
-    ],
-    "name": "BidRefundFailed",
     "type": "event"
   },
   {
@@ -356,6 +306,43 @@
         "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_bid",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newBidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newOffer",
+        "type": "uint256"
+      }
+    ],
+    "name": "BidderRefundedFailed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
       }
     ],
     "name": "BuyNowDeListed",
@@ -417,7 +404,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -436,58 +423,14 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_listingPrice",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "ConvertSteppedAuctionToBuyNow",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "EditionAcceptingOffer",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -515,7 +458,7 @@
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
@@ -523,7 +466,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "_bid",
         "type": "uint256"
       }
     ],
@@ -544,152 +487,9 @@
         "internalType": "address",
         "name": "_bidder",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "EditionBidRejected",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_bidder",
-        "type": "address"
       }
     ],
     "name": "EditionBidWithdrawn",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_price",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "EditionConvertedFromOffersToBuyItNow",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_basePrice",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_stepPrice",
-        "type": "uint128"
-      }
-    ],
-    "name": "EditionSteppedAuctionUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_buyer",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_price",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "_currentStep",
-        "type": "uint16"
-      }
-    ],
-    "name": "EditionSteppedSaleBuy",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_basePrice",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_stepPrice",
-        "type": "uint128"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "EditionSteppedSaleListed",
     "type": "event"
   },
   {
@@ -788,12 +588,6 @@
   },
   {
     "anonymous": false,
-    "inputs": [],
-    "name": "PrimaryMarketplaceDeployed",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
     "inputs": [
       {
         "indexed": true,
@@ -823,14 +617,8 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
       }
     ],
     "name": "ReserveAuctionConvertedToOffers",
@@ -894,6 +682,137 @@
   },
   {
     "anonymous": false,
+    "inputs": [],
+    "name": "SecondaryMarketplaceDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenBidAccepted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenBidPlaced",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_currentOwner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenBidRejected",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      }
+    ],
+    "name": "TokenBidWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokenDeListed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
     "inputs": [
       {
         "indexed": false,
@@ -909,7 +828,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -919,6 +838,24 @@
       }
     ],
     "name": "acceptEditionBid",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_offerPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "acceptTokenBid",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -940,11 +877,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "adminRejectEditionBid",
+    "name": "adminRejectTokenBid",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -997,61 +934,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "buyNextStep",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "convertFromBuyNowToOffers",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_listingPrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "convertOffersToBuyItNow",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -1074,13 +957,8 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
       }
     ],
     "name": "convertReserveAuctionToOffers",
@@ -1092,39 +970,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_listingPrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
       }
     ],
-    "name": "convertSteppedAuctionToListing",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "convertSteppedAuctionToOffers",
+    "name": "delistToken",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1137,7 +987,7 @@
         "type": "uint256"
       }
     ],
-    "name": "editionOffers",
+    "name": "editionBids",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1152,25 +1002,6 @@
       {
         "internalType": "uint256",
         "name": "lockupUntil",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "editionOffersStartDate",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
         "type": "uint256"
       }
     ],
@@ -1254,45 +1085,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "editionStep",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "basePrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "stepPrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "startDate",
-        "type": "uint128"
-      },
-      {
-        "internalType": "address",
-        "name": "seller",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "currentStep",
-        "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
       }
@@ -1300,91 +1092,6 @@
     "name": "emergencyExitBidFromReserveAuction",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "enableEditionOffers",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getNextEditionSteppedPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "koCommissionOverrideForCreators",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "active",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "koCommission",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "koCommissionOverrideForEditions",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "active",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "koCommission",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1459,23 +1166,13 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_creator",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
         "internalType": "uint128",
-        "name": "_basePrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_stepPrice",
+        "name": "_listingPrice",
         "type": "uint128"
       },
       {
@@ -1484,7 +1181,7 @@
         "type": "uint128"
       }
     ],
-    "name": "listSteppedEditionAuction",
+    "name": "listTokenForBuyNow",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1562,6 +1259,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "placeTokenBid",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "platformAccount",
     "outputs": [
@@ -1576,7 +1286,7 @@
   },
   {
     "inputs": [],
-    "name": "platformPrimarySaleCommission",
+    "name": "platformSecondarySaleCommission",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1632,11 +1342,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "rejectEditionBid",
+    "name": "rejectTokenBid",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1701,47 +1411,30 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenBids",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "offer",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
-        "name": "_creator",
+        "name": "bidder",
         "type": "address"
       },
       {
-        "internalType": "bool",
-        "name": "_active",
-        "type": "bool"
-      },
-      {
         "internalType": "uint256",
-        "name": "_koCommission",
+        "name": "lockupUntil",
         "type": "uint256"
       }
     ],
-    "name": "setKoCommissionOverrideForCreator",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "_active",
-        "type": "bool"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_koCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "setKoCommissionOverrideForEdition",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1820,11 +1513,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_platformPrimarySaleCommission",
+        "name": "_platformSecondarySaleCommission",
         "type": "uint256"
       }
     ],
-    "name": "updatePlatformPrimarySaleCommission",
+    "name": "updatePlatformSecondarySaleCommission",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1877,29 +1570,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_basePrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_stepPrice",
-        "type": "uint128"
-      }
-    ],
-    "name": "updateSteppedAuction",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "_id",
         "type": "uint256"
       }
@@ -1918,6 +1588,19 @@
       }
     ],
     "name": "withdrawEditionBid",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawTokenBid",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

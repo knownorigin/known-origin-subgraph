@@ -122,6 +122,32 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "_basisPointsModulo",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminUpdateBasisPointsModulo",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_modulo",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminUpdateModulo",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "_secondarySaleRoyalty",
         "type": "uint256"
       }
@@ -315,43 +341,6 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "_royaltyRecipient",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_buyer",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_tokenPaid",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "ReceivedRoyalties",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "uint256",
         "name": "_editionId",
         "type": "uint256"
@@ -480,25 +469,12 @@
   },
   {
     "inputs": [],
-    "name": "MAX_EDITION_ID",
-    "outputs": [
-      {
-        "internalType": "uint96",
-        "name": "",
-        "type": "uint96"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "MAX_EDITION_SIZE",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint16",
         "name": "",
-        "type": "uint256"
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",
@@ -891,7 +867,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -920,7 +896,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1076,13 +1052,13 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
+        "internalType": "uint16",
+        "name": "_size",
+        "type": "uint16"
       },
       {
         "internalType": "uint256",
-        "name": "_size",
+        "name": "_editionId",
         "type": "uint256"
       },
       {
@@ -1148,7 +1124,7 @@
         "type": "uint256[]"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1167,7 +1143,7 @@
         "type": "address[]"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1203,6 +1179,25 @@
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRoyaltiesReceiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1269,7 +1264,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_tokenId",
+        "name": "_editionId",
         "type": "uint256"
       }
     ],
@@ -1441,9 +1436,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "address",
@@ -1470,9 +1465,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "address",
@@ -1509,9 +1504,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "address",
@@ -1533,6 +1528,19 @@
       }
     ],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "modulo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1565,39 +1573,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_royaltyRecipient",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_buyer",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_tokenPaid",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "receivedRoyalties",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1691,7 +1666,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_value",
         "type": "uint256"
       }
     ],
@@ -1709,11 +1689,11 @@
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "royaltyAmount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1722,22 +1702,27 @@
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
       }
     ],
     "name": "royaltyInfo",
     "outputs": [
       {
         "internalType": "address",
-        "name": "receiver",
+        "name": "_receiver",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "amount",
+        "name": "_royaltyAmount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -2095,11 +2080,24 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_newModulo",
+        "name": "_basisPointsModulo",
         "type": "uint256"
       }
     ],
     "name": "updateBasisPointsModulo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_modulo",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateModulo",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

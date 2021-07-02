@@ -131,10 +131,12 @@ export function loadNonNullableEdition(editionNumber: BigInt): Edition {
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     log.info("Calling loadOrCreateV3EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
+    //(address _originalCreator, address _owner, uint16 _size, uint256 _editionId, string memory _uri)
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     let _originalCreator = editionDetails.value0;
-    let _editionId = editionDetails.value2;
-    let _size = editionDetails.value3;
+    let _currentTokenOwner = editionDetails.value1;
+    let _size = BigInt.fromI32(editionDetails.value2);
+    let _editionId = editionDetails.value3;
     let _uri = editionDetails.value4;
 
     return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract)

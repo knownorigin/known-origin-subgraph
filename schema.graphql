@@ -223,6 +223,17 @@ type _Schema_
     ]
 )
 
+type CollabHandlers @entity {
+    id: ID! # deployed address
+    baseHandler: Bytes! # clone which this is based on
+    creator: Bytes! # who deployed it
+    recipients: [Bytes!]! # recpients for the deployed collab
+    splits: [BigInt!]! # splits for the deployed collab
+    createdTimestamp: BigInt!
+    transactionHash: Bytes!
+    editionNmber: BigInt
+}
+
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!

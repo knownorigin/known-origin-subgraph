@@ -12,8 +12,13 @@
         "type": "address"
       },
       {
-        "internalType": "contract KODAV3PrimaryMarketplace",
+        "internalType": "contract IKODAV3PrimarySaleMarketplace",
         "name": "_marketplace",
+        "type": "address"
+      },
+      {
+        "internalType": "contract ICollabRoyaltiesRegistry",
+        "name": "_royaltiesRegistry",
         "type": "address"
       }
     ],
@@ -63,6 +68,19 @@
       }
     ],
     "name": "AdminMintingPeriodChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_royaltiesRegistry",
+        "type": "address"
+      }
+    ],
+    "name": "AdminRoyaltiesRegistryChanged",
     "type": "event"
   },
   {
@@ -183,7 +201,7 @@
     "name": "marketplace",
     "outputs": [
       {
-        "internalType": "contract KODAV3PrimaryMarketplace",
+        "internalType": "contract IKODAV3PrimarySaleMarketplace",
         "name": "",
         "type": "address"
       }
@@ -212,9 +230,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "uint128",
@@ -245,6 +263,11 @@
         "internalType": "bytes32[]",
         "name": "_merkleProof",
         "type": "bytes32[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintBatchEdition",
@@ -341,9 +364,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "uint128",
@@ -364,6 +387,11 @@
         "internalType": "string",
         "name": "_uri",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintBatchEditionAsProxy",
@@ -379,9 +407,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "uint128",
@@ -412,6 +440,11 @@
         "internalType": "bytes32[]",
         "name": "_merkleProof",
         "type": "bytes32[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintConsecutiveBatchEdition",
@@ -432,9 +465,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint96",
+        "internalType": "uint16",
         "name": "_editionSize",
-        "type": "uint96"
+        "type": "uint16"
       },
       {
         "internalType": "uint128",
@@ -455,6 +488,11 @@
         "internalType": "string",
         "name": "_uri",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintConsecutiveBatchEditionAsProxy",
@@ -498,6 +536,11 @@
         "internalType": "bytes32[]",
         "name": "_merkleProof",
         "type": "bytes32[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintToken",
@@ -536,6 +579,11 @@
         "internalType": "string",
         "name": "_uri",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_deployedRoyaltiesHandler",
+        "type": "address"
       }
     ],
     "name": "mintTokenAsProxy",
@@ -551,6 +599,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "royaltiesRegistry",
+    "outputs": [
+      {
+        "internalType": "contract ICollabRoyaltiesRegistry",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -596,6 +657,19 @@
       }
     ],
     "name": "setMintingPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ICollabRoyaltiesRegistry",
+        "name": "_royaltiesRegistry",
+        "type": "address"
+      }
+    ],
+    "name": "setRoyaltiesRegistry",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -170,13 +170,12 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     editionEntity.auctionEnabled = true
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.offersOnly = true
-    editionEntity.auctionEnabled = true
     editionEntity.activeBid = null
+    editionEntity.save()
 
     removeActiveBidOnEdition(event.params._editionId)
     clearEditionOffer(event.block, event.params._editionId)
 
-    editionEntity.save()
 }
 
 export function handleEditionBidPlaced(event: EditionBidPlaced): void {

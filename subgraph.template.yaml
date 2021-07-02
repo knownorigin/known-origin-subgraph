@@ -20,7 +20,7 @@ dataSources:
         - Transfer
       abis:
         - name: KnownOriginV1
-          file: ./abis/KnownOriginV1.json
+          file: ./abis/kodav2/KnownOriginV1.json
       eventHandlers:
         #        - event: Transfer(indexed address,indexed address,uint256)
         #          handler: handleTransfer
@@ -45,7 +45,7 @@ dataSources:
         - EditionCreated
       abis:
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
@@ -80,9 +80,9 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV1
-          file: ./abis/ArtistAcceptingBidsV1.json
+          file: ./abis/kodav2/ArtistAcceptingBidsV1.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: BidPlaced(indexed address,indexed uint256,indexed uint256)
           handler: handleBidPlaced
@@ -119,9 +119,9 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV2
-          file: ./abis/ArtistAcceptingBidsV2.json
+          file: ./abis/kodav2/ArtistAcceptingBidsV2.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -169,9 +169,9 @@ dataSources:
         - AuctionDisabled
       abis:
         - name: TokenMarketplace
-          file: ./abis/TokenMarketplace.json
+          file: ./abis/kodav2/TokenMarketplace.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -219,9 +219,9 @@ dataSources:
         - TokenListed
       abis:
         - name: TokenMarketplaceV2
-          file: ./abis/TokenMarketplaceV2.json
+          file: ./abis/kodav2/TokenMarketplaceV2.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -269,9 +269,9 @@ dataSources:
         - EditionSupplyReduced
       abis:
         - name: ArtistEditionBurner
-          file: ./abis/ArtistEditionBurner.json
+          file: ./abis/kodav2/ArtistEditionBurner.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: EditionDeactivated(indexed uint256)
           handler: handleEditionDeactivatedEvent
@@ -297,7 +297,7 @@ dataSources:
         - Transfer
       abis:
         - name: ArtistEditionControlsV2
-          file: ./abis/ArtistEditionControlsV2.json
+          file: ./abis/kodav2/ArtistEditionControlsV2.json
       eventHandlers:
         - event: PriceChanged(indexed uint256,indexed address,uint256)
           handler: handlePriceChangedEvent
@@ -329,7 +329,7 @@ dataSources:
         - Approval
       abis:
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # KODA V3 Config
         - event: AdminRoyaltiesRegistryProxySet(indexed address)
@@ -394,7 +394,7 @@ dataSources:
         - AdminUpdateArtistAccessMerkleRootIpfsHash
       abis:
         - name: KOAccessControls
-          file: ./abis/KOAccessControls.json
+          file: ./abis/kodav3/KOAccessControls.json
       eventHandlers:
         - event: AdminUpdateArtistAccessMerkleRoot(bytes32)
           handler: handleAdminUpdateArtistAccessMerkleRoot
@@ -422,9 +422,9 @@ dataSources:
         - AdminFrequencyOverrideChanged
       abis:
         - name: MintingFactory
-          file: ./abis/MintingFactory.json
+          file: ./abis/kodav3/MintingFactory.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         - event: MintingFactoryCreated()
           handler: handleMintingFactoryCreated
@@ -452,9 +452,9 @@ dataSources:
         - EditionMintedAndListed
       abis:
         - name: MintingFactory
-          file: ./abis/MintingFactory.json
+          file: ./abis/kodav3/MintingFactory.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         - event: EditionMintedAndListed(indexed uint256,uint8)
           handler: handleEditionMintedAndListed
@@ -478,9 +478,9 @@ dataSources:
         - AdminUpdateMinBidAmount
       abis:
         - name: KODAV3PrimaryMarketplace
-          file: ./abis/KODAV3PrimaryMarketplace.json
+          file: ./abis/kodav3/KODAV3PrimaryMarketplace.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
@@ -571,9 +571,9 @@ dataSources:
         - AdminUpdateMinBidAmount
       abis:
         - name: KODAV3SecondaryMarketplace
-          file: ./abis/KODAV3SecondaryMarketplace.json
+          file: ./abis/kodav3/KODAV3SecondaryMarketplace.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdateModulo(uint256)
@@ -614,5 +614,41 @@ dataSources:
         - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
       file: ./src/mappings/v3/known-origin-v3-secondary-marketplace-mapping.ts
+
+  # Collab registry
+  - kind: ethereum/contract
+    name: KODAV3CollabRegistry
+    network: {{network}}
+    source:
+      address: '{{koda-v3-collab-registry-address}}'
+      abi: KODAV3CollabRegistry
+      startBlock: {{koda-v3-collab-registry-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - RoyaltyRecipientCreated
+        - RoyaltiesHandlerSetup
+        - FutureRoyaltiesHandlerSetup
+        - HandlerAdded
+        - HandlerRemoved
+      abis:
+        - name: KODAV3CollabRegistry
+          file: ./abis/kodav3/KODAV3CollabRegistry.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
+      eventHandlers:
+        - event: RoyaltyRecipientCreated(address,address,address,address[],uint256[])
+          handler: handleRoyaltyRecipientCreated
+        - event: RoyaltiesHandlerSetup(uint256,address)
+          handler: handleRoyaltiesHandlerSetup
+        - event: FutureRoyaltiesHandlerSetup(uint256,address)
+          handler: handleFutureRoyaltiesHandlerSetup
+        - event: HandlerAdded(address)
+          handler: handleHandlerAdded
+        - event: HandlerRemoved(address)
+          handler: handleHandlerRemoved
+      file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
 
   {{/include-koda-v3}}

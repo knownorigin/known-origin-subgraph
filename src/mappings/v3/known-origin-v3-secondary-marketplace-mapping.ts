@@ -1,6 +1,5 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 import {
-    AdminUpdateSecondaryRoyalty,
     AdminUpdateSecondarySaleCommission,
     AdminUpdateModulo,
     AdminUpdateMinBidAmount,
@@ -52,13 +51,6 @@ import {
 } from "../../services/TokenEvent.factory";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
-
-export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
-    log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
-    let marketConfig = getPlatformConfig()
-    marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
-    marketConfig.save();
-}
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
