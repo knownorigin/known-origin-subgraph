@@ -619,9 +619,9 @@ dataSources:
     name: KODAV3CollabRegistry
     network: rinkeby
     source:
-      address: '0xBEC19d918EBc50AEF6E1154D356741A02a888D07'
+      address: '0x7B5e1dA2686D8F874108ff0604fdC94d8EeAa668'
       abi: KODAV3CollabRegistry
-      startBlock: 8866129
+      startBlock: 8866122
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
