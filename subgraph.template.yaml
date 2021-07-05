@@ -636,8 +636,6 @@ dataSources:
       abis:
         - name: KODAV3CollabRegistry
           file: ./abis/kodav3/KODAV3CollabRegistry.json
-        - name: KnownOriginV3
-          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         - event: RoyaltyRecipientCreated(address,address,address,address[],uint256[])
           handler: handleRoyaltyRecipientCreated

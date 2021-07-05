@@ -223,14 +223,15 @@ type _Schema_
     ]
 )
 
-type BaseCollabHandlers @entity {
+# Maintain an list of approved collective handlers i.e. contracts which are cloned and used
+type CollectiveHandlers @entity {
     id: ID! # base address
     active: Boolean!
     lastUpdatedTimestamp: BigInt!
     lastUpdatedTransactionHash: Bytes!
 }
 
-type CollabHandlers @entity {
+type Collective @entity {
     id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
@@ -238,7 +239,7 @@ type CollabHandlers @entity {
     splits: [BigInt!]! # splits for the deployed collab
     createdTimestamp: BigInt!
     transactionHash: Bytes!
-    editionNmber: BigInt
+    editions: [Edition!]! # A list of editions assigned to
     isDeployed: Boolean!
 }
 
