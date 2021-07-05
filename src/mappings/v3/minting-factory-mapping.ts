@@ -1,16 +1,16 @@
-import {log} from "@graphprotocol/graph-ts/index";
+import {Address, log} from "@graphprotocol/graph-ts/index";
 
 import {
     EditionMintedAndListed,
     MintingFactory
-} from "../../generated/MintingFactory/MintingFactory";
+} from "../../../generated/MintingFactory/MintingFactory";
 
-import {loadOrCreateArtist} from "../services/Artist.service";
-import {ArtistMintingConfig} from "../../generated/schema";
-import {loadOrCreateV3Edition} from "../services/Edition.service";
-import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import {loadOrCreateArtist} from "../../services/Artist.service";
+import {ArtistMintingConfig} from "../../../generated/schema";
+import {loadOrCreateV3Edition} from "../../services/Edition.service";
+import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
-export function handleEditionMintedAndListed(event: EditionMintedAndListed) {
+export function handleEditionMintedAndListed(event: EditionMintedAndListed): void {
     log.info("Minting factory - handleEditionMintedAndListed() called - edition ID {}", [
         event.params._editionId.toString()
     ]);
@@ -22,10 +22,12 @@ export function handleEditionMintedAndListed(event: EditionMintedAndListed) {
     let edition = loadOrCreateV3Edition(event.params._editionId, event.block, contract)
     edition.save()
 
-    let artistEntity = loadOrCreateArtist(edition.artistAccount);
+    const artistAccount = Address.fromString(edition.artistAccount.toHexString());
+
+    let artistEntity = loadOrCreateArtist(artistAccount);
     artistEntity.save()
 
-    let mintingConfig = mintingFactory.currentMintConfig(edition.artistAccount);
+    let mintingConfig = mintingFactory.currentMintConfig(artistAccount);
 
     // update the current known minting rules state
     let config = ArtistMintingConfig.load(artistEntity.mintingConfig)
