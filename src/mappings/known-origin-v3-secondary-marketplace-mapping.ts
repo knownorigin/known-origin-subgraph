@@ -53,9 +53,6 @@ import {
 } from "../services/TokenEvent.factory";
 import * as KodaVersions from "../utils/KodaVersions";
 import * as SaleTypes from "../utils/SaleTypes";
-import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
-import {KODAV3PrimaryMarketplace} from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
-import {loadOrCreateV3EditionFromTokenId} from "../services/Edition.service";
 
 export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
     log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
