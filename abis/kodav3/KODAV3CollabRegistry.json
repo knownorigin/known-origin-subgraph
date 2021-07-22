@@ -265,16 +265,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_merkleIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_merkleProof",
-        "type": "bytes32[]"
-      },
-      {
         "internalType": "address",
         "name": "_handler",
         "type": "address"
