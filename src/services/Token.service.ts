@@ -112,7 +112,7 @@ export function loadNonNullableToken(tokenId: BigInt): Token {
 function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block, tokenId: BigInt, tokenEntity: Token): Token {
     log.info("Calling attemptToLoadV3TokenData() call for {} ", [tokenId.toString()])
 
-    //address _originalCreator, address _owner, uint256 _editionId, uint256 _size, string memory _uri
+    // address _originalCreator, address _owner, uint16 _size, uint256 _editionId, string memory _uri
     let editionDetails = contract.getEditionDetails(tokenId);
     let editionNumber = contract.getEditionIdOfToken(tokenId);
     let tokenURI = contract.tokenURI(tokenId);
@@ -131,7 +131,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     metaData.save()
     tokenEntity.metadata = metaData.id
 
-    tokenEntity.editionTotalAvailable = editionDetails.value3
+    tokenEntity.editionTotalAvailable = BigInt.fromI32(editionDetails.value2)
     tokenEntity.editionActive = contract.reportedEditionIds(editionNumber)
     tokenEntity.artistAccount = editionDetails.value1
 
