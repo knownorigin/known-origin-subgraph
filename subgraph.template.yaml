@@ -575,6 +575,8 @@ dataSources:
           handler: handleTokenBidRejected
         - event: TokenBidWithdrawn(indexed uint256,indexed address)
           handler: handleTokenBidWithdrawn
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
       file: ./src/mappings/known-origin-v3-secondary-marketplace-mapping.ts
 
   {{/include-koda-v3}}
