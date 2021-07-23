@@ -10,8 +10,9 @@ import {
     BuyNowPurchased,
     TokenDeListed,
     ListedForBuyNow,
-    KODAV3SecondaryMarketplace
-} from "../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
+    KODAV3SecondaryMarketplace,
+    BuyNowPriceChanged
+} from "../../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
 import {loadNonNullableToken} from "../../services/Token.service";
@@ -302,4 +303,19 @@ export function handleTokenBidWithdrawn(event: TokenBidWithdrawn): void {
 
     recordDayBidWithdrawnCount(event)
     recordSecondaryBidWithdrawn(event, token, edition, event.params._bidder)
+}
+
+export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
+    log.info("KO V3 handleBuyNowTokenPriceChanged() called - tokenID {}", [event.params._id.toString()]);
+
+    let token = loadNonNullableToken(event.params._id)
+    token.listPrice = toEther(event.params._price)
+    token.save()
+
+    let edition = Edition.load(token.edition) as Edition
+
+    let listedToken = loadOrCreateListedToken(event.params._id, edition);
+    listedToken.listPrice = toEther(event.params._price)
+
+    listedToken.save()
 }
