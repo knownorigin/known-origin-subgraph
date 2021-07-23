@@ -156,7 +156,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
 
         // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
-        editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
+        editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
 
         editionEntity.save();
 

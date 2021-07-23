@@ -520,11 +520,13 @@ function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector,
     // Count total sale value
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(price));
 
-    // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
-    editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
+    // N:B - disabling as we are now tally up totalSupply & remainingSupply in the transfer handler
+
+    // // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
+    // editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
 
     // Reduce remaining supply for each mint
-    editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE)
+    // editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE)
 
     // Total sold
     editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
