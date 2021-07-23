@@ -612,6 +612,8 @@ dataSources:
           handler: handleTokenBidRejected
         - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
       file: ./src/mappings/v3/known-origin-v3-secondary-marketplace-mapping.ts
 
   # Collab registry
