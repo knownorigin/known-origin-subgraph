@@ -11,7 +11,7 @@ import {
     AdminEditionReported, Approval, ApprovalForAll,
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
 
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 
 import {
     loadNonNullableEdition,
@@ -20,7 +20,7 @@ import {
 } from "../../services/Edition.service";
 
 import {addEditionToDay, recordDayTransfer} from "../../services/Day.service";
-import {addEditionToArtist} from "../../services/Artist.service";
+import {addEditionToArtist, loadOrCreateArtist} from "../../services/Artist.service";
 import {recordEditionCreated, recordTransfer} from "../../services/ActivityEvent.service";
 import {collectorInList, loadOrCreateCollector} from "../../services/Collector.service";
 import {createTransferEvent} from "../../services/TransferEvent.factory";
@@ -220,6 +220,32 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         /////////////////////
 
         recordTransfer(event, tokenEntity, editionEntity, to);
+
+        ////////////////////////////////////
+        // Handle burns as a special case //
+        ////////////////////////////////////
+
+        if (to.equals(DEAD_ADDRESS)) {
+
+            //  reduce supply of edition
+            editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
+            editionEntity.totalSupply = editionEntity.totalSupply.minus(ONE);
+            editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE);
+
+            // If total supply completely removed
+            if (editionEntity.totalSupply.equals(ZERO)) {
+
+                // reduce supply of artist if edition is completely removed
+                let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+                // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ... 
+                artist.editionsCount = artist.editionsCount.minus(ONE);
+
+                // Set edition as disable as the entity has been removed
+                editionEntity.active = false;
+            }
+
+            editionEntity.save()
+        }
     }
 }
 
