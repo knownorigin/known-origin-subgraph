@@ -21,7 +21,12 @@ import {
     BidPlacedOnReserveAuction,
     ReserveAuctionResulted,
     BidWithdrawnFromReserveAuction,
-    ReservePriceUpdated
+    ReservePriceUpdated,
+    EditionConvertedFromOffersToBuyItNow,
+    ReserveAuctionConvertedToOffers,
+    ReserveAuctionConvertedToBuyItNow,
+    ConvertSteppedAuctionToBuyNow,
+    ConvertFromBuyNowToOffers
 } from "../../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
@@ -515,6 +520,87 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
     editionEntity.save()
 }
 
+export function handleEditionConvertedFromOffersToBuyItNow(event: EditionConvertedFromOffersToBuyItNow): void {
+    log.info("KO V3 handleEditionConvertedFromOffersToBuyItNow() called - editionId {}", [event.params._editionId.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.salesType = SaleTypes.BUY_NOW
+    editionEntity.priceInWei = event.params._price
+    editionEntity.startDate = event.params._startDate
+    editionEntity.auctionEnabled = false
+
+    removeActiveBidOnEdition(event.params._editionId)
+    clearEditionOffer(event.block, event.params._editionId)
+
+    editionEntity.save()
+}
+
+export function handleConvertFromBuyNowToOffers(event: ConvertFromBuyNowToOffers): void {
+    log.info("KO V3 handleConvertFromBuyNowToOffers() called - editionId {}", [event.params._editionId.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY
+    editionEntity.startDate = event.params._startDate
+    editionEntity.auctionEnabled = true
+
+    editionEntity.save()
+}
+
+export function handleConvertSteppedAuctionToBuyNow(event: ConvertSteppedAuctionToBuyNow): void {
+    log.info("KO V3 handleConvertSteppedAuctionToBuyNow() called - editionId {}", [event.params._editionId.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.salesType = SaleTypes.STEPPED_SALE
+    editionEntity.startDate = event.params._startDate
+    editionEntity.priceInWei = event.params._listingPrice
+    editionEntity.auctionEnabled = false
+
+    editionEntity.save()
+}
+
+export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionConvertedToBuyItNow): void {
+    log.info("KO V3 handleReserveAuctionConvertedToBuyItNow() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
+    editionEntity.startDate = event.params._startDate
+    editionEntity.priceInWei = event.params._listingPrice
+    editionEntity.auctionEnabled = false
+
+    _clearReserveAuctionFields(editionEntity)
+
+    editionEntity.save()
+}
+
+export function handleReserveAuctionConvertedToOffers(event: ReserveAuctionConvertedToOffers): void {
+    log.info("KO V3 handleReserveAuctionConvertedToOffers() called - editionId {}", [event.params._editionId.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY
+    editionEntity.startDate = event.params._startDate
+    editionEntity.auctionEnabled = true
+
+    _clearReserveAuctionFields(editionEntity)
+
+    editionEntity.save()
+}
+
+
 function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector, tokenId: BigInt, price: BigInt): void {
 
     // Count total sale value
@@ -563,4 +649,22 @@ function _handleArtistAndDayCounts(event: ethereum.Event, tokenId: BigInt, price
     recordArtistValue(artistAddress, tokenId, price)
 
     addPrimarySaleToCollector(event.block, buyer, price);
+}
+
+function _clearReserveAuctionFields(editionEntity: Edition): void {
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.isReserveAuctionResulted = false
+    editionEntity.isReserveAuctionResultedDateTime = ZERO
+    editionEntity.reserveAuctionSeller = ZERO_ADDRESS
+    editionEntity.reservePrice = ZERO
+    editionEntity.reserveAuctionResulter = ZERO_ADDRESS
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionStartDate = ZERO
+    editionEntity.previousReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionNumTimesExtended = ZERO
+    editionEntity.isReserveAuctionInSuddenDeath = false
+    editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+    editionEntity.reserveAuctionCanEmergencyExit = false
 }

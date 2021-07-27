@@ -237,7 +237,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
                 // reduce supply of artist if edition is completely removed
                 let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-                // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ... 
+                // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ...
                 artist.editionsCount = artist.editionsCount.minus(ONE);
 
                 // Set edition as disable as the entity has been removed
