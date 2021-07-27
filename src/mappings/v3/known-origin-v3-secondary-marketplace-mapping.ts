@@ -33,7 +33,8 @@ import {
     recordSecondaryBidWithdrawn,
     recordSecondarySale,
     recordSecondaryTokenDeListed,
-    recordSecondaryTokenListed, recordSecondaryTokenListingPriceChange
+    recordSecondaryTokenListed,
+    recordSecondaryTokenListingPriceChange,
 } from "../../services/ActivityEvent.service";
 import {clearTokenOffer, recordTokenOffer} from "../../services/Offers.service";
 import {
