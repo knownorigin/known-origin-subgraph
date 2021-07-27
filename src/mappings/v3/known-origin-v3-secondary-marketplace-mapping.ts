@@ -33,7 +33,7 @@ import {
     recordSecondaryBidWithdrawn,
     recordSecondarySale,
     recordSecondaryTokenDeListed,
-    recordSecondaryTokenListed
+    recordSecondaryTokenListed, recordSecondaryTokenListingPriceChange
 } from "../../services/ActivityEvent.service";
 import {clearTokenOffer, recordTokenOffer} from "../../services/Offers.service";
 import {
@@ -317,5 +317,6 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
     let listedToken = loadOrCreateListedToken(event.params._id, edition);
     listedToken.listPrice = toEther(event.params._price)
 
+    recordSecondaryTokenListingPriceChange(event, token, edition, event.params._price, Address.fromString(listedToken.lister));
     listedToken.save()
 }

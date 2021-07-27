@@ -142,6 +142,17 @@ export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Toke
     }
 }
 
+export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, token, value, owner, null)
+        event.save()
+    }
+}
+
 export function recordSecondaryTokenPurchased(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);
