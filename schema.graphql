@@ -259,7 +259,7 @@ type Edition @entity {
     tokenURI: String!
     artistAccount: Bytes! # address
     artistCommission: BigInt! # base artists commission
-    optionalCommissionAccount: Bytes # address
+    optionalCommissionAccount: Bytes # address - NOTE: deprecated - V2 only - use collaborators for
     optionalCommissionRate: BigInt
     collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
     offersOnly: Boolean!

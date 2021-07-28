@@ -1,12 +1,14 @@
 import {
     FutureRoyaltiesHandlerSetup,
     HandlerAdded,
-    HandlerRemoved,
+    HandlerRemoved, KODAV3CollabRegistry,
     RoyaltiesHandlerSetup,
     RoyaltyRecipientCreated
 } from "../../../generated/KODAV3CollabRegistry/KODAV3CollabRegistry";
 import {CollectiveHandlers, Collective} from "../../../generated/schema";
 import {Bytes, log} from "@graphprotocol/graph-ts/index";
+import {loadOrCreateV3Edition} from "../../services/Edition.service";
+import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
 export function handleRoyaltyRecipientCreated(event: RoyaltyRecipientCreated): void {
     log.info("handleRoyaltyRecipientCreated() for clone [{}] - deployed address [{}]", [
@@ -29,14 +31,35 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
         event.params.editionId.toString(),
         event.params.deployedHandler.toHexString()
     ]);
+
     let collective = loadCollective(event.params.deployedHandler.toHexString())
 
     let editions = collective.editions;
     editions.push(event.params.editionId.toString());
     collective.editions = editions;
-
     collective.isDeployed = true
     collective.save()
+
+    // TODO this fails ... by why ?????
+    // let kodaV3Contract = KnownOriginV3.bind(
+    //     KODAV3CollabRegistry.bind(event.address).koda()
+    // );
+    //
+    // let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
+    //
+    // log.info("handleRoyaltiesHandlerSetup() collective.recipients [{}]", [
+    //     collective.recipients.toString()
+    // ]);
+    //
+    // // add all recipients to collaborators list
+    // let recipients: Array<Bytes> = collective.recipients;
+    // let collaborators: Array<Bytes> = editionEntity.collaborators
+    // for (let i = 0; i < recipients.length; i++) {
+    //     let recipient: Bytes = recipients[i];
+    //     collaborators.push(recipient)
+    // }
+    // editionEntity.collaborators = collaborators
+    // editionEntity.save()
 }
 
 export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerSetup): void {
@@ -49,7 +72,6 @@ export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerS
     let editions = collective.editions;
     editions.push(event.params.editionId.toString());
     collective.editions = editions;
-
     collective.isDeployed = false
     collective.save()
 }
@@ -81,6 +103,7 @@ function loadCollective(id: string): Collective {
     if (collective == null) {
         collective = new Collective(id);
         collective.editions = new Array<string>()
+        collective.recipients = new Array<Bytes>()
     }
     return collective as Collective;
 }

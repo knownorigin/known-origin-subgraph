@@ -49,7 +49,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             artistEntity.save()
             editionEntity.artist = artistEntity.id
 
-            // Specify collabs (FIXME this will need to change in V3)
+            // Specify collabs
             let collaborators: Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)
 
@@ -161,7 +161,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         editionEntity.editionType = ONE
         editionEntity.startDate = ZERO
         editionEntity.endDate = MAX_UINT_256
-        editionEntity.artistCommission = BigInt.fromI32(85) // TODO hard coded for now, is there a better way?
+        editionEntity.artistCommission = BigInt.fromI32(85)
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
@@ -191,8 +191,6 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
         // Pricing logic
         editionEntity.offersOnly = false
-
-        // FIXME handle multiple commission splits ..
 
         // Set genesis flag if not existing editions created
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
@@ -227,7 +225,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     let editionEntity = new Edition(_editionId.toString());
     editionEntity.version = version
     editionEntity.editionNmber = _editionId
-    editionEntity.salesType = SaleTypes.OFFERS_ONLY // TODO is it right to assume offers are always the default state
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.tokenIds = new Array<BigInt>()
     editionEntity.auctionEnabled = false
     editionEntity.activeBid = null
