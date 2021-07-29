@@ -54,6 +54,7 @@ export function recordTokenOffer(block: ethereum.Block,
                                  bidder: Address,
                                  amount: BigInt,
                                  tokenId: BigInt,
+                                 lockedUntil: BigInt | null,
                                  secondaryMarketVersion: String): Offer {
 
     let tokenEntity = loadNonNullableToken(tokenId);
@@ -63,6 +64,7 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.bidder = loadOrCreateCollector(bidder, block).id
     offer.ethValue = toEther(amount)
     offer.weiValue = amount
+    offer.lockedUntil = lockedUntil
 
     // @ts-ignore
     // Token holders own token

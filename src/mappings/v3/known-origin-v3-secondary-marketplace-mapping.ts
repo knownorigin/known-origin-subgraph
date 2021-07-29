@@ -219,8 +219,10 @@ export function handleTokenBidPlaced(event: TokenBidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    // TODO record lockupUntil for offer
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, KodaVersions.MARKETPLACE_V3);
+    let contract = KODAV3SecondaryMarketplace.bind(event.address)
+    let offerRecordedInContract = contract.tokenBids(event.params._tokenId)
+
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, offerRecordedInContract.value2, KodaVersions.MARKETPLACE_V3);
 
     recordSecondaryBidPlaced(event, token, edition, event.params._amount, event.params._bidder)
 }

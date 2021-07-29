@@ -213,7 +213,6 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
 
     recordActiveEditionBid(event.params._editionId, auctionEvent)
 
-    // TODO record lockupUntil for offer
     recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, offer.value2, event.params._editionId)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
