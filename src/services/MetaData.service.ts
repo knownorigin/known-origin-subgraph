@@ -91,12 +91,21 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
 
                 // TODO update for format and theme - new field
-                if (isObject(attributes) && attributes.toObject().isSet('category')) {
-                    let rawCategory: JSONValue | null = attributes.toObject().get('category');
-                    let isNull: boolean = (rawCategory as JSONValue).isNull();
+                if (isObject(attributes) && attributes.toObject().isSet('format')) {
+                    let rawFormat: JSONValue | null = attributes.toObject().get('format');
+                    let isNull: boolean = (rawFormat as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
-                        metaData.category = rawCategory.toString()
+                        metaData.rawFormat = rawFormat.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('theme')) {
+                    let rawTheme: JSONValue | null = attributes.toObject().get('theme');
+                    let isNull: boolean = (rawTheme as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.rawTheme = rawTheme.toString()
                     }
                 }
 
