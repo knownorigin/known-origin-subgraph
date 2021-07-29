@@ -214,7 +214,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     recordActiveEditionBid(event.params._editionId, auctionEvent)
 
     // TODO record lockupUntil for offer
-    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionId)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, offer.value2, event.params._editionId)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 }
@@ -429,7 +429,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     recordActiveEditionBid(event.params._id, auctionEvent)
 
-    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._id)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, null, event.params._id)
 }
 
 export function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {

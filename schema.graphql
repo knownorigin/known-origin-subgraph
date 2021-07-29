@@ -390,6 +390,7 @@ type Offer @entity {
     weiValue: BigInt!
     timestamp: BigInt!
     transactionHash: Bytes!
+    lockedUntil: BigInt             # For V3 offers, they will be locked for a certain amount of time
     isActive: Boolean!              # Only active offers can be seen in the UI
     secondaryMarketVersion: String  # helps denote what contract version the offer is against
 }

@@ -13,6 +13,7 @@ export function recordEditionOffer(block: ethereum.Block,
                                    transaction: ethereum.Transaction,
                                    bidder: Address,
                                    amount: BigInt,
+                                   lockedUntil: BigInt | null,
                                    editionNumber: BigInt): Offer {
 
     let editionEntity = loadNonNullableEdition(editionNumber);
@@ -22,6 +23,7 @@ export function recordEditionOffer(block: ethereum.Block,
     offer.bidder = loadOrCreateCollector(bidder, block).id
     offer.ethValue = toEther(amount)
     offer.weiValue = amount
+    offer.lockedUntil = lockedUntil
     // Artists own editions
     offer.currentOwner = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), block).id
     offer.timestamp = block.timestamp
