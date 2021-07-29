@@ -40,26 +40,25 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
     collective.isDeployed = true
     collective.save()
 
-    // TODO this fails ... by why ?????
-    // let kodaV3Contract = KnownOriginV3.bind(
-    //     KODAV3CollabRegistry.bind(event.address).koda()
-    // );
-    //
-    // let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
-    //
-    // log.info("handleRoyaltiesHandlerSetup() collective.recipients [{}]", [
-    //     collective.recipients.toString()
-    // ]);
-    //
-    // // add all recipients to collaborators list
-    // let recipients: Array<Bytes> = collective.recipients;
-    // let collaborators: Array<Bytes> = editionEntity.collaborators
-    // for (let i = 0; i < recipients.length; i++) {
-    //     let recipient: Bytes = recipients[i];
-    //     collaborators.push(recipient)
-    // }
-    // editionEntity.collaborators = collaborators
-    // editionEntity.save()
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3CollabRegistry.bind(event.address).koda()
+    );
+
+    let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
+
+    log.info("handleRoyaltiesHandlerSetup() collective.recipients [{}]", [
+        collective.recipients.toString()
+    ]);
+
+    // add all recipients to collaborators list
+    let recipients: Array<Bytes> = collective.recipients;
+    let collaborators: Array<Bytes> = editionEntity.collaborators
+    for (let i: number = 0; i < recipients.length; i++) {
+        let recipient: Bytes = recipients[i as i32];
+        collaborators.push(recipient)
+    }
+    editionEntity.collaborators = collaborators
+    editionEntity.save()
 }
 
 export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerSetup): void {
