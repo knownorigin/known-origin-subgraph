@@ -90,6 +90,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                     }
                 }
 
+                // TODO update for format and theme - new field
                 if (isObject(attributes) && attributes.toObject().isSet('category')) {
                     let rawCategory: JSONValue | null = attributes.toObject().get('category');
                     let isNull: boolean = (rawCategory as JSONValue).isNull();
