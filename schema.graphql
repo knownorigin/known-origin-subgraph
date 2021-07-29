@@ -360,7 +360,6 @@ type MetaData @entity {
 
     # New tags added in V3
     production_year: String
-    # TODO update for format and theme - new field
     format: String
     theme: String
     nsfw: Boolean
