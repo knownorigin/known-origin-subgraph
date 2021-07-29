@@ -95,7 +95,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                     let isNull: boolean = (rawFormat as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
-                        metaData.rawFormat = rawFormat.toString()
+                        metaData.format = rawFormat.toString()
                     }
                 }
 
@@ -104,7 +104,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                     let isNull: boolean = (rawTheme as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
-                        metaData.rawTheme = rawTheme.toString()
+                        metaData.theme = rawTheme.toString()
                     }
                 }
 
