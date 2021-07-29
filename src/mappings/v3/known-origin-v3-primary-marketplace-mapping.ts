@@ -207,11 +207,13 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
+    // TODO ditch this field
     let offer = kodav3Marketplace.editionOffers(event.params._editionId)
     auctionEvent.lockupUntil = offer.value2
 
     recordActiveEditionBid(event.params._editionId, auctionEvent)
 
+    // TODO record lockupUntil for offer
     recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionId)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
