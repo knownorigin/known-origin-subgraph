@@ -365,6 +365,7 @@ export function handleEditionListedForReserveAuction(event: ListedForReserveAuct
     editionEntity.reserveAuctionSeller = reserveAuction.value0
     editionEntity.reservePrice = event.params._reservePrice
     editionEntity.reserveAuctionStartDate = event.params._startDate
+    editionEntity.startDate = event.params._startDate
     editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
 
     recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_AUCTION_LISTED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
