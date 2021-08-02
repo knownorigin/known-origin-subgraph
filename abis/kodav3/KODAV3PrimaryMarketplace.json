@@ -1026,6 +1026,24 @@
         "type": "uint256"
       },
       {
+        "internalType": "address",
+        "name": "_buyer",
+        "type": "address"
+      }
+    ],
+    "name": "buyNextStepFor",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint128",
         "name": "_startDate",
         "type": "uint128"
@@ -1564,11 +1582,47 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      }
+    ],
+    "name": "placeBidOnReserveAuctionFor",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_editionId",
         "type": "uint256"
       }
     ],
     "name": "placeEditionBid",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_bidder",
+        "type": "address"
+      }
+    ],
+    "name": "placeEditionBidFor",
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
