@@ -60,13 +60,6 @@ import {recordPrimarySaleEvent} from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {Collector, Edition, Token} from "../../../generated/schema";
-import {
-    RESERVE_AUCTION_LISTED,
-    RESERVE_BID_WITHDRAWN,
-    RESERVE_COUNTDOWN_STARTED,
-    RESERVE_PRICE_CHANGED,
-    STEPPED_AUCTION_LISTED
-} from "../../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);

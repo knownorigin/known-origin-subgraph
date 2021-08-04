@@ -16,7 +16,7 @@ export const EDITION_CREATED = "EditionCreated";
 export const PRICE_CHANGED = "PriceChanged";
 
 // V3 + events
-export const STEPPED_AUCTION_LISTED = "ReserveListed";
+export const STEPPED_AUCTION_LISTED = "SteppedListed";
 export const RESERVE_AUCTION_LISTED = "ReserveListed";
 export const RESERVE_BID_PLACED = "ReserveBidPlaced";
 export const RESERVE_BID_WITHDRAWN = "ReserveBidWithdrawn";
