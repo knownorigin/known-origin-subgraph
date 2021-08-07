@@ -43,6 +43,9 @@ let CEASE_AND_DESIST: Array<number> = [
     // JMB - 15th May 2021
     // 208250,
     // 159100
+
+    // July 2021 - Lions gate
+    300450
 ];
 
 export function isEditionBurnt(editionNumber: BigInt): boolean {
