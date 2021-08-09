@@ -21,7 +21,7 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
 
-        const mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
+        let mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
         mintConfig.mints = ZERO;
         mintConfig.firstMintInPeriod = ZERO;
         mintConfig.frequencyOverride = false;

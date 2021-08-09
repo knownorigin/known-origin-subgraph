@@ -48,6 +48,7 @@ import {loadOrCreateV2Token} from "../services/Token.service";
 import {recordPrimarySaleEvent} from "../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../utils/EventTypes";
 import * as SaleTypes from "../utils/SaleTypes";
+import {BigInt} from "@graphprotocol/graph-ts";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = getKnownOriginV2ForAddress(event.address)
@@ -111,7 +112,7 @@ export function handleBidPlaced(event: BidPlaced): void {
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
 
-    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionNumber)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, null, event.params._editionNumber)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 }
@@ -268,7 +269,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
     recordActiveEditionBid(event.params._editionNumber, auctionEvent)
-    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._editionNumber)
+    recordEditionOffer(event.block, event.transaction, event.params._bidder, event.params._amount, null, event.params._editionNumber)
 
     recordPrimarySaleEvent(event, EVENT_TYPES.BID_INCREASED, editionEntity, null, event.params._amount, event.params._bidder)
 }

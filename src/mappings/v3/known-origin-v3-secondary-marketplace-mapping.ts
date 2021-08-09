@@ -1,6 +1,5 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 import {
-    AdminUpdateSecondaryRoyalty,
     AdminUpdateSecondarySaleCommission,
     AdminUpdateModulo,
     AdminUpdateMinBidAmount,
@@ -11,21 +10,22 @@ import {
     BuyNowPurchased,
     TokenDeListed,
     ListedForBuyNow,
-    KODAV3SecondaryMarketplace
-} from "../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
+    KODAV3SecondaryMarketplace,
+    BuyNowPriceChanged
+} from "../../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
 
-import {getPlatformConfig} from "../services/PlatformConfig.factory";
-import {loadNonNullableToken} from "../services/Token.service";
-import {toEther} from "../utils/utils";
+import {getPlatformConfig} from "../../services/PlatformConfig.factory";
+import {loadNonNullableToken} from "../../services/Token.service";
+import {toEther} from "../../utils/utils";
 import {
     addSecondaryPurchaseToCollector,
     addSecondarySaleToSeller,
     collectorInList,
     loadOrCreateCollector
-} from "../services/Collector.service";
-import {Edition, TokenOffer} from "../../generated/schema";
-import {loadOrCreateListedToken} from "../services/ListedToken.service";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
+} from "../../services/Collector.service";
+import {Edition, TokenOffer} from "../../../generated/schema";
+import {loadOrCreateListedToken} from "../../services/ListedToken.service";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {
     recordSecondaryBidAccepted,
     recordSecondaryBidPlaced,
@@ -33,9 +33,10 @@ import {
     recordSecondaryBidWithdrawn,
     recordSecondarySale,
     recordSecondaryTokenDeListed,
-    recordSecondaryTokenListed
-} from "../services/ActivityEvent.service";
-import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
+    recordSecondaryTokenListed,
+    recordSecondaryTokenListingPriceChange,
+} from "../../services/ActivityEvent.service";
+import {clearTokenOffer, recordTokenOffer} from "../../services/Offers.service";
 import {
     recordDayBidAcceptedCount,
     recordDayBidPlacedCount,
@@ -43,22 +44,15 @@ import {
     recordDayBidWithdrawnCount,
     recordDayCounts, recordDaySecondaryTotalValue, recordDayTotalValueCycledInBids, recordDayTotalValuePlaceInBids,
     recordDayValue
-} from "../services/Day.service";
+} from "../../services/Day.service";
 import {
     createBidAcceptedEvent,
     createBidPlacedEvent,
     createBidRejectedEvent,
     createBidWithdrawnEvent
-} from "../services/TokenEvent.factory";
-import * as KodaVersions from "../utils/KodaVersions";
-import * as SaleTypes from "../utils/SaleTypes";
-
-export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
-    log.info("KO V3 handleAdminUpdateSecondaryRoyalty() called - secondarySaleRoyalty {}", [event.params._secondarySaleRoyalty.toString()]);
-    let marketConfig = getPlatformConfig()
-    marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
-    marketConfig.save();
-}
+} from "../../services/TokenEvent.factory";
+import * as KodaVersions from "../../utils/KodaVersions";
+import * as SaleTypes from "../../utils/SaleTypes";
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
@@ -225,7 +219,10 @@ export function handleTokenBidPlaced(event: TokenBidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, KodaVersions.MARKETPLACE_V3);
+    let contract = KODAV3SecondaryMarketplace.bind(event.address)
+    let offerRecordedInContract = contract.tokenBids(event.params._tokenId)
+
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, offerRecordedInContract.value2, KodaVersions.MARKETPLACE_V3);
 
     recordSecondaryBidPlaced(event, token, edition, event.params._amount, event.params._bidder)
 }
@@ -310,4 +307,20 @@ export function handleTokenBidWithdrawn(event: TokenBidWithdrawn): void {
 
     recordDayBidWithdrawnCount(event)
     recordSecondaryBidWithdrawn(event, token, edition, event.params._bidder)
+}
+
+export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
+    log.info("KO V3 handleBuyNowTokenPriceChanged() called - tokenID {}", [event.params._id.toString()]);
+
+    let token = loadNonNullableToken(event.params._id)
+    token.listPrice = toEther(event.params._price)
+    token.save()
+
+    let edition = Edition.load(token.edition) as Edition
+
+    let listedToken = loadOrCreateListedToken(event.params._id, edition);
+    listedToken.listPrice = toEther(event.params._price)
+
+    recordSecondaryTokenListingPriceChange(event, token, edition, event.params._price, Address.fromString(listedToken.lister));
+    listedToken.save()
 }

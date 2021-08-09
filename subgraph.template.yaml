@@ -20,7 +20,7 @@ dataSources:
         - Transfer
       abis:
         - name: KnownOriginV1
-          file: ./abis/KnownOriginV1.json
+          file: ./abis/kodav2/KnownOriginV1.json
       eventHandlers:
         #        - event: Transfer(indexed address,indexed address,uint256)
         #          handler: handleTransfer
@@ -45,7 +45,7 @@ dataSources:
         - EditionCreated
       abis:
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         # All transfers to/from regardless of on KO or not
         - event: Transfer(indexed address,indexed address,indexed uint256)
@@ -80,9 +80,9 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV1
-          file: ./abis/ArtistAcceptingBidsV1.json
+          file: ./abis/kodav2/ArtistAcceptingBidsV1.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: BidPlaced(indexed address,indexed uint256,indexed uint256)
           handler: handleBidPlaced
@@ -119,9 +119,9 @@ dataSources:
         - AuctionEnabled
       abis:
         - name: ArtistAcceptingBidsV2
-          file: ./abis/ArtistAcceptingBidsV2.json
+          file: ./abis/kodav2/ArtistAcceptingBidsV2.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -169,9 +169,9 @@ dataSources:
         - AuctionDisabled
       abis:
         - name: TokenMarketplace
-          file: ./abis/TokenMarketplace.json
+          file: ./abis/kodav2/TokenMarketplace.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -219,9 +219,9 @@ dataSources:
         - TokenListed
       abis:
         - name: TokenMarketplaceV2
-          file: ./abis/TokenMarketplaceV2.json
+          file: ./abis/kodav2/TokenMarketplaceV2.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AuctionEnabled(indexed uint256,indexed address)
           handler: handleAuctionEnabled
@@ -269,9 +269,9 @@ dataSources:
         - EditionSupplyReduced
       abis:
         - name: ArtistEditionBurner
-          file: ./abis/ArtistEditionBurner.json
+          file: ./abis/kodav2/ArtistEditionBurner.json
         - name: KnownOriginV2
-          file: ./abis/KnownOriginV2.json
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: EditionDeactivated(indexed uint256)
           handler: handleEditionDeactivatedEvent
@@ -297,7 +297,7 @@ dataSources:
         - Transfer
       abis:
         - name: ArtistEditionControlsV2
-          file: ./abis/ArtistEditionControlsV2.json
+          file: ./abis/kodav2/ArtistEditionControlsV2.json
       eventHandlers:
         - event: PriceChanged(indexed uint256,indexed address,uint256)
           handler: handlePriceChangedEvent
@@ -329,7 +329,7 @@ dataSources:
         - Approval
       abis:
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # KODA V3 Config
         - event: AdminRoyaltiesRegistryProxySet(indexed address)
@@ -354,7 +354,7 @@ dataSources:
           handler: handleApprovalForAll
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
-      file: ./src/mappings/known-origin-v3-mapping.ts
+      file: ./src/mappings/v3/known-origin-v3-mapping.ts
 
       # medium priority
       #
@@ -394,18 +394,20 @@ dataSources:
         - AdminUpdateArtistAccessMerkleRootIpfsHash
       abis:
         - name: KOAccessControls
-          file: ./abis/KOAccessControls.json
+          file: ./abis/kodav3/KOAccessControls.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         - event: AdminUpdateArtistAccessMerkleRoot(bytes32)
           handler: handleAdminUpdateArtistAccessMerkleRoot
 
         - event: AdminUpdateArtistAccessMerkleRootIpfsHash(string)
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
-      file: ./src/mappings/platform-config-mapping.ts
+      file: ./src/mappings/v3/platform-config-mapping.ts
 
   ## MintingFactory for KODA V3
   - kind: ethereum/contract
-    name: MintingFactory
+    name: MintingFactoryConfig
     network: {{network}}
     source:
       address: '{{koda-v3-minting-factory-address}}'
@@ -422,10 +424,10 @@ dataSources:
         - AdminFrequencyOverrideChanged
       abis:
         - name: MintingFactory
-          file: ./abis/MintingFactory.json
+          file: ./abis/kodav3/MintingFactory.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
-        - event: EditionMintedAndListed(indexed uint256,uint8)
-          handler: handleEditionMintedAndListed
         - event: MintingFactoryCreated()
           handler: handleMintingFactoryCreated
         - event: AdminMintingPeriodChanged(uint256)
@@ -434,7 +436,31 @@ dataSources:
           handler: handleAdminMaxMintsInPeriodChanged
         - event: AdminFrequencyOverrideChanged(address,bool)
           handler: handleAdminFrequencyOverrideChanged
-      file: ./src/mappings/platform-config-mapping.ts
+      file: ./src/mappings/v3/platform-config-mapping.ts
+
+  ## MintingFactory for KODA V3
+  - kind: ethereum/contract
+    name: MintingFactoryCreations
+    network: {{network}}
+    source:
+      address: '{{koda-v3-minting-factory-address}}'
+      abi: MintingFactory
+      startBlock: {{koda-v3-minting-factory-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - EditionMintedAndListed
+      abis:
+        - name: MintingFactory
+          file: ./abis/kodav3/MintingFactory.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
+      eventHandlers:
+        - event: EditionMintedAndListed(indexed uint256,uint8)
+          handler: handleEditionMintedAndListed
+      file: ./src/mappings/v3/minting-factory-mapping.ts
 
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -454,9 +480,9 @@ dataSources:
         - AdminUpdateMinBidAmount
       abis:
         - name: KODAV3PrimaryMarketplace
-          file: ./abis/KODAV3PrimaryMarketplace.json
+          file: ./abis/kodav3/KODAV3PrimaryMarketplace.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
@@ -469,50 +495,71 @@ dataSources:
         # Buy Now - primary
         - event: BuyNowPriceChanged(indexed uint256,uint256)
           handler: handleEditionPriceChanged
-        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,address,uint256)
           handler: handleEditionListed
-        - event: BuyNowPurchased(indexed uint256,indexed address,uint256)
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleEditionPurchased
 
         # Offers - primary
         - event: EditionAcceptingOffer(indexed uint256,uint128)
           handler: handleEditionAcceptingOffer
-        - event: EditionBidPlaced(indexed uint256,indexed address,uint256)
+        - event: EditionBidPlaced(indexed uint256,address,uint256)
           handler: handleEditionBidPlaced
-        - event: EditionBidWithdrawn(indexed uint256,indexed address)
+        - event: EditionBidWithdrawn(indexed uint256,address)
           handler: handleEditionBidWithdrawn
-        - event: EditionBidAccepted(indexed uint256,indexed uint256,indexed address,uint256)
+        - event: EditionBidAccepted(indexed uint256,indexed uint256,address,uint256)
           handler: handleEditionBidAccepted
-        - event: EditionBidRejected(indexed uint256,indexed address,uint256)
+        - event: EditionBidRejected(indexed uint256,address,uint256)
           handler: handleEditionBidRejected
 
         # Stepped Sales
         - event: EditionSteppedSaleListed(indexed uint256,uint128,uint128,uint128)
           handler: handleEditionSteppedSaleListed
-        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,indexed address,uint256,uint16)
+        - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
-          # Reserve Auction
-          #   - all fields in ReserveAuction
-          #   - capture all configuration fields PlatformConfig
-          #
-          #   - has the edition reached is reserve price - view on the data?
-          #   - when does the reserve end?
-          #   - has the reserve moved into sudden death?
-          #   - has the item been resulted and by who?
-          #   - model all events, placed, withdraw - copy/look at existing auction logic for this
-          #   - new sale type Edition
-          #   - are we in an emergency exit state?
+        # Reserve Auction - data questions to answer
+        #   - DONE has the edition reached is reserve price - see: isReserveAuctionInSuddenDeath || reserveAuctionEndTimestamp > 0
+        #   - DONE when does the reserve end?
+        #       - reserveAuctionEndTimestamp - current end time
+        #       - previousReserveAuctionEndTimestamp - after extension - this is set
+        #       - reserveAuctionNumTimesExtended - number of times extended into sudden death
+        #       - reserveAuctionTotalExtensionLengthInSeconds - total extension time
+        #
+        #   - DONE - has the reserve moved into sudden death? - see: reserveAuctionNumTimesExtended > 0
+        #   - DONE - has the item been resulted and by who? - see: isReserveAuctionResulted, isReserveAuctionResultedDateTime, reserveAuctionResulter
+        #   - DONE - model all events, placed, withdraw - copy/look at existing auction logic for this
+        #   - DONE - new sale type Edition - SaleTypes.RESERVE_COUNTDOWN_AUCTION (int 5)
+        #   - DONE - are we in an emergency exit state? - see: reserveAuctionCanEmergencyExit
 
-        # TODO reserve
-        #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
-        #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);
-        #    event ReserveAuctionResulted(uint256 indexed _tokenId, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
-        #    event BidWithdrawnFromReserveAuction(uint256 _tokenId, address indexed _bidder, uint128 _bid);
-        #    event ReservePriceUpdated(uint256 indexed _tokenId, uint256 _reservePrice);
-        #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
+        # Reserve Auction
+        - event: ListedForReserveAuction(indexed uint256,uint256,uint128)
+          handler: handleEditionListedForReserveAuction
+        - event: BidPlacedOnReserveAuction(indexed uint256,address,address,uint256,uint256,uint256)
+          handler: handleBidPlacedOnReserveAuction
+        - event: ReserveAuctionResulted(indexed uint256,uint256,address,address,address)
+          handler: handleReserveAuctionResulted
+        - event: BidWithdrawnFromReserveAuction(uint256,address,uint128)
+          handler: handleBidWithdrawnFromReserveAuction
+        - event: ReservePriceUpdated(indexed uint256,uint256)
+          handler: handleReservePriceUpdated
 
-      file: ./src/mappings/known-origin-v3-primary-marketplace-mapping.ts
+        # Sale type conversion methods
+        - event: EditionConvertedFromOffersToBuyItNow(uint256,uint128,uint128)
+          handler: handleEditionConvertedFromOffersToBuyItNow
+        - event: ConvertFromBuyNowToOffers(indexed uint256,uint128)
+          handler: handleConvertFromBuyNowToOffers
+        - event: ConvertSteppedAuctionToBuyNow(indexed uint256,uint128,uint128)
+          handler: handleConvertSteppedAuctionToBuyNow
+        - event: ReserveAuctionConvertedToBuyItNow(indexed uint256,uint128,uint128)
+          handler: handleReserveAuctionConvertedToBuyItNow
+        - event: ReserveAuctionConvertedToOffers(indexed uint256,uint128)
+          handler: handleReserveAuctionConvertedToOffers
+
+          # TODO
+          #   - event EmergencyBidWithdrawFromReserveAuction(uint256 indexed _id, address _bidder, uint128 _bid);
+
+      file: ./src/mappings/v3/known-origin-v3-primary-marketplace-mapping.ts
 
   # Token Secondary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -533,9 +580,9 @@ dataSources:
         - AdminUpdateMinBidAmount
       abis:
         - name: KODAV3SecondaryMarketplace
-          file: ./abis/KODAV3SecondaryMarketplace.json
+          file: ./abis/kodav3/KODAV3SecondaryMarketplace.json
         - name: KnownOriginV3
-          file: ./abis/KnownOriginV3.json
+          file: ./abis/kodav3/KnownOriginV3.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdateModulo(uint256)
@@ -561,20 +608,58 @@ dataSources:
         #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
 
         # marketplace mappings
-        - event: ListedForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedForBuyNow(indexed uint256,uint256,address,uint256)
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
-        - event:  BuyNowPurchased(indexed uint256,indexed address,uint256)
+        - event:  BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleTokenPurchased
-        - event: TokenBidPlaced(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidPlaced(indexed uint256,address,address,uint256)
           handler: handleTokenBidPlaced
-        - event: TokenBidAccepted(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidAccepted(indexed uint256,address,address,uint256)
           handler: handleTokenBidAccepted
-        - event: TokenBidRejected(indexed uint256,indexed address,indexed address,uint256)
+        - event: TokenBidRejected(indexed uint256,address,address,uint256)
           handler: handleTokenBidRejected
-        - event: TokenBidWithdrawn(indexed uint256,indexed address)
+        - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
-      file: ./src/mappings/known-origin-v3-secondary-marketplace-mapping.ts
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
+      file: ./src/mappings/v3/known-origin-v3-secondary-marketplace-mapping.ts
+
+  # Collab registry
+  - kind: ethereum/contract
+    name: KODAV3CollabRegistry
+    network: {{network}}
+    source:
+      address: '{{koda-v3-collab-registry-address}}'
+      abi: KODAV3CollabRegistry
+      startBlock: {{koda-v3-collab-registry-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - RoyaltyRecipientCreated
+        - RoyaltiesHandlerSetup
+        - FutureRoyaltiesHandlerSetup
+        - HandlerAdded
+        - HandlerRemoved
+      abis:
+        - name: KODAV3CollabRegistry
+          file: ./abis/kodav3/KODAV3CollabRegistry.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
+      eventHandlers:
+        - event: RoyaltyRecipientCreated(address,address,address,address[],uint256[])
+          handler: handleRoyaltyRecipientCreated
+        - event: RoyaltiesHandlerSetup(uint256,address)
+          handler: handleRoyaltiesHandlerSetup
+        - event: FutureRoyaltiesHandlerSetup(uint256,address)
+          handler: handleFutureRoyaltiesHandlerSetup
+        - event: HandlerAdded(address)
+          handler: handleHandlerAdded
+        - event: HandlerRemoved(address)
+          handler: handleHandlerRemoved
+      file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
 
   {{/include-koda-v3}}

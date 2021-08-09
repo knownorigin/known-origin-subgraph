@@ -9,28 +9,28 @@ import {
     AdminUpdateSecondaryRoyalty,
     AdminArtistAccountReported,
     AdminEditionReported, Approval, ApprovalForAll,
-} from "../../generated/KnownOriginV3/KnownOriginV3";
+} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 
 import {
     loadNonNullableEdition,
     loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
-} from "../services/Edition.service";
+} from "../../services/Edition.service";
 
-import {addEditionToDay, recordDayTransfer} from "../services/Day.service";
-import {addEditionToArtist} from "../services/Artist.service";
-import {recordEditionCreated, recordTransfer} from "../services/ActivityEvent.service";
-import {collectorInList, loadOrCreateCollector} from "../services/Collector.service";
-import {createTransferEvent} from "../services/TransferEvent.factory";
-import {createTokenTransferEvent} from "../services/TokenEvent.factory";
-import {loadOrCreateV3Token} from "../services/Token.service";
-import {getPlatformConfig} from "../services/PlatformConfig.factory";
-import {updateTokenOfferOwner} from "../services/Offers.service";
-import {Artist, Collector, Token} from "../../generated/schema";
-import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../utils/KODAV3";
-import * as SaleTypes from "../utils/SaleTypes";
+import {addEditionToDay, recordDayTransfer} from "../../services/Day.service";
+import {addEditionToArtist, loadOrCreateArtist} from "../../services/Artist.service";
+import {recordEditionCreated, recordTransfer} from "../../services/ActivityEvent.service";
+import {collectorInList, loadOrCreateCollector} from "../../services/Collector.service";
+import {createTransferEvent} from "../../services/TransferEvent.factory";
+import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
+import {loadOrCreateV3Token} from "../../services/Token.service";
+import {getPlatformConfig} from "../../services/PlatformConfig.factory";
+import {updateTokenOfferOwner} from "../../services/Offers.service";
+import {Artist, Collector, Token} from "../../../generated/schema";
+import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../../utils/KODAV3";
+import * as SaleTypes from "../../utils/SaleTypes";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -152,8 +152,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
 
-        // Total number available to be purchased
-        editionEntity.totalAvailable = maxSize.minus(BigInt.fromI32(tokenIds.length));
+        // Reduce remaining supply for each mint
+        editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
+
+        // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
+        editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
 
         editionEntity.save();
 
@@ -217,6 +220,32 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         /////////////////////
 
         recordTransfer(event, tokenEntity, editionEntity, to);
+
+        ////////////////////////////////////
+        // Handle burns as a special case //
+        ////////////////////////////////////
+
+        if (to.equals(DEAD_ADDRESS)) {
+
+            //  reduce supply of edition
+            editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
+            editionEntity.totalSupply = editionEntity.totalSupply.minus(ONE);
+            editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE);
+
+            // If total supply completely removed
+            if (editionEntity.totalSupply.equals(ZERO)) {
+
+                // reduce supply of artist if edition is completely removed
+                let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+                // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ...
+                artist.editionsCount = artist.editionsCount.minus(ONE);
+
+                // Set edition as disable as the entity has been removed
+                editionEntity.active = false;
+            }
+
+            editionEntity.save()
+        }
     }
 }
 

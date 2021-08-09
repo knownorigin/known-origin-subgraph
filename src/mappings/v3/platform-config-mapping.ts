@@ -1,21 +1,21 @@
 import {log} from "@graphprotocol/graph-ts/index";
 
-import {ArtistMintingConfig} from "../../generated/schema";
+import {ArtistMintingConfig} from "../../../generated/schema";
 
 import {
     AdminUpdateArtistAccessMerkleRoot,
     AdminUpdateArtistAccessMerkleRootIpfsHash
-} from "../../generated/KOAccessControls/KOAccessControls";
+} from "../../../generated/KOAccessControls/KOAccessControls";
 
 import {
     AdminFrequencyOverrideChanged,
     AdminMaxMintsInPeriodChanged,
     AdminMintingPeriodChanged, MintingFactory,
     MintingFactoryCreated
-} from "../../generated/MintingFactory/MintingFactory";
+} from "../../../generated/MintingFactory/MintingFactory";
 
-import {getPlatformConfig} from "../services/PlatformConfig.factory";
-import {loadOrCreateArtist} from "../services/Artist.service";
+import {getPlatformConfig} from "../../services/PlatformConfig.factory";
+import {loadOrCreateArtist} from "../../services/Artist.service";
 
 export function handleAdminUpdateArtistAccessMerkleRoot(event: AdminUpdateArtistAccessMerkleRoot): void {
     log.info("KO V3 handleAdminUpdateArtistAccessMerkleRoot() called - root {}", [

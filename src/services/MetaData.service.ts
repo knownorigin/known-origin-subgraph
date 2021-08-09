@@ -90,12 +90,21 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('category')) {
-                    let rawCategory: JSONValue | null = attributes.toObject().get('category');
-                    let isNull: boolean = (rawCategory as JSONValue).isNull();
+                if (isObject(attributes) && attributes.toObject().isSet('format')) {
+                    let rawFormat: JSONValue | null = attributes.toObject().get('format');
+                    let isNull: boolean = (rawFormat as JSONValue).isNull();
                     if (!isNull) {
                         // @ts-ignore
-                        metaData.category = rawCategory.toString()
+                        metaData.format = rawFormat.toString()
+                    }
+                }
+
+                if (isObject(attributes) && attributes.toObject().isSet('theme')) {
+                    let rawTheme: JSONValue | null = attributes.toObject().get('theme');
+                    let isNull: boolean = (rawTheme as JSONValue).isNull();
+                    if (!isNull) {
+                        // @ts-ignore
+                        metaData.theme = rawTheme.toString()
                     }
                 }
 
@@ -151,16 +160,6 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 // Cover image //
                 /////////////////
 
-                if (isObject(attributes) && attributes.toObject().isSet('cover_image')) {
-                    let coverImage: JSONValue | null = attributes.toObject().get('cover_image');
-                    if (coverImage) {
-                        let isNull: boolean = (coverImage as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.cover_image = coverImage.toString()
-                        }
-                    }
-                }
-
                 if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
                     let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
                     if (coverImageType) {
@@ -168,6 +167,9 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                         if (!isNull) {
                             metaData.cover_image_type = coverImageType.toString()
                         }
+
+                        // Set cover image to image if cover image is found
+                        metaData.cover_image = metaData.image
                     }
                 }
 

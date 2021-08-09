@@ -49,7 +49,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             artistEntity.save()
             editionEntity.artist = artistEntity.id
 
-            // Specify collabs (FIXME this will need to change in V3)
+            // Specify collabs
             let collaborators: Array<Bytes> = editionEntity.collaborators
             collaborators.push(editionEntity.artistAccount)
 
@@ -131,10 +131,12 @@ export function loadNonNullableEdition(editionNumber: BigInt): Edition {
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     log.info("Calling loadOrCreateV3EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
+    //(address _originalCreator, address _owner, uint16 _size, uint256 _editionId, string memory _uri)
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     let _originalCreator = editionDetails.value0;
-    let _editionId = editionDetails.value2;
-    let _size = editionDetails.value3;
+    let _currentTokenOwner = editionDetails.value1;
+    let _size = BigInt.fromI32(editionDetails.value2);
+    let _editionId = editionDetails.value3;
     let _uri = editionDetails.value4;
 
     return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract)
@@ -159,7 +161,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         editionEntity.editionType = ONE
         editionEntity.startDate = ZERO
         editionEntity.endDate = MAX_UINT_256
-        editionEntity.artistCommission = BigInt.fromI32(85) // TODO hard coded for now, is there a better way?
+        editionEntity.artistCommission = BigInt.fromI32(85)
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
@@ -189,8 +191,6 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
         // Pricing logic
         editionEntity.offersOnly = false
-
-        // FIXME handle multiple commission splits ..
 
         // Set genesis flag if not existing editions created
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
@@ -225,7 +225,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     let editionEntity = new Edition(_editionId.toString());
     editionEntity.version = version
     editionEntity.editionNmber = _editionId
-    editionEntity.salesType = SaleTypes.OFFERS_ONLY // TODO is it right to assume offers are always the default state
+    editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.tokenIds = new Array<BigInt>()
     editionEntity.auctionEnabled = false
     editionEntity.activeBid = null
@@ -257,6 +257,22 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.stepSaleStepPrice = ZERO
     editionEntity.currentStep = ZERO
     editionEntity.notForSale = false
+
+    // Reserve auction fields
+    editionEntity.reserveAuctionSeller = ZERO_ADDRESS
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reservePrice = ZERO
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionStartDate = ZERO
+    editionEntity.previousReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionNumTimesExtended = ZERO
+    editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+    editionEntity.isReserveAuctionResulted = false
+    editionEntity.reserveAuctionResulter = ZERO_ADDRESS
+    editionEntity.reserveAuctionCanEmergencyExit = false
+    editionEntity.isReserveAuctionResultedDateTime = ZERO
+    editionEntity.isReserveAuctionInSuddenDeath = false
 
     // set to empty string for text string although Ford is fixing this for us to handle nulls
     editionEntity.metadataName = ""
