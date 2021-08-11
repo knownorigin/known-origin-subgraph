@@ -54,8 +54,7 @@ export function recordTokenOffer(block: ethereum.Block,
                                  bidder: Address,
                                  amount: BigInt,
                                  tokenId: BigInt,
-                                 lockedUntil: BigInt | null,
-                                 secondaryMarketVersion: String): Offer {
+                                 lockedUntil: BigInt | null): Offer {
 
     let tokenEntity = loadNonNullableToken(tokenId);
 
@@ -73,10 +72,6 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.transactionHash = transaction.hash
     offer.token = tokenEntity.id
     offer.type = TOKEN_TYPE
-
-    // FIXME Once all offers from V1 are removed, this fields can go - frontend switch also needs to be removed
-    // @ts-ignore
-    offer.secondaryMarketVersion = secondaryMarketVersion
 
     offer.save()
 

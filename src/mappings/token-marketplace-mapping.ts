@@ -129,7 +129,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     recordDayTotalValueCycledInBids(event, event.params._amount)
     recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, null, KodaVersions.MARKETPLACE_V1);
+    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, null);
 
     recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
