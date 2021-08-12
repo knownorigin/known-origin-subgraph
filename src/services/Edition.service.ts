@@ -134,7 +134,6 @@ export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereu
     //(address _originalCreator, address _owner, uint16 _size, uint256 _editionId, string memory _uri)
     let editionDetails = kodaV3Contract.getEditionDetails(tokenId);
     let _originalCreator = editionDetails.value0;
-    let _currentTokenOwner = editionDetails.value1;
     let _size = BigInt.fromI32(editionDetails.value2);
     let _editionId = editionDetails.value3;
     let _uri = editionDetails.value4;

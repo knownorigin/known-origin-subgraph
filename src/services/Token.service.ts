@@ -133,7 +133,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
 
     tokenEntity.editionTotalAvailable = BigInt.fromI32(editionDetails.value2)
     tokenEntity.editionActive = contract.reportedEditionIds(editionNumber)
-    tokenEntity.artistAccount = editionDetails.value1
+    tokenEntity.artistAccount = editionDetails.value0
 
     return tokenEntity;
 }

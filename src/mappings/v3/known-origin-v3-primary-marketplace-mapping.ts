@@ -33,7 +33,8 @@ import {getPlatformConfig} from "../../services/PlatformConfig.factory";
 import {toEther} from "../../utils/utils";
 
 import {
-    loadNonNullableEdition, loadOrCreateV3Edition,
+    loadNonNullableEdition,
+    loadOrCreateV3Edition,
     loadOrCreateV3EditionFromTokenId
 } from "../../services/Edition.service";
 import {
@@ -44,9 +45,14 @@ import {
 } from "../../services/AuctionEvent.factory";
 import {
     recordDayBidAcceptedCount,
-    recordDayBidPlacedCount, recordDayBidRejectedCount, recordDayBidWithdrawnCount, recordDayCounts, recordDayIssued,
+    recordDayBidPlacedCount,
+    recordDayBidRejectedCount,
+    recordDayBidWithdrawnCount,
+    recordDayCounts,
+    recordDayIssued,
     recordDayTotalValueCycledInBids,
-    recordDayTotalValuePlaceInBids, recordDayValue
+    recordDayTotalValuePlaceInBids,
+    recordDayValue
 } from "../../services/Day.service";
 import {recordActiveEditionBid, removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
