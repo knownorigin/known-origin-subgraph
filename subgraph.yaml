@@ -309,9 +309,9 @@ dataSources:
     name: KnownOriginV3
     network: rinkeby
     source:
-      address: '0x3e0f62e8813C1692f40C387024595Dc83fbBd9FA'
+      address: '0x109F508D59736cB7f27ec6f6bA83F4C49053bfe8'
       abi: KnownOriginV3
-      startBlock: 9090978
+      startBlock: 9107825
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -409,9 +409,9 @@ dataSources:
     name: MintingFactoryConfig
     network: rinkeby
     source:
-      address: '0x9f64a271A684C103e090a9DCB4097D02B156ca25'
+      address: '0xA69F885ce6E55F397D9012a3177001b25bD5A979'
       abi: MintingFactory
-      startBlock: 9090995
+      startBlock: 9107849
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -442,9 +442,9 @@ dataSources:
     name: MintingFactoryCreations
     network: rinkeby
     source:
-      address: '0x9f64a271A684C103e090a9DCB4097D02B156ca25'
+      address: '0xA69F885ce6E55F397D9012a3177001b25bD5A979'
       abi: MintingFactory
-      startBlock: 9090995
+      startBlock: 9107849
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -466,9 +466,9 @@ dataSources:
     name: KODAV3PrimaryMarketplace
     network: rinkeby
     source:
-      address: '0xA0ED9e56CE28D35B721a784f3ef4565c33118129'
+      address: '0xC89A48D4903Df3f92dc93df88403F5ea136b92ae'
       abi: KODAV3PrimaryMarketplace
-      startBlock: 9090983
+      startBlock: 9107831
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -565,9 +565,9 @@ dataSources:
     name: KODAV3SecondaryMarketplace
     network: rinkeby
     source:
-      address: '0x5150C1aB3A729114cbD471508f418c57691A2C45'
+      address: '0xc67bdA619E9e41239fABD091533652362a962b2c'
       abi: KODAV3SecondaryMarketplace
-      startBlock: 9090987
+      startBlock: 9107839
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -630,9 +630,9 @@ dataSources:
     name: KODAV3CollabRegistry
     network: rinkeby
     source:
-      address: '0x68B65484b463632054D97062D929Ac6D00508A42'
+      address: '0x9b4E02227952214e1cD4aE60ed757589f2DF9661'
       abi: KODAV3CollabRegistry
-      startBlock: 9090991
+      startBlock: 9107843
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
