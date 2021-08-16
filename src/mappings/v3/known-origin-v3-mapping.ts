@@ -114,6 +114,14 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Record transfer against the edition
         let editionEntity = loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
 
+        // if the edition is in a state reserve sale
+        if (editionEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION) {
+            // if the current bidder is not who receives the token, assume they have transferred after making the bid
+            if (editionEntity.reserveAuctionBidder !== to) {
+                editionEntity.reserveAuctionCanEmergencyExit = true
+            }
+        }
+
         // Transfer Events
         let transferEvent = createTransferEvent(event, tokenId, from, to, editionEntity);
         transferEvent.save();

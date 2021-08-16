@@ -26,7 +26,7 @@ import {
     ReserveAuctionConvertedToOffers,
     ReserveAuctionConvertedToBuyItNow,
     ConvertSteppedAuctionToBuyNow,
-    ConvertFromBuyNowToOffers
+    ConvertFromBuyNowToOffers, EmergencyBidWithdrawFromReserveAuction
 } from "../../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
@@ -517,6 +517,34 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
     }
 
     recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_PRICE_CHANGED, editionEntity, null, event.params._reservePrice, ZERO_ADDRESS)
+
+    editionEntity.save()
+}
+
+export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBidWithdrawFromReserveAuction): void {
+    log.info("KO V3 handleEmergencyBidWithdrawFromReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    // Clear down all reserve auction fields
+    editionEntity.reserveAuctionCanEmergencyExit = false
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionSeller = ZERO_ADDRESS
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reservePrice = ZERO
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionStartDate = ZERO
+    editionEntity.previousReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionNumTimesExtended = ZERO
+    editionEntity.isReserveAuctionInSuddenDeath = false
+    editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+    editionEntity.isReserveAuctionResulted = false
+    editionEntity.isReserveAuctionResultedDateTime = ZERO
+    editionEntity.reserveAuctionResulter = ZERO_ADDRESS
 
     editionEntity.save()
 }

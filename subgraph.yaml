@@ -517,20 +517,6 @@ dataSources:
         - event: EditionSteppedSaleBuy(indexed uint256,indexed uint256,address,uint256,uint16)
           handler: handleEditionSteppedSaleBuy
 
-        # Reserve Auction - data questions to answer
-        #   - DONE has the edition reached is reserve price - see: isReserveAuctionInSuddenDeath || reserveAuctionEndTimestamp > 0
-        #   - DONE when does the reserve end?
-        #       - reserveAuctionEndTimestamp - current end time
-        #       - previousReserveAuctionEndTimestamp - after extension - this is set
-        #       - reserveAuctionNumTimesExtended - number of times extended into sudden death
-        #       - reserveAuctionTotalExtensionLengthInSeconds - total extension time
-        #
-        #   - DONE - has the reserve moved into sudden death? - see: reserveAuctionNumTimesExtended > 0
-        #   - DONE - has the item been resulted and by who? - see: isReserveAuctionResulted, isReserveAuctionResultedDateTime, reserveAuctionResulter
-        #   - DONE - model all events, placed, withdraw - copy/look at existing auction logic for this
-        #   - DONE - new sale type Edition - SaleTypes.RESERVE_COUNTDOWN_AUCTION (int 5)
-        #   - DONE - are we in an emergency exit state? - see: reserveAuctionCanEmergencyExit
-
         # Reserve Auction
         - event: ListedForReserveAuction(indexed uint256,uint256,uint128)
           handler: handleEditionListedForReserveAuction
@@ -542,6 +528,8 @@ dataSources:
           handler: handleBidWithdrawnFromReserveAuction
         - event: ReservePriceUpdated(indexed uint256,uint256)
           handler: handleReservePriceUpdated
+        - event: EmergencyBidWithdrawFromReserveAuction(indexed uint256,address,uint128)
+          handler: handleEmergencyBidWithdrawFromReserveAuction
 
         # Sale type conversion methods
         - event: EditionConvertedFromOffersToBuyItNow(uint256,uint128,uint128)
@@ -554,9 +542,6 @@ dataSources:
           handler: handleReserveAuctionConvertedToBuyItNow
         - event: ReserveAuctionConvertedToOffers(indexed uint256,uint128)
           handler: handleReserveAuctionConvertedToOffers
-
-          # TODO
-          #   - event EmergencyBidWithdrawFromReserveAuction(uint256 indexed _id, address _bidder, uint128 _bid);
 
       file: ./src/mappings/v3/known-origin-v3-primary-marketplace-mapping.ts
 
@@ -598,21 +583,17 @@ dataSources:
         # AdminUpdateReserveAuctionBidExtensionWindow
         # AdminUpdateReserveAuctionLengthOnceReserveMet
 
-        # TODO Reserve
-        #    event TokenListedForReserveAuction(uint256 indexed _tokenId, uint256 _reservePrice, uint128 _startDate);
-        #    event BidPlacedOnReserveAuction(uint256 indexed _tokenId, address indexed _bidder, uint256 _amount);
-        #    event ReserveAuctionResulted(uint256 indexed _tokenId, uint256 _finalPrice, address indexed _winner, address indexed _resulter);
-        #    event BidWithdrawnFromReserveAuction(uint256 _tokenId, address indexed _bidder, uint128 _bid);
-        #    event ReservePriceUpdated(uint256 indexed _tokenId, uint256 _reservePrice);
-        #    event ReserveAuctionConvertedToBuyItNow(uint256 indexed _tokenId, uint128 _listingPrice, uint128 _startDate);
-
-        # marketplace mappings
+        # buy now mappings
         - event: ListedForBuyNow(indexed uint256,uint256,address,uint256)
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
         - event:  BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleTokenPurchased
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
+
+        # offers mappings
         - event: TokenBidPlaced(indexed uint256,address,address,uint256)
           handler: handleTokenBidPlaced
         - event: TokenBidAccepted(indexed uint256,address,address,uint256)
@@ -621,8 +602,32 @@ dataSources:
           handler: handleTokenBidRejected
         - event: TokenBidWithdrawn(indexed uint256,address)
           handler: handleTokenBidWithdrawn
-        - event: BuyNowPriceChanged(indexed uint256,uint256)
-          handler: handleBuyNowTokenPriceChanged
+
+        # Reserve Auction
+        - event: ListedForReserveAuction(indexed uint256,uint256,uint128)
+          handler: handleTokenListedForReserveAuction
+        - event: BidPlacedOnReserveAuction(indexed uint256,address,address,uint256,uint256,uint256)
+          handler: handleBidPlacedOnReserveAuction
+        - event: ReserveAuctionResulted(indexed uint256,uint256,address,address,address)
+          handler: handleReserveAuctionResulted
+        - event: BidWithdrawnFromReserveAuction(uint256,address,uint128)
+          handler: handleBidWithdrawnFromReserveAuction
+        - event: ReservePriceUpdated(indexed uint256,uint256)
+          handler: handleReservePriceUpdated
+        - event: EmergencyBidWithdrawFromReserveAuction(indexed uint256,address,uint128)
+          handler: handleEmergencyBidWithdrawFromReserveAuction
+
+        # Sale type conversion methods
+        - event: ReserveAuctionConvertedToBuyItNow(indexed uint256,uint128,uint128)
+          handler: handleReserveAuctionConvertedToBuyItNow
+        - event: ReserveAuctionConvertedToOffers(indexed uint256)
+          handler: handleReserveAuctionConvertedToOffers
+
+        # TODO edition open offers
+        # event EditionBidPlaced(uint256 indexed _editionId, address indexed _bidder, uint256 _bid);
+        # event EditionBidWithdrawn(uint256 indexed _editionId, address _bidder);
+        # event EditionBidAccepted(uint256 indexed _tokenId, address _currentOwner, address _bidder, uint256 _amount);
+
       file: ./src/mappings/v3/known-origin-v3-secondary-marketplace-mapping.ts
 
   # Collab registry

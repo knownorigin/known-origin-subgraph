@@ -1,6 +1,6 @@
-#######################
-## Timeseries events ##
-#######################
+########################
+## Time series events ##
+########################
 
 # Generic activity stream events for history of actions including primary and secodnary sales actions & triggers
 # Used for listing out token history on the token pages
@@ -128,7 +128,7 @@ type PlatformConfig @entity {
 type Token @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
-    salesType: BigInt! # The current sales mechnic being used on this edition
+    salesType: BigInt! # The current sales mechanic being used on this edition
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!
@@ -182,7 +182,28 @@ type ListedToken @entity { #For Token Secondary market
     primaryAssetShortType: String!
     primaryAssetActualType: String!
 
+    # Complete attached token
     fullToken: Token!
+
+    # ---- Reserve auction fields --------- #
+    reserveAuctionSeller: Bytes!     # edition seller
+    reserveAuctionBidder: Bytes!     # current bidder
+    reservePrice: BigInt!            # listed reserve price
+    reserveAuctionBid: BigInt!       # current bid
+    reserveAuctionStartDate: BigInt! # auction start
+
+    previousReserveAuctionEndTimestamp: BigInt! # set to the same as reserve unless an extension is in flight
+    reserveAuctionEndTimestamp: BigInt!         # when the auction will end
+    reserveAuctionNumTimesExtended: BigInt!     # number of times auction has been extended
+    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in sudden death
+    reserveAuctionTotalExtensionLengthInSeconds: BigInt! # total extension
+
+    isReserveAuctionResulted: Boolean!
+    isReserveAuctionResultedDateTime: BigInt!
+    reserveAuctionResulter: Bytes!
+
+    reserveAuctionCanEmergencyExit: Boolean!
+    # ----- End of reserve auction fields - #
 }
 
 type _Schema_
@@ -292,7 +313,7 @@ type Edition @entity {
     previousReserveAuctionEndTimestamp: BigInt! # set to the same as reserve unless an extension is in flight
     reserveAuctionEndTimestamp: BigInt!         # when the auction will end
     reserveAuctionNumTimesExtended: BigInt!     # number of times auction has been extended
-    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in suden death
+    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in sudden death
     reserveAuctionTotalExtensionLengthInSeconds: BigInt! # total extension
 
     isReserveAuctionResulted: Boolean!
