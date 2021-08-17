@@ -129,6 +129,9 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     ]);
     listedToken.save();
 
+    token.listing = listedToken.id.toString()
+    token.save()
+
     // Save the lister
     let collector = loadOrCreateCollector(listingSeller, event.block);
     collector.save();
@@ -145,6 +148,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     token.salesType = SaleTypes.OFFERS_ONLY
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
+    token.listing = null
     token.listingTimestamp = ZERO
 
     // Remove ListedToken from store
@@ -173,6 +177,7 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._price))
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
+    token.listing = null
     token.listingTimestamp = ZERO
 
     // Remove token listing from store
@@ -247,6 +252,7 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     let token = loadNonNullableToken(event.params._tokenId)
     token.openOffer = null
     token.currentTopBidder = null
+    token.listing = null
     token.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
     token.lastSalePriceInEth = toEther(event.params._amount)
     token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
@@ -355,6 +361,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._id)
     listedToken.isGenesisEdition = edition.isGenesisEdition
+    listedToken.save()
 
     // Save the lister
     let collector = loadOrCreateCollector(listingSeller, event.block);
@@ -362,6 +369,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
 
     recordSecondaryTokenReserveAuctionListed(event, token, edition, event.params._reservePrice, listingSeller)
 
+    token.listing = listedToken.id.toString()
     token.save()
 }
 
@@ -440,6 +448,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 
     let token = loadNonNullableToken(event.params._id)
     token.isListed = false
+    token.listing = null
     token.salesType = OFFERS_ONLY
     token.save()
 
@@ -449,6 +458,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     listedToken.isReserveAuctionResulted = true
     listedToken.isReserveAuctionResultedDateTime = event.block.timestamp
     listedToken.reserveAuctionResulter = event.params._resulter
+    listedToken.save()
 
     // Create collector
     let collector = loadOrCreateCollector(event.params._winner, event.block);
@@ -528,12 +538,15 @@ export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBid
 
     let token = loadNonNullableToken(event.params._id)
     token.isListed = false
+    token.listing = null
     token.salesType = OFFERS_ONLY
-    let edition = Edition.load(token.edition) as Edition
-    let listedToken = loadOrCreateListedToken(event.params._id, edition)
 
+    let edition = Edition.load(token.edition) as Edition
+
+    let listedToken = loadOrCreateListedToken(event.params._id, edition)
     // Clear down all reserve auction fields
     _clearReserveAuctionFields(listedToken)
+    listedToken.save()
 
     token.save()
 }
@@ -543,7 +556,6 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     log.info("KO V3 handleReserveAuctionConvertedToBuyItNow() called - tokenId {}", [event.params._id.toString()]);
 
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
-    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
 
     let token = loadNonNullableToken(event.params._id)
 
@@ -554,14 +566,12 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     token.listPrice = toEther(event.params._listingPrice)
 
     let listedToken = loadOrCreateListedToken(event.params._id, edition)
-    // TODO handle start date
-    // listedToken.startDate = event.params._startDate
     listedToken.listPrice = toEther(event.params._listingPrice)
-
     _clearReserveAuctionFields(listedToken)
-
-    token.save()
     listedToken.save()
+
+    token.listing = listedToken.id.toString()
+    token.save()
 }
 
 export function handleReserveAuctionConvertedToOffers(event: ReserveAuctionConvertedToOffers): void {

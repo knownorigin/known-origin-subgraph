@@ -92,6 +92,7 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
+    tokenEntity.listing = null
     tokenEntity.save();
 
     clearTokenOffer(event.block, event.params._tokenId)
@@ -160,6 +161,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
+    tokenEntity.listing = null
     tokenEntity.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
@@ -269,6 +271,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._price))
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
+    tokenEntity.listing = null
     tokenEntity.listingTimestamp = ZERO
 
     // Remove token listing from store
@@ -346,6 +349,10 @@ export function handleTokenListed(event: TokenListed): void {
     ]);
     listedToken.save();
 
+    // Set the listing on the token
+    tokenEntity.listing = listedToken.id.toString()
+    tokenEntity.save()
+
     // Save the lister
     let collector = loadOrCreateCollector(event.params._seller, event.block);
     collector.save();
@@ -366,6 +373,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
+    tokenEntity.listing = null
     tokenEntity.listingTimestamp = ZERO
 
     // Remove ListedToken from store

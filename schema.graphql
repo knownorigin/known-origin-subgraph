@@ -155,9 +155,14 @@ type Token @entity {
 
     ## Token secondary market
     isListed: Boolean!
+
+    ## TODO refactor these fields to use newly added listing sub object
     listPrice: BigDecimal
     lister: Collector
     listingTimestamp: BigInt
+
+    # Complete attached token
+    listing: ListedToken
 }
 
 type ListedToken @entity { #For Token Secondary market
@@ -184,6 +189,8 @@ type ListedToken @entity { #For Token Secondary market
 
     # Complete attached token
     fullToken: Token!
+
+    # TODO handle start date from V3 on secondary
 
     # ---- Reserve auction fields --------- #
     reserveAuctionSeller: Bytes!     # edition seller
