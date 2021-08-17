@@ -58,6 +58,7 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
         collaborators.push(recipient)
     }
     editionEntity.collaborators = collaborators
+    editionEntity.collective = collective.id.toString()
     editionEntity.save()
 }
 
@@ -73,6 +74,14 @@ export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerS
     collective.editions = editions;
     collective.isDeployed = false
     collective.save()
+
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3CollabRegistry.bind(event.address).koda()
+    );
+
+    let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
+    editionEntity.collective = collective.id.toString()
+    editionEntity.save()
 }
 
 export function handleHandlerAdded(event: HandlerAdded): void {

@@ -263,7 +263,7 @@ type Collective @entity {
     id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
-    recipients: [Bytes!]! # recpients for the deployed collab
+    recipients: [Bytes!]! # recipients for the deployed collab
     splits: [BigInt!]! # splits for the deployed collab
     createdTimestamp: BigInt!
     transactionHash: Bytes!
@@ -290,6 +290,7 @@ type Edition @entity {
     optionalCommissionAccount: Bytes # address - NOTE: deprecated - V2 only - use collaborators for
     optionalCommissionRate: BigInt
     collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
+    collective: Collective # nullable V3 collective i.e. its split funds
     offersOnly: Boolean!
     totalSupply: BigInt!     # Total purchases or mints i.e. total number of primary transfers
     totalAvailable: BigInt!  # Total number available to be purchased i.e. edition size
