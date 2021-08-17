@@ -579,19 +579,15 @@ export function handleReserveAuctionConvertedToOffers(event: ReserveAuctionConve
 
     let token = loadNonNullableToken(event.params._tokenId)
 
-    let edition = Edition.load(token.edition) as Edition
-
     token.isListed = false
     token.salesType = SaleTypes.OFFERS_ONLY
     token.listPrice = ZERO_BIG_DECIMAL
+    token.listing = null
 
-    let listedToken = loadOrCreateListedToken(event.params._tokenId, edition)
-    listedToken.listPrice = ZERO_BIG_DECIMAL
-
-    _clearReserveAuctionFields(listedToken)
+    // Remove ListedToken from store
+    store.remove("ListedToken", event.params._tokenId.toString());
 
     token.save()
-    listedToken.save()
 }
 
 function _clearReserveAuctionFields(listedToken: ListedToken): void {

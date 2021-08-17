@@ -28,7 +28,7 @@ import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../../services/Token.service";
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
 import {updateTokenOfferOwner} from "../../services/Offers.service";
-import {Artist, Collector, Token} from "../../../generated/schema";
+import {Artist, Collector, ListedToken, Token} from "../../../generated/schema";
 import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../../utils/KODAV3";
 import * as SaleTypes from "../../utils/SaleTypes";
 
@@ -114,14 +114,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Record transfer against the edition
         let editionEntity = loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
 
-        // if the edition is in a state reserve sale
-        if (editionEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION) {
-            // if the current bidder is not who receives the token, assume they have transferred after making the bid
-            if (editionEntity.reserveAuctionBidder !== to) {
-                editionEntity.reserveAuctionCanEmergencyExit = true
-            }
-        }
-
         // Transfer Events
         let transferEvent = createTransferEvent(event, tokenId, from, to, editionEntity);
         transferEvent.save();
@@ -166,6 +158,16 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
         editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
 
+        // if the edition is in a state reserve sale, has an active bid and is now sold out
+        if (editionEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION
+            && editionEntity.activeBid !== null
+            && editionEntity.remainingSupply === ZERO) {
+            // if the current bidder is not the person who received the token, assume the seller has transferred  if after receiving a bid
+            if (editionEntity.reserveAuctionBidder !== to) {
+                editionEntity.reserveAuctionCanEmergencyExit = true
+            }
+        }
+
         editionEntity.save();
 
         ////////////////////
@@ -200,6 +202,18 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         ////////////////////////////////////////
         // Secondary market - pricing listing //
         ////////////////////////////////////////
+
+        // if the token is in a state reserve sale, has an active bid
+        if (tokenEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION
+            && tokenEntity.isListed
+            && tokenEntity.listing !== null) {
+            let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
+
+            // if the current bidder is not the person who received the token, assume the seller has transferred  if after receiving a bid
+            if (listing.reserveAuctionBidder !== to) {
+                listing.reserveAuctionCanEmergencyExit = true
+            }
+        }
 
         // Clear token price listing fields
         tokenEntity.isListed = false;

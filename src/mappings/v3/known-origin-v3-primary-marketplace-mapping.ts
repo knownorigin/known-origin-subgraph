@@ -26,7 +26,8 @@ import {
     ReserveAuctionConvertedToOffers,
     ReserveAuctionConvertedToBuyItNow,
     ConvertSteppedAuctionToBuyNow,
-    ConvertFromBuyNowToOffers, EmergencyBidWithdrawFromReserveAuction
+    ConvertFromBuyNowToOffers,
+    EmergencyBidWithdrawFromReserveAuction
 } from "../../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
