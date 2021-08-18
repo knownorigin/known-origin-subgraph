@@ -66,7 +66,6 @@ import {
     ReserveAuctionConvertedToBuyItNow,
     ReserveAuctionConvertedToOffers
 } from "../../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
-import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {OFFERS_ONLY, RESERVE_COUNTDOWN_AUCTION} from "../../utils/SaleTypes";
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
@@ -540,15 +539,18 @@ export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBid
     token.isListed = false
     token.listing = null
     token.salesType = OFFERS_ONLY
-
-    let edition = Edition.load(token.edition) as Edition
-
-    let listedToken = loadOrCreateListedToken(event.params._id, edition)
-    // Clear down all reserve auction fields
-    _clearReserveAuctionFields(listedToken)
-    listedToken.save()
-
+    token.listPrice = ZERO_BIG_DECIMAL
+    token.lister = null
+    token.listingTimestamp = ZERO
+    token.openOffer = null
+    token.currentTopBidder = null
     token.save()
+
+    // clear open token offer
+    clearTokenOffer(event.block, event.params._id)
+
+    // Remove ListedToken from store
+    store.remove("ListedToken", event.params._id.toString());
 }
 
 

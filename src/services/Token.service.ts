@@ -12,6 +12,7 @@ import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as SaleTypes from "../utils/SaleTypes";
+import {KODAV3PrimaryMarketplace} from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])

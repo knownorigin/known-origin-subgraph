@@ -27,10 +27,11 @@ import {createTransferEvent} from "../../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../../services/Token.service";
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
-import {updateTokenOfferOwner} from "../../services/Offers.service";
+import {clearEditionOffer, clearTokenOffer, updateTokenOfferOwner} from "../../services/Offers.service";
 import {Artist, Collector, ListedToken, Token} from "../../../generated/schema";
 import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../../utils/KODAV3";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -159,12 +160,20 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
 
         // if the edition is in a state reserve sale, has an active bid and is now sold out
-        if (editionEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION
+        if (editionEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION)
             && editionEntity.activeBid !== null
             && editionEntity.remainingSupply === ZERO) {
+
             // if the current bidder is not the person who received the token, assume the seller has transferred  if after receiving a bid
-            if (editionEntity.reserveAuctionBidder !== to) {
+            if (editionEntity.reserveAuctionBidder.toHexString() !== to.toHexString()) {
                 editionEntity.reserveAuctionCanEmergencyExit = true
+                editionEntity.activeBid = null;
+                log.warning("Force withdrawal triggerred for primary sale edition {} | bidder {} | seller {} | new owner {}", [
+                    editionEntity.id.toString(),
+                    editionEntity.reserveAuctionBidder.toHexString(),
+                    from.toHexString(),
+                    to.toHexString(),
+                ]);
             }
         }
 
@@ -203,27 +212,60 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Secondary market - pricing listing //
         ////////////////////////////////////////
 
+        // This is set when an active reserve auction does not complete and the seller transfer it to another wallet during this process
+        let triggerredForceWithdrawalFrom = false;
+
         // if the token is in a state reserve sale, has an active bid
-        if (tokenEntity.salesType === SaleTypes.RESERVE_COUNTDOWN_AUCTION
-            && tokenEntity.isListed
-            && tokenEntity.listing !== null) {
+        if (tokenEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION) && tokenEntity.isListed && tokenEntity.listing !== null) {
+
+            // log.warning("Possible forced token withdrawal tokenID {} from {} to {} salesType {} isListed {}", [
+            //     tokenId.toString(),
+            //     from.toHexString(),
+            //     to.toHexString(),
+            //     tokenEntity.salesType.toString(),
+            //     tokenEntity.isListed ? 'TRUE' : 'FALSE'
+            // ]);
+
             let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
 
-            // if the current bidder is not the person who received the token, assume the seller has transferred  if after receiving a bid
-            if (listing.reserveAuctionBidder !== to) {
+            // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
+            if (listing !== null) {
+
+                // Disable listing
+                tokenEntity.isListed = false;
+
+                // Set flag to signify force withdrawal possible
                 listing.reserveAuctionCanEmergencyExit = true
+                listing.save()
+
+                triggerredForceWithdrawalFrom = true;
+
+                log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
+                    tokenId.toString(),
+                    listing.reserveAuctionBidder.toHexString(),
+                    from.toHexString(),
+                    to.toHexString(),
+                ]);
             }
         }
 
-        // Clear token price listing fields
-        tokenEntity.isListed = false;
-        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-        tokenEntity.listPrice = ZERO_BIG_DECIMAL
-        tokenEntity.lister = null
-        tokenEntity.listingTimestamp = ZERO
+        if (!triggerredForceWithdrawalFrom) {
 
-        // Clear price listing
-        store.remove("ListedToken", tokenId.toString());
+            // Clear token price listing fields
+            tokenEntity.isListed = false;
+            tokenEntity.salesType = SaleTypes.OFFERS_ONLY
+            tokenEntity.listPrice = ZERO_BIG_DECIMAL
+            tokenEntity.lister = null
+            tokenEntity.listingTimestamp = ZERO
+            tokenEntity.openOffer = null
+            tokenEntity.currentTopBidder = null
+
+            // clear open token offer
+            clearTokenOffer(event.block, tokenId)
+
+            // Clear price listing
+            store.remove("ListedToken", tokenId.toString());
+        }
 
         // Persist
         tokenEntity.save();

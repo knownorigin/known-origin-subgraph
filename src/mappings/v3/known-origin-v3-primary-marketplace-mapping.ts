@@ -63,7 +63,9 @@ import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../../s
 import {loadNonNullableToken, loadOrCreateV3Token} from "../../services/Token.service";
 import {createTokenPrimaryPurchaseEvent} from "../../services/TokenEvent.factory";
 
-import {recordPrimarySaleEvent} from "../../services/ActivityEvent.service";
+import {
+    recordPrimarySaleEvent
+} from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {Collector, Edition, Token} from "../../../generated/schema";
