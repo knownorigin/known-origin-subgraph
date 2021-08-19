@@ -147,6 +147,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
                 foundTokenId = true;
             }
         }
+
         // if we dont know about this token, add it to the list
         if (!foundTokenId) tokenIds.push(tokenId)
         editionEntity.tokenIds = tokenIds
@@ -289,7 +290,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle burns as a special case //
         ////////////////////////////////////
 
-        if (to.equals(DEAD_ADDRESS)) {
+        if (to.equals(DEAD_ADDRESS) || to.equals(ZERO_ADDRESS)) {
 
             //  reduce supply of edition
             editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
