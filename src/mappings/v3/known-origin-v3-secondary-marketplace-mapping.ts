@@ -274,7 +274,7 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
-    recordArtistValue(token.artistAccount, event.params._tokenId, event.params._amount)
+    recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
     // recordArtistCounts(edition.artistAccount, event.params._amount)
 
     // Edition updates
@@ -478,7 +478,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     addSecondaryPurchaseToCollector(event.block, event.params._winner, event.params._finalPrice);
 
     // FIXME only record artist royalties
-    recordArtistValue(edition.artistAccount, event.params._id, event.params._finalPrice)
+    recordArtistValue(Address.fromString(edition.artistAccount.toHexString()), event.params._id, event.params._finalPrice)
     // recordArtistCounts(edition.artistAccount, event.params._amount)
 
     recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)
