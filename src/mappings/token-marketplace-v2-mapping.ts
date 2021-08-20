@@ -66,6 +66,7 @@ import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
 import * as KodaVersions from "../utils/KodaVersions";
 import * as SaleTypes from "../utils/SaleTypes";
+import {recordArtistValue} from "../services/Artist.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -193,7 +194,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
-    // recordArtistValue(editionEntity.artistAccount, event.params._tokenId, event.params._amount)
+    recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
     // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
 
     editionEntity.save();

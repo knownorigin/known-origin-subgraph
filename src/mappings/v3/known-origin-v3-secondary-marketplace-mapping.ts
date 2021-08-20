@@ -67,6 +67,7 @@ import {
     ReserveAuctionConvertedToOffers
 } from "../../../generated/KODAV3SecondaryMarketplace/KODAV3SecondaryMarketplace";
 import {OFFERS_ONLY, RESERVE_COUNTDOWN_AUCTION} from "../../utils/SaleTypes";
+import {recordArtistValue} from "../../services/Artist.service";
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
@@ -273,7 +274,7 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
-    // recordArtistValue(edition.artistAccount, event.params._tokenId, event.params._amount)
+    recordArtistValue(token.artistAccount, event.params._tokenId, event.params._amount)
     // recordArtistCounts(edition.artistAccount, event.params._amount)
 
     // Edition updates
@@ -477,7 +478,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     addSecondaryPurchaseToCollector(event.block, event.params._winner, event.params._finalPrice);
 
     // FIXME only record artist royalties
-    // recordArtistValue(edition.artistAccount, event.params._tokenId, event.params._amount)
+    recordArtistValue(edition.artistAccount, event.params._id, event.params._finalPrice)
     // recordArtistCounts(edition.artistAccount, event.params._amount)
 
     recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)

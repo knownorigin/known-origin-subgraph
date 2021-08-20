@@ -57,6 +57,8 @@ import {
     recordSecondaryBidWithdrawn
 } from "../services/ActivityEvent.service";
 import {ONE} from "../utils/constants";
+import {recordArtistValue} from "../services/Artist.service";
+import {Address} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -183,7 +185,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
-    // recordArtistValue(editionEntity.artistAccount, event.params._tokenId, event.params._amount)
+    recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
     // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
 
     editionEntity.save();
