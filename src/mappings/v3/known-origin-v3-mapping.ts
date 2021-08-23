@@ -27,9 +27,14 @@ import {createTransferEvent} from "../../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../../services/Token.service";
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
-import {clearEditionOffer, clearTokenOffer, updateTokenOfferOwner} from "../../services/Offers.service";
+import {clearTokenOffer, updateTokenOfferOwner} from "../../services/Offers.service";
 import {Artist, Collector, ListedToken, Token} from "../../../generated/schema";
-import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../../utils/KODAV3";
+import {
+    PRIMARY_SALE_RINKEBY,
+    SECONDARY_SALE_RINKEBY,
+    PRIMARY_SALE_MAINNET,
+    SECONDARY_SALE_MAINNET
+} from "../../utils/KODAV3";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
@@ -360,22 +365,22 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
     let kodaV3Contract = KnownOriginV3.bind(event.address);
 
-    // TODO handle mainnet
+    // Primary & Secondary Sale Marketplace V3 (mainnet)
+    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_MAINNET))
+        || event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
 
-    // Primary Sale Marketplace V3 (rinkeby)
-    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
         // clear the edition
         _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
-
         // clear any tokens being sold from the owner
         _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
     }
 
-    // Second Sale Marketplace V3 (rinkeby)
-    if (event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (rinkeby)
+    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
+        || event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+
         // clear the edition
         _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
-
         // clear any tokens being sold from the owner
         _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
     }
@@ -383,10 +388,9 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
 export function handleApproval(event: Approval): void {
 
-    // TODO handle mainnet
-
-    // Primary Sale Marketplace V3 (rinkeby)
-    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (mainnt)
+    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
+        || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
             token.notForSale = false;
@@ -394,8 +398,9 @@ export function handleApproval(event: Approval): void {
         }
     }
 
-    // Second Sale Marketplace V3 (rinkeby)
-    if (event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (rinkeby)
+    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
+        || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
             token.notForSale = false;
