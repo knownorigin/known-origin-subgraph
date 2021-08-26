@@ -175,6 +175,7 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.auctionEnabled = true
+    editionEntity.startDate = event.params._startDate
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.offersOnly = true
     editionEntity.activeBid = null
