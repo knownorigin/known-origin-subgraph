@@ -592,7 +592,7 @@ export function handleConvertSteppedAuctionToBuyNow(event: ConvertSteppedAuction
     let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
 
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
-    editionEntity.salesType = SaleTypes.STEPPED_SALE
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
     editionEntity.auctionEnabled = false
@@ -607,7 +607,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
 
     let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
-    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
     editionEntity.auctionEnabled = false
