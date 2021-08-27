@@ -27,10 +27,16 @@ import {createTransferEvent} from "../../services/TransferEvent.factory";
 import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
 import {loadOrCreateV3Token} from "../../services/Token.service";
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
-import {updateTokenOfferOwner} from "../../services/Offers.service";
-import {Artist, Collector, Token} from "../../../generated/schema";
-import {PRIMARY_SALE_RINKEBY, SECONDARY_SALE_RINKEBY} from "../../utils/KODAV3";
+import {clearTokenOffer, updateTokenOfferOwner} from "../../services/Offers.service";
+import {Artist, Collector, ListedToken, Token} from "../../../generated/schema";
+import {
+    PRIMARY_SALE_RINKEBY,
+    SECONDARY_SALE_RINKEBY,
+    PRIMARY_SALE_MAINNET,
+    SECONDARY_SALE_MAINNET
+} from "../../utils/KODAV3";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -146,6 +152,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
                 foundTokenId = true;
             }
         }
+
         // if we dont know about this token, add it to the list
         if (!foundTokenId) tokenIds.push(tokenId)
         editionEntity.tokenIds = tokenIds
@@ -157,6 +164,24 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
         editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
+
+        // if the edition is in a state reserve sale, has an active bid and is now sold out
+        if (editionEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION)
+            && editionEntity.activeBid !== null
+            && editionEntity.remainingSupply === ZERO) {
+
+            // if the current bidder is not the person who received the token, assume the seller has transferred  if after receiving a bid
+            if (editionEntity.reserveAuctionBidder.toHexString() !== to.toHexString()) {
+                editionEntity.reserveAuctionCanEmergencyExit = true
+                editionEntity.activeBid = null;
+                log.warning("Force withdrawal triggerred for primary sale edition {} | bidder {} | seller {} | new owner {}", [
+                    editionEntity.id.toString(),
+                    editionEntity.reserveAuctionBidder.toHexString(),
+                    from.toHexString(),
+                    to.toHexString(),
+                ]);
+            }
+        }
 
         editionEntity.save();
 
@@ -193,15 +218,60 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Secondary market - pricing listing //
         ////////////////////////////////////////
 
-        // Clear token price listing fields
-        tokenEntity.isListed = false;
-        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-        tokenEntity.listPrice = ZERO_BIG_DECIMAL
-        tokenEntity.lister = null
-        tokenEntity.listingTimestamp = ZERO
+        // This is set when an active reserve auction does not complete and the seller transfer it to another wallet during this process
+        let triggerredForceWithdrawalFrom = false;
 
-        // Clear price listing
-        store.remove("ListedToken", tokenId.toString());
+        // if the token is in a state reserve sale, has an active bid
+        if (tokenEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION) && tokenEntity.isListed && tokenEntity.listing !== null) {
+
+            // log.warning("Possible forced token withdrawal tokenID {} from {} to {} salesType {} isListed {}", [
+            //     tokenId.toString(),
+            //     from.toHexString(),
+            //     to.toHexString(),
+            //     tokenEntity.salesType.toString(),
+            //     tokenEntity.isListed ? 'TRUE' : 'FALSE'
+            // ]);
+
+            let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
+
+            // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
+            if (listing !== null) {
+
+                // Disable listing
+                tokenEntity.isListed = false;
+
+                // Set flag to signify force withdrawal possible
+                listing.reserveAuctionCanEmergencyExit = true
+                listing.save()
+
+                triggerredForceWithdrawalFrom = true;
+
+                log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
+                    tokenId.toString(),
+                    listing.reserveAuctionBidder.toHexString(),
+                    from.toHexString(),
+                    to.toHexString(),
+                ]);
+            }
+        }
+
+        if (!triggerredForceWithdrawalFrom) {
+
+            // Clear token price listing fields
+            tokenEntity.isListed = false;
+            tokenEntity.salesType = SaleTypes.OFFERS_ONLY
+            tokenEntity.listPrice = ZERO_BIG_DECIMAL
+            tokenEntity.lister = null
+            tokenEntity.listingTimestamp = ZERO
+            tokenEntity.openOffer = null
+            tokenEntity.currentTopBidder = null
+
+            // clear open token offer
+            clearTokenOffer(event.block, tokenId)
+
+            // Clear price listing
+            store.remove("ListedToken", tokenId.toString());
+        }
 
         // Persist
         tokenEntity.save();
@@ -225,7 +295,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle burns as a special case //
         ////////////////////////////////////
 
-        if (to.equals(DEAD_ADDRESS)) {
+        if (to.equals(DEAD_ADDRESS) || to.equals(ZERO_ADDRESS)) {
 
             //  reduce supply of edition
             editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
@@ -295,22 +365,22 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
     let kodaV3Contract = KnownOriginV3.bind(event.address);
 
-    // TODO handle mainnet
+    // Primary & Secondary Sale Marketplace V3 (mainnet)
+    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_MAINNET))
+        || event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
 
-    // Primary Sale Marketplace V3 (rinkeby)
-    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
         // clear the edition
         _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
-
         // clear any tokens being sold from the owner
         _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
     }
 
-    // Second Sale Marketplace V3 (rinkeby)
-    if (event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (rinkeby)
+    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
+        || event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+
         // clear the edition
         _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
-
         // clear any tokens being sold from the owner
         _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
     }
@@ -318,10 +388,9 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 
 export function handleApproval(event: Approval): void {
 
-    // TODO handle mainnet
-
-    // Primary Sale Marketplace V3 (rinkeby)
-    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (mainnt)
+    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
+        || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
             token.notForSale = false;
@@ -329,8 +398,9 @@ export function handleApproval(event: Approval): void {
         }
     }
 
-    // Second Sale Marketplace V3 (rinkeby)
-    if (event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+    // Primary & Secondary Sale Marketplace V3 (rinkeby)
+    if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
+        || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
             token.notForSale = false;

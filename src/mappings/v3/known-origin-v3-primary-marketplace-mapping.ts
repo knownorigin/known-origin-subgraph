@@ -26,7 +26,8 @@ import {
     ReserveAuctionConvertedToOffers,
     ReserveAuctionConvertedToBuyItNow,
     ConvertSteppedAuctionToBuyNow,
-    ConvertFromBuyNowToOffers
+    ConvertFromBuyNowToOffers,
+    EmergencyBidWithdrawFromReserveAuction
 } from "../../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
@@ -62,7 +63,9 @@ import {recordArtistCounts, recordArtistIssued, recordArtistValue} from "../../s
 import {loadNonNullableToken, loadOrCreateV3Token} from "../../services/Token.service";
 import {createTokenPrimaryPurchaseEvent} from "../../services/TokenEvent.factory";
 
-import {recordPrimarySaleEvent} from "../../services/ActivityEvent.service";
+import {
+    recordPrimarySaleEvent
+} from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {Collector, Edition, Token} from "../../../generated/schema";
@@ -172,6 +175,7 @@ export function handleEditionAcceptingOffer(event: EditionAcceptingOffer): void 
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.auctionEnabled = true
+    editionEntity.startDate = event.params._startDate
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.offersOnly = true
     editionEntity.activeBid = null
@@ -521,6 +525,34 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
     editionEntity.save()
 }
 
+export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBidWithdrawFromReserveAuction): void {
+    log.info("KO V3 handleEmergencyBidWithdrawFromReserveAuction() called - editionId {}", [event.params._id.toString()]);
+
+    let marketplace = KODAV3PrimaryMarketplace.bind(event.address)
+    let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
+
+    let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
+    // Clear down all reserve auction fields
+    editionEntity.reserveAuctionCanEmergencyExit = false
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionSeller = ZERO_ADDRESS
+    editionEntity.reserveAuctionBidder = ZERO_ADDRESS
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reservePrice = ZERO
+    editionEntity.reserveAuctionBid = ZERO
+    editionEntity.reserveAuctionStartDate = ZERO
+    editionEntity.previousReserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionEndTimestamp = ZERO
+    editionEntity.reserveAuctionNumTimesExtended = ZERO
+    editionEntity.isReserveAuctionInSuddenDeath = false
+    editionEntity.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+    editionEntity.isReserveAuctionResulted = false
+    editionEntity.isReserveAuctionResultedDateTime = ZERO
+    editionEntity.reserveAuctionResulter = ZERO_ADDRESS
+
+    editionEntity.save()
+}
+
 export function handleEditionConvertedFromOffersToBuyItNow(event: EditionConvertedFromOffersToBuyItNow): void {
     log.info("KO V3 handleEditionConvertedFromOffersToBuyItNow() called - editionId {}", [event.params._editionId.toString()]);
 
@@ -560,7 +592,7 @@ export function handleConvertSteppedAuctionToBuyNow(event: ConvertSteppedAuction
     let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
 
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
-    editionEntity.salesType = SaleTypes.STEPPED_SALE
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
     editionEntity.auctionEnabled = false
@@ -575,7 +607,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     let kodaV3Contract = KnownOriginV3.bind(marketplace.koda())
 
     let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
-    editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
+    editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
     editionEntity.auctionEnabled = false

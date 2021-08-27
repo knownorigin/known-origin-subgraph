@@ -1,6 +1,6 @@
-#######################
-## Timeseries events ##
-#######################
+########################
+## Time series events ##
+########################
 
 # Generic activity stream events for history of actions including primary and secodnary sales actions & triggers
 # Used for listing out token history on the token pages
@@ -128,7 +128,7 @@ type PlatformConfig @entity {
 type Token @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
-    salesType: BigInt! # The current sales mechnic being used on this edition
+    salesType: BigInt! # The current sales mechanic being used on this edition
     tokenId: BigInt!
     transferCount: BigInt!
     editionNumber: BigInt!
@@ -155,9 +155,14 @@ type Token @entity {
 
     ## Token secondary market
     isListed: Boolean!
+
+    ## TODO refactor these fields to use newly added listing sub object
     listPrice: BigDecimal
     lister: Collector
     listingTimestamp: BigInt
+
+    # Complete attached token
+    listing: ListedToken
 }
 
 type ListedToken @entity { #For Token Secondary market
@@ -182,7 +187,30 @@ type ListedToken @entity { #For Token Secondary market
     primaryAssetShortType: String!
     primaryAssetActualType: String!
 
+    # Complete attached token
     fullToken: Token!
+
+    # TODO handle start date from V3 on secondary
+
+    # ---- Reserve auction fields --------- #
+    reserveAuctionSeller: Bytes!     # edition seller
+    reserveAuctionBidder: Bytes!     # current bidder
+    reservePrice: BigInt!            # listed reserve price
+    reserveAuctionBid: BigInt!       # current bid
+    reserveAuctionStartDate: BigInt! # auction start
+
+    previousReserveAuctionEndTimestamp: BigInt! # set to the same as reserve unless an extension is in flight
+    reserveAuctionEndTimestamp: BigInt!         # when the auction will end
+    reserveAuctionNumTimesExtended: BigInt!     # number of times auction has been extended
+    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in sudden death
+    reserveAuctionTotalExtensionLengthInSeconds: BigInt! # total extension
+
+    isReserveAuctionResulted: Boolean!
+    isReserveAuctionResultedDateTime: BigInt!
+    reserveAuctionResulter: Bytes!
+
+    reserveAuctionCanEmergencyExit: Boolean!
+    # ----- End of reserve auction fields - #
 }
 
 type _Schema_
@@ -235,7 +263,7 @@ type Collective @entity {
     id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
-    recipients: [Bytes!]! # recpients for the deployed collab
+    recipients: [Bytes!]! # recipients for the deployed collab
     splits: [BigInt!]! # splits for the deployed collab
     createdTimestamp: BigInt!
     transactionHash: Bytes!
@@ -262,6 +290,7 @@ type Edition @entity {
     optionalCommissionAccount: Bytes # address - NOTE: deprecated - V2 only - use collaborators for
     optionalCommissionRate: BigInt
     collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
+    collective: Collective # nullable V3 collective i.e. its split funds
     offersOnly: Boolean!
     totalSupply: BigInt!     # Total purchases or mints i.e. total number of primary transfers
     totalAvailable: BigInt!  # Total number available to be purchased i.e. edition size
@@ -292,7 +321,7 @@ type Edition @entity {
     previousReserveAuctionEndTimestamp: BigInt! # set to the same as reserve unless an extension is in flight
     reserveAuctionEndTimestamp: BigInt!         # when the auction will end
     reserveAuctionNumTimesExtended: BigInt!     # number of times auction has been extended
-    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in suden death
+    isReserveAuctionInSuddenDeath: Boolean!     # set to true when in sudden death
     reserveAuctionTotalExtensionLengthInSeconds: BigInt! # total extension
 
     isReserveAuctionResulted: Boolean!

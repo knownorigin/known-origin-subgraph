@@ -142,6 +142,51 @@ export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Toke
     }
 }
 
+export function recordSecondaryTokenReserveAuctionListed(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_AUCTION_LISTED, rawEvent, edition, token, value, owner, null)
+        event.save()
+    }
+}
+
+export function recordSecondaryTokenReserveAuctionCountdownStarted(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_COUNTDOWN_STARTED, rawEvent, edition, token, value, buyer, seller)
+        event.save()
+    }
+}
+
+export function recordSecondaryTokenReserveAuctionExtended(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_EXTENDED, rawEvent, edition, token, value, buyer, seller)
+        event.save()
+    }
+}
+
+
+export function recordSecondaryTokenReserveAuctionBidPlaced(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_BID_PLACED, rawEvent, edition, token, value, buyer, seller)
+        event.save()
+    }
+}
+
 export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
     let id: string = tokenActivityId(token, rawEvent);

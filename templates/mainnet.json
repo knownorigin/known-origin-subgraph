@@ -18,5 +18,18 @@
   "artist-burner-startBlock": 10098533,
   "artist-edition-controls-v2-address": "0x5327cf8b4127e81013d706330043e8bf5673f50d",
   "artist-edition-controls-v2-startBlock": 7271760,
-  "include-koda-v3": false
+
+  "include-koda-v3": true,
+  "koda-v3-address": "0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B",
+  "koda-v3-startBlock": 13080871,
+  "koda-v3-minting-factory-address": "0x36CF31019816E9490959F75Ba9164eDd304De01D",
+  "koda-v3-minting-factory-startBlock": 13081038,
+  "koda-v3-primary-marketplace-address": "0xf11ED77fD65840b64602526DDC38311E9923c81B",
+  "koda-v3-primary-marketplace-startBlock": 13080907,
+  "koda-v3-secondary-marketplace-address": "0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A",
+  "koda-v3-secondary-marketplace-startBlock": 13080962,
+  "koda-v3-collab-registry-address": "0xe28e054d596576841682e8c993E415B3ccB2EBeB",
+  "koda-v3-collab-registry-startBlock": 13080981,
+  "accesscontrols-v3-address": "0x9028b16494a9363F3EAaf381a6Fde67296abc68C",
+  "accesscontrols-v3-startBlock": 13080815
 }

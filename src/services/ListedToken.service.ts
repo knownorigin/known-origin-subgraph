@@ -26,6 +26,23 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.metadataTagString = edition.metadataTagString;
         listedToken.primaryAssetShortType = edition.primaryAssetShortType || "";
         listedToken.primaryAssetActualType = edition.primaryAssetActualType || "";
+
+        // Reserve auction fields
+        listedToken.reserveAuctionSeller = ZERO_ADDRESS
+        listedToken.reserveAuctionBidder = ZERO_ADDRESS
+        listedToken.reservePrice = ZERO
+        listedToken.reserveAuctionBid = ZERO
+        listedToken.reserveAuctionStartDate = ZERO
+        listedToken.previousReserveAuctionEndTimestamp = ZERO
+        listedToken.reserveAuctionEndTimestamp = ZERO
+        listedToken.reserveAuctionNumTimesExtended = ZERO
+        listedToken.reserveAuctionTotalExtensionLengthInSeconds = ZERO
+        listedToken.isReserveAuctionResulted = false
+        listedToken.reserveAuctionResulter = ZERO_ADDRESS
+        listedToken.reserveAuctionCanEmergencyExit = false
+        listedToken.isReserveAuctionResultedDateTime = ZERO
+        listedToken.isReserveAuctionInSuddenDeath = false
+        
         listedToken.save();
     }
 
