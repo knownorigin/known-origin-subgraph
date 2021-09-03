@@ -213,6 +213,20 @@ type ListedToken @entity { #For Token Secondary market
     # ----- End of reserve auction fields - #
 }
 
+# A composable is a combination of a V3 NFT and a set number of tokens
+type Composable @entity {
+    id: ID! # toString for address
+
+    items: [ComposableItem!] @derivedFrom(field: "id") # An array of composable items
+}
+
+# ComposableItem
+type ComposableItem @entity {
+    id: ID! # address associated with the token
+    type: String! # type of token, ERC20, ERC721 etc
+    value: BigInt! # number of tokens attatched
+}
+
 type _Schema_
 @fulltext(
     name: "listedTokenSearch",

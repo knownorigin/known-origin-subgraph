@@ -4,7 +4,13 @@
 
 Must belong to the `knownorigin` github:
 
+### URIs
+
+##### Main
 https://thegraph.com/explorer/subgraph/knownorigin/known-origin
+
+##### Rinkeby
+https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby
 
 ### Subgraphs 
 
