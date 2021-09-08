@@ -11,7 +11,8 @@ import {
     AdminEditionReported,
     Approval,
     ApprovalForAll,
-    ReceivedERC20
+    ReceivedERC20,
+    TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
 
 import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
@@ -468,7 +469,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     let item: ComposableItem | null = ComposableItem.load(itemID)
 
-    if(!item) {
+    if (!item) {
         item = new ComposableItem(itemID)
         item.address = event.params._erc20Contract.toHexString()
         item.tokenID = event.params._tokenId.toString()
@@ -484,4 +485,30 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
+}
+
+export function handleTransferERC20(event: TransferERC20): void {
+    log.info("KO V3 - handleTransferERC20() called : to {} tokenID {} erc20Contract {} value {}", [
+        event.params._to.toHexString(),
+        event.params._tokenId.toString(),
+        event.params._erc20Contract.toHexString(),
+        event.params._value.toString(),
+    ]);
+
+    let itemID: string = event.params._tokenId.toString().concat("/")
+    itemID = itemID.concat(event.params._erc20Contract.toHexString())
+
+    let item: ComposableItem | null = ComposableItem.load(itemID)
+    if (!item) {
+        log.error("Unable to find composable item under id {}", [itemID])
+        return
+    }
+
+    item.value = item.value.minus(event.params._value)
+
+    if (item.value.isZero()) {
+        store.remove('ComposableItem', itemID)
+    } else {
+        item.save()
+    }
 }

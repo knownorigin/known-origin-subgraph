@@ -355,9 +355,12 @@ dataSources:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
 
-        # Composable Creation
+        # Composables
         - event: ReceivedERC20(indexed address,indexed uint256,indexed address,uint256)
           handler: handleReceivedERC20
+        - event: TransferERC20(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTransferERC20
+
       file: ./src/mappings/v3/known-origin-v3-mapping.ts
 
       # medium priority
