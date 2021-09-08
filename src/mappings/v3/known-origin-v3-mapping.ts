@@ -463,7 +463,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     composable.save()
 
-    let itemID: string = composable.id.toString().concat("/")
+    let itemID: string = event.params._tokenId.toString().concat("/")
     itemID = itemID.concat(event.params._erc20Contract.toHexString())
 
     let item: ComposableItem | null = ComposableItem.load(itemID)
@@ -471,7 +471,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     if(!item) {
         item = new ComposableItem(itemID)
         item.address = event.params._erc20Contract.toHexString()
-        item.name = event.params._tokenId.toString()
+        item.tokenID = event.params._tokenId.toString()
         item.type = 'ERC20'
         item.value = event.params._value
     } else {

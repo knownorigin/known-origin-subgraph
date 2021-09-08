@@ -224,7 +224,7 @@ type Composable @entity {
 type ComposableItem @entity {
     id: ID! # ID made up of combined tokenID/erc20 address
     address: String! # Address of the ERC20 token
-    name: String! # Name of the token, either ERC20 ticker or ERC721 name
+    tokenID: String! # ID of the token
     type: String! # Type of token, ERC20, ERC721 etc
     value: BigInt! # Number of tokens attached to the correct decimal value
 }
