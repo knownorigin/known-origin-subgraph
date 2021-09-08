@@ -443,63 +443,45 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
 }
 
 export function handleReceivedERC20(event: ReceivedERC20): void {
+    log.info("KO V3 - handleReceivedERC20() called : from {} tokenID {} erc20Contract {} value {}", [
+        event.params._from.toHexString(),
+        event.params._tokenId.toString(),
+        event.params._erc20Contract.toHexString(),
+        event.params._value.toString(),
+    ]);
 
-        log.info("KO V3 - handleReceivedERC20() called : from {} tokenID {} erc20Contract {} value {}", [
-            event.params._from.toString(),
-            event.params._tokenId.toString(),
-            event.params._erc20Contract.toString(),
-            event.params._value.toString(),
-        ]);
+    const compID: string = event.params._tokenId.toString()
 
-        // Try and load the composable
-        let composable: Composable | null = Composable.load(event.params._tokenId.toString())
-
-    log.info("COMPOSABLE : ID {}", [
-        composable.id,
-    ])
+    // Try and load the composable
+    let composable: Composable | null = Composable.load(compID)
 
     // If composable doesn't exist then create it
-    if(!composable) {
-        composable = new Composable(event.params._tokenId.toString())
+    if (!composable) {
+        composable = new Composable(compID)
         composable.items = new Array<string>()
     }
-    //
-    // composable.save()
-    //
-    // if(checkForID) {
-    //
-    // } else {
-    //
-    // }
 
+    composable.save()
 
-    // // TODO check if ID is already present, if so just up the value
-    //
-    //
-    // let item: ComposableItem | null = new ComposableItem(event.params._erc20Contract.toHexString())
-    // item.type = 'ERC20'
-    // item.value = event.params._value
-    //
-    // log.info("ITEM : id {} type {} value {}", [
-    //     item.id.toString(),
-    //     item.type.toString(),
-    //     item.value.toString(),
-    // ])
-    //
-    // item.save()
+    let itemID: string = composable.id.toString().concat("/")
+    itemID = itemID.concat(event.params._erc20Contract.toHexString())
 
-    // let items = composable.items;
-    // items.push(item.id.toString());
-    // composable.editions = items;
-    // composable.save()
+    let item: ComposableItem | null = ComposableItem.load(itemID)
+
+    if(!item) {
+        item = new ComposableItem(itemID)
+        item.address = event.params._erc20Contract.toHexString()
+        item.name = event.params._tokenId.toString()
+        item.type = 'ERC20'
+        item.value = event.params._value
+    } else {
+        item.value = item.value.plus(event.params._value)
+    }
+
+    item.save()
+
+    let items = composable.items;
+    items.push(item.id.toString());
+    composable.items = items;
+    composable.save()
 }
-
-// function checkForID(id, itemIDs) {
-//     itemIDs.forEach(item => {
-//         if (item === id) {
-//             return true
-//         }
-//     })
-//
-//     return false
-// }
