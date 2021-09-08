@@ -443,6 +443,7 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
     }
 }
 
+// handleReceivedERC20 handles the ReceivedERC20 event fired by the getERC20 function
 export function handleReceivedERC20(event: ReceivedERC20): void {
     log.info("KO V3 - handleReceivedERC20() called : from {} tokenID {} erc20Contract {} value {}", [
         event.params._from.toHexString(),
@@ -451,24 +452,27 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
         event.params._value.toString(),
     ]);
 
+    // Strip off the composableID
     const compID: string = event.params._tokenId.toString()
-
     // Try and load the composable
     let composable: Composable | null = Composable.load(compID)
 
-    // If composable doesn't exist then create it
+    // If composable doesn't exist then create it and its items array
     if (!composable) {
         composable = new Composable(compID)
         composable.items = new Array<string>()
     }
 
+    // Save the composable
     composable.save()
 
+    // Construct the itemID by combining the tokenId and contract address
     let itemID: string = event.params._tokenId.toString().concat("/")
     itemID = itemID.concat(event.params._erc20Contract.toHexString())
-
+    // Try and load the composable item
     let item: ComposableItem | null = ComposableItem.load(itemID)
 
+    // If the item doesn't exist then create it and assign its properties
     if (!item) {
         item = new ComposableItem(itemID)
         item.address = event.params._erc20Contract.toHexString()
@@ -476,17 +480,21 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
         item.type = 'ERC20'
         item.value = event.params._value
     } else {
+        // Otherwise just up the value of the item
         item.value = item.value.plus(event.params._value)
     }
 
+    // Save the item
     item.save()
 
+    // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
 }
 
+// handleTransferERC20 handles the TransferERC20 event fired by the transferERC20 function
 export function handleTransferERC20(event: TransferERC20): void {
     log.info("KO V3 - handleTransferERC20() called : to {} tokenID {} erc20Contract {} value {}", [
         event.params._to.toHexString(),
@@ -495,17 +503,21 @@ export function handleTransferERC20(event: TransferERC20): void {
         event.params._value.toString(),
     ]);
 
+    // Construct the itemID by combining the tokenId and contract address
     let itemID: string = event.params._tokenId.toString().concat("/")
     itemID = itemID.concat(event.params._erc20Contract.toHexString())
 
+    // Try and load the composable item, throwing an error if it doesn't exist
     let item: ComposableItem | null = ComposableItem.load(itemID)
     if (!item) {
         log.error("Unable to find composable item under id {}", [itemID])
         return
     }
 
+    // Take the value away from the items value
     item.value = item.value.minus(event.params._value)
 
+    // If the value is 0 then delete the item, otherwise just save it
     if (item.value.isZero()) {
         store.remove('ComposableItem', itemID)
     } else {
