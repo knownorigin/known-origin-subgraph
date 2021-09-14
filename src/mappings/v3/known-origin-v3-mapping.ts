@@ -191,7 +191,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // set birth of the token to when the edition was created as we dont add subgraph token data until this event
         if (tokenEntity.birthTimestamp.equals(ZERO)) {
-            tokenEntity.birthTimestamp = editionEntity.createdTimestamp
+            tokenEntity.birthTimestamp = event.block.timestamp
         }
 
         // Record transfer against token
