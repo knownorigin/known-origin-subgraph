@@ -3,7 +3,7 @@ import {Address, log} from "@graphprotocol/graph-ts/index";
 import {
     EditionMintedAndListed,
     MintingFactory
-} from "../../../generated/MintingFactory/MintingFactory";
+} from "../../../generated/MintingFactoryCreations/MintingFactory";
 
 import {loadOrCreateArtist} from "../../services/Artist.service";
 import {ArtistMintingConfig} from "../../../generated/schema";

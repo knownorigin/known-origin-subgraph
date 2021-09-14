@@ -10,9 +10,13 @@ import {
 import {
     AdminFrequencyOverrideChanged,
     AdminMaxMintsInPeriodChanged,
-    AdminMintingPeriodChanged, MintingFactory,
+    MintingFactory
+} from "../../../generated/MintingFactoryCreations/MintingFactory";
+
+import {
+    AdminMintingPeriodChanged,
     MintingFactoryCreated
-} from "../../../generated/MintingFactory/MintingFactory";
+} from "../../../generated/MintingFactoryConfig/MintingFactory";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
 import {loadOrCreateArtist} from "../../services/Artist.service";
