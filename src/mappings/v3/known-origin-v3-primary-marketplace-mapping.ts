@@ -561,6 +561,7 @@ export function handleEditionConvertedFromOffersToBuyItNow(event: EditionConvert
 
     let editionEntity = loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.salesType = SaleTypes.BUY_NOW
+    editionEntity.offersOnly = false
     editionEntity.priceInWei = event.params._price
     editionEntity.startDate = event.params._startDate
     editionEntity.auctionEnabled = false
