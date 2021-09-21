@@ -323,6 +323,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
                 let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
                 // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ...
                 artist.editionsCount = artist.editionsCount.minus(ONE);
+                artist.save()
 
                 // Set edition as disable as the entity has been removed
                 editionEntity.active = false;
