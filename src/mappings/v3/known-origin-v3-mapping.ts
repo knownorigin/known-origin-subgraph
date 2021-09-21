@@ -300,7 +300,21 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             //  reduce supply of edition
             editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
             editionEntity.totalSupply = editionEntity.totalSupply.minus(ONE);
-            editionEntity.remainingSupply = editionEntity.remainingSupply.minus(ONE);
+
+            // max size minus total issued
+            let originalRemainingSupply:BigInt = maxSize.minus(BigInt.fromI32(tokenIds.length))
+
+            let totalBurnt:i32 = 0;
+            for (let i:i32 = 0; i < tokenIds.length; i++) {
+                let token = store.get("Token", tokenIds[i].toString()) as Token;
+                const tokenOwner:string = token.currentOwner;
+                if(tokenOwner === DEAD_ADDRESS.toHexString() || tokenOwner === ZERO_ADDRESS.toHexString()){
+                    totalBurnt = totalBurnt + 1
+                }
+            }
+
+            // remaining support is the full compliment minus the burns
+            editionEntity.remainingSupply = originalRemainingSupply.minus(BigInt.fromI32(totalBurnt))
 
             // If total supply completely removed
             if (editionEntity.totalSupply.equals(ZERO)) {
