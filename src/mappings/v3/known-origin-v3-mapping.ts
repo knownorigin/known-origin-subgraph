@@ -65,6 +65,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
     let kodaV3Contract = KnownOriginV3.bind(event.address);
 
     // From zero - token birth
+    // Note: we dont create the token here - only on first transfer do we create a Token entity
     if (from.equals(ZERO_ADDRESS)) {
 
         // create edition
@@ -297,31 +298,43 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         if (to.equals(DEAD_ADDRESS) || to.equals(ZERO_ADDRESS)) {
 
-            //  reduce supply of edition
-            editionEntity.totalAvailable = editionEntity.totalAvailable.minus(ONE);
-            editionEntity.totalSupply = editionEntity.totalSupply.minus(ONE);
+            // get original edition size
+            let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
 
-            // max size minus total issued
-            let originalRemainingSupply:BigInt = maxSize.minus(BigInt.fromI32(tokenIds.length))
-
-            let totalBurnt:i32 = 0;
-            for (let i:i32 = 0; i < tokenIds.length; i++) {
-                let token = store.get("Token", tokenIds[i].toString()) as Token;
-                const tokenOwner:string = token.currentOwner;
-                if(tokenOwner === DEAD_ADDRESS.toHexString() || tokenOwner === ZERO_ADDRESS.toHexString()){
-                    totalBurnt = totalBurnt + 1
+            // work out how many have been burnt vs issued
+            let totalBurnt: i32 = 0;
+            let totalTokensIssued: i32 = 0;
+            for (let i: i32 = 0; i < tokenIds.length; i++) {
+                let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+                if (token) {
+                    const tokenOwner: string = token.currentOwner;
+                    if (tokenOwner === DEAD_ADDRESS.toHexString() || tokenOwner === ZERO_ADDRESS.toHexString()) {
+                        // record total burnt tokens
+                        totalBurnt = totalBurnt + 1
+                    }
+                    // record total issued tokens
+                    totalTokensIssued = totalTokensIssued + 1
                 }
             }
 
+            // max size minus total issued to determine current remaining supply
+            let originalRemainingSupply: BigInt = maxSize.minus(BigInt.fromI32(tokenIds.length))
+
             // remaining support is the full compliment minus the burns
             editionEntity.remainingSupply = originalRemainingSupply.minus(BigInt.fromI32(totalBurnt))
+
+            // total supply set to max supply minus burns
+            editionEntity.totalSupply = maxSize.minus(BigInt.fromI32(totalBurnt))
+
+            // total available to buy - max size minus total issued
+            editionEntity.totalAvailable = maxSize.minus(BigInt.fromI32(totalTokensIssued))
 
             // If total supply completely removed
             if (editionEntity.totalSupply.equals(ZERO)) {
 
                 // reduce supply of artist if edition is completely removed
                 let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-                // artist.supply = artist.supply.minus(ONE);  // TODO how to work this out ...
+                artist.supply = artist.supply.minus(BigInt.fromI32(totalBurnt));
                 artist.editionsCount = artist.editionsCount.minus(ONE);
                 artist.save()
 
