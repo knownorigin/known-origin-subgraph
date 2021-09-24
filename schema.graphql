@@ -164,7 +164,8 @@ type Token @entity {
     listing: ListedToken
 }
 
-type ListedToken @entity { #For Token Secondary market
+# For Token Secondary market
+type ListedToken @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
 
