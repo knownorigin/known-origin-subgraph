@@ -291,12 +291,18 @@ type Edition @entity {
     collaborators: [Bytes!]! # list of addresses who have collaborated on this edition
     collective: Collective # nullable V3 collective i.e. its split funds
     offersOnly: Boolean!
-    totalSupply: BigInt!     # Total purchases or mints i.e. total number of primary transfers
-    totalAvailable: BigInt!  # Total number available to be purchased i.e. edition size
-    remainingSupply: BigInt! # Total remaining i.e. number of primary sale tokens left to buy from this edition
-    totalSold: BigInt! # sold = purchase/bid accepted with price > 0
+
+    # Token counters
+    totalSupply: BigInt!         # Total purchases or mints i.e. total number of primary transfers
+    totalAvailable: BigInt!      # Total number available to be purchased i.e. edition size
+    remainingSupply: BigInt!     # Total remaining i.e. number of primary sale tokens left to buy from this edition
+    totalSold: BigInt!           # sold = purchase/bid accepted with price > 0
+    totalBurnt: BigInt!          # number of items send to 0xDead or 0x0 (only applicable for V3)
+    originalEditionSize: BigInt! # original edition size of the edition at mint - this field should NEVER change once set
+
+    # TODO count gifts properly - gift = any transfer without a payment made
+
     sales: [Token!]!
-    #gifts: [Token!]! - can we work this out by subtracting sales against issued token numbers, difference is the gifted amount
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
