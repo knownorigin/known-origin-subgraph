@@ -77,9 +77,13 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             addEditionToDay(event, editionEntity.id);
 
             let creator = kodaV3Contract.getCreatorOfToken(tokenId);
-            addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
+            let artist = addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
 
             recordEditionCreated(event, editionEntity)
+
+            // Only the first edition is classed as a Genesis edition
+            editionEntity.isGenesisEdition = artist.firstEdition.toString() === editionEntity.editionNmber.toString()
+            editionEntity.save()
         }
     } else {
         ////////////////
@@ -160,7 +164,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
 
-        // Reduce remaining supply for each mint
+        // Reduce remaining supply for each mint -
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
 
         // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
@@ -298,36 +302,32 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         if (to.equals(DEAD_ADDRESS) || to.equals(ZERO_ADDRESS)) {
 
-            // get original edition size
-            let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
-
             // work out how many have been burnt vs issued
             let totalBurnt: i32 = 0;
-            let totalTokensIssued: i32 = 0;
             for (let i: i32 = 0; i < tokenIds.length; i++) {
                 let token = store.get("Token", tokenIds[i].toString()) as Token | null;
                 if (token) {
-                    const tokenOwner: string = token.currentOwner;
-                    if (tokenOwner === DEAD_ADDRESS.toHexString() || tokenOwner === ZERO_ADDRESS.toHexString()) {
+                    const tokenOwner = Address.fromString(token.currentOwner);
+                    if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
                         // record total burnt tokens
                         totalBurnt = totalBurnt + 1
                     }
-                    // record total issued tokens
-                    totalTokensIssued = totalTokensIssued + 1
                 }
             }
 
-            // max size minus total issued to determine current remaining supply
-            let originalRemainingSupply: BigInt = maxSize.minus(BigInt.fromI32(tokenIds.length))
+            // total supply edition - original size burns a.k.a. the total edition supply
+            editionEntity.totalSupply = editionEntity.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
 
-            // remaining support is the full compliment minus the burns
-            editionEntity.remainingSupply = originalRemainingSupply.minus(BigInt.fromI32(totalBurnt))
+            // track the total burns on the edition
+            editionEntity.totalBurnt = BigInt.fromI32(totalBurnt)
 
-            // total supply set to max supply minus burns
-            editionEntity.totalSupply = maxSize.minus(BigInt.fromI32(totalBurnt))
+            // keep these in sync = total supply = edition size & total available = edition size
+            editionEntity.totalAvailable = editionEntity.totalSupply
 
-            // total available to buy - max size minus total issued
-            editionEntity.totalAvailable = maxSize.minus(BigInt.fromI32(totalTokensIssued))
+            // total remaining primary sales - original edition size minus tokens issued
+            //                                 a new token ID is created on ever 'first transfer' up to edition size
+            let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
+            editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
 
             // If total supply completely removed
             if (editionEntity.totalSupply.equals(ZERO)) {

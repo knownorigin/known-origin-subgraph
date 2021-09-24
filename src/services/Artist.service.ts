@@ -33,7 +33,7 @@ export function loadOrCreateArtist(address: Address): Artist {
     return artist as Artist;
 }
 
-export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): void {
+export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): Artist {
     let artist = loadOrCreateArtist(artistAddress)
     artist.editionsCount = artist.editionsCount.plus(ONE)
     artist.supply = artist.supply.plus(totalAvailable)
@@ -47,6 +47,8 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.lastEditionTimestamp = created
 
     artist.save()
+
+    return artist
 }
 
 export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt): void {

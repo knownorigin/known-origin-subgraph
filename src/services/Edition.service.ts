@@ -46,6 +46,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = totalAvailable(editionNumber, _editionData.value9)
+            editionEntity.originalEditionSize = _editionData.value9
             editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
@@ -178,6 +179,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
+        editionEntity.originalEditionSize = _size
         editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
         editionEntity.active = true;
 
@@ -250,6 +252,8 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.collaborators = new Array<Bytes>()
     editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
     editionEntity.totalSold = ZERO
+    editionEntity.totalBurnt = ZERO
+    editionEntity.originalEditionSize = ZERO
     editionEntity.createdTimestamp = block.timestamp
     editionEntity.editionType = ZERO
     editionEntity.startDate = ZERO
