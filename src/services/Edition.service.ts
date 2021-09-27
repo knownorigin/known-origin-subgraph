@@ -11,6 +11,19 @@ import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as SaleTypes from "../utils/SaleTypes";
 import * as KodaVersions from "../utils/KodaVersions";
 
+function totalAvailable(editionNumber: BigInt, totalAvailable: BigInt): BigInt {
+    // These editions have be modified since creation but before we had events, this is to fix a long standing
+    // issue and to prevent us from using callHandlers which are incredible slow.
+    // Note: This is only needed for KODA V2
+    if (editionNumber.equals(BigInt.fromI32(21300))) {
+        return BigInt.fromI32(1)
+    }
+    if (editionNumber.equals(BigInt.fromI32(21200))) {
+        return BigInt.fromI32(1)
+    }
+    return totalAvailable;
+}
+
 export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Block, contract: KnownOriginV2): Edition {
     let editionEntity = Edition.load(editionNumber.toString());
 
@@ -32,7 +45,8 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.priceInWei = _editionData.value6
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
-            editionEntity.totalAvailable = _editionData.value9
+            editionEntity.totalAvailable = totalAvailable(editionNumber, _editionData.value9)
+            editionEntity.originalEditionSize = _editionData.value9
             editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
             editionEntity.active = _editionData.value10
             editionEntity.offersOnly = _editionData.value6.equals(MAX_UINT_256)
@@ -165,6 +179,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
+        editionEntity.originalEditionSize = _size
         editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
         editionEntity.active = true;
 
@@ -237,6 +252,8 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.collaborators = new Array<Bytes>()
     editionEntity.totalEthSpentOnEdition = ZERO_BIG_DECIMAL
     editionEntity.totalSold = ZERO
+    editionEntity.totalBurnt = ZERO
+    editionEntity.originalEditionSize = ZERO
     editionEntity.createdTimestamp = block.timestamp
     editionEntity.editionType = ZERO
     editionEntity.startDate = ZERO

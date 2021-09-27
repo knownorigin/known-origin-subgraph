@@ -116,6 +116,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
     let firstTokenId = edition.editionNmber.plus(ONE);
 
+    listedToken.editionNumber = edition.editionNmber
     listedToken.seriesNumber = event.params._id.minus(edition.editionNmber)
     listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._id)
@@ -358,6 +359,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
 
     let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
     let firstTokenId = edition.editionNmber.plus(ONE);
+    listedToken.editionNumber = edition.editionNmber
     listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._id)
     listedToken.isGenesisEdition = edition.isGenesisEdition
