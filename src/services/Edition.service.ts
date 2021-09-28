@@ -43,6 +43,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.artistAccount = getArtistAddress(_editionData.value4)
             editionEntity.artistCommission = _editionData.value5
             editionEntity.priceInWei = _editionData.value6
+            editionEntity.metadataPrice = _editionData.value6
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = totalAvailable(editionNumber, _editionData.value9)
@@ -291,6 +292,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.metadataTagString = ""
     editionEntity.metadataArtist = ""
     editionEntity.metadataArtistAccount = "";
+    editionEntity.metadataPrice = ZERO
 
     return editionEntity
 }

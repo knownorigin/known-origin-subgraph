@@ -102,7 +102,8 @@ export function handleEditionPriceChanged(event: BuyNowPriceChanged): void {
         KODAV3PrimaryMarketplace.bind(event.address).koda()
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._id, event.block, kodaV3Contract)
-    editionEntity.priceInWei = event.params._price;
+    editionEntity.priceInWei = event.params._price
+    editionEntity.metadataPrice = event.params._price;
     editionEntity.save()
 }
 
@@ -114,6 +115,7 @@ export function handleEditionListed(event: ListedForBuyNow): void {
     );
     let editionEntity = loadOrCreateV3EditionFromTokenId(event.params._id, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price;
+    editionEntity.metadataPrice = event.params._price;
     editionEntity.startDate = event.params._startDate;
     editionEntity.salesType = SaleTypes.BUY_NOW
 
@@ -316,6 +318,7 @@ export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void 
 
     let editionEntity = loadNonNullableEdition(event.params._editionId)
     editionEntity.priceInWei = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
+    editionEntity.metadataPrice = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
     editionEntity.currentStep = BigInt.fromI32(event.params._currentStep)
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, event.params._price)
     editionEntity.save()
@@ -344,6 +347,7 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     editionEntity.salesType = SaleTypes.STEPPED_SALE
     editionEntity.startDate = event.params._startDate;
     editionEntity.priceInWei = event.params._basePrice
+    editionEntity.metadataPrice = event.params._basePrice;
 
     // clear offers
     editionEntity.offersOnly = false
@@ -367,6 +371,7 @@ export function handleEditionListedForReserveAuction(event: ListedForReserveAuct
 
     editionEntity.reserveAuctionSeller = reserveAuction.value0
     editionEntity.reservePrice = event.params._reservePrice
+    editionEntity.metadataPrice = event.params._reservePrice
     editionEntity.reserveAuctionStartDate = event.params._startDate
     editionEntity.startDate = event.params._startDate
     editionEntity.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
@@ -509,6 +514,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
     let editionEntity = loadOrCreateV3Edition(event.params._id, event.block, kodaV3Contract)
 
     editionEntity.reservePrice = event.params._reservePrice
+    editionEntity.metadataPrice = event.params._reservePrice
 
     // Check if the current bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
     if (editionEntity.reserveAuctionBid.ge(event.params._reservePrice)) {
@@ -539,6 +545,7 @@ export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBid
     editionEntity.reserveAuctionBidder = ZERO_ADDRESS
     editionEntity.reserveAuctionEndTimestamp = ZERO
     editionEntity.reservePrice = ZERO
+    editionEntity.metadataPrice = ZERO
     editionEntity.reserveAuctionBid = ZERO
     editionEntity.reserveAuctionStartDate = ZERO
     editionEntity.previousReserveAuctionEndTimestamp = ZERO
@@ -563,6 +570,7 @@ export function handleEditionConvertedFromOffersToBuyItNow(event: EditionConvert
     editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.offersOnly = false
     editionEntity.priceInWei = event.params._price
+    editionEntity.metadataPrice = event.params._price;
     editionEntity.startDate = event.params._startDate
     editionEntity.auctionEnabled = false
 
@@ -596,6 +604,7 @@ export function handleConvertSteppedAuctionToBuyNow(event: ConvertSteppedAuction
     editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
+    editionEntity.metadataPrice = event.params._listingPrice
     editionEntity.auctionEnabled = false
 
     editionEntity.save()
@@ -611,6 +620,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     editionEntity.salesType = SaleTypes.BUY_NOW
     editionEntity.startDate = event.params._startDate
     editionEntity.priceInWei = event.params._listingPrice
+    editionEntity.metadataPrice = event.params._listingPrice
     editionEntity.auctionEnabled = false
 
     _clearReserveAuctionFields(editionEntity)
@@ -692,6 +702,7 @@ function _clearReserveAuctionFields(editionEntity: Edition): void {
     editionEntity.isReserveAuctionResultedDateTime = ZERO
     editionEntity.reserveAuctionSeller = ZERO_ADDRESS
     editionEntity.reservePrice = ZERO
+    editionEntity.metadataPrice = ZERO
     editionEntity.reserveAuctionResulter = ZERO_ADDRESS
     editionEntity.reserveAuctionBid = ZERO
     editionEntity.reserveAuctionStartDate = ZERO
