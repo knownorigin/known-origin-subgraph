@@ -36,7 +36,6 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseCount = ZERO
-    tokenEntity.editionTotalAvailable = ZERO
     tokenEntity.editionActive = true
     tokenEntity.artistAccount = ZERO_ADDRESS
     tokenEntity.isListed = false
@@ -71,7 +70,6 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
-            tokenEntity.editionTotalAvailable = _editionData.value9
             tokenEntity.editionActive = _editionData.value10
             tokenEntity.artistAccount = getArtistAddress(_editionData.value4)
         } else {
@@ -132,7 +130,6 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     metaData.save()
     tokenEntity.metadata = metaData.id
 
-    tokenEntity.editionTotalAvailable = BigInt.fromI32(editionDetails.value2)
     tokenEntity.editionActive = contract.reportedEditionIds(editionNumber)
     tokenEntity.artistAccount = editionDetails.value0
 
