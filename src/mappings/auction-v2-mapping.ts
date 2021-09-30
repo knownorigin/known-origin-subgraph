@@ -64,6 +64,7 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
         editionEntity.offersOnly = false;
         editionEntity.salesType = SaleTypes.BUY_NOW_AND_OFFERS
     }
+    editionEntity.metadataPrice = priceInWei
 
     editionEntity.save()
 }

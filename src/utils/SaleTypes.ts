@@ -4,6 +4,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 export const BUY_NOW = BigInt.fromI32(1);
 
 // V2 only (legacy)
+// Offers only will have a  max int price
 export const BUY_NOW_AND_OFFERS = BigInt.fromI32(2);
 
 // V2 & V3

@@ -364,6 +364,7 @@ type Edition @entity {
     metadataArtist: String!
     metadataTagString: String!
     metadataArtistAccount: String!
+    metadataPrice: BigInt! # A consolidated price for all sale types, making it orderable in lists
     primaryAssetShortType: String # null-able leading mime-type field i.e. image or video etc
     primaryAssetActualType: String # null-able ending mime-type field e.g. mp4, gif, png etc
     # END: freetext search fields
