@@ -217,7 +217,8 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         if (metaData != null) {
             metaData.save()
             editionEntity.metadata = metaData.id
-
+            editionEntity.metadataFormat = metaData.format
+            editionEntity.metadataTheme = metaData.theme
             editionEntity.metadataName = metaData.name ? metaData.name : ""
             editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
             editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
@@ -230,6 +231,8 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
             if (metaData.tags != null && metaData.tags.length > 0) {
                 editionEntity.metadataTagString = metaData.tags.toString()
             }
+
+
         }
     }
     return editionEntity as Edition;
