@@ -330,6 +330,8 @@ dataSources:
       abis:
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         # KODA V3 Config
         - event: AdminRoyaltiesRegistryProxySet(indexed address)
@@ -397,6 +399,8 @@ dataSources:
           file: ./abis/kodav3/KOAccessControls.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: AdminUpdateArtistAccessMerkleRoot(bytes32)
           handler: handleAdminUpdateArtistAccessMerkleRoot
@@ -427,6 +431,8 @@ dataSources:
           file: ./abis/kodav3/MintingFactory.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: MintingFactoryCreated()
           handler: handleMintingFactoryCreated
@@ -457,6 +463,8 @@ dataSources:
           file: ./abis/kodav3/MintingFactory.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: EditionMintedAndListed(indexed uint256,uint8)
           handler: handleEditionMintedAndListed
@@ -483,6 +491,8 @@ dataSources:
           file: ./abis/kodav3/KODAV3PrimaryMarketplace.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdatePlatformPrimarySaleCommission(uint256)
@@ -568,6 +578,8 @@ dataSources:
           file: ./abis/kodav3/KODAV3SecondaryMarketplace.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         # Admin handlers
         - event: AdminUpdateModulo(uint256)
@@ -654,6 +666,8 @@ dataSources:
           file: ./abis/kodav3/KODAV3CollabRegistry.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
+        - name: KnownOriginV2
+          file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
         - event: RoyaltyRecipientCreated(address,address,address,address[],uint256[])
           handler: handleRoyaltyRecipientCreated
