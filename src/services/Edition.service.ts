@@ -43,6 +43,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             editionEntity.artistAccount = getArtistAddress(_editionData.value4)
             editionEntity.artistCommission = _editionData.value5
             editionEntity.priceInWei = _editionData.value6
+            editionEntity.metadataPrice = _editionData.value6
             editionEntity.tokenURI = _editionData.value7
             editionEntity.totalSupply = _editionData.value8
             editionEntity.totalAvailable = totalAvailable(editionNumber, _editionData.value9)
@@ -216,7 +217,8 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         if (metaData != null) {
             metaData.save()
             editionEntity.metadata = metaData.id
-
+            editionEntity.metadataFormat = metaData.format
+            editionEntity.metadataTheme = metaData.theme
             editionEntity.metadataName = metaData.name ? metaData.name : ""
             editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
             editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
@@ -229,6 +231,8 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
             if (metaData.tags != null && metaData.tags.length > 0) {
                 editionEntity.metadataTagString = metaData.tags.toString()
             }
+
+
         }
     }
     return editionEntity as Edition;
@@ -295,6 +299,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.metadataTagString = ""
     editionEntity.metadataArtist = ""
     editionEntity.metadataArtistAccount = "";
+    editionEntity.metadataPrice = ZERO
 
     return editionEntity
 }

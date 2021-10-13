@@ -27,13 +27,17 @@ https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby
 graph init --from-contract <address> knownorigin/known-origin graph-known-origin
 ```
 
+### Install graph-client
+
+`npm install -g @graphprotocol/graph-cli`
+
 ### Auth with subgraph
 
 `graph auth https://api.thegraph.com/deploy/ <auth-token>`
 
 ### Auth
 
-```graph auth https://api.thegraph.com/deploy/ <ACCESS_TOKEN>```
+`graph auth https://api.thegraph.com/deploy/ <ACCESS_TOKEN>`
 
 ### Dev cycle
 
