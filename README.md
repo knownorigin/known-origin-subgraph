@@ -85,7 +85,10 @@ Subgraph Explorer is the public overview of the deployed SubGraphs.
 https://thegraph.com/studio/subgraph/known-origin/
 
 ```
+<<<<<<< HEAD
 Explorer page:    https://thegraph.com/explorer/subgraph?id=0x3f8c962eb167ad2f80c72b5f933511ccdf0719d4-0&view=Overview
+=======
+>>>>>>> ec580999ad05f7ede8e6e6f9ff3b6eec7e988c12
 Queries (HTTP):     https://api.studio.thegraph.com/query/2668/known-origin/<version>
 Subscriptions (WS): https://api.studio.thegraph.com/query/2668/known-origin/<version>
 ```
