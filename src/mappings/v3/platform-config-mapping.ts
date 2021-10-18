@@ -8,15 +8,15 @@ import {
 } from "../../../generated/KOAccessControls/KOAccessControls";
 
 import {
+    AdminMintingPeriodChanged,
+    MintingFactoryCreated
+} from "../../../generated/MintingFactoryConfig/MintingFactory";
+
+import {
     AdminFrequencyOverrideChanged,
     AdminMaxMintsInPeriodChanged,
     MintingFactory
 } from "../../../generated/MintingFactoryCreations/MintingFactory";
-
-import {
-    AdminMintingPeriodChanged,
-    MintingFactoryCreated
-} from "../../../generated/MintingFactoryConfig/MintingFactory";
 
 import {getPlatformConfig} from "../../services/PlatformConfig.factory";
 import {loadOrCreateArtist} from "../../services/Artist.service";
