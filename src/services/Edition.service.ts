@@ -209,9 +209,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
         // Set genesis flag if not existing editions created
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
-        if (!artist.isSet("editions")) {
-            editionEntity.isGenesisEdition = true;
-        }
+        editionEntity.artist = artist.id.toString()
 
         let metaData = constructMetaData(_editionId, _uri)
         if (metaData != null) {

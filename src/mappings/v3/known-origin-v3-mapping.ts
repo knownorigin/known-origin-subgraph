@@ -86,7 +86,8 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            editionEntity.isGenesisEdition = artist.firstEdition.toString() === editionEntity.editionNmber.toString()
+            editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(artist.firstEdition))
+
             editionEntity.save()
         }
     } else {
