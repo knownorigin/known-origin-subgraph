@@ -107,6 +107,40 @@ export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: 
     return tokenEvent
 }
 
+export function createTokenSecondaryPurchaseEvent(event: ethereum.Event, tokenId: BigInt, buyer: Address, seller: Address, priceInWei: BigInt): TokenEvent {
+    let timestamp = event.block.timestamp;
+
+    let tokenEntity = loadNonNullableToken(tokenId)
+
+    let tokenEventId = generateTokenEventId(EVENT_TYPES.PURCHASE, tokenEntity, buyer, timestamp);
+
+    let tokenEvent = new TokenEvent(tokenEventId);
+    tokenEvent.version = tokenEntity.version
+
+    // Setup token and add history
+    let tokenEvents = tokenEntity.tokenEvents;
+    tokenEvents.push(tokenEvent.id);
+    tokenEntity.tokenEvents = tokenEvents;
+    tokenEntity.save()
+
+    let editionEntity = loadNonNullableEdition(tokenEntity.editionNumber);
+    editionEntity.save()
+
+    tokenEvent.name = EVENT_TYPES.PURCHASE;
+    tokenEvent.version = editionEntity.version
+    tokenEvent.token = tokenEntity.id;
+    tokenEvent.edition = editionEntity.id;
+    tokenEvent.buyer = loadOrCreateCollector(buyer, event.block).id
+    tokenEvent.ethValue = priceInWei.toBigDecimal()
+    tokenEvent.currentOwner = loadOrCreateCollector(seller, event.block).id
+    tokenEvent.timestamp = timestamp
+    tokenEvent.transactionHash = event.transaction.hash
+
+    tokenEvent.save()
+
+    return tokenEvent
+}
+
 export function createBidPlacedEvent(
     event: ethereum.Event, tokenId: BigInt, currentOwner: Address, bidder: Address, priceInWei: BigInt
 ): TokenEvent {

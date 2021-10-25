@@ -20,7 +20,7 @@ import {
     createBidAcceptedEvent,
     createBidPlacedEvent,
     createBidRejectedEvent,
-    createBidWithdrawnEvent
+    createBidWithdrawnEvent, createTokenSecondaryPurchaseEvent
 } from "../services/TokenEvent.factory";
 
 import {
@@ -295,6 +295,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
     recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
+    createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._seller, event.params._price)
 
     tokenEntity.save()
 
