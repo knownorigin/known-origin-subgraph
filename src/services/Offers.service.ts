@@ -1,4 +1,4 @@
-import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadNonNullableEdition} from "./Edition.service";
 import {loadOrCreateCollector} from "./Collector.service";
@@ -79,6 +79,7 @@ export function recordTokenOffer(block: ethereum.Block,
 }
 
 export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
+    log.info("Clearing token offer for token {}", [tokenId.toString()]);
 
     let offerId: string = toLowerCase(TOKEN_TYPE)
         .concat("-")

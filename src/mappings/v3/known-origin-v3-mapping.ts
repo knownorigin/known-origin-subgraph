@@ -277,7 +277,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.currentTopBidder = null
 
             // clear open token offer
-            clearTokenOffer(event.block, tokenId)
+            // clearTokenOffer(event.block, tokenId)
 
             // Clear price listing
             store.remove("ListedToken", tokenId.toString());
