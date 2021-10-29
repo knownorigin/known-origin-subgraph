@@ -1,14 +1,17 @@
 import {
     FutureRoyaltiesHandlerSetup,
     HandlerAdded,
-    HandlerRemoved, KODAV3CollabRegistry,
+    HandlerRemoved,
+    KODAV3CollabRegistry,
     RoyaltiesHandlerSetup,
     RoyaltyRecipientCreated
 } from "../../../generated/KODAV3CollabRegistry/KODAV3CollabRegistry";
-import {CollectiveHandlers, Collective} from "../../../generated/schema";
+
+import {Collective, CollectiveHandlers} from "../../../generated/schema";
 import {Bytes, log} from "@graphprotocol/graph-ts/index";
-import {loadOrCreateV3Edition} from "../../services/Edition.service";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
+
+import * as editionService from "../../services/Edition.service";
 
 export function handleRoyaltyRecipientCreated(event: RoyaltyRecipientCreated): void {
     log.info("handleRoyaltyRecipientCreated() for clone [{}] - deployed address [{}]", [
@@ -44,7 +47,7 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
         KODAV3CollabRegistry.bind(event.address).koda()
     );
 
-    let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
+    let editionEntity = editionService.loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
 
     log.info("handleRoyaltiesHandlerSetup() collective.recipients [{}]", [
         collective.recipients.toString()
@@ -79,7 +82,7 @@ export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerS
         KODAV3CollabRegistry.bind(event.address).koda()
     );
 
-    let editionEntity = loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
+    let editionEntity = editionService.loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
     editionEntity.collective = collective.id.toString()
     editionEntity.save()
 }

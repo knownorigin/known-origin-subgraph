@@ -1,14 +1,12 @@
 import {Address, log} from "@graphprotocol/graph-ts/index";
 
-import {
-    EditionMintedAndListed,
-    MintingFactory
-} from "../../../generated/MintingFactoryCreations/MintingFactory";
+import {EditionMintedAndListed, MintingFactory} from "../../../generated/MintingFactoryCreations/MintingFactory";
 
-import {loadOrCreateArtist} from "../../services/Artist.service";
 import {ArtistMintingConfig} from "../../../generated/schema";
-import {loadOrCreateV3Edition} from "../../services/Edition.service";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
+
+import * as artistService from "../../services/Artist.service";
+import * as editionService from "../../services/Edition.service";
 
 export function handleEditionMintedAndListed(event: EditionMintedAndListed): void {
     log.info("Minting factory - handleEditionMintedAndListed() called - edition ID {}", [
@@ -19,12 +17,12 @@ export function handleEditionMintedAndListed(event: EditionMintedAndListed): voi
     let contract = KnownOriginV3.bind(mintingFactory.koda())
 
     // get the edition to find the artist
-    let edition = loadOrCreateV3Edition(event.params._editionId, event.block, contract)
+    let edition = editionService.loadOrCreateV3Edition(event.params._editionId, event.block, contract)
     edition.save()
 
     const artistAccount = Address.fromString(edition.artistAccount.toHexString());
 
-    let artistEntity = loadOrCreateArtist(artistAccount);
+    let artistEntity = artistService.loadOrCreateArtist(artistAccount);
     artistEntity.save()
 
     let mintingConfig = mintingFactory.currentMintConfig(artistAccount);

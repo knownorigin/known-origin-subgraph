@@ -7,67 +7,44 @@ import {
     KnownOriginV2__detailsOfEditionResult
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
-import {
-    loadOrCreateV2Edition,
-    loadOrCreateV2EditionFromTokenId
-} from "../services/Edition.service";
-import {
-    addEditionToDay,
-    recordDayCounts,
-    recordDayIssued,
-    recordDayTransfer,
-    recordDayValue
-} from "../services/Day.service";
-import {
-    addEditionToArtist,
-    recordArtistValue,
-    recordArtistCounts,
-    recordArtistIssued,
-} from "../services/Artist.service";
-import {loadOrCreateV2Token} from "../services/Token.service";
 import {ethereum, log, Address, store} from "@graphprotocol/graph-ts/index";
-import {toEther} from "../utils/utils";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createTransferEvent} from "../services/TransferEvent.factory";
-import {
-    addPrimarySaleToCollector,
-    collectorInList,
-    loadOrCreateCollector
-} from "../services/Collector.service";
-import {getArtistAddress} from "../services/AddressMapping.service";
-import {
-    createTokenPrimaryPurchaseEvent,
-    createTokenTransferEvent
-} from "../services/TokenEvent.factory";
-import {updateTokenOfferOwner} from "../services/Offers.service";
 
-import {
-    recordEditionCreated,
-    recordTransfer,
-    recordPrimarySaleEvent,
-} from "../services/ActivityEvent.service";
+import {toEther} from "../utils/utils";
+
+import {getArtistAddress} from "../services/AddressMapping.service";
 
 import * as EVENT_TYPES from "../utils/EventTypes";
 import * as SaleTypes from "../utils/SaleTypes";
 
+import * as editionService from "../services/Edition.service";
+import * as dayService from "../services/Day.service";
+import * as tokenService from "../services/Token.service";
+import * as transferEventFactory from "../services/TransferEvent.factory";
+import * as artistService from "../services/Artist.service";
+import * as collectorService from "../services/Collector.service";
+import * as tokenEventFactory from "../services/TokenEvent.factory";
+import * as offerService from "../services/Offers.service";
+import * as activityEventService from "../services/ActivityEvent.service";
+
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
 
-    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.save()
 
-    addEditionToDay(event, editionEntity.id);
+    dayService.addEditionToDay(event, editionEntity.id);
 
     // Update artist
     let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
     if (!_editionDataResult.reverted) {
         let _editionData = _editionDataResult.value;
-        addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
+        artistService.addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp)
     } else {
         log.error("Handled unknown reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
     }
 
-    recordEditionCreated(event, editionEntity)
+    activityEventService.recordEditionCreated(event, editionEntity)
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -79,13 +56,13 @@ export function handleTransfer(event: Transfer): void {
     // Day Counts //
     ////////////////
 
-    recordDayTransfer(event);
+    dayService.recordDayTransfer(event);
 
     /////////////////////
     // Collector Logic //
     /////////////////////
 
-    let collector = loadOrCreateCollector(event.params._to, event.block);
+    let collector = collectorService.loadOrCreateCollector(event.params._to, event.block);
     collector.save();
 
     ///////////////////
@@ -93,10 +70,10 @@ export function handleTransfer(event: Transfer): void {
     ///////////////////
 
     // Record transfer against the edition
-    let editionEntity = loadOrCreateV2EditionFromTokenId(event.params._tokenId, event.block, contract);
+    let editionEntity = editionService.loadOrCreateV2EditionFromTokenId(event.params._tokenId, event.block, contract);
 
     // Transfer Events
-    let transferEvent = createTransferEvent(event, event.params._tokenId, event.params._from, event.params._to, editionEntity);
+    let transferEvent = transferEventFactory.createTransferEvent(event, event.params._tokenId, event.params._from, event.params._to, editionEntity);
     transferEvent.save();
 
     // Set Transfers on edition
@@ -105,14 +82,14 @@ export function handleTransfer(event: Transfer): void {
     editionEntity.transfers = editionTransfers;
 
     // Check if the edition already has the owner
-    if (!collectorInList(collector, editionEntity.allOwners)) {
+    if (!collectorService.collectorInList(collector, editionEntity.allOwners)) {
         let allOwners = editionEntity.allOwners;
         allOwners.push(collector.id);
         editionEntity.allOwners = allOwners;
     }
 
     // Tally up current owners of edition
-    if (!collectorInList(collector, editionEntity.currentOwners)) {
+    if (!collectorService.collectorInList(collector, editionEntity.currentOwners)) {
         let currentOwners = editionEntity.currentOwners;
         currentOwners.push(collector.id);
         editionEntity.currentOwners = currentOwners;
@@ -125,7 +102,7 @@ export function handleTransfer(event: Transfer): void {
     /////////////////
 
     // TOKEN
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
@@ -138,7 +115,7 @@ export function handleTransfer(event: Transfer): void {
     tokenEntity.transfers = tokenTransfers;
 
     // Check if the token already has the owner
-    if (!collectorInList(collector, tokenEntity.allOwners)) {
+    if (!collectorService.collectorInList(collector, tokenEntity.allOwners)) {
         let allOwners = tokenEntity.allOwners;
         allOwners.push(collector.id);
         tokenEntity.allOwners = allOwners;
@@ -170,17 +147,17 @@ export function handleTransfer(event: Transfer): void {
 
     // Update token offer owner
     if (event.params._to !== event.params._from) {
-        updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
+        offerService.updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
-    recordTransfer(event, tokenEntity, editionEntity, event.params._to)
+    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to)
 
     ///////////////
     // Transfers //
     ///////////////
 
     // Token Events
-    let tokenTransferEvent = createTokenTransferEvent(event, event.params._tokenId, event.params._from, event.params._to);
+    let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, event.params._from, event.params._to);
     tokenTransferEvent.save();
 }
 
@@ -191,25 +168,25 @@ export function handlePurchase(event: Purchase): void {
     let contract = KnownOriginV2.bind(event.address)
 
     // Create token
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save()
 
     // Create collector
-    let collector = loadOrCreateCollector(event.params._buyer, event.block);
+    let collector = collectorService.loadOrCreateCollector(event.params._buyer, event.block);
     collector.save();
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
-    recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
-    recordDayValue(event, event.params._tokenId, event.transaction.value)
+    artistService.recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
+    dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
 
-    recordDayCounts(event, event.transaction.value)
-    recordArtistCounts(artistAddress, event.transaction.value)
+    dayService.recordDayCounts(event, event.transaction.value)
+    artistService.recordArtistCounts(artistAddress, event.transaction.value)
 
     // Action edition data changes
-    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._priceInWei));
 
     // Only count Purchases with value attached as sale - primary sales trigger this event
@@ -221,19 +198,19 @@ export function handlePurchase(event: Purchase): void {
         editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
 
         // Tally up primary sale owners
-        if (!collectorInList(collector, editionEntity.primaryOwners)) {
+        if (!collectorService.collectorInList(collector, editionEntity.primaryOwners)) {
             let primaryOwners = editionEntity.primaryOwners;
             primaryOwners.push(collector.id);
             editionEntity.primaryOwners = primaryOwners;
         }
 
-        addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei);
+        collectorService.addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei);
 
-        let tokenTransferEvent = createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._priceInWei);
+        let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._priceInWei);
         tokenTransferEvent.save();
 
         // Set price against token
-        let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+        let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
         tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
         tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
         tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
@@ -242,14 +219,14 @@ export function handlePurchase(event: Purchase): void {
     }
     editionEntity.save()
 
-    recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._priceInWei, event.params._buyer)
+    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._priceInWei, event.params._buyer)
 }
 
 // A token has been issued - could be purchase, gift, accepted offer
 export function handleMinted(event: Minted): void {
     let contract = KnownOriginV2.bind(event.address)
 
-    let editionEntity = loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
     // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
     editionEntity.totalSupply = editionEntity.totalSupply.plus(ONE)
@@ -265,15 +242,15 @@ export function handleMinted(event: Minted): void {
     // Save edition entity
     editionEntity.save();
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 
     // record running total of issued tokens
-    recordDayIssued(event, event.params._tokenId)
+    dayService.recordDayIssued(event, event.params._tokenId)
 
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
-    recordArtistIssued(artistAddress)
+    artistService.recordArtistIssued(artistAddress)
 }
 
 // // Only called on Mainnet
@@ -285,7 +262,7 @@ export function handleMinted(event: Minted): void {
 //
 //     let active = contract.editionActive(editionNumber);
 //
-//     let editionEntity = loadOrCreateV2Edition(editionNumber, call.block, contract)
+//     let editionEntity = editionService.loadOrCreateV2Edition(editionNumber, call.block, contract)
 //     editionEntity.active = active;
 //     editionEntity.totalAvailable = !active ? ZERO : editionEntity.totalAvailable;
 //     editionEntity.save()
