@@ -1,72 +1,36 @@
 import {Address} from "@graphprotocol/graph-ts";
+import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
+
 import {
+    AuctionDisabled,
+    AuctionEnabled,
     BidAccepted,
     BidPlaced,
     BidRejected,
-    BidWithdrawn,
-    AuctionDisabled,
-    AuctionEnabled
+    BidWithdrawn
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 
-import {
-    TokenOffer
-} from "../../generated/schema";
+import {TokenOffer} from "../../generated/schema";
 
-import {
-    loadOrCreateV2Edition
-} from "../services/Edition.service";
+import {toEther} from "../utils/utils";
 
-import {
-    createBidAcceptedEvent,
-    createBidPlacedEvent,
-    createBidRejectedEvent,
-    createBidWithdrawnEvent, createTokenSecondaryPurchaseEvent
-} from "../services/TokenEvent.factory";
-
-import {
-    toEther
-} from "../utils/utils";
-
-import {
-    addSecondaryPurchaseToCollector,
-    addSecondarySaleToSeller,
-    collectorInList,
-    loadOrCreateCollector
-} from "../services/Collector.service";
-
-import {loadOrCreateV2Token} from "../services/Token.service";
-import {loadOrCreateListedToken} from "../services/ListedToken.service";
 import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
-import {
-    recordDayBidAcceptedCount,
-    recordDayBidPlacedCount,
-    recordDayBidRejectedCount,
-    recordDayBidWithdrawnCount,
-    recordDayCounts,
-    recordDaySecondaryTotalValue,
-    recordDayTotalValueCycledInBids,
-    recordDayTotalValuePlaceInBids,
-    recordDayValue
-} from "../services/Day.service";
-import {clearTokenOffer, recordTokenOffer} from "../services/Offers.service";
-
-import {
-    recordSecondaryBidAccepted,
-    recordSecondaryBidPlaced,
-    recordSecondaryBidRejected,
-    recordSecondaryBidWithdrawn,
-    recordSecondarySale,
-    recordSecondaryTokenDeListed,
-    recordSecondaryTokenListed
-} from "../services/ActivityEvent.service";
 
 import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
-import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
 import * as KodaVersions from "../utils/KodaVersions";
 import * as SaleTypes from "../utils/SaleTypes";
-import {recordArtistValue} from "../services/Artist.service";
+
+import * as editionService from "../services/Edition.service";
+import * as tokenEventFactory from "../services/TokenEvent.factory";
+import * as collectorService from "../services/Collector.service";
+import * as listedTokenService from "../services/ListedToken.service";
+import * as tokenService from "../services/Token.service";
+import * as dayService from "../services/Day.service";
+import * as offerService from "../services/Offers.service";
+import * as activityEventService from "../services/ActivityEvent.service";
+import * as artistService from "../services/Artist.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -77,7 +41,7 @@ export function handleAuctionEnabled(event: AuctionEnabled): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.save();
 }
 
@@ -90,13 +54,13 @@ export function handleAuctionDisabled(event: AuctionDisabled): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.listing = null
     tokenEntity.save();
 
-    clearTokenOffer(event.block, event.params._tokenId)
+    offerService.clearTokenOffer(event.block, event.params._tokenId)
 }
 
 export function handleBidPlaced(event: BidPlaced): void {
@@ -110,7 +74,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
@@ -118,31 +82,31 @@ export function handleBidPlaced(event: BidPlaced): void {
     let tokenOffer = new TokenOffer(id);
     tokenOffer.version = KodaVersions.KODA_V2
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
     editionEntity.save()
 
     tokenOffer.timestamp = timestamp;
     tokenOffer.edition = editionEntity.id
-    tokenOffer.bidder = loadOrCreateCollector(event.params._bidder, event.block).id
+    tokenOffer.bidder = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
     tokenOffer.ethValue = toEther(event.params._amount)
-    tokenOffer.ownerAtTimeOfBid = loadOrCreateCollector(event.params._currentOwner, event.block).id
+    tokenOffer.ownerAtTimeOfBid = collectorService.loadOrCreateCollector(event.params._currentOwner, event.block).id
     tokenOffer.token = tokenEntity.id
     tokenOffer.save()
 
     tokenEntity.openOffer = tokenOffer.id
     tokenEntity.save();
 
-    recordDayBidPlacedCount(event)
-    recordDayTotalValueCycledInBids(event, event.params._amount)
-    recordDayTotalValuePlaceInBids(event, event.params._amount)
+    dayService.recordDayBidPlacedCount(event)
+    dayService.recordDayTotalValueCycledInBids(event, event.params._amount)
+    dayService.recordDayTotalValuePlaceInBids(event, event.params._amount)
 
-    recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, null);
+    offerService.recordTokenOffer(event.block, event.transaction, event.params._bidder, event.params._amount, event.params._tokenId, null);
 
-    recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
+    activityEventService.recordSecondaryBidPlaced(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidAccepted(event: BidAccepted): void {
@@ -156,50 +120,50 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
-    clearTokenOffer(event.block, event.params._tokenId)
+    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    offerService.clearTokenOffer(event.block, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.listing = null
-    tokenEntity.currentOwner = loadOrCreateCollector(event.params._bidder, event.block).id
+    tokenEntity.currentOwner = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
     tokenEntity.save();
 
     // Save the collector
-    let collector = loadOrCreateCollector(event.params._bidder, event.block);
+    let collector = collectorService.loadOrCreateCollector(event.params._bidder, event.block);
     collector.save();
 
     // Edition updates
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
     // Tally up primary sale owners
-    if (!collectorInList(collector, editionEntity.primaryOwners)) {
+    if (!collectorService.collectorInList(collector, editionEntity.primaryOwners)) {
         let primaryOwners = editionEntity.primaryOwners;
         primaryOwners.push(collector.id);
         editionEntity.primaryOwners = primaryOwners;
     }
 
     // BidAccepted emit Transfer events - handle day counts for monetary values in here
-    recordDayBidAcceptedCount(event)
-    recordDayCounts(event, event.params._amount)
-    recordDayValue(event, event.params._tokenId, event.params._amount)
-    recordDayTotalValueCycledInBids(event, event.params._amount)
-    recordDaySecondaryTotalValue(event, event.params._amount)
+    dayService.recordDayBidAcceptedCount(event)
+    dayService.recordDayCounts(event, event.params._amount)
+    dayService.recordDayValue(event, event.params._tokenId, event.params._amount)
+    dayService.recordDayTotalValueCycledInBids(event, event.params._amount)
+    dayService.recordDaySecondaryTotalValue(event, event.params._amount)
 
-    addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
-    addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
+    collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
+    collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
     // FIXME only record artist royalties
-    recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
+    artistService.recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
     // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
 
     editionEntity.save();
 
-    recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder, event.params._currentOwner)
+    activityEventService.recordSecondaryBidAccepted(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
 
 export function handleBidRejected(event: BidRejected): void {
@@ -213,20 +177,20 @@ export function handleBidRejected(event: BidRejected): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
-    clearTokenOffer(event.block, event.params._tokenId)
+    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    offerService.clearTokenOffer(event.block, event.params._tokenId)
 
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
     editionEntity.save();
 
-    recordDayBidRejectedCount(event)
+    dayService.recordDayBidRejectedCount(event)
 
-    recordSecondaryBidRejected(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
+    activityEventService.recordSecondaryBidRejected(event, tokenEntity, editionEntity, event.params._amount, event.params._bidder)
 }
 
 export function handleBidWithdrawn(event: BidWithdrawn): void {
@@ -236,21 +200,21 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         address indexed _bidder
       );
     */
-    createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
-    clearTokenOffer(event.block, event.params._tokenId)
+    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
+    offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let contract = getKnownOriginV2ForAddress(event.address)
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
     editionEntity.save();
 
-    recordDayBidWithdrawnCount(event)
+    dayService.recordDayBidWithdrawnCount(event)
 
-    recordSecondaryBidWithdrawn(event, tokenEntity, editionEntity, event.params._bidder)
+    activityEventService.recordSecondaryBidWithdrawn(event, tokenEntity, editionEntity, event.params._bidder)
 }
 
 export function handleTokenPurchased(event: TokenPurchased): void {
@@ -263,10 +227,10 @@ export function handleTokenPurchased(event: TokenPurchased): void {
       );
      */
     let contract = getKnownOriginV2ForAddress(event.address)
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = false;
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-    tokenEntity.currentOwner = loadOrCreateCollector(event.params._buyer, event.block).id
+    tokenEntity.currentOwner = collectorService.loadOrCreateCollector(event.params._buyer, event.block).id
     tokenEntity.lastSalePriceInEth = toEther(event.params._price)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._price))
@@ -279,30 +243,30 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     store.remove("ListedToken", event.params._tokenId.toString());
 
     // counts and offers
-    clearTokenOffer(event.block, event.params._tokenId)
-    recordDayCounts(event, event.params._price)
-    recordDayValue(event, event.params._tokenId, event.params._price)
+    offerService.clearTokenOffer(event.block, event.params._tokenId)
+    dayService.recordDayCounts(event, event.params._price)
+    dayService.recordDayValue(event, event.params._tokenId, event.params._price)
 
     // Save the collector
-    let buyer = loadOrCreateCollector(event.params._buyer, event.block);
+    let buyer = collectorService.loadOrCreateCollector(event.params._buyer, event.block);
     buyer.save();
 
     // Save the seller
-    let seller = loadOrCreateCollector(event.params._seller, event.block);
+    let seller = collectorService.loadOrCreateCollector(event.params._seller, event.block);
     seller.save();
 
     // Edition updates
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
-    recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
-    createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._seller, event.params._price)
+    activityEventService.recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
+    tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._seller, event.params._price)
 
     tokenEntity.save()
 
     // Transfer events handled somewhere else
-    addSecondarySaleToSeller(event.block, event.params._seller, event.params._price);
-    addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
-    recordDaySecondaryTotalValue(event, event.params._price)
+    collectorService.addSecondarySaleToSeller(event.block, event.params._seller, event.params._price);
+    collectorService.addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
+    dayService.recordDaySecondaryTotalValue(event, event.params._price)
 
     // FIXME record artist royalties
 }
@@ -318,20 +282,20 @@ export function handleTokenListed(event: TokenListed): void {
      */
 
     let contract = getKnownOriginV2ForAddress(event.address)
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = true;
     tokenEntity.salesType = SaleTypes.BUY_NOW
     tokenEntity.listPrice = toEther(event.params._price)
-    tokenEntity.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    tokenEntity.lister = collectorService.loadOrCreateCollector(event.params._seller, event.block).id
     tokenEntity.listingTimestamp = event.block.timestamp
     tokenEntity.save()
 
-    let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
     // Add ListedToken to store
-    let listedToken = loadOrCreateListedToken(event.params._tokenId, editionEntity);
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._tokenId, editionEntity);
     listedToken.listPrice = toEther(event.params._price)
-    listedToken.lister = loadOrCreateCollector(event.params._seller, event.block).id
+    listedToken.lister = collectorService.loadOrCreateCollector(event.params._seller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
 
     // Add filter flags
@@ -356,10 +320,10 @@ export function handleTokenListed(event: TokenListed): void {
     tokenEntity.save()
 
     // Save the lister
-    let collector = loadOrCreateCollector(event.params._seller, event.block);
+    let collector = collectorService.loadOrCreateCollector(event.params._seller, event.block);
     collector.save();
 
-    recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price, event.params._seller)
+    activityEventService.recordSecondaryTokenListed(event, tokenEntity, editionEntity, event.params._price, event.params._seller)
     tokenEntity.save()
 }
 
@@ -370,7 +334,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
       );
      */
     let contract = getKnownOriginV2ForAddress(event.address)
-    let tokenEntity = loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+    let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
     tokenEntity.isListed = false;
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
@@ -383,8 +347,8 @@ export function handleTokenDeListed(event: TokenDeListed): void {
 
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
-        let editionEntity = loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
-        recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+        let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
     }
 
     tokenEntity.save()

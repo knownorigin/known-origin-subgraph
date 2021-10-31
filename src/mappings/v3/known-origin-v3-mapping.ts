@@ -1,46 +1,41 @@
 import {BigInt} from "@graphprotocol/graph-ts";
 import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {
-    Transfer,
-    KnownOriginV3,
-    ConsecutiveTransfer,
+    AdminArtistAccountReported,
+    AdminEditionReported,
     AdminRoyaltiesRegistryProxySet,
     AdminTokenUriResolverSet,
     AdminUpdateSecondaryRoyalty,
-    AdminArtistAccountReported,
-    AdminEditionReported,
     Approval,
     ApprovalForAll,
+    ConsecutiveTransfer,
+    KnownOriginV3,
     ReceivedERC20,
+    Transfer,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
+import {Artist, Collector, Composable, ComposableItem, ListedToken, Token} from "../../../generated/schema";
 
 import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
-
 import {
-    loadNonNullableEdition,
-    loadOrCreateV3Edition,
-    loadOrCreateV3EditionFromTokenId
-} from "../../services/Edition.service";
-
-import {addEditionToDay, recordDayTransfer} from "../../services/Day.service";
-import {addEditionToArtist, loadOrCreateArtist} from "../../services/Artist.service";
-import {recordEditionCreated, recordTransfer} from "../../services/ActivityEvent.service";
-import {collectorInList, loadOrCreateCollector} from "../../services/Collector.service";
-import {createTransferEvent} from "../../services/TransferEvent.factory";
-import {createTokenTransferEvent} from "../../services/TokenEvent.factory";
-import {loadOrCreateV3Token} from "../../services/Token.service";
-import {getPlatformConfig} from "../../services/PlatformConfig.factory";
-import {clearTokenOffer, updateTokenOfferOwner} from "../../services/Offers.service";
-import {Artist, Collector, ListedToken, Token, Composable, ComposableItem} from "../../../generated/schema";
-import {
-    PRIMARY_SALE_RINKEBY,
-    SECONDARY_SALE_RINKEBY,
     PRIMARY_SALE_MAINNET,
-    SECONDARY_SALE_MAINNET
+    PRIMARY_SALE_RINKEBY,
+    SECONDARY_SALE_MAINNET,
+    SECONDARY_SALE_RINKEBY
 } from "../../utils/KODAV3";
+
+import * as platformConfig from "../../services/PlatformConfig.factory";
+import * as offerService from "../../services/Offers.service";
+import * as tokenService from "../../services/Token.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as transferEventFactory from "../../services/TransferEvent.factory";
+import * as collectorService from "../../services/Collector.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as artistService from "../../services/Artist.service";
+import * as dayService from "../../services/Day.service";
+import * as editionService from "../../services/Edition.service";
+
 import * as SaleTypes from "../../utils/SaleTypes";
-import {removeActiveBidOnEdition} from "../../services/AuctionEvent.service";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -73,17 +68,17 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
     if (from.equals(ZERO_ADDRESS)) {
 
         // create edition
-        let editionEntity = loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
+        let editionEntity = editionService.loadOrCreateV3EditionFromTokenId(tokenId, event.block, kodaV3Contract);
         editionEntity.save()
 
         // We only need to record the edition being created once
         if (editionEntity.editionNmber.equals(tokenId)) {
-            addEditionToDay(event, editionEntity.id);
+            dayService.addEditionToDay(event, editionEntity.id);
 
             let creator = kodaV3Contract.getCreatorOfToken(tokenId);
-            let artist = addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
+            let artist = artistService.addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
 
-            recordEditionCreated(event, editionEntity)
+            activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
             editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(artist.firstEdition))
@@ -95,13 +90,13 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Day Counts //
         ////////////////
 
-        recordDayTransfer(event);
+        dayService.recordDayTransfer(event);
 
         /////////////////////
         // Collector Logic //
         /////////////////////
 
-        let collector = loadOrCreateCollector(to, event.block);
+        let collector = collectorService.loadOrCreateCollector(to, event.block);
         collector.save();
 
         /////////////////
@@ -109,11 +104,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         /////////////////
 
         // Token - save it so down stream things can use the token relationship
-        let tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
+        let tokenEntity = tokenService.loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
         tokenEntity.save();
 
         // Load it again
-        tokenEntity = loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
+        tokenEntity = tokenService.loadOrCreateV3Token(tokenId, kodaV3Contract, event.block)
 
         // Ensure approval for token ID is cleared
         let approved = kodaV3Contract.getApproved(tokenId);
@@ -128,10 +123,10 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Edition Logic
 
         // Record transfer against the edition
-        let editionEntity = loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
+        let editionEntity = editionService.loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
 
         // Transfer Events
-        let transferEvent = createTransferEvent(event, tokenId, from, to, editionEntity);
+        let transferEvent = transferEventFactory.createTransferEvent(event, tokenId, from, to, editionEntity);
         transferEvent.save();
 
         // Set Transfers on edition
@@ -141,14 +136,14 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // @ts-ignore
         // Check if the edition already has the owner
-        if (!collectorInList(collector, editionEntity.allOwners)) {
+        if (!collectorService.collectorInList(collector, editionEntity.allOwners)) {
             let allOwners = editionEntity.allOwners;
             allOwners.push(collector.id);
             editionEntity.allOwners = allOwners;
         }
 
         // Tally up current owners of edition
-        if (!collectorInList(collector, editionEntity.currentOwners)) {
+        if (!collectorService.collectorInList(collector, editionEntity.currentOwners)) {
             let currentOwners = editionEntity.currentOwners;
             currentOwners.push(collector.id);
             editionEntity.currentOwners = currentOwners;
@@ -211,7 +206,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenEntity.transfers = tokenTransfers;
 
         // Check if the token already has the owner
-        if (!collectorInList(collector, tokenEntity.allOwners)) {
+        if (!collectorService.collectorInList(collector, tokenEntity.allOwners)) {
             let allOwners = tokenEntity.allOwners;
             allOwners.push(collector.id);
             tokenEntity.allOwners = allOwners;
@@ -276,9 +271,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.openOffer = null
             tokenEntity.currentTopBidder = null
 
-            // clear open token offer
-            // clearTokenOffer(event.block, tokenId)
-
             // Clear price listing
             store.remove("ListedToken", tokenId.toString());
         }
@@ -287,19 +279,19 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenEntity.save();
 
         // Token Events
-        let tokenTransferEvent = createTokenTransferEvent(event, tokenId, from, to);
+        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenId, from, to);
         tokenTransferEvent.save();
 
         // Update token offer owner
         if (to !== from) {
-            updateTokenOfferOwner(event.block, tokenId, to)
+            offerService.updateTokenOfferOwner(event.block, tokenId, to)
         }
 
         /////////////////////
         // Handle transfer //
         /////////////////////
 
-        recordTransfer(event, tokenEntity, editionEntity, to);
+        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to);
 
         ////////////////////////////////////
         // Handle burns as a special case //
@@ -338,7 +330,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             if (editionEntity.totalSupply.equals(ZERO)) {
 
                 // reduce supply of artist if edition is completely removed
-                let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+                let artist = artistService.loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
                 artist.supply = artist.supply.minus(BigInt.fromI32(totalBurnt));
                 artist.editionsCount = artist.editionsCount.minus(ONE);
                 artist.save()
@@ -353,19 +345,19 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 }
 
 export function handleAdminRoyaltiesRegistryProxySet(event: AdminRoyaltiesRegistryProxySet): void {
-    let marketConfig = getPlatformConfig()
+    let marketConfig = platformConfig.getPlatformConfig()
     marketConfig.royaltiesRegistry = event.params._royaltiesRegistryProxy;
     marketConfig.save();
 }
 
 export function handleAdminTokenUriResolverSet(event: AdminTokenUriResolverSet): void {
-    let marketConfig = getPlatformConfig()
+    let marketConfig = platformConfig.getPlatformConfig()
     marketConfig.tokenUriResolver = event.params._tokenUriResolver;
     marketConfig.save();
 }
 
 export function handleAdminUpdateSecondaryRoyalty(event: AdminUpdateSecondaryRoyalty): void {
-    let marketConfig = getPlatformConfig()
+    let marketConfig = platformConfig.getPlatformConfig()
     marketConfig.secondarySaleRoyalty = event.params._secondarySaleRoyalty;
     marketConfig.save();
 }
@@ -384,7 +376,7 @@ export function handleAdminEditionReported(event: AdminEditionReported): void {
     ]);
 
     // find edition and disable
-    let edition = loadNonNullableEdition(event.params._editionId)
+    let edition = editionService.loadNonNullableEdition(event.params._editionId)
     edition.active = false
     edition.save()
 }
@@ -449,7 +441,7 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
             let editionIds = artist.editions
             for (let i = 0; i < editionIds.length; i++) {
                 let editionId = editionIds[i];
-                let edition = loadOrCreateV3Edition(BigInt.fromString(editionId), block, kodaV3Contract);
+                let edition = editionService.loadOrCreateV3Edition(BigInt.fromString(editionId), block, kodaV3Contract);
                 edition.notForSale = notForSale
                 edition.save()
             }
@@ -464,7 +456,7 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
             let tokensIds = collector.tokens
             for (let i = 0; i < tokensIds.length; i++) {
                 let tokensId = tokensIds[i];
-                let token = loadOrCreateV3Token(BigInt.fromString(tokensId), kodaV3Contract, block);
+                let token = tokenService.loadOrCreateV3Token(BigInt.fromString(tokensId), kodaV3Contract, block);
                 token.notForSale = notForSale
                 token.save()
             }
