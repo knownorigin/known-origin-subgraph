@@ -15,6 +15,7 @@ import {
     BuyNowPurchased,
     ConvertFromBuyNowToOffers,
     ConvertSteppedAuctionToBuyNow,
+    EditionSteppedAuctionUpdated,
     EditionAcceptingOffer,
     EditionBidAccepted,
     EditionBidPlaced,
@@ -49,6 +50,7 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {PRICE_CHANGED} from "../../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -336,6 +338,23 @@ export function handleEditionSteppedSaleListed(event: EditionSteppedSaleListed):
     editionEntity.save()
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.STEPPED_AUCTION_LISTED, editionEntity, null, event.params._basePrice, ZERO_ADDRESS)
+}
+
+export function handleEditionSteppedAuctionUpdated(event: EditionSteppedAuctionUpdated): void {
+    log.info("KO V3 handleEditionSteppedAuctionUpdated() called - editionId {}", [event.params._editionId.toString()]);
+
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3PrimaryMarketplace.bind(event.address).koda()
+    )
+    let editionEntity = editionService.loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
+    editionEntity.stepSaleBasePrice = event.params._basePrice;
+    editionEntity.stepSaleStepPrice = event.params._stepPrice;
+    editionEntity.priceInWei = event.params._basePrice
+    editionEntity.metadataPrice = event.params._basePrice;
+
+    editionEntity.save()
+
+    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PRICE_CHANGED, editionEntity, null, event.params._basePrice, ZERO_ADDRESS)
 }
 
 export function handleEditionListedForReserveAuction(event: ListedForReserveAuction): void {
