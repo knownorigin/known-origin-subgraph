@@ -141,10 +141,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
     dayService.recordDayValue(event, event.params._tokenId, event.params._amount)
-    artistService.recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.params._amount)
 
     dayService.recordDayCounts(event, event.params._amount)
-    artistService.recordArtistCounts(artistAddress, event.params._amount)
 
     dayService.recordDayBidAcceptedCount(event)
 

@@ -1,8 +1,9 @@
-import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt, Bytes} from "@graphprotocol/graph-ts/index";
 import {Artist, ArtistMintingConfig} from "../../generated/schema";
 import {ONE, ZERO} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
+import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
@@ -51,6 +52,41 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     return artist
 }
 
+export function handleKodaV2CommissionSplit(contract: KnownOriginV2, editionNumber: BigInt, tokenId: BigInt, value: BigInt): void {
+    let artistCommission = contract.artistCommission(editionNumber)
+    let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
+    if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
+        recordArtistCollaborationValue(
+            [artistCommission.value0, _optionalCommission.value.value1],
+            [artistCommission.value1, _optionalCommission.value.value0],
+            tokenId,
+            value
+        )
+    } else {
+        recordArtistValue(artistCommission.value0, tokenId, value)
+    }
+}
+
+export function recordArtistCollaborationValue(artistAddresses: Array<Bytes>, commissions: Array<BigInt>, tokenId: BigInt, value: BigInt): void {
+
+    let totalCommissions: BigInt = commissions.reduce<BigInt>((previousValue: BigInt, currentValue: BigInt) => {
+        return previousValue.plus(currentValue)
+    }, ZERO)
+
+    for (let i = 0; i < artistAddresses.length; i++) {
+        let artistAddress = artistAddresses[i];
+        let artistCommission = commissions[i];
+
+        let totalSaleValue = BigInt.fromI32(value.toI32())
+
+        let saleAllocation = totalSaleValue
+            .div(totalCommissions)
+            .times(artistCommission)
+
+        recordArtistValue(Address.fromString(artistAddress.toHexString()), tokenId, saleAllocation)
+    }
+}
+
 export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt): void {
     let artist = loadOrCreateArtist(artistAddress)
 
@@ -60,12 +96,6 @@ export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value
         artist.highestSaleToken = tokenId.toString()
         artist.highestSaleValueInEth = toEther(value)
     }
-
-    artist.save()
-}
-
-export function recordArtistCounts(artistAddress: Address, value: BigInt): void {
-    let artist = loadOrCreateArtist(artistAddress)
 
     if (value > ZERO) {
         artist.salesCount = artist.salesCount.plus(ONE)

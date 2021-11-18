@@ -3,7 +3,7 @@ import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {BigInt} from "@graphprotocol/graph-ts";
 
-import {Collector, Edition, Token} from "../../../generated/schema";
+import {Collective, Collector, Edition, Token} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -15,13 +15,13 @@ import {
     BuyNowPurchased,
     ConvertFromBuyNowToOffers,
     ConvertSteppedAuctionToBuyNow,
-    EditionSteppedAuctionUpdated,
     EditionAcceptingOffer,
     EditionBidAccepted,
     EditionBidPlaced,
     EditionBidRejected,
     EditionBidWithdrawn,
     EditionConvertedFromOffersToBuyItNow,
+    EditionSteppedAuctionUpdated,
     EditionSteppedSaleBuy,
     EditionSteppedSaleListed,
     EmergencyBidWithdrawFromReserveAuction,
@@ -50,7 +50,6 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
-import {PRICE_CHANGED} from "../../utils/EventTypes";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -142,7 +141,7 @@ export function handleEditionPurchased(event: BuyNowPurchased): void {
 
     // Record Artist Data
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
-    _handleArtistAndDayCounts(event, event.params._tokenId, event.params._price, artistAddress, event.params._buyer);
+    _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, event.params._price, artistAddress, event.params._buyer);
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._price, event.params._buyer)
 }
@@ -249,7 +248,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
     editionEntity.save();
 
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
-    _handleArtistAndDayCounts(event, event.params._tokenId, event.params._amount, artistAddress, event.params._bidder);
+    _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, event.params._amount, artistAddress, event.params._bidder);
 
     dayService.recordDayBidAcceptedCount(event)
     dayService.recordDayTotalValueCycledInBids(event, event.params._amount)
@@ -306,7 +305,7 @@ export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void 
     editionEntity.save()
 
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
-    _handleArtistAndDayCounts(event, event.params._tokenId, event.params._price, artistAddress, event.params._buyer);
+    _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, event.params._price, artistAddress, event.params._buyer);
 
     // Set price against token
     let tokenEntity = tokenService.loadOrCreateV3Token(event.params._tokenId, kodaV3Contract, event.block)
@@ -476,7 +475,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 
     // Record Artist Data
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
-    _handleArtistAndDayCounts(event, event.params._id, event.params._finalPrice, artistAddress, event.params._winner);
+    _handleArtistAndDayCounts(event, editionEntity, event.params._id, event.params._finalPrice, artistAddress, event.params._winner);
 
     dayService.recordDayBidAcceptedCount(event)
     auctionEventService.removeActiveBidOnEdition(event.params._id)
@@ -674,7 +673,7 @@ function _handleTokenPrimarySale(tokenEntity: Token, price: BigInt): void {
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(price))
 }
 
-function _handleArtistAndDayCounts(event: ethereum.Event, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {
+function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {
     dayService.recordDayValue(event, tokenId, price)
     dayService.recordDayCounts(event, price)
 
@@ -682,8 +681,13 @@ function _handleArtistAndDayCounts(event: ethereum.Event, tokenId: BigInt, price
     dayService.recordDayIssued(event, tokenId)
 
     artistService.recordArtistIssued(artistAddress)
-    artistService.recordArtistCounts(artistAddress, price)
-    artistService.recordArtistValue(artistAddress, tokenId, price)
+
+    if (editionEntity.collective) {
+        let collective = Collective.load(editionEntity.collective.toString()) as Collective
+        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, tokenId, price);
+    } else {
+        artistService.recordArtistValue(artistAddress, tokenId, price)
+    }
 
     collectorService.addPrimarySaleToCollector(event.block, buyer, price);
 }

@@ -137,8 +137,10 @@ type Token @entity {
     metadata: MetaData
     birthTimestamp: BigInt!             # initial transfer from zero address
     primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
+    secondaryValueInEth: BigDecimal    # TODO largest secondary sale in ETH
     totalPurchaseValue: BigDecimal!     # tally of all purchases (primary & secondary)
     totalPurchaseCount: BigInt!         # tally of the number of purchases (primary & secondary)
+    largestSalePriceEth: BigDecimal    # TODO set to the highest sale price for the token, primary or secondary
     lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!      # updated on ever Transfer
     currentOwner: Collector             # the current owner - also has a derived field linking to this from Collector.tokens
@@ -474,9 +476,15 @@ type Artist @entity {
     supply: BigInt!
 
     issuedCount: BigInt!
-    salesCount: BigInt!
 
     totalValueInEth: BigDecimal!
+    salesCount: BigInt!
+
+    totalPrimarySales: BigInt # TODO
+    totalPrimarySalesInEth: BigDecimal # TODO
+
+    totalSecondarySales: BigInt # TODO
+    totalSecondarySalesInEth: BigDecimal # TODO
 
     highestSaleValueInEth: BigDecimal!
     highestSaleToken: Token
@@ -490,8 +498,6 @@ type Artist @entity {
     editions: [Edition!]! @derivedFrom(field: "artist")
 
     mintingConfig: ArtistMintingConfig!
-
-    # FIXME handle secondary sales payments
 }
 
 # A single collector who has at sometime held a KO asset

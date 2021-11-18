@@ -157,9 +157,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
-    // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, editionEntity.editionNmber, event.params._tokenId, event.params._amount)
 
     editionEntity.save();
 

@@ -1,6 +1,6 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
-import {Edition, ListedToken, TokenOffer} from "../../../generated/schema";
+import {Collective, Edition, ListedToken, TokenOffer} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -177,6 +177,13 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     activityEventService.recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
     tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._currentOwner, event.params._price)
 
+    if (edition.collective) {
+        let collective = Collective.load(edition.collective.toString()) as Collective
+        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._tokenId, event.params._price);
+    } else {
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._price)
+    }
+
     token.save()
 }
 
@@ -249,13 +256,16 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
-    // recordArtistCounts(edition.artistAccount, event.params._amount)
-
     // Edition updates
     let edition = Edition.load(token.edition) as Edition
     edition.save();
+
+    if (edition.collective) {
+        let collective = Collective.load(edition.collective.toString()) as Collective
+        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._tokenId, event.params._amount);
+    } else {
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
+    }
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
@@ -454,9 +464,12 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._finalPrice);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._winner, event.params._finalPrice);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(edition.artistAccount.toHexString()), event.params._id, event.params._finalPrice)
-    // recordArtistCounts(edition.artistAccount, event.params._amount)
+    if (edition.collective) {
+        let collective = Collective.load(edition.collective.toString()) as Collective
+        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._id, event.params._finalPrice);
+    } else {
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._id, event.params._finalPrice)
+    }
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)
 }
