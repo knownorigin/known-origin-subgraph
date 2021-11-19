@@ -36,6 +36,8 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseCount = ZERO
+    tokenEntity.largestSecondaryValueInEth = ZERO_BIG_DECIMAL
+    tokenEntity.largestSalePriceEth = ZERO_BIG_DECIMAL
     tokenEntity.editionActive = true
     tokenEntity.artistAccount = ZERO_ADDRESS
     tokenEntity.isListed = false

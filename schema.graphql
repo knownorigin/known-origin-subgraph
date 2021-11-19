@@ -135,20 +135,20 @@ type Token @entity {
     edition: Edition!
     tokenURI: String!
     metadata: MetaData
-    birthTimestamp: BigInt!             # initial transfer from zero address
-    primaryValueInEth: BigDecimal!      # when it sold from an edition on KO
-    secondaryValueInEth: BigDecimal    # TODO largest secondary sale in ETH
-    totalPurchaseValue: BigDecimal!     # tally of all purchases (primary & secondary)
-    totalPurchaseCount: BigInt!         # tally of the number of purchases (primary & secondary)
-    largestSalePriceEth: BigDecimal    # TODO set to the highest sale price for the token, primary or secondary
-    lastSalePriceInEth: BigDecimal!     # known last sale if we capture it (primary & secondary)
-    lastTransferTimestamp: BigInt!      # updated on ever Transfer
-    currentOwner: Collector             # the current owner - also has a derived field linking to this from Collector.tokens
-    allOwners: [Collector!]!            # list (set) of all unique owners
-    transfers: [TransferEvent!]!        # total number of token transfers made
-    tokenEvents: [TokenEvent!]!         # list of token events siuch as secondary sales and transfers
-    openOffer: TokenOffer,              # current top active offer on a token
-    currentTopBidder: Bytes             # current active top bidder on the secondary market for this token
+    birthTimestamp: BigInt!                 # initial transfer from zero address
+    primaryValueInEth: BigDecimal!          # when it sold from an edition on KO
+    totalPurchaseValue: BigDecimal!         # tally of all purchases (primary & secondary)
+    totalPurchaseCount: BigInt!             # tally of the number of purchases (primary & secondary)
+    largestSecondaryValueInEth: BigDecimal! # largest secondary sale in ETH
+    largestSalePriceEth: BigDecimal!        # set to the highest sale price for the token, primary or secondary
+    lastSalePriceInEth: BigDecimal!         # known last sale if we capture it (primary & secondary)
+    lastTransferTimestamp: BigInt!          # updated on ever Transfer
+    currentOwner: Collector                 # the current owner - also has a derived field linking to this from Collector.tokens
+    allOwners: [Collector!]!                # list (set) of all unique owners
+    transfers: [TransferEvent!]!            # total number of token transfers made
+    tokenEvents: [TokenEvent!]!             # list of token events such as secondary sales and transfers
+    openOffer: TokenOffer,                  # current top active offer on a token
+    currentTopBidder: Bytes                 # current active top bidder on the secondary market for this token
     artistAccount: Bytes! # address
     editionActive: Boolean!
 
@@ -480,11 +480,11 @@ type Artist @entity {
     totalValueInEth: BigDecimal!
     salesCount: BigInt!
 
-    totalPrimarySales: BigInt # TODO
-    totalPrimarySalesInEth: BigDecimal # TODO
+    totalPrimarySales: BigInt!
+    totalPrimarySalesInEth: BigDecimal!
 
-    totalSecondarySales: BigInt # TODO
-    totalSecondarySalesInEth: BigDecimal # TODO
+    totalSecondarySales: BigInt!
+    totalSecondarySalesInEth: BigDecimal!
 
     highestSaleValueInEth: BigDecimal!
     highestSaleToken: Token

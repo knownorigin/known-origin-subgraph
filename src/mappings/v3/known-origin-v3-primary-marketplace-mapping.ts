@@ -671,6 +671,9 @@ function _handleTokenPrimarySale(tokenEntity: Token, price: BigInt): void {
     tokenEntity.lastSalePriceInEth = toEther(price)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(price))
+    if (tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth) {
+        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
+    }
 }
 
 function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {
@@ -684,9 +687,9 @@ function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition
 
     if (editionEntity.collective) {
         let collective = Collective.load(editionEntity.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, tokenId, price);
+        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, price, true);
     } else {
-        artistService.recordArtistValue(artistAddress, tokenId, price)
+        artistService.recordArtistValue(artistAddress, tokenId, price, true)
     }
 
     collectorService.addPrimarySaleToCollector(event.block, buyer, price);

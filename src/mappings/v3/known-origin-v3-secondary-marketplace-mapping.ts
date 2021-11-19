@@ -150,6 +150,12 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     token.lastSalePriceInEth = toEther(event.params._price)
     token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
     token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._price))
+    if (token.largestSalePriceEth < token.lastSalePriceInEth) {
+        token.largestSalePriceEth = token.lastSalePriceInEth
+    }
+    if (token.largestSecondaryValueInEth < token.lastSalePriceInEth) {
+        token.largestSecondaryValueInEth = token.lastSalePriceInEth
+    }
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
     token.listing = null
@@ -179,9 +185,9 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
 
     if (edition.collective) {
         let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._tokenId, event.params._price);
+        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._tokenId, event.params._price, false);
     } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._price)
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._price, false)
     }
 
     token.save()
@@ -240,6 +246,12 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     token.lastSalePriceInEth = toEther(event.params._amount)
     token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
     token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._amount))
+    if (token.largestSalePriceEth < token.lastSalePriceInEth) {
+        token.largestSalePriceEth = token.lastSalePriceInEth
+    }
+    if (token.largestSecondaryValueInEth < token.lastSalePriceInEth) {
+        token.largestSecondaryValueInEth = token.lastSalePriceInEth
+    }
     token.save();
 
     // Save the collector
@@ -262,9 +274,9 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
 
     if (edition.collective) {
         let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._tokenId, event.params._amount);
+        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._tokenId, event.params._amount, false);
     } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount, false)
     }
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._amount, event.params._bidder, event.params._currentOwner)
@@ -466,9 +478,9 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 
     if (edition.collective) {
         let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients, collective.splits, event.params._id, event.params._finalPrice);
+        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._id, event.params._finalPrice, false);
     } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._id, event.params._finalPrice)
+        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._id, event.params._finalPrice, false)
     }
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)

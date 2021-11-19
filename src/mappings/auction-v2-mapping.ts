@@ -141,7 +141,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
     dayService.recordDayValue(event, event.params._tokenId, event.params._amount)
-    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.params._amount, true)
 
     dayService.recordDayCounts(event, event.params._amount)
 
@@ -160,6 +160,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
+    if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
+        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
+    }
     tokenEntity.save()
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.BID_ACCEPTED, editionEntity, tokenEntity, event.params._amount, event.params._bidder)

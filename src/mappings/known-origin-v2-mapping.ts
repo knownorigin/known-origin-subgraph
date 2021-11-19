@@ -179,7 +179,7 @@ export function handlePurchase(event: Purchase): void {
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
-    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.transaction.value)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.transaction.value, true)
 
     dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
     dayService.recordDayCounts(event, event.transaction.value)
@@ -214,6 +214,9 @@ export function handlePurchase(event: Purchase): void {
         tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
         tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
         tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._priceInWei))
+        if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
+            tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
+        }
         tokenEntity.save()
     }
     editionEntity.save()

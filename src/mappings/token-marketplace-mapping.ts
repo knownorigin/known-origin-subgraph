@@ -125,6 +125,12 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
+    if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
+        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
+    }
+    if(tokenEntity.largestSecondaryValueInEth < tokenEntity.lastSalePriceInEth){
+        tokenEntity.largestSecondaryValueInEth = tokenEntity.lastSalePriceInEth
+    }
     tokenEntity.save();
 
     // Save the collector
@@ -151,7 +157,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
-    artistService.handleKodaV2CommissionSplit(contract, editionEntity.editionNmber, event.params._tokenId, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, editionEntity.editionNmber, event.params._tokenId, event.params._amount, false)
 
     editionEntity.save();
 

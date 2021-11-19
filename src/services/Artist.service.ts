@@ -1,4 +1,4 @@
-import {Address, BigDecimal, BigInt, Bytes} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
 import {Artist, ArtistMintingConfig} from "../../generated/schema";
 import {ONE, ZERO} from "../utils/constants";
 import {toEther} from "../utils/utils";
@@ -19,6 +19,10 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist.supply = ZERO
         artist.totalValueInEth = new BigDecimal(ZERO)
         artist.highestSaleValueInEth = new BigDecimal(ZERO)
+        artist.totalPrimarySales = ZERO
+        artist.totalPrimarySalesInEth = new BigDecimal(ZERO)
+        artist.totalSecondarySales = ZERO
+        artist.totalSecondarySalesInEth = new BigDecimal(ZERO)
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
 
@@ -52,22 +56,26 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     return artist
 }
 
-export function handleKodaV2CommissionSplit(contract: KnownOriginV2, editionNumber: BigInt, tokenId: BigInt, value: BigInt): void {
+export function handleKodaV2CommissionSplit(contract: KnownOriginV2, editionNumber: BigInt, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
     let artistCommission = contract.artistCommission(editionNumber)
     let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
     if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
-        recordArtistCollaborationValue(
-            [artistCommission.value0, _optionalCommission.value.value1],
-            [artistCommission.value1, _optionalCommission.value.value0],
-            tokenId,
-            value
-        )
+
+        let collaborators = new Array<Address>();
+        collaborators.push(artistCommission.value0)
+        collaborators.push(_optionalCommission.value.value1)
+
+        let splits = new Array<BigInt>();
+        splits.push(artistCommission.value1)
+        splits.push(_optionalCommission.value.value0)
+
+        recordArtistCollaborationValue(collaborators, splits, tokenId, value, isPrimarySale)
     } else {
-        recordArtistValue(artistCommission.value0, tokenId, value)
+        recordArtistValue(artistCommission.value0, tokenId, value, isPrimarySale)
     }
 }
 
-export function recordArtistCollaborationValue(artistAddresses: Array<Bytes>, commissions: Array<BigInt>, tokenId: BigInt, value: BigInt): void {
+export function recordArtistCollaborationValue(artistAddresses: Array<Address>, commissions: Array<BigInt>, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
 
     let totalCommissions: BigInt = commissions.reduce<BigInt>((previousValue: BigInt, currentValue: BigInt) => {
         return previousValue.plus(currentValue)
@@ -77,17 +85,17 @@ export function recordArtistCollaborationValue(artistAddresses: Array<Bytes>, co
         let artistAddress = artistAddresses[i];
         let artistCommission = commissions[i];
 
-        let totalSaleValue = BigInt.fromI32(value.toI32())
+        let totalSaleValue = value
 
         let saleAllocation = totalSaleValue
             .div(totalCommissions)
             .times(artistCommission)
 
-        recordArtistValue(Address.fromString(artistAddress.toHexString()), tokenId, saleAllocation)
+        recordArtistValue(artistAddress, tokenId, saleAllocation, isPrimarySale)
     }
 }
 
-export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt): void {
+export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
     let artist = loadOrCreateArtist(artistAddress)
 
     artist.totalValueInEth = artist.totalValueInEth.plus(toEther(value))
@@ -99,6 +107,14 @@ export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value
 
     if (value > ZERO) {
         artist.salesCount = artist.salesCount.plus(ONE)
+    }
+
+    if (isPrimarySale) {
+        artist.totalPrimarySales = artist.totalPrimarySales.plus(ONE)
+        artist.totalPrimarySalesInEth = artist.totalPrimarySalesInEth.plus(toEther(value))
+    } else {
+        artist.totalSecondarySales = artist.totalSecondarySales.plus(ONE)
+        artist.totalSecondarySalesInEth = artist.totalSecondarySalesInEth.plus(toEther(value))
     }
 
     artist.save()
