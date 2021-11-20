@@ -183,12 +183,13 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     activityEventService.recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
     tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._currentOwner, event.params._price)
 
-    if (edition.collective) {
-        let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._tokenId, event.params._price, false);
-    } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._price, false)
-    }
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._tokenId,
+        event.params._price,
+        edition.collective,
+        false
+    )
 
     token.save()
 }
@@ -272,12 +273,13 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     let edition = Edition.load(token.edition) as Edition
     edition.save();
 
-    if (edition.collective) {
-        let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._tokenId, event.params._amount, false);
-    } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount, false)
-    }
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._tokenId,
+        event.params._amount,
+        edition.collective,
+        false
+    )
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
@@ -476,12 +478,13 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._finalPrice);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._winner, event.params._finalPrice);
 
-    if (edition.collective) {
-        let collective = Collective.load(edition.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, event.params._id, event.params._finalPrice, false);
-    } else {
-        artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._id, event.params._finalPrice, false)
-    }
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._id,
+        event.params._finalPrice,
+        edition.collective,
+        false
+    )
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)
 }

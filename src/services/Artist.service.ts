@@ -1,5 +1,5 @@
 import {Address, BigDecimal, BigInt} from "@graphprotocol/graph-ts/index";
-import {Artist, ArtistMintingConfig} from "../../generated/schema";
+import {Artist, ArtistMintingConfig, Collective} from "../../generated/schema";
 import {ONE, ZERO} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
@@ -56,7 +56,22 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     return artist
 }
 
-export function handleKodaV2CommissionSplit(contract: KnownOriginV2, editionNumber: BigInt, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
+export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: BigInt, tokenSalePriceInWei: BigInt, collectiveId: String | null, isPrimarySale: boolean): void {
+    if (collectiveId) {
+        let collective = Collective.load(collectiveId.toString()) as Collective
+        recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
+    } else {
+        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
+    }
+}
+
+export function handleKodaV2CommissionSplit(
+    contract: KnownOriginV2,
+    editionNumber: BigInt,
+    tokenId: BigInt,
+    tokenSalePriceInWei: BigInt,
+    isPrimarySale: boolean
+): void {
     let artistCommission = contract.artistCommission(editionNumber)
     let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
     if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
@@ -69,13 +84,19 @@ export function handleKodaV2CommissionSplit(contract: KnownOriginV2, editionNumb
         splits.push(artistCommission.value1)
         splits.push(_optionalCommission.value.value0)
 
-        recordArtistCollaborationValue(collaborators, splits, tokenId, value, isPrimarySale)
+        recordArtistCollaborationValue(collaborators, splits, tokenId, tokenSalePriceInWei, isPrimarySale)
     } else {
-        recordArtistValue(artistCommission.value0, tokenId, value, isPrimarySale)
+        recordArtistValue(artistCommission.value0, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
 }
 
-export function recordArtistCollaborationValue(artistAddresses: Array<Address>, commissions: Array<BigInt>, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
+export function recordArtistCollaborationValue(
+    artistAddresses: Array<Address>,
+    commissions: Array<BigInt>,
+    tokenId: BigInt,
+    tokenSalePriceInWei: BigInt,
+    isPrimarySale: boolean
+): void {
 
     let totalCommissions: BigInt = commissions.reduce<BigInt>((previousValue: BigInt, currentValue: BigInt) => {
         return previousValue.plus(currentValue)
@@ -85,36 +106,44 @@ export function recordArtistCollaborationValue(artistAddresses: Array<Address>, 
         let artistAddress = artistAddresses[i];
         let artistCommission = commissions[i];
 
-        let totalSaleValue = value
+        let totalSaleValue = tokenSalePriceInWei
 
         let saleAllocation = totalSaleValue
             .div(totalCommissions)
             .times(artistCommission)
 
-        recordArtistValue(artistAddress, tokenId, saleAllocation, isPrimarySale)
+        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, saleAllocation, isPrimarySale)
     }
 }
 
-export function recordArtistValue(artistAddress: Address, tokenId: BigInt, value: BigInt, isPrimarySale: boolean): void {
+export function recordArtistValue(
+    artistAddress: Address,
+    tokenId: BigInt,
+    tokenSalePriceInWei: BigInt,
+    artistProportionOfSaleInWei: BigInt,
+    isPrimarySale: boolean
+): void {
     let artist = loadOrCreateArtist(artistAddress)
 
-    artist.totalValueInEth = artist.totalValueInEth.plus(toEther(value))
+    artist.totalValueInEth = artist.totalValueInEth.plus(toEther(tokenSalePriceInWei))
 
-    if (toEther(value) > artist.highestSaleValueInEth) {
+    // record highest sale for the full token value
+    if (toEther(tokenSalePriceInWei) > artist.highestSaleValueInEth) {
         artist.highestSaleToken = tokenId.toString()
-        artist.highestSaleValueInEth = toEther(value)
+        artist.highestSaleValueInEth = toEther(tokenSalePriceInWei)
     }
 
-    if (value > ZERO) {
+    if (tokenSalePriceInWei > ZERO) {
         artist.salesCount = artist.salesCount.plus(ONE)
-    }
 
-    if (isPrimarySale) {
-        artist.totalPrimarySales = artist.totalPrimarySales.plus(ONE)
-        artist.totalPrimarySalesInEth = artist.totalPrimarySalesInEth.plus(toEther(value))
-    } else {
-        artist.totalSecondarySales = artist.totalSecondarySales.plus(ONE)
-        artist.totalSecondarySalesInEth = artist.totalSecondarySalesInEth.plus(toEther(value))
+        // record the total sales earnings for the artist
+        if (isPrimarySale) {
+            artist.totalPrimarySales = artist.totalPrimarySales.plus(ONE)
+            artist.totalPrimarySalesInEth = artist.totalPrimarySalesInEth.plus(toEther(artistProportionOfSaleInWei))
+        } else {
+            artist.totalSecondarySales = artist.totalSecondarySales.plus(ONE)
+            artist.totalSecondarySalesInEth = artist.totalSecondarySalesInEth.plus(toEther(artistProportionOfSaleInWei))
+        }
     }
 
     artist.save()

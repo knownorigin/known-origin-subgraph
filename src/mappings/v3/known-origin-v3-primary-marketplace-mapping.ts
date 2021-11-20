@@ -3,7 +3,7 @@ import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Address, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {BigInt} from "@graphprotocol/graph-ts";
 
-import {Collective, Collector, Edition, Token} from "../../../generated/schema";
+import {Collector, Edition, Token} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -684,13 +684,7 @@ function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition
     dayService.recordDayIssued(event, tokenId)
 
     artistService.recordArtistIssued(artistAddress)
-
-    if (editionEntity.collective) {
-        let collective = Collective.load(editionEntity.collective.toString()) as Collective
-        artistService.recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, price, true);
-    } else {
-        artistService.recordArtistValue(artistAddress, tokenId, price, true)
-    }
+    artistService.handleKodaV3CommissionSplit(artistAddress, tokenId, price, editionEntity.collective, true)
 
     collectorService.addPrimarySaleToCollector(event.block, buyer, price);
 }
