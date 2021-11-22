@@ -1,6 +1,6 @@
 import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Token} from "../../generated/schema";
-import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,
@@ -12,7 +12,7 @@ import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as SaleTypes from "../utils/SaleTypes";
-import {KODAV3PrimaryMarketplace} from "../../generated/KODAV3PrimaryMarketplace/KODAV3PrimaryMarketplace";
+import {toEther} from "../utils/utils";
 
 function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])
@@ -36,6 +36,8 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.lastSalePriceInEth = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseValue = ZERO_BIG_DECIMAL
     tokenEntity.totalPurchaseCount = ZERO
+    tokenEntity.largestSecondaryValueInEth = ZERO_BIG_DECIMAL
+    tokenEntity.largestSalePriceEth = ZERO_BIG_DECIMAL
     tokenEntity.editionActive = true
     tokenEntity.artistAccount = ZERO_ADDRESS
     tokenEntity.isListed = false
@@ -151,4 +153,25 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
     }
 
     return tokenEntity as Token;
+}
+
+
+export function recordTokenSaleMetrics(tokenEntity: Token, salePriceInWei: BigInt, isPrimarySale: boolean): Token {
+    tokenEntity.lastSalePriceInEth = toEther(salePriceInWei)
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
+    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(salePriceInWei))
+
+    if (isPrimarySale) {
+        tokenEntity.primaryValueInEth = tokenEntity.lastSalePriceInEth
+    } else {
+        if (tokenEntity.largestSecondaryValueInEth < tokenEntity.lastSalePriceInEth) {
+            tokenEntity.largestSecondaryValueInEth = tokenEntity.lastSalePriceInEth
+        }
+    }
+
+    if (tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth) {
+        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
+    }
+
+    return tokenEntity;
 }

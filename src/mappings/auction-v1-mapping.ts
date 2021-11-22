@@ -1,10 +1,10 @@
 import {
-    BidPlaced,
-    BidAccepted,
-    BidWithdrawn,
-    BidIncreased,
     AuctionCancelled,
-    BidderRefunded
+    BidAccepted,
+    BidderRefunded,
+    BidIncreased,
+    BidPlaced,
+    BidWithdrawn
 } from "../../generated/ArtistAcceptingBidsV1/ArtistAcceptingBidsV1";
 
 import {ONE} from "../utils/constants";
@@ -66,10 +66,9 @@ export function handleBidAccepted(event: BidAccepted): void {
     // BidAccepted emit Transfer & Minted events
     // COUNTS HANDLED IN MINTED
     dayService.recordDayValue(event, event.params._tokenId, event.params._amount)
-    artistService.recordArtistValue(artistAddress, event.params._tokenId, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.params._amount, true)
 
     dayService.recordDayCounts(event, event.params._amount)
-    artistService.recordArtistCounts(artistAddress, event.params._amount)
 
     dayService.recordDayBidAcceptedCount(event)
 
@@ -79,10 +78,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // Set price against token
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
-    tokenEntity.primaryValueInEth = toEther(event.params._amount)
-    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
+    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._amount, true)
     tokenEntity.save()
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.BID_ACCEPTED, editionEntity, tokenEntity, event.params._amount, event.params._bidder)

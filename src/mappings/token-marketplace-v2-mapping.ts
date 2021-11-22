@@ -128,9 +128,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.listing = null
     tokenEntity.currentOwner = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
+    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._amount, false)
     tokenEntity.save();
 
     // Save the collector
@@ -157,9 +155,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(editionEntity.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
-    // recordArtistCounts(editionEntity.artistAccount, event.params._amount)
+    artistService.handleKodaV2CommissionSplit(contract, editionEntity.editionNmber, event.params._tokenId, event.params._amount, false)
 
     editionEntity.save();
 
@@ -231,9 +227,9 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     tokenEntity.isListed = false;
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY
     tokenEntity.currentOwner = collectorService.loadOrCreateCollector(event.params._buyer, event.block).id
-    tokenEntity.lastSalePriceInEth = toEther(event.params._price)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._price))
+    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._price, false)
+
+    // listing info
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listing = null
@@ -268,7 +264,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
     dayService.recordDaySecondaryTotalValue(event, event.params._price)
 
-    // FIXME record artist royalties
+    artistService.handleKodaV2CommissionSplit(contract, editionEntity.editionNmber, event.params._tokenId, event.params._price, false)
 }
 
 

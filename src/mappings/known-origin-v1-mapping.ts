@@ -5,24 +5,14 @@ import {
 } from "../../generated/KnownOriginV1/KnownOriginV1"
 
 import {
-    loadDayFromEvent,
-    recordDayCounts,
-    recordDayIssued,
-    recordDayTransfer,
-    recordDayValue
+    recordDayTransfer, recordDayValue,
 } from "../services/Day.service";
-import {
-    loadOrCreateArtist,
-    recordArtistCounts,
-    recordArtistIssued,
-    recordArtistValue
-} from "../services/Artist.service";
-import {ONE} from "../utils/constants";
-import {getArtistAddress} from "../services/AddressMapping.service";
 import {addPrimarySaleToCollector} from "../services/Collector.service";
 import {log} from "@graphprotocol/graph-ts/index";
+import {recordArtistValue} from "../services/Artist.service";
+import {getArtistAddress} from "../services/AddressMapping.service";
 
-// FIXME need to think about this a bit more...
+// FIXME KODA v1 needs full integration
 export function handlePurchase(event: PurchasedWithEther): void {
     log.info("KO V1 handlePurchase() called for event address {}", [event.address.toHexString()]);
 
@@ -30,20 +20,10 @@ export function handlePurchase(event: PurchasedWithEther): void {
 
     // Record Artist Data
     let tokenId = event.params._tokenId
-    // let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
+    let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
 
-    // recordArtistValue(artistAddress, tokenId, event.transaction.value)
-    // recordDayValue(event, event.params._tokenId, event.transaction.value)
-
-    // recordDayCounts(event, event.transaction.value)
-    // recordArtistCounts(artistAddress, event.transaction.value)
-
-    // recordDayIssued(event, tokenId)
-    // recordArtistIssued(artistAddress)
-
-    // let artist = loadOrCreateArtist(artistAddress)
-    // artist.supply = artist.supply.plus(ONE)
-    // artist.save()
+    recordArtistValue(artistAddress, tokenId, event.transaction.value, event.transaction.value, true)
+    recordDayValue(event, event.params._tokenId, event.transaction.value)
 
     addPrimarySaleToCollector(event.block, event.params._buyer, event.transaction.value);
 }

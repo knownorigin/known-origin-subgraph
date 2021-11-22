@@ -1,6 +1,6 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
-import {Edition, ListedToken, TokenOffer} from "../../../generated/schema";
+import {Collective, Edition, ListedToken, TokenOffer} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -147,9 +147,9 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     token.isListed = false;
     token.salesType = SaleTypes.OFFERS_ONLY
     token.currentOwner = collectorService.loadOrCreateCollector(event.params._buyer, event.block).id
-    token.lastSalePriceInEth = toEther(event.params._price)
-    token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
-    token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._price))
+
+    token = tokenService.recordTokenSaleMetrics(token, event.params._price, false)
+
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
     token.listing = null
@@ -176,6 +176,14 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
 
     activityEventService.recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
     tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._currentOwner, event.params._price)
+
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._tokenId,
+        event.params._price,
+        edition.collective,
+        false
+    )
 
     token.save()
 }
@@ -230,9 +238,7 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     token.currentTopBidder = null
     token.listing = null
     token.currentOwner = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
-    token.lastSalePriceInEth = toEther(event.params._amount)
-    token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
-    token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._amount))
+    token = tokenService.recordTokenSaleMetrics(token, event.params._amount, false)
     token.save();
 
     // Save the collector
@@ -249,13 +255,17 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._amount);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._bidder, event.params._amount);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(token.artistAccount.toHexString()), event.params._tokenId, event.params._amount)
-    // recordArtistCounts(edition.artistAccount, event.params._amount)
-
     // Edition updates
     let edition = Edition.load(token.edition) as Edition
     edition.save();
+
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._tokenId,
+        event.params._amount,
+        edition.collective,
+        false
+    )
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._amount, event.params._bidder, event.params._currentOwner)
 }
@@ -454,9 +464,13 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._finalPrice);
     collectorService.addSecondaryPurchaseToCollector(event.block, event.params._winner, event.params._finalPrice);
 
-    // FIXME only record artist royalties
-    artistService.recordArtistValue(Address.fromString(edition.artistAccount.toHexString()), event.params._id, event.params._finalPrice)
-    // recordArtistCounts(edition.artistAccount, event.params._amount)
+    artistService.handleKodaV3CommissionSplit(
+        Address.fromString(token.artistAccount.toHexString()),
+        event.params._id,
+        event.params._finalPrice,
+        edition.collective,
+        false
+    )
 
     activityEventService.recordSecondaryBidAccepted(event, token, edition, event.params._finalPrice, event.params._winner, event.params._currentOwner)
 }

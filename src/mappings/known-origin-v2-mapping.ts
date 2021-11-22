@@ -179,11 +179,10 @@ export function handlePurchase(event: Purchase): void {
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
-    artistService.recordArtistValue(artistAddress, event.params._tokenId, event.transaction.value)
-    dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.transaction.value, true)
 
+    dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
     dayService.recordDayCounts(event, event.transaction.value)
-    artistService.recordArtistCounts(artistAddress, event.transaction.value)
 
     // Action edition data changes
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
@@ -211,10 +210,7 @@ export function handlePurchase(event: Purchase): void {
 
         // Set price against token
         let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
-        tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
-        tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
-        tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-        tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._priceInWei))
+        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._priceInWei, true)
         tokenEntity.save()
     }
     editionEntity.save()
