@@ -210,13 +210,7 @@ export function handlePurchase(event: Purchase): void {
 
         // Set price against token
         let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
-        tokenEntity.primaryValueInEth = toEther(event.params._priceInWei)
-        tokenEntity.lastSalePriceInEth = toEther(event.params._priceInWei)
-        tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-        tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._priceInWei))
-        if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
-            tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
-        }
+        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._priceInWei, true)
         tokenEntity.save()
     }
     editionEntity.save()

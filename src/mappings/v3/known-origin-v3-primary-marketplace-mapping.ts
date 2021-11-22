@@ -667,13 +667,7 @@ function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector,
 }
 
 function _handleTokenPrimarySale(tokenEntity: Token, price: BigInt): void {
-    tokenEntity.primaryValueInEth = toEther(price)
-    tokenEntity.lastSalePriceInEth = toEther(price)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(price))
-    if (tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth) {
-        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
-    }
+    tokenService.recordTokenSaleMetrics(tokenEntity, price, true)
 }
 
 function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {

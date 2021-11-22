@@ -147,15 +147,9 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     token.isListed = false;
     token.salesType = SaleTypes.OFFERS_ONLY
     token.currentOwner = collectorService.loadOrCreateCollector(event.params._buyer, event.block).id
-    token.lastSalePriceInEth = toEther(event.params._price)
-    token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
-    token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._price))
-    if (token.largestSalePriceEth < token.lastSalePriceInEth) {
-        token.largestSalePriceEth = token.lastSalePriceInEth
-    }
-    if (token.largestSecondaryValueInEth < token.lastSalePriceInEth) {
-        token.largestSecondaryValueInEth = token.lastSalePriceInEth
-    }
+
+    token = tokenService.recordTokenSaleMetrics(token, event.params._price, false)
+
     token.listPrice = ZERO_BIG_DECIMAL
     token.lister = null
     token.listing = null
@@ -244,15 +238,7 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     token.currentTopBidder = null
     token.listing = null
     token.currentOwner = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
-    token.lastSalePriceInEth = toEther(event.params._amount)
-    token.totalPurchaseCount = token.totalPurchaseCount.plus(ONE)
-    token.totalPurchaseValue = token.totalPurchaseValue.plus(toEther(event.params._amount))
-    if (token.largestSalePriceEth < token.lastSalePriceInEth) {
-        token.largestSalePriceEth = token.lastSalePriceInEth
-    }
-    if (token.largestSecondaryValueInEth < token.lastSalePriceInEth) {
-        token.largestSecondaryValueInEth = token.lastSalePriceInEth
-    }
+    token = tokenService.recordTokenSaleMetrics(token, event.params._amount, false)
     token.save();
 
     // Save the collector

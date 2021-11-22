@@ -122,15 +122,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.currentOwner = collectorService.loadOrCreateCollector(event.params._bidder, event.block).id
-    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
-    if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
-        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
-    }
-    if(tokenEntity.largestSecondaryValueInEth < tokenEntity.lastSalePriceInEth){
-        tokenEntity.largestSecondaryValueInEth = tokenEntity.lastSalePriceInEth
-    }
+    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._amount, false)
     tokenEntity.save();
 
     // Save the collector

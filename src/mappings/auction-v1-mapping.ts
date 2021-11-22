@@ -7,7 +7,7 @@ import {
     BidWithdrawn
 } from "../../generated/ArtistAcceptingBidsV1/ArtistAcceptingBidsV1";
 
-import {ONE, ZERO} from "../utils/constants";
+import {ONE} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {getArtistAddress} from "../services/AddressMapping.service";
 import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
@@ -21,7 +21,6 @@ import * as collectorService from "../services/Collector.service";
 import * as tokenService from "../services/Token.service";
 import * as activityEventService from "../services/ActivityEvent.service";
 import * as auctionEventService from "../services/AuctionEvent.service";
-import {handleKodaV2CommissionSplit} from "../services/Artist.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginV2ForAddress(event.address)
@@ -79,13 +78,7 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // Set price against token
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
-    tokenEntity.primaryValueInEth = toEther(event.params._amount)
-    tokenEntity.lastSalePriceInEth = toEther(event.params._amount)
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
-    tokenEntity.totalPurchaseValue = tokenEntity.totalPurchaseValue.plus(toEther(event.params._amount))
-    if(tokenEntity.largestSalePriceEth < tokenEntity.lastSalePriceInEth){
-        tokenEntity.largestSalePriceEth = tokenEntity.lastSalePriceInEth
-    }
+    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.params._amount, true)
     tokenEntity.save()
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.BID_ACCEPTED, editionEntity, tokenEntity, event.params._amount, event.params._bidder)
