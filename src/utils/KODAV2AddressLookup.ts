@@ -1,6 +1,8 @@
 import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Address} from "@graphprotocol/graph-ts/index";
-import {KODA_MAINNET, KODA_RINKEBY} from "./constants";
+
+export const KODA_MAINNET = "0xFBeef911Dc5821886e1dda71586d90eD28174B7d";
+export const KODA_RINKEBY = "0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e";
 
 export function getKnownOriginV2ForAddress(address: Address): KnownOriginV2 {
 
