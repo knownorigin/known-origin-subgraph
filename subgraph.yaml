@@ -361,26 +361,19 @@ dataSources:
           handler: handleReceivedERC20
         - event: TransferERC20(indexed uint256,indexed address,indexed address,uint256)
           handler: handleTransferERC20
+        - event: ReceivedChild(indexed address,indexed uint256,indexed address,uint256)
+          handler: handleReceivedERC721
+        - event: TransferChild(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleTransferERC721
 
       file: ./src/mappings/v3/known-origin-v3-mapping.ts
 
       # medium priority
-      #
       # (update/burn)
       # EditionURIUpdated
       # EditionSalesDisabledToggled
-      #
-      # (composable)
-      # ReceivedERC20
-      # ReceivedERC20ForEdition
-      # TransferERC20
-      # ContractWhitelisted
-      # WhitelistRemoved
-      # MaxERC20sPerNFTUpdated
-      # ReceivedRoyalties
 
       # low priority
-      #
       # (permweb and unlockable content)
       # AdditionalEditionUnlockableSet
       # AdditionalEditionMetaDataSet
