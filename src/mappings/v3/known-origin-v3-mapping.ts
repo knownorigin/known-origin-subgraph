@@ -10,8 +10,10 @@ import {
     ApprovalForAll,
     ConsecutiveTransfer,
     KnownOriginV3,
+    ReceivedChild,
     ReceivedERC20,
     Transfer,
+    TransferChild,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Artist, Collector, Composable, ComposableItem, ListedToken, Token} from "../../../generated/schema";
@@ -475,6 +477,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // Strip off the composableID
     const compID: string = event.params._tokenId.toString()
+
     // Try and load the composable
     let composable: Composable | null = Composable.load(compID)
 
@@ -488,8 +491,8 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     composable.save()
 
     // Construct the itemID by combining the tokenId and contract address
-    let itemID: string = event.params._tokenId.toString().concat("/")
-    itemID = itemID.concat(event.params._erc20Contract.toHexString())
+    let itemID: string = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
+
     // Try and load the composable item
     let item: ComposableItem | null = ComposableItem.load(itemID)
 
@@ -525,8 +528,7 @@ export function handleTransferERC20(event: TransferERC20): void {
     ]);
 
     // Construct the itemID by combining the tokenId and contract address
-    let itemID: string = event.params._tokenId.toString().concat("/")
-    itemID = itemID.concat(event.params._erc20Contract.toHexString())
+    let itemID: string = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
 
     // Try and load the composable item, throwing an error if it doesn't exist
     let item: ComposableItem | null = ComposableItem.load(itemID)
@@ -544,4 +546,87 @@ export function handleTransferERC20(event: TransferERC20): void {
     } else {
         item.save()
     }
+}
+
+export function handleReceivedERC721(event: ReceivedChild): void {
+    log.info("KO V3 - handleReceivedERC721() called : from {} tokenID {} 721 Contract {} composed token ID {}", [
+        event.params._from.toHexString(),
+        event.params._tokenId.toString(),
+        event.params._childContract.toHexString(),
+        event.params._childTokenId.toString(),
+    ]);
+
+    // Strip off the composableID
+    const compID: string = event.params._tokenId.toString()
+
+    // Try and load the composable
+    let composable: Composable | null = Composable.load(compID)
+
+    // If composable doesn't exist then create it and its items array
+    if (!composable) {
+        composable = new Composable(compID)
+        composable.items = new Array<string>()
+    }
+
+    // Save the composable
+    composable.save()
+
+    // Construct the itemID by combining the tokenId, contract and child tokenId
+    let itemID: string = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId)
+
+    // Try and load the composable item
+    let item: ComposableItem | null = ComposableItem.load(itemID)
+
+    // If the item doesn't exist then create it and assign its properties
+    item = new ComposableItem(itemID)
+    item.address = event.params._childContract.toHexString()
+    item.tokenID = event.params._tokenId.toString()
+    item.type = 'ERC721'
+    item.value = event.params._childTokenId
+
+    // Save the item
+    item.save()
+
+    // Strip off the items from the composable, push the new item to it and re-assign
+    let items = composable.items;
+    items.push(item.id.toString());
+    composable.items = items;
+    composable.save()
+}
+
+export function handleTransferERC721(event: TransferChild): void {
+    log.info("KO V3 handleTransferERC721 - _childContract() called : to {} tokenID {} child contract {} child token ID {}", [
+        event.params._to.toHexString(),
+        event.params._tokenId.toString(),
+        event.params._childContract.toHexString(),
+        event.params._childTokenId.toString(),
+    ]);
+
+    // Construct the itemID by combining the tokenId and contract address
+    let itemID: string = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId);
+
+    // Try and load the composable item, throwing an error if it doesn't exist
+    let item: ComposableItem | null = ComposableItem.load(itemID)
+    if (!item) {
+        log.error("Unable to find composable item under id {}", [itemID])
+        return
+    }
+
+    store.remove('ComposableItem', itemID)
+}
+
+function _erc20ComposableItemId(_tokenId: BigInt, _erc20Contract: Address): string {
+    // Construct the itemID by combining the tokenId and contract address
+    return _tokenId.toString()
+        .concat("/")
+        .concat(_erc20Contract.toHexString())
+}
+
+function _erc721ComposableItemId(_tokenId: BigInt, _childContract: Address, _childTokenId: BigInt): string {
+    // Construct the itemID by combining the tokenId, contract and child tokenId
+    return _tokenId.toString()
+        .concat("/")
+        .concat(_childContract.toHexString())
+        .concat("/")
+        .concat(_childTokenId.toHexString())
 }
