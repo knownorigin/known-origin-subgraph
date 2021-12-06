@@ -1,4 +1,4 @@
-import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
@@ -63,11 +63,21 @@ function createEditionEvent(
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
-    event.transactionHash = rawEvent.transaction.hash;
-    event.timestamp = rawEvent.block.timestamp;
+
     if (buyer) {
         event.buyer = buyer as Address
     }
+
+    event.timestamp = rawEvent.block.timestamp;
+    event.transactionHash = rawEvent.transaction.hash;
+    event.logIndex = rawEvent.transaction.index;
+    event.eventAddress = rawEvent.address;
+    if (rawEvent.transaction.to) {
+        event.eventTxTo = rawEvent.transaction.to;
+    }
+    event.eventTxFrom = rawEvent.transaction.from;
+    event.blockNumber = rawEvent.block.number;
+
     return event
 }
 
@@ -243,11 +253,21 @@ function createTokenEvent(
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
-    event.transactionHash = rawEvent.transaction.hash;
-    event.timestamp = rawEvent.block.timestamp;
+
     if (buyer) {
         event.buyer = buyer as Address
     }
+
+    event.timestamp = rawEvent.block.timestamp;
+    event.transactionHash = rawEvent.transaction.hash;
+    event.logIndex = rawEvent.transaction.index;
+    event.eventAddress = rawEvent.address;
+    if (rawEvent.transaction.to) {
+        event.eventTxTo = rawEvent.transaction.to;
+    }
+    event.eventTxFrom = rawEvent.transaction.from;
+    event.blockNumber = rawEvent.block.number;
+
     return event
 }
 

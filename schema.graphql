@@ -2,7 +2,7 @@
 ## Time series events ##
 ########################
 
-# Generic activity stream events for history of actions including primary and secodnary sales actions & triggers
+# Generic activity stream events for history of actions including primary and secondary sales actions & triggers
 # Used for listing out token history on the token pages
 type TokenEvent @entity {
     id: ID!                     # Composite key made form multiple items
@@ -14,8 +14,15 @@ type TokenEvent @entity {
     bidder: Collector
     currentOwner: Collector
     ethValue: BigDecimal!
+
+    # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    logIndex: BigInt!
+    eventAddress: Bytes!
+    eventTxFrom: Bytes!
+    eventTxTo: Bytes
+    blockNumber: BigInt!
 }
 
 # Token events for transfers
@@ -26,8 +33,15 @@ type TransferEvent @entity {
     to: Bytes! # address
     tokenId: BigInt!
     edition: Edition!
+
+    # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    logIndex: BigInt!
+    eventAddress: Bytes!
+    eventTxFrom: Bytes!
+    eventTxTo: Bytes
+    blockNumber: BigInt!
 }
 
 # Edition primary sale auction events
@@ -38,12 +52,20 @@ type AuctionEvent @entity {
     name: String!
     bidder: Bytes!
     caller: Bytes!
-    timestamp: BigInt!
     ethValue: BigDecimal!
-    transactionHash: Bytes!
     lockupUntil: BigInt # when set the bidder who set this is locked out
+
+    # Common event details
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    logIndex: BigInt!
+    eventAddress: Bytes!
+    eventTxFrom: Bytes!
+    eventTxTo: Bytes
+    blockNumber: BigInt!
 }
 
+# Common unified event stream spanning KODA versions and various types
 type ActivityEvent @entity {
     id: ID!
     type: String!               # Token or Edition
@@ -53,17 +75,73 @@ type ActivityEvent @entity {
     token: Token                # (nullable) the token this relates to
     # accounts
     creator: Bytes!             # the original edition creator
-    creatorCommission: BigInt!  # % recieved as creator - only valid is event has value
+    creatorCommission: BigInt!  # % received as creator - only valid is event has value
     collaborator: Bytes        # (nullable) the original edition creator collaborator
-    collaboratorCommission: BigInt # (nullable) % recieved as creator - only valid is event has value
+    collaboratorCommission: BigInt # (nullable) % received as creator - only valid is event has value
     triggeredBy: Bytes!         # who fired the transaction
     buyer: Bytes                # (nullable) the buyer
     seller: Bytes               # (nullable) the seller
     # technicals
     eventValueInWei: BigInt     # (nullable) the WEI value
-    transactionHash: Bytes!     # the traneaction
-    timestamp: BigInt!          # the block confirmation time
+
+    # Common event details
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    logIndex: BigInt!
+    eventAddress: Bytes!
+    eventTxFrom: Bytes!
+    eventTxTo: Bytes
+    blockNumber: BigInt!
 }
+
+#######################
+## Free-text schemas ##
+#######################
+
+type _Schema_
+@fulltext(
+    name: "listedTokenSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "ListedToken",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
+            ]
+        }
+    ]
+)
+@fulltext(
+    name: "editionSearch",
+    language: en
+    algorithm: rank,
+    include: [
+        {
+            entity: "Edition",
+            fields: [
+                { name: "metadataName" },
+                { name: "metadataArtist" },
+                { name: "metadataArtistAccount" },
+                { name: "metadataTagString" },
+                { name: "metadataFormat" },
+                { name: "metadataTheme" },
+                { name: "primaryAssetShortType" },
+                { name: "primaryAssetActualType" },
+            ]
+        }
+    ]
+)
+
+####################################################################################
+## Main entities                                                                  ##
+## All entities below are NOT event based but are updated from a stream of events ##
+####################################################################################
 
 # Rolled up counts for a given day
 type Day @entity {
@@ -96,11 +174,7 @@ type Day @entity {
     editions: [Edition!]!
 }
 
-###################
-## Main entities ##
-###################
-
-# FIXME Only for V3 atm
+# N.B: Only for V3 atm
 type PlatformConfig @entity {
     id: ID!
 
@@ -229,46 +303,6 @@ type ComposableItem @entity {
     type: String! # Type of token, ERC20, ERC721 etc
     value: BigInt! # Number of tokens attached or the ERC721 token ID
 }
-
-type _Schema_
-@fulltext(
-    name: "listedTokenSearch",
-    language: en
-    algorithm: rank,
-    include: [
-        {
-            entity: "ListedToken",
-            fields: [
-                { name: "metadataName" },
-                { name: "metadataArtist" },
-                { name: "metadataArtistAccount" },
-                { name: "metadataTagString" },
-                { name: "primaryAssetShortType" },
-                { name: "primaryAssetActualType" },
-            ]
-        }
-    ]
-)
-@fulltext(
-    name: "editionSearch",
-    language: en
-    algorithm: rank,
-    include: [
-        {
-            entity: "Edition",
-            fields: [
-                { name: "metadataName" },
-                { name: "metadataArtist" },
-                { name: "metadataArtistAccount" },
-                { name: "metadataTagString" },
-                { name: "metadataFormat" },
-                { name: "metadataTheme" },
-                { name: "primaryAssetShortType" },
-                { name: "primaryAssetActualType" },
-            ]
-        }
-    ]
-)
 
 # Maintain an list of approved collective handlers i.e. contracts which are cloned and used
 type CollectiveHandlers @entity {
