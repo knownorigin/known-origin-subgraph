@@ -1,4 +1,4 @@
-import {ethereum, log, Address} from "@graphprotocol/graph-ts/index";
+import {Address, ethereum} from "@graphprotocol/graph-ts/index";
 import {Token, TokenEvent} from "../../generated/schema";
 import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {toEther} from "../utils/utils";
@@ -35,8 +35,8 @@ function populateEventData(event: ethereum.Event, tokenEntity: Token, from: Addr
     tokenEvent.bidder = loadOrCreateCollector(to, event.block).id
     tokenEvent.ethValue = ZERO_BIG_DECIMAL
     tokenEvent.currentOwner = loadOrCreateCollector(from, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
 
     return tokenEvent
 }
@@ -99,8 +99,8 @@ export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: 
     tokenEvent.buyer = loadOrCreateCollector(buyer, event.block).id
     tokenEvent.ethValue = priceInWei.toBigDecimal()
     tokenEvent.currentOwner = loadOrCreateCollector(getArtistAddress(Address.fromString(editionEntity.artistAccount.toHexString())), event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
 
     tokenEvent.save()
 
@@ -133,8 +133,8 @@ export function createTokenSecondaryPurchaseEvent(event: ethereum.Event, tokenId
     tokenEvent.buyer = loadOrCreateCollector(buyer, event.block).id
     tokenEvent.ethValue = priceInWei.toBigDecimal()
     tokenEvent.currentOwner = loadOrCreateCollector(seller, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
 
     tokenEvent.save()
 
@@ -168,8 +168,9 @@ export function createBidPlacedEvent(
     tokenEvent.ethValue = toEther(priceInWei)
     tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
+
     tokenEvent.save()
 
     return tokenEvent
@@ -203,8 +204,8 @@ export function createBidAcceptedEvent(
     tokenEvent.buyer = loadOrCreateCollector(bidder, event.block).id
     tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
 
     tokenEvent.save()
 
@@ -238,8 +239,8 @@ export function createBidRejectedEvent(
     tokenEvent.ethValue = toEther(priceInWei)
     tokenEvent.bidder = loadOrCreateCollector(bidder, event.block).id
     tokenEvent.currentOwner = loadOrCreateCollector(currentOwner, event.block).id
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
 
     tokenEvent.save()
 
@@ -278,9 +279,22 @@ export function createBidWithdrawnEvent(
     if (!owner.reverted) {
         tokenEvent.currentOwner = loadOrCreateCollector(owner.value, event.block).id
     }
-    tokenEvent.timestamp = timestamp
-    tokenEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, tokenEvent)
+
     tokenEvent.save()
 
     return tokenEvent
+}
+
+function populateEventDetails(event: ethereum.Event, tokenEvent: TokenEvent): void {
+    tokenEvent.timestamp = event.block.timestamp;
+    tokenEvent.transactionHash = event.transaction.hash;
+    tokenEvent.logIndex = event.transaction.index;
+    tokenEvent.eventAddress = event.address;
+    if (event.transaction.to) {
+        tokenEvent.eventTxTo = event.transaction.to;
+    }
+    tokenEvent.eventTxFrom = event.transaction.from;
+    tokenEvent.blockNumber = event.block.number;
 }

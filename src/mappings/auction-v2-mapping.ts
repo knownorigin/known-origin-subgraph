@@ -76,7 +76,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -115,7 +115,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(event.params._amount));
 
-    let auctionEvent = auctionEventFactory.createBidAccepted(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidAccepted(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     // Record sale against the edition
@@ -176,7 +176,7 @@ export function handleBidRejected(event: BidRejected): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = auctionEventFactory.createBidRejected(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidRejected(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -204,7 +204,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = auctionEventFactory.createBidWithdrawn(event.block, event.transaction, editionEntity, event.params._bidder);
+    let auctionEvent = auctionEventFactory.createBidWithdrawn(event, editionEntity, event.params._bidder);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -231,7 +231,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     let contract = getKnownOriginV2ForAddress(event.address)
     let editionEntity = editionService.loadOrCreateV2Edition(event.params._editionNumber, event.block, contract)
 
-    let auctionEvent = auctionEventFactory.createBidIncreased(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidIncreased(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory

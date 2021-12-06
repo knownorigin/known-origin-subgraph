@@ -10,13 +10,27 @@ export function createTransferEvent(event: ethereum.Event, tokenId: BigInt, from
         .concat(event.transaction.hash.toHexString())
         .concat("-")
         .concat(event.transaction.index.toString());
+
     let transferEvent = new TransferEvent(transferEventId);
     transferEvent.version = edition.version
     transferEvent.edition = edition.id;
     transferEvent.from = from;
     transferEvent.to = to;
     transferEvent.tokenId = tokenId;
-    transferEvent.timestamp = event.block.timestamp;
-    transferEvent.transactionHash = event.transaction.hash
+
+    populateEventDetails(event, transferEvent)
+
     return transferEvent;
+}
+
+function populateEventDetails(event: ethereum.Event, transferEvent: TransferEvent): void {
+    transferEvent.timestamp = event.block.timestamp;
+    transferEvent.transactionHash = event.transaction.hash;
+    transferEvent.logIndex = event.transaction.index;
+    transferEvent.eventAddress = event.address;
+    if (event.transaction.to) {
+        transferEvent.eventTxTo = event.transaction.to;
+    }
+    transferEvent.eventTxFrom = event.transaction.from;
+    transferEvent.blockNumber = event.block.number;
 }

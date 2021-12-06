@@ -180,7 +180,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     let editionEntity = editionService.loadOrCreateV3Edition(event.params._editionId, event.block, kodaV3Contract)
     editionEntity.save()
 
-    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -209,7 +209,7 @@ export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
 
     let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
 
-    let auctionEvent = auctionEventFactory.createBidWithdrawn(event.block, event.transaction, editionEntity, event.params._bidder);
+    let auctionEvent = auctionEventFactory.createBidWithdrawn(event, editionEntity, event.params._bidder);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -237,7 +237,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
 
     let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
 
-    let auctionEvent = auctionEventFactory.createBidAccepted(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidAccepted(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     // Maintain bidding history list
@@ -270,7 +270,7 @@ export function handleEditionBidRejected(event: EditionBidRejected): void {
 
     let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
 
-    let auctionEvent = auctionEventFactory.createBidRejected(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidRejected(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -425,7 +425,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.RESERVE_BID_PLACED, editionEntity, null, event.params._amount, event.params._bidder)
 
-    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event.block, event.transaction, editionEntity, event.params._bidder, event.params._amount);
+    let auctionEvent = auctionEventFactory.createBidPlacedEvent(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
@@ -454,7 +454,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     let collector = collectorService.loadOrCreateCollector(event.params._winner, event.block);
     collector.save();
 
-    let auctionEvent = auctionEventFactory.createBidAccepted(event.block, event.transaction, editionEntity, event.params._winner, event.params._finalPrice);
+    let auctionEvent = auctionEventFactory.createBidAccepted(event, editionEntity, event.params._winner, event.params._finalPrice);
     auctionEvent.save()
 
     // Maintain bidding history list
