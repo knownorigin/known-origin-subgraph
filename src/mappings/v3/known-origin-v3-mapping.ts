@@ -314,22 +314,22 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
                 }
             }
 
-            // total supply edition - original size burns a.k.a. the total edition supply
-            editionEntity.totalSupply = editionEntity.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
+            // total supply is the total tokens issued minus the burns
+            editionEntity.totalSupply = BigInt.fromI32(tokenIds.length).minus(BigInt.fromI32(totalBurnt))
 
             // track the total burns on the edition
             editionEntity.totalBurnt = BigInt.fromI32(totalBurnt)
 
             // keep these in sync = total supply = edition size & total available = edition size
-            editionEntity.totalAvailable = editionEntity.totalSupply
+            editionEntity.totalAvailable = editionEntity.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
 
             // total remaining primary sales - original edition size minus tokens issued
             //                                 a new token ID is created on ever 'first transfer' up to edition size
             let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
             editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
 
-            // If total supply completely removed
-            if (editionEntity.totalSupply.equals(ZERO)) {
+            // If total burnt is original size then disable the edition
+            if (editionEntity.totalBurnt.equals(editionEntity.originalEditionSize)) {
 
                 // reduce supply of artist if edition is completely removed
                 let artist = artistService.loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
