@@ -81,6 +81,8 @@ type ActivityEvent @entity {
     triggeredBy: Bytes!         # who fired the transaction
     buyer: Bytes                # (nullable) the buyer
     seller: Bytes               # (nullable) the seller
+    stakeholderAddresses: [Bytes!]!     # the addresses that interacted during the event
+
     # technicals
     eventValueInWei: BigInt     # (nullable) the WEI value
 
