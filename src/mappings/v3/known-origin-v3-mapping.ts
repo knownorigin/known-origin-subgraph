@@ -169,9 +169,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Reduce remaining supply for each mint -
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
 
-        // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
-        // editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
-
         // if the edition is in a state reserve sale, has an active bid and is now sold out
         if (editionEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION)
             && editionEntity.activeBid !== null
