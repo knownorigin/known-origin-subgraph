@@ -1,4 +1,4 @@
-import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
@@ -62,6 +62,7 @@ function createEditionEvent(
     event.collaborator = edition.optionalCommissionAccount || ZERO_ADDRESS;
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.eventValueInWei = value;
+    event.stakeholderAddresses = getStakeholderAddressesPrimary(edition, buyer)
     event.triggeredBy = rawEvent.transaction.from;
 
     if (buyer) {
@@ -89,6 +90,16 @@ function editionActivityId(edition: Edition, rawEvent: ethereum.Event): string {
         .concat(rawEvent.transaction.hash.toHexString())
         .concat("-")
         .concat(rawEvent.logIndex.toString());
+}
+
+function getStakeholderAddressesPrimary(edition: Edition, buyer: Address | null): Bytes[] {
+    let arr = edition.collaborators
+
+    if(buyer) {
+        arr.push(buyer as Bytes)
+    }
+
+    return arr
 }
 
 ////////////////////////////////
@@ -251,6 +262,7 @@ function createTokenEvent(
     event.creatorCommission = edition.artistCommission || ZERO;
     event.collaborator = edition.optionalCommissionAccount || ZERO_ADDRESS;
     event.collaboratorCommission = edition.optionalCommissionRate;
+    event.stakeholderAddresses = getStakeholderAddressesSecondary(edition.artistAccount, seller, buyer)
     event.eventValueInWei = value;
     event.triggeredBy = rawEvent.transaction.from;
 
@@ -319,4 +331,19 @@ export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, v
         event = createEditionEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, value, null)
         event.save()
     }
+}
+
+function getStakeholderAddressesSecondary(creator: Bytes, seller: Address | null, buyer: Address | null): Bytes[] {
+    let arr: Array<Bytes> = new Array<Bytes>()
+    arr.push(creator as Bytes)
+
+    if(buyer) {
+        arr.push(buyer as Bytes)
+    }
+
+    if(seller) {
+        arr.push(seller as Bytes)
+    }
+
+    return arr
 }
