@@ -169,9 +169,6 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Reduce remaining supply for each mint -
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
 
-        // Record supply being consumed (useful to know how many are left in a edition i.e. available = supply = remaining)
-        editionEntity.totalSupply = BigInt.fromI32(tokenIds.length);
-
         // if the edition is in a state reserve sale, has an active bid and is now sold out
         if (editionEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION)
             && editionEntity.activeBid !== null
@@ -295,54 +292,53 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         activityEventService.recordTransfer(event, tokenEntity, editionEntity, to);
 
-        ////////////////////////////////////
-        // Handle burns as a special case //
-        ////////////////////////////////////
+        //////////////////////////////////////////////////////////////////////////////////
+        // Everytime a transfer is made we work out burns, mints, available, unsold etc //
+        //////////////////////////////////////////////////////////////////////////////////
 
-        if (to.equals(DEAD_ADDRESS) || to.equals(ZERO_ADDRESS)) {
+        // work out how many have been burnt vs issued
+        let totalBurnt: i32 = 0;
+        for (let i: i32 = 0; i < tokenIds.length; i++) {
+            let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+            if (token) {
+                const tokenOwner = Address.fromString(token.currentOwner);
 
-            // work out how many have been burnt vs issued
-            let totalBurnt: i32 = 0;
-            for (let i: i32 = 0; i < tokenIds.length; i++) {
-                let token = store.get("Token", tokenIds[i].toString()) as Token | null;
-                if (token) {
-                    const tokenOwner = Address.fromString(token.currentOwner);
-                    if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
-                        // record total burnt tokens
-                        totalBurnt = totalBurnt + 1
-                    }
+                // Either zero address or dead address we classify  as burns
+                if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
+                    // record total burnt tokens
+                    totalBurnt = totalBurnt + 1
                 }
             }
-
-            // total supply is the total tokens issued minus the burns
-            editionEntity.totalSupply = BigInt.fromI32(tokenIds.length).minus(BigInt.fromI32(totalBurnt))
-
-            // track the total burns on the edition
-            editionEntity.totalBurnt = BigInt.fromI32(totalBurnt)
-
-            // keep these in sync = total supply = edition size & total available = edition size
-            editionEntity.totalAvailable = editionEntity.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
-
-            // total remaining primary sales - original edition size minus tokens issued
-            //                                 a new token ID is created on ever 'first transfer' up to edition size
-            let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
-            editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
-
-            // If total burnt is original size then disable the edition
-            if (editionEntity.totalBurnt.equals(editionEntity.originalEditionSize)) {
-
-                // reduce supply of artist if edition is completely removed
-                let artist = artistService.loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
-                artist.supply = artist.supply.minus(BigInt.fromI32(totalBurnt));
-                artist.editionsCount = artist.editionsCount.minus(ONE);
-                artist.save()
-
-                // Set edition as disable as the entity has been removed
-                editionEntity.active = false;
-            }
-
-            editionEntity.save()
         }
+
+        // total supply is the total tokens issued minus the burns
+        editionEntity.totalSupply = BigInt.fromI32(tokenIds.length).minus(BigInt.fromI32(totalBurnt))
+
+        // track the total burns on the edition
+        editionEntity.totalBurnt = BigInt.fromI32(totalBurnt)
+
+        // keep these in sync = total supply = edition size & total available = edition size
+        editionEntity.totalAvailable = editionEntity.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
+
+        // total remaining primary sales - original edition size minus tokens issued
+        //                                 a new token ID is created on ever 'first transfer' up to edition size
+        let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
+        editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
+
+        // If total burnt is original size then disable the edition
+        if (editionEntity.totalBurnt.equals(editionEntity.originalEditionSize)) {
+
+            // reduce supply of artist if edition is completely removed
+            let artist = artistService.loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+            artist.supply = artist.supply.minus(BigInt.fromI32(totalBurnt));
+            artist.editionsCount = artist.editionsCount.minus(ONE);
+            artist.save()
+
+            // Set edition as disable as the entity has been removed
+            editionEntity.active = false;
+        }
+
+        editionEntity.save()
     }
 }
 
