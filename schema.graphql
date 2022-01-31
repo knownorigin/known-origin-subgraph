@@ -333,7 +333,7 @@ type Edition @entity {
     editionData: Bytes # bytes32 - some data about the edition
 
     salesType: BigInt! # The current sales mechanic being used on this edition
-    revokedApproval: Boolean! # set to true once if th primary seller has revoked approved the marketplace
+    revokedApproval: Boolean! # set to true once if the primary seller has revoked approved the marketplace
 
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
