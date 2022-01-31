@@ -274,7 +274,6 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.stepSaleStepPrice = ZERO
     editionEntity.currentStep = ZERO
-    editionEntity.notForSale = false
 
     // Reserve auction fields
     editionEntity.reserveAuctionSeller = ZERO_ADDRESS
