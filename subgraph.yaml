@@ -7,11 +7,11 @@ dataSources:
   ## KODA V1 (Alpha)
   - kind: ethereum/contract
     name: KnownOriginV1
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72'
+      address: '0xf0d6a41a3f011e06260f9133101b82b405539167'
       abi: KnownOriginV1
-      startBlock: 5381767
+      startBlock: 2054121
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -31,11 +31,11 @@ dataSources:
   ## KODA V2 (Current)
   - kind: ethereum/contract
     name: KnownOriginV2
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
+      address: '0x2df6816286c583a7ef8637cd4b7cc1cc62f6161e'
       abi: KnownOriginV2
-      startBlock: 6270484
+      startBlock: 2932902
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -43,6 +43,8 @@ dataSources:
       entities:
         - Transfer
         - EditionCreated
+        - ApprovalForAll
+        - Approval
       abis:
         - name: KnownOriginV2
           file: ./abis/kodav2/KnownOriginV2.json
@@ -62,16 +64,23 @@ dataSources:
           # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
+
+        # Approvals
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
+      address: '0xC68373E4BCCA5630A82b35b989e9F4Adb1d375c8'
       abi: ArtistAcceptingBidsV1
-      startBlock: 6568535
+      startBlock: 3211004
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -106,11 +115,11 @@ dataSources:
   ## Auctions V2 (Current)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639'
+      address: '0xb05DA17AA04ac6f57821513572fb7760a203cd98'
       abi: ArtistAcceptingBidsV2
-      startBlock: 7271800
+      startBlock: 3620647
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -151,11 +160,11 @@ dataSources:
   ## TokenMarketplace V1 (Current)
   - kind: ethereum/contract
     name: TokenMarketplace
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
+      address: '0x2AA618cF1Cc8C1223EB0571676E73c7e8117Ed45'
       abi: TokenMarketplace
-      startBlock: 9927235
+      startBlock: 6321886
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -196,11 +205,11 @@ dataSources:
   ## TokenMarketplace V2 (Current)
   - kind: ethereum/contract
     name: TokenMarketplaceV2
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xc322cdd03f34b6d25633c2abbc8716a058c7fe9e'
+      address: '0xdAc14EA324560DdC4d0722D8E7636F852697FB69'
       abi: TokenMarketplaceV2
-      startBlock: 11250377
+      startBlock: 7541509
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -255,11 +264,11 @@ dataSources:
   ## Artist Burner (Current)
   - kind: ethereum/contract
     name: ArtistEditionBurner
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166'
+      address: '0x9dd4cf0a7f1c195cc42c3bfaaa92c70c039058e9'
       abi: ArtistEditionBurner
-      startBlock: 10098533
+      startBlock: 6514505
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -284,11 +293,11 @@ dataSources:
   ## Artist Tools V2
   - kind: ethereum/contract
     name: ArtistEditionControlsV2
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x5327cf8b4127e81013d706330043e8bf5673f50d'
+      address: '0xC2d4Df7b146a5e5898e66DAa759213882e06dE59'
       abi: ArtistEditionControlsV2
-      startBlock: 7271760
+      startBlock: 3919265
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -307,11 +316,11 @@ dataSources:
   ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B'
+      address: '0x3abC8C65A9516D5B487A9F7423aE2C4c6a3Adf51'
       abi: KnownOriginV3
-      startBlock: 13080871
+      startBlock: 9738449
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -381,11 +390,11 @@ dataSources:
   ## KOAccessControls for KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KOAccessControls
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x9028b16494a9363F3EAaf381a6Fde67296abc68C'
+      address: '0x64699bC10a4E4639eD319397200CF16fa0aD1Fc9'
       abi: KOAccessControls
-      startBlock: 13080815
+      startBlock: 9738444
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -411,11 +420,11 @@ dataSources:
   ## MintingFactory for KODA V3
   - kind: ethereum/contract
     name: MintingFactoryConfig
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x36CF31019816E9490959F75Ba9164eDd304De01D'
+      address: '0x35668a2Fd45452231a2639edcb887cD45951e597'
       abi: MintingFactory
-      startBlock: 13081038
+      startBlock: 9738480
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -446,11 +455,11 @@ dataSources:
   ## MintingFactory for KODA V3
   - kind: ethereum/contract
     name: MintingFactoryCreations
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x36CF31019816E9490959F75Ba9164eDd304De01D'
+      address: '0x35668a2Fd45452231a2639edcb887cD45951e597'
       abi: MintingFactory
-      startBlock: 13081038
+      startBlock: 9738480
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -472,11 +481,11 @@ dataSources:
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
     name: KODAV3PrimaryMarketplace
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xf11ED77fD65840b64602526DDC38311E9923c81B'
+      address: '0x4B7A8Ce7d004C5c68207F355F6A838C941FF6B96'
       abi: KODAV3PrimaryMarketplace
-      startBlock: 13080907
+      startBlock: 9738462
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -560,11 +569,11 @@ dataSources:
   # Token Secondary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
     name: KODAV3SecondaryMarketplace
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A'
+      address: '0x1f31f522b51cd5cB847c7228fE3bF9916800aaDe'
       abi: KODAV3SecondaryMarketplace
-      startBlock: 13080962
+      startBlock: 9738467
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -647,11 +656,11 @@ dataSources:
   # Collab registry
   - kind: ethereum/contract
     name: KODAV3CollabRegistry
-    network: mainnet
+    network: rinkeby
     source:
-      address: '0xe28e054d596576841682e8c993E415B3ccB2EBeB'
+      address: '0x3005BB70CF6099e919Fb2E846abC8Fa1C710f613'
       abi: KODAV3CollabRegistry
-      startBlock: 13080981
+      startBlock: 9738473
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

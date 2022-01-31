@@ -38,6 +38,7 @@ import * as dayService from "../../services/Day.service";
 import * as editionService from "../../services/Edition.service";
 
 import * as SaleTypes from "../../utils/SaleTypes";
+import * as KodaVersions from "../../utils/KodaVersions";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -387,7 +388,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     log.info("KO V3 handleApprovalForAll() called - owner {} operator {} approved {}", [
         event.params.owner.toHexString(),
         event.params.operator.toHexString(),
-        event.params.approved ? "TURE" : "FALSE",
+        event.params.approved ? "TRUE" : "FALSE",
     ]);
 
     let kodaV3Contract = KnownOriginV3.bind(event.address);
@@ -397,9 +398,10 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
         || event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
 
         // clear the edition
-        _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+        _setArtistEditionsNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+
         // clear any tokens being sold from the owner
-        _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+        _setCollectorTokensNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
     }
 
     // Primary & Secondary Sale Marketplace V3 (rinkeby)
@@ -407,20 +409,26 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
         || event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
 
         // clear the edition
-        _setArtistEditionsNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+        _setArtistEditionsNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+
         // clear any tokens being sold from the owner
-        _setCollectorTokensNotForSale(event.block, event.params.owner, !event.params.approved, kodaV3Contract);
+        _setCollectorTokensNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
     }
 }
 
 export function handleApproval(event: Approval): void {
+    log.info("KO V3 handleApproval() called - owner {} token {} approved {}", [
+        event.params.owner.toHexString(),
+        event.params.tokenId.toHexString(),
+        event.params.approved ? "TRUE" : "FALSE",
+    ]);
 
     // Primary & Secondary Sale Marketplace V3 (mainnet)
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
-            token.notForSale = false;
+            token.revokedApproval = false;
             token.save()
         }
     }
@@ -430,13 +438,13 @@ export function handleApproval(event: Approval): void {
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token) {
-            token.notForSale = false;
+            token.revokedApproval = false;
             token.save()
         }
     }
 }
 
-function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, notForSale: boolean, kodaV3Contract: KnownOriginV3): void {
+function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, approved: boolean, kodaV3Contract: KnownOriginV3): void {
     let artist: Artist | null = Artist.load(artistAddress.toHexString())
     if (artist) {
         if (artist.isSet("editions")) {
@@ -444,14 +452,16 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
             for (let i = 0; i < editionIds.length; i++) {
                 let editionId = editionIds[i];
                 let edition = editionService.loadOrCreateV3Edition(BigInt.fromString(editionId), block, kodaV3Contract);
-                edition.notForSale = notForSale
-                edition.save()
+                if (edition.version === KodaVersions.KODA_V3) {
+                    edition.revokedApproval = !approved
+                    edition.save()
+                }
             }
         }
     }
 }
 
-function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, notForSale: boolean, kodaV3Contract: KnownOriginV3): void {
+function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, approved: boolean, kodaV3Contract: KnownOriginV3): void {
     let collector: Collector | null = Collector.load(collectorAddress.toHexString())
     if (collector) {
         if (collector.isSet("tokens")) {
@@ -459,8 +469,10 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
             for (let i = 0; i < tokensIds.length; i++) {
                 let tokensId = tokensIds[i];
                 let token = tokenService.loadOrCreateV3Token(BigInt.fromString(tokensId), kodaV3Contract, block);
-                token.notForSale = notForSale
-                token.save()
+                if (token.version === KodaVersions.KODA_V3) {
+                    token.revokedApproval = !approved
+                    token.save()
+                }
             }
         }
     }

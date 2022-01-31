@@ -226,7 +226,7 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionActive: Boolean!
 
-    notForSale: Boolean! # set to true if the over removes approval for the marketplace's
+    revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     ## Token secondary market
     isListed: Boolean!
@@ -332,8 +332,8 @@ type Edition @entity {
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
 
-    salesType: BigInt! # The current sales mechnic being used on this edition
-    notForSale: Boolean! # set to true if the primary seller removes approval for the marketplace
+    salesType: BigInt! # The current sales mechanic being used on this edition
+    revokedApproval: Boolean! # set to true once if th primary seller has revoked approved the marketplace
 
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
