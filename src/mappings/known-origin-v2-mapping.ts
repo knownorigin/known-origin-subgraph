@@ -273,8 +273,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
             if (collector.isSet("tokens")) {
                 let tokensIds = collector.tokens
                 for (let i = 0; i < tokensIds.length; i++) {
-                    let tokensId = tokensIds[i];
-                    let token = tokenService.loadOrCreateV2Token(BigInt.fromString(tokensId), contract, event.block);
+                    let token = tokenService.loadOrCreateV2Token(BigInt.fromString(tokensIds[i]), contract, event.block);
                     if (token.version === KodaVersions.KODA_V3) {
                         token.revokedApproval = event.params._approved
                         token.save()
@@ -291,8 +290,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
             if (collector.isSet("tokens")) {
                 let tokensIds = collector.tokens
                 for (let i = 0; i < tokensIds.length; i++) {
-                    let tokensId = tokensIds[i];
-                    let token = tokenService.loadOrCreateV2Token(BigInt.fromString(tokensId), contract, event.block);
+                    let token = tokenService.loadOrCreateV2Token(BigInt.fromString(tokensIds[i]), contract, event.block);
                     if (token.version === KodaVersions.KODA_V3) {
                         token.revokedApproval = event.params._approved
                         token.save()

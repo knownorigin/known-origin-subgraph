@@ -450,8 +450,7 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
         if (artist.isSet("editions")) {
             let editionIds = artist.editions
             for (let i = 0; i < editionIds.length; i++) {
-                let editionId = editionIds[i];
-                let edition = editionService.loadOrCreateV3Edition(BigInt.fromString(editionId), block, kodaV3Contract);
+                let edition = editionService.loadOrCreateV3Edition(BigInt.fromString(editionIds[i]), block, kodaV3Contract);
                 if (edition.version === KodaVersions.KODA_V3) {
                     edition.revokedApproval = !approved
                     edition.save()
@@ -467,8 +466,7 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
         if (collector.isSet("tokens")) {
             let tokensIds = collector.tokens
             for (let i = 0; i < tokensIds.length; i++) {
-                let tokensId = tokensIds[i];
-                let token = tokenService.loadOrCreateV3Token(BigInt.fromString(tokensId), kodaV3Contract, block);
+                let token = tokenService.loadOrCreateV3Token(BigInt.fromString(tokensIds[i]), kodaV3Contract, block);
                 if (token.version === KodaVersions.KODA_V3) {
                     token.revokedApproval = !approved
                     token.save()
