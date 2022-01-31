@@ -45,7 +45,6 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     tokenEntity.listPrice = ZERO_BIG_DECIMAL
     tokenEntity.lister = null
     tokenEntity.listingTimestamp = ZERO
-    tokenEntity.notForSale = false
 
     return tokenEntity
 }

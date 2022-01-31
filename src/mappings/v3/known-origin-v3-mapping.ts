@@ -116,7 +116,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Ensure approval for token ID is cleared
         let approved = kodaV3Contract.getApproved(tokenId);
         if (!approved.equals(ZERO_ADDRESS)) {
-            tokenEntity.notForSale = false;
+            tokenEntity.revokedApproval = false;
         }
 
         ///////////////
