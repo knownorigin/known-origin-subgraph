@@ -43,6 +43,8 @@ dataSources:
       entities:
         - Transfer
         - EditionCreated
+        - ApprovalForAll
+        - Approval
       abis:
         - name: KnownOriginV2
           file: ./abis/kodav2/KnownOriginV2.json
@@ -62,6 +64,13 @@ dataSources:
           # Emitted on ever token creation event regardless of purchase, gift, auction etc
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
+
+        # Approvals
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+
       file: ./src/mappings/known-origin-v2-mapping.ts
 
   ## Auctions V1 (Deprecated)
@@ -304,7 +313,6 @@ dataSources:
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
 
   # only include the below in V3
-{{#include-koda-v3}}
   ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
@@ -682,5 +690,3 @@ dataSources:
         - event: HandlerRemoved(address)
           handler: handleHandlerRemoved
       file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
-
-  {{/include-koda-v3}}

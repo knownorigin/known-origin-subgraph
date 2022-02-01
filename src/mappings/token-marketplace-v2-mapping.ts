@@ -293,6 +293,7 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = collectorService.loadOrCreateCollector(event.params._seller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
+    listedToken.revokedApproval = !contract.isApprovedForAll(event.params._seller, event.address)
 
     // Add filter flags
     let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);

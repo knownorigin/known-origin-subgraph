@@ -19,6 +19,7 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.listPrice = ZERO_BIG_DECIMAL;
         listedToken.lister = ZERO_ADDRESS.toHexString();
         listedToken.listingTimestamp = ZERO;
+        listedToken.revokedApproval = false;
 
         listedToken.metadataName = edition.metadataName;
         listedToken.metadataArtist = edition.metadataArtist;
@@ -42,7 +43,7 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.reserveAuctionCanEmergencyExit = false
         listedToken.isReserveAuctionResultedDateTime = ZERO
         listedToken.isReserveAuctionInSuddenDeath = false
-        
+
         listedToken.save();
     }
 
