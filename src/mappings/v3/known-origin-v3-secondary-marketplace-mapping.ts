@@ -1,6 +1,6 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
-import {Collective, Edition, ListedToken, TokenOffer} from "../../../generated/schema";
+import {Edition, ListedToken, TokenOffer} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -88,6 +88,8 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = collectorService.loadOrCreateCollector(listingSeller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
+
+    // Ensure approval is checked
     listedToken.revokedApproval = !koda.isApprovedForAll(listingSeller, event.address)
 
     // Add filter flags
@@ -337,6 +339,8 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     let edition = Edition.load(token.edition) as Edition
 
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+
+    // Ensure approval is checked during listing
     listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
 
     let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
@@ -382,6 +386,8 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
     listedToken.reserveAuctionBidder = event.params._bidder
     listedToken.reserveAuctionBid = event.params._amount
+
+    // Ensure approval is checked
     listedToken.revokedApproval = !koda.isApprovedForAll(event.params._currentOwner, event.address)
 
     // Check if the bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
@@ -553,7 +559,6 @@ export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBid
     store.remove("ListedToken", event.params._id.toString());
 }
 
-
 export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionConvertedToBuyItNow): void {
     log.info("KO V3 handleReserveAuctionConvertedToBuyItNow() called - tokenId {}", [event.params._id.toString()]);
 
@@ -569,8 +574,11 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     token.listPrice = toEther(event.params._listingPrice)
 
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
-    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
     listedToken.listPrice = toEther(event.params._listingPrice)
+
+    // Ensure approval is checked
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
+
     _clearReserveAuctionFields(listedToken)
     listedToken.save()
 

@@ -10,7 +10,7 @@ import {
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
 import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {toEther} from "../utils/utils";
 
@@ -116,6 +116,12 @@ export function handleTransfer(event: Transfer): void {
 
     // TOKEN
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+
+    // Ensure approval for token ID is cleared
+    let approved = contract.getApproved(event.params._tokenId);
+    if (!approved.equals(ZERO_ADDRESS)) {
+        tokenEntity.revokedApproval = false;
+    }
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
@@ -278,8 +284,8 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
         ]);
 
         let collector: Collector | null = Collector.load(event.params._owner.toHexString())
-        if (collector != null && collector.isSet('tokens')) {
-            let tokensIds = collector.tokens
+        if (collector != null && collector.isSet('tokenIds')) {
+            let tokensIds = collector.tokenIds
             for (let i = 0; i < tokensIds.length; i++) {
 
                 let token: Token | null = Token.load(tokensIds[i])
@@ -310,7 +316,7 @@ export function handleApproval(event: Approval): void {
         || event.params._approved.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
         let token: Token | null = Token.load(event.params._tokenId.toString())
         if (token != null) {
-            token.revokedApproval = false;
+            token.revokedApproval = ZERO_ADDRESS.equals(event.params._approved);
             token.save()
         }
     }

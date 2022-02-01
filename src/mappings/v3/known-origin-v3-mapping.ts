@@ -301,7 +301,9 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         //////////////////////////////////////////////////////////////////////////////////
 
         // work out how many have been burnt vs issued
+        // @ts-ignore
         let totalBurnt: i32 = 0;
+        // @ts-ignore
         for (let i: i32 = 0; i < tokenIds.length; i++) {
             let token = store.get("Token", tokenIds[i].toString()) as Token | null;
             if (token) {
@@ -425,13 +427,19 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
 }
 
 export function handleApproval(event: Approval): void {
+    log.info("KO V3 handleApproval() called - owner {} token {} approved {}", [
+        event.params.owner.toHexString(),
+        event.params.tokenId.toString(),
+        event.params.approved ? "TRUE" : "FALSE",
+    ]);
 
     // Primary & Secondary Sale Marketplace V3 (mainnet)
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
+
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
-            token.revokedApproval = false;
+            token.revokedApproval = ZERO_ADDRESS.equals(event.params.approved);
             token.save()
         }
     }
@@ -439,9 +447,10 @@ export function handleApproval(event: Approval): void {
     // Primary & Secondary Sale Marketplace V3 (rinkeby)
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
+
         let token: Token | null = Token.load(event.params.tokenId.toString())
         if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
-            token.revokedApproval = false;
+            token.revokedApproval = ZERO_ADDRESS.equals(event.params.approved);
             token.save()
         }
     }
