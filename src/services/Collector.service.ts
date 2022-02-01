@@ -23,7 +23,7 @@ export function loadOrCreateCollector(address: Address, block: ethereum.Block): 
 
         collectorEntity.totalPurchaseCount = ZERO;
         collectorEntity.totalPurchaseEthSpent = ZERO_BIG_DECIMAL;
-        collectorEntity.tokens = new Array<string>();
+        collectorEntity.tokenIds = new Array<string>();
     }
     collectorEntity.save()
     return collectorEntity as Collector;
