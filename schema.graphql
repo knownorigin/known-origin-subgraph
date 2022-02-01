@@ -531,7 +531,7 @@ type Artist @entity {
 
     # all artist editions - derivedFrom only work at query time, not runtime!
     editions: [Edition!]! @derivedFrom(field: "artist")
-    editionsIds: [Edition!]!
+    editionIds: [Edition!]!
 
     mintingConfig: ArtistMintingConfig!
 }
