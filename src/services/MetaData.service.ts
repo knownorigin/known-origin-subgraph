@@ -18,117 +18,118 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
         let result: Result<JSONValue, boolean> = json.try_fromBytes(data as Bytes)
 
         if (result.isOk) {
-            // Do something with the JSON value
-            let jsonData = result.value;
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('name')) {
-                // @ts-ignore
-                metaData.name = jsonData.toObject().get('name').toString()
+            let jsonData = result.value;
+            if (!jsonData || !isObject(jsonData)) {
+                metaData.name = "";
+                metaData.description = "";
+                metaData.image = "";
+                return metaData;
+            }
+
+            let name: JSONValue | null = jsonData.toObject().get('name')
+            if (name) {
+                metaData.name = name.toString()
             } else {
                 metaData.name = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('description')) {
-                // @ts-ignore
-                metaData.description = jsonData.toObject().get('description').toString()
+            let description: JSONValue | null = jsonData.toObject().get('description');
+            if (description) {
+                metaData.description = description.toString()
             } else {
                 metaData.description = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('image')) {
-                // @ts-ignore
-                metaData.image = jsonData.toObject().get('image').toString()
+            let image: JSONValue | null = jsonData.toObject().get('image');
+            if (image) {
+                metaData.image = image.toString()
             } else {
                 metaData.image = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('animation_url')) {
-                let animation_url: JSONValue | null = jsonData.toObject().get('animation_url');
-                if (animation_url) {
-                    let isNull: boolean = (animation_url as JSONValue).isNull();
-                    if (!isNull) {
-                        log.info("Setting animation_url for {} ", [ipfsHash]);
-                        metaData.animation_url = animation_url.toString()
-                    }
+            let animation_url: JSONValue | null = jsonData.toObject().get('animation_url');
+            if (animation_url) {
+                let isNull: boolean = (animation_url as JSONValue).isNull();
+                if (!isNull) {
+                    log.debug("Setting animation_url for {} ", [ipfsHash]);
+                    metaData.animation_url = animation_url.toString()
                 }
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('image_sphere')) {
-                let image_sphere: JSONValue | null = jsonData.toObject().get('image_sphere');
-                if (image_sphere) {
-                    let isNull: boolean = (image_sphere as JSONValue).isNull();
-                    if (!isNull) {
-                        log.info("Setting image_sphere for {} ", [ipfsHash]);
-                        metaData.image_sphere = image_sphere.toBool()
-                    }
+            let image_sphere: JSONValue | null = jsonData.toObject().get('image_sphere');
+            if (image_sphere) {
+                let isNull: boolean = (image_sphere as JSONValue).isNull();
+                if (!isNull) {
+                    log.debug("Setting image_sphere for {} ", [ipfsHash]);
+                    metaData.image_sphere = image_sphere.toBool()
                 }
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
-                let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
+            let attributes: JSONValue | null = jsonData.toObject().get('attributes');
+            if (attributes && !(attributes as JSONValue).isNull()) {
 
                 ///////////////////////////////
                 // Artist, scarcity and tags //
                 ///////////////////////////////
 
-                if (isObject(attributes) && attributes.toObject().isSet('scarcity')) {
-                    // @ts-ignore
-                    metaData.scarcity = attributes.toObject().get('scarcity').toString()
+                let scarcity: JSONValue | null = attributes.toObject().get('scarcity');
+                if (scarcity) {
+                    let isNull: boolean = (scarcity as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.scarcity = scarcity.toString()
+                    }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('artist')) {
-                    // @ts-ignore
-                    metaData.artist = attributes.toObject().get('artist').toString()
+                let artist: JSONValue | null = attributes.toObject().get('artist');
+                if (artist) {
+                    let isNull: boolean = (artist as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.artist = artist.toString()
+                    }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
-                    let rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
+                let rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
+                if (rawProductionYear) {
                     let isNull: boolean = (rawProductionYear as JSONValue).isNull();
                     if (!isNull) {
-                        // @ts-ignore
                         metaData.production_year = rawProductionYear.toString()
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('format')) {
-                    let rawFormat: JSONValue | null = attributes.toObject().get('format');
+                let rawFormat: JSONValue | null = attributes.toObject().get('format');
+                if (rawFormat) {
                     let isNull: boolean = (rawFormat as JSONValue).isNull();
                     if (!isNull) {
-                        // @ts-ignore
                         metaData.format = rawFormat.toString()
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('theme')) {
-                    let rawTheme: JSONValue | null = attributes.toObject().get('theme');
+                let rawTheme: JSONValue | null = attributes.toObject().get('theme');
+                if (rawTheme) {
                     let isNull: boolean = (rawTheme as JSONValue).isNull();
                     if (!isNull) {
-                        // @ts-ignore
                         metaData.theme = rawTheme.toString()
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('nsfw')) {
-                    let rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
+                let rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
+                if (rawNsfw) {
                     let isNull: boolean = (rawNsfw as JSONValue).isNull();
                     if (!isNull) {
-                        // @ts-ignore
                         metaData.nsfw = rawNsfw.toBool()
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet("tags")) {
-                    let rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
-                    if (rawTagsObj) {
-                        let isNull: boolean = (rawTagsObj as JSONValue).isNull();
-                        if (!isNull) {
-                            // @ts-ignore
-                            let rawTags: JSONValue[] = rawTagsObj.toArray();
-                            let tags: Array<string> = rawTags.map<string>((value, i, values) => {
-                                return value.toString();
-                            });
-                            metaData.tags = tags;
-                        }
+                let rawTagsObj: JSONValue | null = attributes.toObject().get("tags");
+                if (rawTagsObj) {
+                    let isNull: boolean = (rawTagsObj as JSONValue).isNull();
+                    if (!isNull) {
+                        let rawTags: JSONValue[] = rawTagsObj.toArray();
+                        let tags: Array<string> = rawTags.map<string>((value, i, values) => {
+                            return value.toString();
+                        });
+                        metaData.tags = tags;
                     }
                 }
 
@@ -136,23 +137,19 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 // Image //
                 ///////////
 
-                if (isObject(attributes) && attributes.toObject().isSet('asset_type')) {
-                    let assetType: JSONValue | null = attributes.toObject().get('asset_type');
-                    if (assetType) {
-                        let isNull: boolean = (assetType as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.image_type = assetType.toString()
-                        }
+                let assetType: JSONValue | null = attributes.toObject().get('asset_type');
+                if (assetType) {
+                    let isNull: boolean = (assetType as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.image_type = assetType.toString()
                     }
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('asset_size_in_bytes')) {
-                    let assetSizeInBytes: JSONValue | null = attributes.toObject().get('asset_size_in_bytes');
-                    if (assetSizeInBytes) {
-                        let isNull: boolean = (assetSizeInBytes as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.image_size_in_bytes = assetSizeInBytes.toBigInt()
-                        }
+                let assetSizeInBytes: JSONValue | null = attributes.toObject().get('asset_size_in_bytes');
+                if (assetSizeInBytes) {
+                    let isNull: boolean = (assetSizeInBytes as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.image_size_in_bytes = assetSizeInBytes.toBigInt()
                     }
                 }
 
@@ -160,26 +157,21 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 // Cover image //
                 /////////////////
 
-                if (isObject(attributes) && attributes.toObject().isSet('cover_image_type')) {
-                    let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
-                    if (coverImageType) {
-                        let isNull: boolean = (coverImageType as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.cover_image_type = coverImageType.toString()
-                        }
-
-                        // Set cover image to image if cover image is found
-                        metaData.cover_image = metaData.image
+                let coverImageType: JSONValue | null = attributes.toObject().get('cover_image_type');
+                if (coverImageType) {
+                    let isNull: boolean = (coverImageType as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.cover_image_type = coverImageType.toString()
                     }
+                    // Set cover image to image if cover image is found
+                    metaData.cover_image = metaData.image
                 }
 
-                if (isObject(attributes) && attributes.toObject().isSet('cover_image_size_in_bytes')) {
-                    let coverImageSizeInBytes: JSONValue | null = attributes.toObject().get('cover_image_size_in_bytes');
-                    if (coverImageSizeInBytes) {
-                        let isNull: boolean = (coverImageSizeInBytes as JSONValue).isNull();
-                        if (!isNull) {
-                            metaData.cover_image_size_in_bytes = coverImageSizeInBytes.toBigInt()
-                        }
+                let coverImageSizeInBytes: JSONValue | null = attributes.toObject().get('cover_image_size_in_bytes');
+                if (coverImageSizeInBytes) {
+                    let isNull: boolean = (coverImageSizeInBytes as JSONValue).isNull();
+                    if (!isNull) {
+                        metaData.cover_image_size_in_bytes = coverImageSizeInBytes.toBigInt()
                     }
                 }
             }

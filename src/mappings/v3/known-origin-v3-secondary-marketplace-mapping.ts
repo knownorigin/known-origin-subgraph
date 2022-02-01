@@ -98,7 +98,6 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
         event.params._id.toString(),
         biggestTokenId.toString(),
-        listedToken.seriesNumber.toString(),
         edition.totalAvailable.toString(),
         edition.totalSupply.toString()
     ]);

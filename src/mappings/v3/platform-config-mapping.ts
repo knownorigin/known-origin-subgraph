@@ -70,6 +70,8 @@ export function handleAdminFrequencyOverrideChanged(event: AdminFrequencyOverrid
     artistEntity.save()
 
     const config = ArtistMintingConfig.load(artistEntity.mintingConfig)
-    config.frequencyOverride = event.params._override;
-    config.save()
+    if (config) {
+        config.frequencyOverride = event.params._override;
+        config.save()
+    }
 }

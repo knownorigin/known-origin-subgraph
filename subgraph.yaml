@@ -14,7 +14,7 @@ dataSources:
       startBlock: 2054121
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -38,7 +38,7 @@ dataSources:
       startBlock: 2932902
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -65,11 +65,12 @@ dataSources:
         - event: Minted(indexed uint256,indexed uint256,indexed address)
           handler: handleMinted
 
-        # Approvals
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
+         # TODO this does not work!
+#        # Approvals
+#        - event: ApprovalForAll(indexed address,indexed address,bool)
+#          handler: handleApprovalForAll
+#        - event: Approval(indexed address,indexed address,indexed uint256)
+#          handler: handleApproval
 
       file: ./src/mappings/known-origin-v2-mapping.ts
 
@@ -83,7 +84,7 @@ dataSources:
       startBlock: 3211004
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AuctionEnabled
@@ -122,7 +123,7 @@ dataSources:
       startBlock: 3620647
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AuctionEnabled
@@ -167,7 +168,7 @@ dataSources:
       startBlock: 6321886
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - BidPlaced
@@ -212,7 +213,7 @@ dataSources:
       startBlock: 7541509
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AuctionEnabled
@@ -271,7 +272,7 @@ dataSources:
       startBlock: 6514505
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - EditionDeactivated
@@ -300,7 +301,7 @@ dataSources:
       startBlock: 3919265
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -312,7 +313,6 @@ dataSources:
           handler: handlePriceChangedEvent
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
 
-  # only include the below in V3
   ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
@@ -323,7 +323,7 @@ dataSources:
       startBlock: 9738449
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - Transfer
@@ -397,7 +397,7 @@ dataSources:
       startBlock: 9738444
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AdminUpdateArtistAccessMerkleRoot
@@ -427,7 +427,7 @@ dataSources:
       startBlock: 9738480
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - MintingFactoryCreated
@@ -462,7 +462,7 @@ dataSources:
       startBlock: 9738480
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - EditionMintedAndListed
@@ -488,7 +488,7 @@ dataSources:
       startBlock: 9738462
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AdminUpdatePlatformPrimarySaleCommission
@@ -576,7 +576,7 @@ dataSources:
       startBlock: 9738467
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - AdminUpdateSecondaryRoyalty
@@ -663,7 +663,7 @@ dataSources:
       startBlock: 9738473
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       entities:
         - RoyaltyRecipientCreated
@@ -690,4 +690,3 @@ dataSources:
         - event: HandlerRemoved(address)
           handler: handleHandlerRemoved
       file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
-

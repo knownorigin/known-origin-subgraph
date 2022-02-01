@@ -217,16 +217,16 @@ type Token @entity {
     largestSalePriceEth: BigDecimal!        # set to the highest sale price for the token, primary or secondary
     lastSalePriceInEth: BigDecimal!         # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!          # updated on ever Transfer
-    currentOwner: Collector                 # the current owner - also has a derived field linking to this from Collector.tokens
+    currentOwner: Collector!                # the current owner - also has a derived field linking to this from Collector.tokens
     allOwners: [Collector!]!                # list (set) of all unique owners
     transfers: [TransferEvent!]!            # total number of token transfers made
     tokenEvents: [TokenEvent!]!             # list of token events such as secondary sales and transfers
-    openOffer: TokenOffer,                  # current top active offer on a token
+    openOffer: TokenOffer                   # current top active offer on a token
     currentTopBidder: Bytes                 # current active top bidder on the secondary market for this token
     artistAccount: Bytes! # address
     editionActive: Boolean!
 
-    revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
+    revokedApproval: Boolean # set to true once if the seller has revoked approved the marketplace
 
     ## Token secondary market
     isListed: Boolean!
@@ -333,7 +333,7 @@ type Edition @entity {
     editionData: Bytes # bytes32 - some data about the edition
 
     salesType: BigInt! # The current sales mechanic being used on this edition
-    revokedApproval: Boolean! # set to true once if the primary seller has revoked approved the marketplace
+    revokedApproval: Boolean # set to true once if the primary seller has revoked approved the marketplace
 
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
@@ -408,7 +408,7 @@ type Edition @entity {
     # Events and histories
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
-    allOwners: [Collector]! # list (set) of all unique owners for all tokens
+    allOwners: [Collector!]! # list (set) of all unique owners for all tokens
     currentOwners: [Collector!]! # Current set of owners for this edition
     primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
 
@@ -556,6 +556,6 @@ type Collector @entity {
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
 
-    # all tokekns currently owned by this account
+    # all tokens currently owned by this account
     tokens: [Token!]! @derivedFrom(field: "currentOwner")
 }

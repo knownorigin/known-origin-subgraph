@@ -1,4 +1,4 @@
-import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
+import {Address, BigInt, Bytes, ethereum, log} from "@graphprotocol/graph-ts";
 import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
@@ -94,17 +94,24 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
                 metaData.save()
                 editionEntity.metadata = metaData.id
 
-                editionEntity.metadataName = metaData.name ? metaData.name : ''
-                editionEntity.metadataArtist = metaData.artist ? metaData.artist : ''
+                const metadataName = metaData.name;
+                editionEntity.metadataName = metadataName ? metadataName : ""
+
+                const metadataArtist = metaData.artist;
+                editionEntity.metadataArtist = metadataArtist ? metadataArtist : ''
+
                 editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
                 if (metaData.image_type) {
-                    let types = splitMimeType(metaData.image_type)
+                    let types = splitMimeType(metaData.image_type as string)
                     editionEntity.primaryAssetShortType = types.primaryAssetShortType
                     editionEntity.primaryAssetActualType = types.primaryAssetActualType
                 }
                 editionEntity.hasCoverImage = metaData.cover_image !== null;
-                if (metaData.tags != null && metaData.tags.length > 0) {
-                    editionEntity.metadataTagString = metaData.tags.toString()
+                let tags: string[] | null = metaData.tags;
+                if (tags != null) {
+                    if (tags.length > 0) {
+                        editionEntity.metadataTagString = tags.toString()
+                    }
                 }
             }
         } else {
@@ -217,17 +224,28 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
             editionEntity.metadata = metaData.id
             editionEntity.metadataFormat = metaData.format
             editionEntity.metadataTheme = metaData.theme
-            editionEntity.metadataName = metaData.name ? metaData.name : ""
-            editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+
+            let metadataName = metaData.name;
+            editionEntity.metadataName = metadataName ? metadataName : ""
+
+            const metadataArtist = metaData.artist;
+            editionEntity.metadataArtist = metadataArtist ? metadataArtist : ""
+
             editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
-            if (metaData.image_type) {
-                let types = splitMimeType(metaData.image_type)
+
+            let imageType = metaData.image_type;
+            if (imageType) {
+                let types = splitMimeType(imageType)
                 editionEntity.primaryAssetShortType = types.primaryAssetShortType
                 editionEntity.primaryAssetActualType = types.primaryAssetActualType
             }
+
             editionEntity.hasCoverImage = metaData.cover_image !== null;
-            if (metaData.tags != null && metaData.tags.length > 0) {
-                editionEntity.metadataTagString = metaData.tags.toString()
+            const tags: string[] | null = metaData.tags;
+            if (tags != null) {
+                if (tags.length > 0) {
+                    editionEntity.metadataTagString = tags.toString()
+                }
             }
 
 

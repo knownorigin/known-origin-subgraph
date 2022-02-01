@@ -65,9 +65,9 @@ export function recordTokenOffer(block: ethereum.Block,
     offer.weiValue = amount
     offer.lockedUntil = lockedUntil
 
-    // @ts-ignore
     // Token holders own token
-    offer.currentOwner = loadOrCreateCollector(Address.fromString(tokenEntity.currentOwner), block).id
+    let collector = loadOrCreateCollector(Address.fromString(tokenEntity.currentOwner), block);
+    offer.currentOwner = collector.id
     offer.timestamp = block.timestamp
     offer.transactionHash = transaction.hash
     offer.token = tokenEntity.id

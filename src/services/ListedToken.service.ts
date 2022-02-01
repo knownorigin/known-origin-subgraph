@@ -1,7 +1,4 @@
-import {
-    Edition,
-    ListedToken
-} from "../../generated/schema";
+import {Edition, ListedToken} from "../../generated/schema";
 import {BigInt, log} from "@graphprotocol/graph-ts/index";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
@@ -24,8 +21,20 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.metadataArtist = edition.metadataArtist;
         listedToken.metadataArtistAccount = edition.metadataArtistAccount;
         listedToken.metadataTagString = edition.metadataTagString;
-        listedToken.primaryAssetShortType = edition.primaryAssetShortType || "";
-        listedToken.primaryAssetActualType = edition.primaryAssetActualType || "";
+
+        let primaryAssetShortType = edition.primaryAssetShortType;
+        if (primaryAssetShortType) {
+            listedToken.primaryAssetShortType = primaryAssetShortType;
+        } else {
+            listedToken.primaryAssetShortType = "";
+        }
+
+        let primaryAssetActualType = edition.primaryAssetActualType;
+        if (primaryAssetActualType) {
+            listedToken.primaryAssetActualType = primaryAssetActualType;
+        } else {
+            listedToken.primaryAssetActualType = ""
+        }
 
         // Reserve auction fields
         listedToken.reserveAuctionSeller = ZERO_ADDRESS
@@ -42,7 +51,7 @@ export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): List
         listedToken.reserveAuctionCanEmergencyExit = false
         listedToken.isReserveAuctionResultedDateTime = ZERO
         listedToken.isReserveAuctionInSuddenDeath = false
-        
+
         listedToken.save();
     }
 

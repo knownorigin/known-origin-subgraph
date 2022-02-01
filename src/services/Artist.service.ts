@@ -59,7 +59,12 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
 export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: BigInt, tokenSalePriceInWei: BigInt, collectiveId: String | null, isPrimarySale: boolean): void {
     if (collectiveId) {
         let collective = Collective.load(collectiveId.toString()) as Collective
-        recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
+
+        let recipients: Array<Address> = collective.recipients.map<Address>(value => {
+            return Address.fromString(value.toHexString());
+        });
+
+        recordArtistCollaborationValue(recipients, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
     } else {
         recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }

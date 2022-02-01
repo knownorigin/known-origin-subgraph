@@ -29,7 +29,9 @@ export function handleEditionMintedAndListed(event: EditionMintedAndListed): voi
 
     // update the current known minting rules state
     let config = ArtistMintingConfig.load(artistEntity.mintingConfig)
-    config.mints = mintingConfig.value0;
-    config.firstMintInPeriod = mintingConfig.value1;
-    config.save()
+    if (config) {
+        config.mints = mintingConfig.value0;
+        config.firstMintInPeriod = mintingConfig.value1;
+        config.save()
+    }
 }

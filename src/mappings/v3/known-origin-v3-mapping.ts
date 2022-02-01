@@ -16,7 +16,7 @@ import {
     TransferChild,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
-import {Artist, Collector, Composable, ComposableItem, ListedToken, Token} from "../../../generated/schema";
+import {Artist, Collector, Composable, ComposableItem, Edition, ListedToken, Token} from "../../../generated/schema";
 
 import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {
@@ -46,7 +46,7 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleConsecutiveTransfer(event: ConsecutiveTransfer): void {
-    log.info("KO V3 handleConsecutiveTransfer() called for token from {} to {}", [
+    log.info("KO V3 handleConsecutiveTransfer() called for token  from {} to {}", [
         event.params.fromTokenId.toString(),
         event.params.toTokenId.toString(),
     ]);
@@ -84,7 +84,12 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(artist.firstEdition))
+            const firstEdition = artist.firstEdition;
+            if (firstEdition) {
+                editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(firstEdition))
+            } else {
+                editionEntity.isGenesisEdition = false
+            }
 
             editionEntity.save()
         }
@@ -230,7 +235,8 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         let triggerredForceWithdrawalFrom = false;
 
         // if the token is in a state reserve sale, has an active bid
-        if (tokenEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION) && tokenEntity.isListed && tokenEntity.listing !== null) {
+        const listingId = tokenEntity.listing;
+        if (tokenEntity.salesType.equals(SaleTypes.RESERVE_COUNTDOWN_AUCTION) && tokenEntity.isListed && listingId !== null) {
 
             // log.warning("Possible forced token withdrawal tokenID {} from {} to {} salesType {} isListed {}", [
             //     tokenId.toString(),
@@ -240,8 +246,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             //     tokenEntity.isListed ? 'TRUE' : 'FALSE'
             // ]);
 
-            let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
-
+            let listing = store.get("ListedToken", listingId) as ListedToken;
             // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
             if (listing !== null) {
 
@@ -391,35 +396,33 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
         event.params.approved ? "TRUE" : "FALSE",
     ]);
 
-    let kodaV3Contract = KnownOriginV3.bind(event.address);
-
-    // Primary & Secondary Sale Marketplace V3 (mainnet)
+    // clear the artists edition approvals
     if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_MAINNET))
-        || event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
+        || event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
 
-        // clear the edition
-        _setArtistEditionsNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+        log.info("KO V3 handleApprovalForAll() handling edition approvals for owner {}", [
+            event.params.owner.toHexString(),
+        ]);
 
-        // clear any tokens being sold from the owner
-        _setCollectorTokensNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+        _setArtistEditionsNotForSale(event.block, event.params.owner, event.params.approved);
     }
 
-    // Primary & Secondary Sale Marketplace V3 (rinkeby)
-    if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
+    // clear any tokens being sold from the owner
+    if (event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))
         || event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
 
-        // clear the edition
-        _setArtistEditionsNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+        log.info("KO V3 handleApprovalForAll() handling token approvals for owner {}", [
+            event.params.owner.toHexString(),
+        ]);
 
-        // clear any tokens being sold from the owner
-        _setCollectorTokensNotForSale(event.block, event.params.owner, event.params.approved, kodaV3Contract);
+        _setCollectorTokensNotForSale(event.block, event.params.owner, event.params.approved);
     }
 }
 
 export function handleApproval(event: Approval): void {
     log.info("KO V3 handleApproval() called - owner {} token {} approved {}", [
         event.params.owner.toHexString(),
-        event.params.tokenId.toHexString(),
+        event.params.tokenId.toString(),
         event.params.approved ? "TRUE" : "FALSE",
     ]);
 
@@ -427,7 +430,7 @@ export function handleApproval(event: Approval): void {
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
-        if (token) {
+        if (token != null) {
             token.revokedApproval = false;
             token.save()
         }
@@ -437,40 +440,54 @@ export function handleApproval(event: Approval): void {
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
-        if (token) {
+        if (token != null) {
             token.revokedApproval = false;
             token.save()
         }
     }
 }
 
-function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, approved: boolean, kodaV3Contract: KnownOriginV3): void {
+function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, approved: boolean): void {
     let artist: Artist | null = Artist.load(artistAddress.toHexString())
-    if (artist) {
-        if (artist.isSet("editions")) {
-            let editionIds = artist.editions
-            for (let i = 0; i < editionIds.length; i++) {
-                let edition = editionService.loadOrCreateV3Edition(BigInt.fromString(editionIds[i]), block, kodaV3Contract);
-                if (edition.version === KodaVersions.KODA_V3) {
-                    edition.revokedApproval = !approved
-                    edition.save()
-                }
+    if (artist != null) {
+        let editionIds = artist.editions
+        for (let i = 0; i < editionIds.length; i++) {
+
+            let editionId = editionIds[i];
+            let edition = Edition.load(editionId);
+
+            if (edition != null && edition.version.equals(KodaVersions.KODA_V3)) {
+
+                log.info("Setting edition {} to revokedApproval {}", [
+                    editionId.toString(),
+                    (approved === false) ? "TRUE" : "FALSE"
+                ]);
+
+                edition.revokedApproval = (approved === false)
+                edition.save()
             }
         }
     }
 }
 
-function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, approved: boolean, kodaV3Contract: KnownOriginV3): void {
+function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, approved: boolean): void {
     let collector: Collector | null = Collector.load(collectorAddress.toHexString())
-    if (collector) {
-        if (collector.isSet("tokens")) {
-            let tokensIds = collector.tokens
-            for (let i = 0; i < tokensIds.length; i++) {
-                let token = tokenService.loadOrCreateV3Token(BigInt.fromString(tokensIds[i]), kodaV3Contract, block);
-                if (token.version === KodaVersions.KODA_V3) {
-                    token.revokedApproval = !approved
-                    token.save()
-                }
+    if (collector != null) {
+        let tokensIds = collector.tokens
+        for (let i = 0; i < tokensIds.length; i++) {
+
+            let tokenId = tokensIds[i];
+            let token = Token.load(tokenId);
+
+            if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
+
+                log.info("Setting token {} to revokedApproval {}", [
+                    tokenId.toString(),
+                    (approved === false) ? "TRUE" : "FALSE"
+                ]);
+
+                token.revokedApproval = (approved === false)
+                token.save()
             }
         }
     }
@@ -523,8 +540,10 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
-    items.push(item.id.toString());
-    composable.items = items;
+    if (items) {
+        items.push(item.id.toString());
+        composable.items = items;
+    }
     composable.save()
 }
 
@@ -599,8 +618,10 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
-    items.push(item.id.toString());
-    composable.items = items;
+    if (items) {
+        items.push(item.id.toString());
+        composable.items = items;
+    }
     composable.save()
 }
 

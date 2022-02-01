@@ -7,10 +7,8 @@ export function toEther(value: BigInt): BigDecimal {
 }
 
 export class ImageType {
-    // @ts-ignore
-    primaryAssetShortType: string;
-    // @ts-ignore
-    primaryAssetActualType: string;
+    primaryAssetShortType: string = "";
+    primaryAssetActualType: string = "";
 }
 
 export function splitMimeType(image_type: String): ImageType {
