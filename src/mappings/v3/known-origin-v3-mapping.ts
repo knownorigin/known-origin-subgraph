@@ -369,12 +369,13 @@ export function handleAdminArtistAccountReported(event: AdminArtistAccountReport
         event.params._account.toHexString()
     ]);
 
+    // Set editions to inactive
     let artist = artistService.loadOrCreateArtist(event.params._account)
     let editions = artist.editions;
     for (let i = 0; i < editions.length; i++) {
         let editionsId = editions[i];
         let edition = editionService.loadNonNullableEdition(BigInt.fromString(editionsId));
-        if (edition.version === KodaVersions.KODA_V3) {
+        if (edition !== null && edition.version.equals(KodaVersions.KODA_V3)) {
             edition.active = false
             edition.save()
         }
@@ -404,7 +405,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     if (event.params.operator.equals(Address.fromString(PRIMARY_SALE_MAINNET))
         || event.params.operator.equals(Address.fromString(PRIMARY_SALE_RINKEBY))) {
 
-        log.info("KO V3 handleApprovalForAll() handling edition approvals for owner {}", [
+        log.debug("KO V3 handleApprovalForAll() handling edition approvals for owner {}", [
             event.params.owner.toHexString(),
         ]);
 
@@ -415,7 +416,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     if (event.params.operator.equals(Address.fromString(SECONDARY_SALE_MAINNET))
         || event.params.operator.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
 
-        log.info("KO V3 handleApprovalForAll() handling token approvals for owner {}", [
+        log.debug("KO V3 handleApprovalForAll() handling token approvals for owner {}", [
             event.params.owner.toHexString(),
         ]);
 
@@ -454,8 +455,8 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
     ]);
 
     let artist: Artist | null = Artist.load(artistAddress.toHexString())
-    if (artist != null && artist.isSet('editions')) {
-        let editionIds = artist.editions
+    if (artist != null && artist.isSet('editionIds')) {
+        let editionIds = artist.editionIds
         for (let i = 0; i < editionIds.length; i++) {
 
             let editionId = editionIds[i];
@@ -484,8 +485,8 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
 
     let collector: Collector | null = Collector.load(collectorAddress.toHexString())
 
-    if (collector != null && collector.isSet('tokens')) {
-        let tokensIds = collector.tokens
+    if (collector != null && collector.isSet('tokenIds')) {
+        let tokensIds = collector.tokenIds
         for (let i = 0; i < tokensIds.length; i++) {
 
             let tokenId = tokensIds[i];

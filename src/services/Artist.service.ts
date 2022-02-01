@@ -52,9 +52,9 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.lastEdition = editionNumber
     artist.lastEditionTimestamp = created
 
-    let editions = artist.editions;
+    let editions = artist.editionIds;
     editions.push(editionNumber);
-    artist.editions = editions;
+    artist.editionIds = editions;
 
     artist.save()
 

@@ -273,7 +273,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     if (event.params._operator.equals(Address.fromString(KODA_V2_MAINNET_SECONDARY_MARKETPLACE))
         || event.params._operator.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
 
-        log.info("KO V2 handleApprovalForAll() handling token approvals for owner {}", [
+        log.debug("KO V2 handleApprovalForAll() handling token approvals for owner {}", [
             event.params._owner.toHexString(),
         ]);
 
@@ -285,7 +285,7 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
                 let token: Token | null = Token.load(tokensIds[i])
                 if (token != null && token.version.equals(KodaVersions.KODA_V2)) {
 
-                    log.info("Setting token {} to revokedApproval {}", [
+                    log.debug("Setting token {} to revokedApproval {}", [
                         tokensIds[i].toString(),
                         (event.params._approved === false) ? "TRUE" : "FALSE"
                     ]);

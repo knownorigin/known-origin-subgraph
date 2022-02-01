@@ -44,9 +44,9 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
 
 export function addTokenToCollector(address: Address, block: ethereum.Block, tokenId: BigInt): Collector {
     let collector = loadOrCreateCollector(address, block);
-    let collectorToTokens = collector.tokens;
+    let collectorToTokens = collector.tokenIds;
     collectorToTokens.push(tokenId.toString());
-    collector.tokens = collectorToTokens;
+    collector.tokenIds = collectorToTokens;
     collector.save();
     return collector
 }
@@ -54,14 +54,14 @@ export function addTokenToCollector(address: Address, block: ethereum.Block, tok
 export function removeTokenFromCollector(address: Address, block: ethereum.Block, tokenId: BigInt): Collector {
     let collector = loadOrCreateCollector(address, block);
     let collectorTokens = new Array<string>()
-    let existingTokens = collector.tokens;
+    let existingTokens = collector.tokenIds;
     for (let i = 0; i < existingTokens.length; i++) {
         let currentTokenId = existingTokens[i];
         if (currentTokenId.toString() !== tokenId.toString()) {
             collectorTokens.push(currentTokenId)
         }
     }
-    collector.tokens = collectorTokens;
+    collector.tokenIds = collectorTokens;
     collector.save();
     return collector
 }

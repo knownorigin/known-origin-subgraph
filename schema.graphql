@@ -530,6 +530,7 @@ type Artist @entity {
     lastEditionTimestamp: BigInt!
 
     editions: [Edition!]!
+    editionIds: [Edition!]! @derivedFrom(field: "artist")
 
     mintingConfig: ArtistMintingConfig!
 }
@@ -558,5 +559,6 @@ type Collector @entity {
     totalPurchaseEthSpent: BigDecimal!
 
     # all tokens currently owned by this account
-    tokens: [Token!]!
+    tokens: [Token!]! @derivedFrom(field: "currentOwner")
+    tokenIds: [Token!]!
 }
