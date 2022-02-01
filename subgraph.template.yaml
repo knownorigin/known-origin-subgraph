@@ -362,6 +362,7 @@ dataSources:
         # Approvals
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
+
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
 

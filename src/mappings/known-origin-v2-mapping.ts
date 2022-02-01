@@ -71,8 +71,12 @@ export function handleTransfer(event: Transfer): void {
     // Collector Logic //
     /////////////////////
 
-    let collector = collectorService.loadOrCreateCollector(event.params._to, event.block);
+    // add tokens to collector
+    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId);
     collector.save();
+
+    // remove tokens from collector
+    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId);
 
     ///////////////////
     // Edition Logic //

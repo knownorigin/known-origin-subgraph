@@ -98,8 +98,12 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Collector Logic //
         /////////////////////
 
-        let collector = collectorService.loadOrCreateCollector(to, event.block);
+        // add tokens to collector
+        let collector = collectorService.addTokenToCollector(to, event.block, tokenId);
         collector.save();
+
+        // remove tokens from collector
+        collectorService.removeTokenFromCollector(from, event.block, tokenId);
 
         /////////////////
         // Token Logic //
@@ -365,7 +369,17 @@ export function handleAdminArtistAccountReported(event: AdminArtistAccountReport
         event.params._account.toHexString()
     ]);
 
-    // FIXME finds all editions from the artist - disable them
+    let artist = artistService.loadOrCreateArtist(event.params._account)
+    let editions = artist.editions;
+    for (let i = 0; i < editions.length; i++) {
+        let editionsId = editions[i];
+        let edition = editionService.loadNonNullableEdition(BigInt.fromString(editionsId));
+        if (edition.version === KodaVersions.KODA_V3) {
+            edition.active = false
+            edition.save()
+        }
+    }
+    artist.save()
 }
 
 export function handleAdminEditionReported(event: AdminEditionReported): void {
@@ -415,7 +429,7 @@ export function handleApproval(event: Approval): void {
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_MAINNET))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_MAINNET))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
-        if (token) {
+        if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
             token.revokedApproval = false;
             token.save()
         }
@@ -425,7 +439,7 @@ export function handleApproval(event: Approval): void {
     if (event.params.approved.equals(Address.fromString(PRIMARY_SALE_RINKEBY))
         || event.params.approved.equals(Address.fromString(SECONDARY_SALE_RINKEBY))) {
         let token: Token | null = Token.load(event.params.tokenId.toString())
-        if (token) {
+        if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
             token.revokedApproval = false;
             token.save()
         }
@@ -433,8 +447,14 @@ export function handleApproval(event: Approval): void {
 }
 
 function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Address, approved: boolean): void {
+
+    log.info("KO V3 _setArtistEditionsNotForSale() artist {} approval {}", [
+        artistAddress.toHexString(),
+        approved ? "TRUE" : "FALSE",
+    ]);
+
     let artist: Artist | null = Artist.load(artistAddress.toHexString())
-    if (artist != null) {
+    if (artist != null && artist.isSet('editions')) {
         let editionIds = artist.editions
         for (let i = 0; i < editionIds.length; i++) {
 
@@ -443,7 +463,7 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
 
             if (edition != null && edition.version.equals(KodaVersions.KODA_V3)) {
 
-                log.info("Setting edition {} to revokedApproval {}", [
+                log.info("KO V3 _setArtistEditionsNotForSale() setting edition {} to revokedApproval {}", [
                     editionId.toString(),
                     (approved === false) ? "TRUE" : "FALSE"
                 ]);
@@ -456,7 +476,14 @@ function _setArtistEditionsNotForSale(block: ethereum.Block, artistAddress: Addr
 }
 
 function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: Address, approved: boolean): void {
+
+    log.info("KO V3 _setCollectorTokensNotForSale() collector {} approval {}", [
+        collectorAddress.toHexString(),
+        approved ? "TRUE" : "FALSE",
+    ]);
+
     let collector: Collector | null = Collector.load(collectorAddress.toHexString())
+
     if (collector != null && collector.isSet('tokens')) {
         let tokensIds = collector.tokens
         for (let i = 0; i < tokensIds.length; i++) {
@@ -466,7 +493,7 @@ function _setCollectorTokensNotForSale(block: ethereum.Block, collectorAddress: 
 
             if (token != null && token.version.equals(KodaVersions.KODA_V3)) {
 
-                log.info("Setting token {} to revokedApproval {}", [
+                log.info("KO V3 _setCollectorTokensNotForSale() setting token {} to revokedApproval {}", [
                     tokenId.toString(),
                     (approved === false) ? "TRUE" : "FALSE"
                 ]);

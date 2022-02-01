@@ -23,6 +23,7 @@ export function loadOrCreateCollector(address: Address, block: ethereum.Block): 
 
         collectorEntity.totalPurchaseCount = ZERO;
         collectorEntity.totalPurchaseEthSpent = ZERO_BIG_DECIMAL;
+        collectorEntity.tokens = new Array<string>();
     }
     collectorEntity.save()
     return collectorEntity as Collector;
@@ -39,6 +40,30 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
         }
     }
     return false;
+}
+
+export function addTokenToCollector(address: Address, block: ethereum.Block, tokenId: BigInt): Collector {
+    let collector = loadOrCreateCollector(address, block);
+    let collectorToTokens = collector.tokens;
+    collectorToTokens.push(tokenId.toString());
+    collector.tokens = collectorToTokens;
+    collector.save();
+    return collector
+}
+
+export function removeTokenFromCollector(address: Address, block: ethereum.Block, tokenId: BigInt): Collector {
+    let collector = loadOrCreateCollector(address, block);
+    let collectorTokens = new Array<string>()
+    let existingTokens = collector.tokens;
+    for (let i = 0; i < existingTokens.length; i++) {
+        let currentTokenId = existingTokens[i];
+        if (currentTokenId.toString() !== tokenId.toString()) {
+            collectorTokens.push(currentTokenId)
+        }
+    }
+    collector.tokens = collectorTokens;
+    collector.save();
+    return collector
 }
 
 export function addPrimarySaleToCollector(block: ethereum.Block, buyer: Address, value: BigInt): void {

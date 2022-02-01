@@ -219,7 +219,7 @@ type Token @entity {
     largestSalePriceEth: BigDecimal!        # set to the highest sale price for the token, primary or secondary
     lastSalePriceInEth: BigDecimal!         # known last sale if we capture it (primary & secondary)
     lastTransferTimestamp: BigInt!          # updated on ever Transfer
-    currentOwner: Collector                 # the current owner - also has a derived field linking to this from Collector.tokens
+    currentOwner: Collector                 # the current owner
     allOwners: [Collector!]!                # list (set) of all unique owners
     transfers: [TransferEvent!]!            # total number of token transfers made
     tokenEvents: [TokenEvent!]!             # list of token events such as secondary sales and transfers
@@ -232,8 +232,6 @@ type Token @entity {
 
     ## Token secondary market
     isListed: Boolean!
-
-    ## TODO refactor these fields to use newly added listing sub object
     listPrice: BigDecimal
     lister: Collector
     listingTimestamp: BigInt
@@ -366,7 +364,7 @@ type Edition @entity {
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
-    # Reference to the primary minter - see derived field {Artist.editions}
+    # Reference to the primary minter
     artist: Artist
 
     # date when the edition goes on sale
@@ -531,7 +529,7 @@ type Artist @entity {
     lastEdition: Edition
     lastEditionTimestamp: BigInt!
 
-    editions: [Edition!]! @derivedFrom(field: "artist")
+    editions: [Edition!]!
 
     mintingConfig: ArtistMintingConfig!
 }
@@ -559,6 +557,6 @@ type Collector @entity {
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
 
-    # all tokekns currently owned by this account
-    tokens: [Token!]! @derivedFrom(field: "currentOwner")
+    # all tokens currently owned by this account
+    tokens: [Token!]!
 }
