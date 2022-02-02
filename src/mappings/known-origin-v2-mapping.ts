@@ -33,8 +33,8 @@ import {
     KODA_V2_MAINNET_SECONDARY_MARKETPLACE,
     KODA_V2_RINKEBY_SECONDARY_MARKETPLACE
 } from "../utils/KODAV2AddressLookup";
-import {Collector, Token} from "../../generated/schema";
 import * as KodaVersions from "../utils/KodaVersions";
+import * as approvalService from "../services/Approval.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -278,29 +278,10 @@ export function handleApprovalForAll(event: ApprovalForAll): void {
     // Secondary Sale Marketplace V2 (mainnet & rinkeby)
     if (event.params._operator.equals(Address.fromString(KODA_V2_MAINNET_SECONDARY_MARKETPLACE))
         || event.params._operator.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
-
         log.debug("KO V2 handleApprovalForAll() handling token approvals for owner {}", [
             event.params._owner.toHexString(),
         ]);
-
-        let collector: Collector | null = Collector.load(event.params._owner.toHexString())
-        if (collector != null && collector.isSet('tokenIds')) {
-            let tokensIds = collector.tokenIds
-            for (let i = 0; i < tokensIds.length; i++) {
-
-                let token: Token | null = Token.load(tokensIds[i])
-                if (token != null && token.version.equals(KodaVersions.KODA_V2)) {
-
-                    log.debug("Setting token {} to revokedApproval {}", [
-                        tokensIds[i].toString(),
-                        (event.params._approved === false) ? "TRUE" : "FALSE"
-                    ]);
-
-                    token.revokedApproval = (event.params._approved === false)
-                    token.save()
-                }
-            }
-        }
+        approvalService.handleCollectorTokensApprovalChanged(event.block, event.params._owner, event.params._approved, KodaVersions.KODA_V2);
     }
 }
 
@@ -314,11 +295,10 @@ export function handleApproval(event: Approval): void {
     // Secondary Sale Marketplace V2 (mainnet & rinkeby)
     if (event.params._approved.equals(Address.fromString(KODA_V2_MAINNET_SECONDARY_MARKETPLACE))
         || event.params._approved.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
-        let token: Token | null = Token.load(event.params._tokenId.toString())
-        if (token != null) {
-            token.revokedApproval = ZERO_ADDRESS.equals(event.params._approved);
-            token.save()
-        }
+        log.debug("KO V2 handleApproval() handling token approvals for owner {}", [
+            event.params._owner.toHexString(),
+        ]);
+        approvalService.handleSingleApproval(event.params._tokenId, event.params._owner, event.params._approved, KodaVersions.KODA_V2);
     }
 }
 
