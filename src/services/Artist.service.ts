@@ -25,7 +25,7 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist.totalSecondarySalesInEth = new BigDecimal(ZERO)
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
-        artist.editions = new Array<string>()
+        artist.editionIds = new Array<string>()
 
         let mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
         mintConfig.mints = ZERO;
