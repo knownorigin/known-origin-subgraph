@@ -1,6 +1,6 @@
 import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
 
-import {Collective, Edition, ListedToken, TokenOffer} from "../../../generated/schema";
+import {Edition, ListedToken, TokenOffer} from "../../../generated/schema";
 
 import {
     AdminUpdateMinBidAmount,
@@ -42,6 +42,7 @@ import * as artistService from "../../services/Artist.service";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {OFFERS_ONLY, RESERVE_COUNTDOWN_AUCTION} from "../../utils/SaleTypes";
+import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
@@ -68,6 +69,8 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     log.info("KO V3 handleTokenListed() called - tokenId {}", [event.params._id.toString()]);
 
     let contract = KODAV3SecondaryMarketplace.bind(event.address)
+    let koda = KnownOriginV3.bind(contract.koda())
+
     let listing = contract.editionOrTokenListings(event.params._id)
     let listingSeller = listing.value2
 
@@ -85,6 +88,9 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = collectorService.loadOrCreateCollector(listingSeller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
+
+    // Ensure approval is checked
+    listedToken.revokedApproval = !koda.isApprovedForAll(listingSeller, event.address)
 
     // Add filter flags
     let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
@@ -324,6 +330,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     log.info("KO V3 handleEditionListedForReserveAuction() called - tokenId {}", [event.params._id.toString()]);
 
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
+    let koda = KnownOriginV3.bind(marketplace.koda())
 
     let token = tokenService.loadNonNullableToken(event.params._id)
     token.isListed = true;
@@ -332,6 +339,9 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     let edition = Edition.load(token.edition) as Edition
 
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+
+    // Ensure approval is checked during listing
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
 
     let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
     let listingSeller = reserveAuction.value0
@@ -364,6 +374,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     log.info("KO V3 handleBidPlacedOnReserveAuction() called - tokenId {}", [event.params._id.toString()]);
 
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
+    let koda = KnownOriginV3.bind(marketplace.koda())
 
     let token = tokenService.loadNonNullableToken(event.params._id)
     token.isListed = true;
@@ -375,6 +386,9 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
     listedToken.reserveAuctionBidder = event.params._bidder
     listedToken.reserveAuctionBid = event.params._amount
+
+    // Ensure approval is checked
+    listedToken.revokedApproval = !koda.isApprovedForAll(event.params._currentOwner, event.address)
 
     // Check if the bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
     if (listedToken.reserveAuctionBid.ge(listedToken.reservePrice)) {
@@ -545,11 +559,11 @@ export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBid
     store.remove("ListedToken", event.params._id.toString());
 }
 
-
 export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionConvertedToBuyItNow): void {
     log.info("KO V3 handleReserveAuctionConvertedToBuyItNow() called - tokenId {}", [event.params._id.toString()]);
 
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
+    let koda = KnownOriginV3.bind(marketplace.koda())
 
     let token = tokenService.loadNonNullableToken(event.params._id)
 
@@ -561,6 +575,10 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
 
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
     listedToken.listPrice = toEther(event.params._listingPrice)
+
+    // Ensure approval is checked
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
+
     _clearReserveAuctionFields(listedToken)
     listedToken.save()
 

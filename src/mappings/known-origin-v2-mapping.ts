@@ -1,14 +1,16 @@
 import {
-    KnownOriginV2,
-    Purchase,
-    Minted,
+    Approval,
+    ApprovalForAll,
     EditionCreated,
-    Transfer,
-    KnownOriginV2__detailsOfEditionResult
+    KnownOriginV2,
+    KnownOriginV2__detailsOfEditionResult,
+    Minted,
+    Purchase,
+    Transfer
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
-import {ethereum, log, Address, store} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {toEther} from "../utils/utils";
 
@@ -26,6 +28,13 @@ import * as collectorService from "../services/Collector.service";
 import * as tokenEventFactory from "../services/TokenEvent.factory";
 import * as offerService from "../services/Offers.service";
 import * as activityEventService from "../services/ActivityEvent.service";
+
+import {
+    KODA_V2_MAINNET_SECONDARY_MARKETPLACE,
+    KODA_V2_RINKEBY_SECONDARY_MARKETPLACE
+} from "../utils/KODAV2AddressLookup";
+import * as KodaVersions from "../utils/KodaVersions";
+import * as approvalService from "../services/Approval.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -62,8 +71,12 @@ export function handleTransfer(event: Transfer): void {
     // Collector Logic //
     /////////////////////
 
-    let collector = collectorService.loadOrCreateCollector(event.params._to, event.block);
+    // add tokens to collector
+    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId);
     collector.save();
+
+    // remove tokens from collector
+    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId);
 
     ///////////////////
     // Edition Logic //
@@ -103,6 +116,12 @@ export function handleTransfer(event: Transfer): void {
 
     // TOKEN
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
+
+    // Ensure approval for token ID is cleared
+    let approved = contract.getApproved(event.params._tokenId);
+    if (!approved.equals(ZERO_ADDRESS)) {
+        tokenEntity.revokedApproval = false;
+    }
 
     // set birth on Token
     if (event.params._from.equals(Address.fromString("0x0000000000000000000000000000000000000000"))) {
@@ -247,6 +266,40 @@ export function handleMinted(event: Minted): void {
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
     artistService.recordArtistIssued(artistAddress)
+}
+
+export function handleApprovalForAll(event: ApprovalForAll): void {
+    log.info("KO V2 handleApprovalForAll() called - owner {} operator {} approved {}", [
+        event.params._owner.toHexString(),
+        event.params._operator.toHexString(),
+        event.params._approved ? "TRUE" : "FALSE",
+    ]);
+
+    // Secondary Sale Marketplace V2 (mainnet & rinkeby)
+    if (event.params._operator.equals(Address.fromString(KODA_V2_MAINNET_SECONDARY_MARKETPLACE))
+        || event.params._operator.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
+        log.debug("KO V2 handleApprovalForAll() handling token approvals for owner {}", [
+            event.params._owner.toHexString(),
+        ]);
+        approvalService.handleCollectorTokensApprovalChanged(event.block, event.params._owner, event.params._approved, KodaVersions.KODA_V2);
+    }
+}
+
+export function handleApproval(event: Approval): void {
+    log.info("KO V2 handleApproval() called - owner {} token {} approved {}", [
+        event.params._owner.toHexString(),
+        event.params._tokenId.toString(),
+        event.params._approved ? "TRUE" : "FALSE",
+    ]);
+
+    // Secondary Sale Marketplace V2 (mainnet & rinkeby)
+    if (event.params._approved.equals(Address.fromString(KODA_V2_MAINNET_SECONDARY_MARKETPLACE))
+        || event.params._approved.equals(Address.fromString(KODA_V2_RINKEBY_SECONDARY_MARKETPLACE))) {
+        log.debug("KO V2 handleApproval() handling token approvals for owner {}", [
+            event.params._owner.toHexString(),
+        ]);
+        approvalService.handleSingleApproval(event.params._tokenId, event.params._owner, event.params._approved, KodaVersions.KODA_V2);
+    }
 }
 
 // // Only called on Mainnet

@@ -228,12 +228,10 @@ type Token @entity {
     artistAccount: Bytes! # address
     editionActive: Boolean!
 
-    notForSale: Boolean! # set to true if the over removes approval for the marketplace's
+    revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     ## Token secondary market
     isListed: Boolean!
-
-    ## TODO refactor these fields to use newly added listing sub object
     listPrice: BigDecimal
     lister: Collector
     listingTimestamp: BigInt
@@ -248,6 +246,7 @@ type ListedToken @entity {
     version: BigInt! # KODA 2 or 3
 
     editionNumber: BigInt!
+    revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     listPrice: BigDecimal!
     lister: Collector!
@@ -334,8 +333,8 @@ type Edition @entity {
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
 
-    salesType: BigInt! # The current sales mechnic being used on this edition
-    notForSale: Boolean! # set to true if the primary seller removes approval for the marketplace
+    salesType: BigInt! # The current sales mechanic being used on this edition
+    revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
@@ -365,7 +364,7 @@ type Edition @entity {
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
-    # Reference to the primary minter - see derived field {Artist.editions}
+    # Reference to the primary minter
     artist: Artist
 
     # date when the edition goes on sale
@@ -530,7 +529,9 @@ type Artist @entity {
     lastEdition: Edition
     lastEditionTimestamp: BigInt!
 
+    # all artist editions - derivedFrom only work at query time, not runtime!
     editions: [Edition!]! @derivedFrom(field: "artist")
+    editionIds: [Edition!]!
 
     mintingConfig: ArtistMintingConfig!
 }
@@ -558,6 +559,7 @@ type Collector @entity {
     totalPurchaseCount: BigInt!
     totalPurchaseEthSpent: BigDecimal!
 
-    # all tokekns currently owned by this account
+    # all tokens currently owned by this account - derivedFrom only work at query time, not runtime!
     tokens: [Token!]! @derivedFrom(field: "currentOwner")
+    tokenIds: [Token!]!
 }
