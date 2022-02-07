@@ -1,12 +1,15 @@
 import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Artist, Collector, Edition, ListedToken, Token} from "../../generated/schema";
 import {ZERO_ADDRESS} from "../utils/constants";
+import * as activityEventService from "../services/ActivityEvent.service";
 
 export function handleSingleApproval(tokenId: BigInt, owner: Address, approved: Address, version: BigInt): void {
     let token: Token | null = Token.load(tokenId.toString())
     if (token != null && token.version.equals(version) && owner.equals(Address.fromString(token.currentOwner))) {
         token.revokedApproval = ZERO_ADDRESS.equals(approved);
         token.save()
+
+        // TODO fire approval changed
     }
 
     let listedToken: ListedToken | null = ListedToken.load(tokenId.toString())
@@ -58,6 +61,8 @@ export function handleCollectorTokensApprovalChanged(block: ethereum.Block, coll
                 ]);
                 token.revokedApproval = (approved === false)
                 token.save()
+
+                // TODO fire approval changed
             }
 
             let listedToken = ListedToken.load(tokenId);

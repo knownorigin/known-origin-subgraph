@@ -300,9 +300,7 @@ function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
 // ['Transfer'', 'EditionGifted', 'PriceChanged']
 
 export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, to: Address): void {
-
     let id: string = tokenActivityId(token, rawEvent);
-
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, null, to, null)
@@ -311,9 +309,7 @@ export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: 
 }
 
 export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
-
     let id: string = tokenActivityId(token, rawEvent);
-
     let event = ActivityEvent.load(id)
     if (event == null) {
         // @ts-ignore
@@ -323,9 +319,7 @@ export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edit
 }
 
 export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, value: BigInt): void {
-
     let id: string = editionActivityId(edition, rawEvent);
-
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, value, null)
@@ -333,17 +327,32 @@ export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, v
     }
 }
 
+export function recordComposableAdded(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
+    let id: string = editionActivityId(edition, rawEvent);
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.COMPOSABLE_ADDED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event.save()
+    }
+}
+
+export function recordComposableClaimed(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
+    let id: string = editionActivityId(edition, rawEvent);
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.COMPOSABLE_CLAIMED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event.save()
+    }
+}
+
 function getStakeholderAddressesSecondary(creator: Bytes, seller: Address | null, buyer: Address | null): Bytes[] {
     let arr: Array<Bytes> = new Array<Bytes>()
     arr.push(creator as Bytes)
-
     if(buyer) {
         arr.push(buyer as Bytes)
     }
-
     if(seller) {
         arr.push(seller as Bytes)
     }
-
     return arr
 }
