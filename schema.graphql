@@ -564,3 +564,8 @@ type Collector @entity {
     tokens: [Token!]! @derivedFrom(field: "currentOwner")
     tokenIds: [Token!]!
 }
+
+# A single collector who has at sometime held a KO asset
+type GatedSale @entity {
+    id: ID! # toString for address
+}

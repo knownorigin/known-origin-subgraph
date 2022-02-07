@@ -691,3 +691,25 @@ dataSources:
         - event: HandlerRemoved(address)
           handler: handleHandlerRemoved
       file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
+
+  # koda-v3-gated-marketplace registry
+  - kind: ethereum/contract
+    name: KODAV3GatedMarketplace
+    network: {{network}}
+    source:
+      address: '{{koda-v3-gated-marketplace-address}}'
+      abi: KODAV3GatedMarketplace
+      startBlock: {{koda-v3-gated-marketplace-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - GatedSale
+      abis:
+        - name: KODAV3GatedMarketplace
+          file: ./abis/kodav3/KODAV3GatedMarketplace.json
+      eventHandlers:
+        - event: SaleWithPhaseCreated(indexed uint256,indexed uint256)
+          handler: handleSaleWithPhaseCreated
+      file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
