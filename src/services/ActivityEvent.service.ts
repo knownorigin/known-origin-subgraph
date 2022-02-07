@@ -327,20 +327,20 @@ export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, v
     }
 }
 
-export function recordComposableAdded(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
+export function recordComposableAdded(rawEvent: ethereum.Event, edition: Edition): void {
     let id: string = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.COMPOSABLE_ADDED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event = createEditionEvent(id, EVENT_TYPES.COMPOSABLE_ADDED, rawEvent, edition, null, null)
         event.save()
     }
 }
 
-export function recordComposableClaimed(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
+export function recordComposableClaimed(rawEvent: ethereum.Event, edition: Edition): void {
     let id: string = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.COMPOSABLE_CLAIMED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event = createEditionEvent(id, EVENT_TYPES.COMPOSABLE_CLAIMED, rawEvent, edition, null, null)
         event.save()
     }
 }
