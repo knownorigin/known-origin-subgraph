@@ -568,4 +568,5 @@ type Collector @entity {
 # A single collector who has at sometime held a KO asset
 type GatedSale @entity {
     id: ID! # toString for address
+    editionId: BigInt!
 }

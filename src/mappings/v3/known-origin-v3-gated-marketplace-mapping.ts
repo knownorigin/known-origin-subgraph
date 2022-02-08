@@ -11,7 +11,12 @@ import {
 
 import {toEther} from "../../utils/utils";
 
+import * as gatedSaleService from "../../services/GatedSale.service";
+
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() called {}", [event.params.saleId.toString()]);
 
+    let gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
+    gatedSale.save();
 }
+
