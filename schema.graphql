@@ -338,6 +338,8 @@ type Edition @entity {
 
     createdTimestamp: BigInt!
     tokenIds: [BigInt!]!
+    tokens: [Token!]! @derivedFrom(field: "edition")
+
     tokenURI: String!
     artistAccount: Bytes! # address
     artistCommission: BigInt! # base artists commission
@@ -355,13 +357,12 @@ type Edition @entity {
     totalBurnt: BigInt!          # number of items send to 0xDead or 0x0 (only applicable for V3)
     originalEditionSize: BigInt! # original edition size of the edition at mint - this field should NEVER change once set
 
-    # TODO count gifts properly - gift = any transfer without a payment made
-
     sales: [Token!]!
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
+    isEnhancedEdition: Boolean! # set true if any of the tokens are enhanced i.e. composed
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
     # Reference to the primary minter

@@ -23,3 +23,7 @@ export const RESERVE_BID_WITHDRAWN = "ReserveBidWithdrawn";
 export const RESERVE_COUNTDOWN_STARTED = "ReserveCountdownStarted";
 export const RESERVE_EXTENDED = "ReserveExtended";
 export const RESERVE_PRICE_CHANGED = "ReservePriceChanged";
+
+// V3 Extras
+export const COMPOSABLE_ADDED = "ComposableAdded";
+export const COMPOSABLE_CLAIMED = "ComposableClaimed";

@@ -270,6 +270,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.active = false
     editionEntity.offersOnly = false
     editionEntity.isGenesisEdition = false
+    editionEntity.isEnhancedEdition = false
     editionEntity.hasCoverImage = false
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.stepSaleStepPrice = ZERO

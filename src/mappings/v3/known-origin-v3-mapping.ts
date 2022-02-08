@@ -37,6 +37,7 @@ import * as artistService from "../../services/Artist.service";
 import * as approvalService from "../../services/Approval.service";
 import * as dayService from "../../services/Day.service";
 import * as editionService from "../../services/Edition.service";
+import * as composableService from "../../services/Composables.service";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
 
@@ -489,6 +490,15 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
+
+    // flag edition as enhanced
+    let koda = KnownOriginV3.bind(event.address);
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    edition.isEnhancedEdition = true
+    edition.save()
+
+    // Record activity event
+    activityEventService.recordComposableAdded(event, edition)
 }
 
 // handleTransferERC20 handles the TransferERC20 event fired by the transferERC20 function
@@ -519,6 +529,15 @@ export function handleTransferERC20(event: TransferERC20): void {
     } else {
         item.save()
     }
+
+    // flag edition as enhanced
+    let koda = KnownOriginV3.bind(event.address);
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
+    edition.save()
+
+    // Record activity event
+    activityEventService.recordComposableClaimed(event, edition)
 }
 
 export function handleReceivedERC721(event: ReceivedChild): void {
@@ -565,6 +584,15 @@ export function handleReceivedERC721(event: ReceivedChild): void {
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
+
+    // flag edition as enhanced
+    let koda = KnownOriginV3.bind(event.address);
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    edition.isEnhancedEdition = true;
+    edition.save()
+
+    // Record activity event
+    activityEventService.recordComposableAdded(event, edition)
 }
 
 export function handleTransferERC721(event: TransferChild): void {
@@ -586,6 +614,15 @@ export function handleTransferERC721(event: TransferChild): void {
     }
 
     store.remove('ComposableItem', itemID)
+
+    // flag edition as enhanced
+    let koda = KnownOriginV3.bind(event.address);
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
+    edition.save()
+
+    // Record activity event
+    activityEventService.recordComposableClaimed(event, edition)
 }
 
 function _erc20ComposableItemId(_tokenId: BigInt, _erc20Contract: Address): string {
