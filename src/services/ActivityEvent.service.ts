@@ -38,6 +38,7 @@ export function recordPrimarySaleEvent(
     if (event == null) {
         event = createEditionEvent(id, eventType, rawEvent, edition, value, buyer)
         if (token) {
+            event.seller = edition.artistAccount
             event.token = token.id
         }
         event.save()
