@@ -694,11 +694,11 @@ dataSources:
 
   # koda-v3-gated-marketplace registry
   - kind: ethereum/contract
-    name: KODAV3GatedMarketplace
+    name: KODAV3UpgradableGatedMarketplace
     network: rinkeby
     source:
       address: '0x39ccD73f393C311E26C36127f047b2CAfAA07409'
-      abi: KODAV3GatedMarketplace
+      abi: KODAV3UpgradableGatedMarketplace
       startBlock: 10127941
     mapping:
       kind: ethereum/events
@@ -707,9 +707,21 @@ dataSources:
       entities:
         - GatedSale
       abis:
-        - name: KODAV3GatedMarketplace
-          file: ./abis/kodav3/KODAV3GatedMarketplace.json
+        - name: KODAV3UpgradableGatedMarketplace
+          file: ./abis/kodav3/KODAV3UpgradableGatedMarketplace.json
       eventHandlers:
         - event: SaleWithPhaseCreated(indexed uint256,indexed uint256)
           handler: handleSaleWithPhaseCreated
+        - event: PhaseCreated(indexed uint256,indexed uint256,indexed uint256)
+          handler: handlePhaseCreated
+        - event: PhaseRemoved(indexed uint256,indexed uint256,indexed uint256)
+          handler: handlePhaseRemoved
+        - event: MintFromSale(indexed uint256,indexed uint256,indexed uint256,address,uint256)
+          handler: handleMintFromSale
+        - event: SalePaused(indexed uint256,indexed uint256)
+          handler: handleSalePaused
+        - event: SaleResumed(indexed uint256,indexed uint256)
+          handler: handleSaleResumed
+        - event: AdminUpdatePlatformPrimarySaleCommissionGatedSale(indexed uint256,uint256)
+          handler: handleAdminUpdatePlatformPrimarySaleCommissionGatedSale
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts

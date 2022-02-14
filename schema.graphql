@@ -407,6 +407,10 @@ type Edition @entity {
     activeBid: AuctionEvent # if present, an active bid should be open
     # ----- Offers logic - #
 
+    # ----- Gated sale config - #
+    gatedSale: GatedSale # the linked gated sale
+    # ----- Gated sale config - #
+
     # Events and histories
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
@@ -488,6 +492,31 @@ type Offer @entity {
     isActive: Boolean!              # Only active offers can be seen in the UI
 }
 
+type Phase @entity {
+    id: ID!
+    saleId: String!          # The sale this phase relates to
+    editionId: String!       # The edition this phase relates to
+    phaseId: String!         # The actual phase number
+    startTime: BigInt!       # The start time of the sale as a whole
+    endTime: BigInt!         # The end time of the sale phase, also the beginning of the next phase if applicable
+    walletMintLimit: BigInt! # The mint limit per wallet for the phase
+    priceInWei: BigInt!      # Price in wei for one mint
+    mintCap: BigInt!         # The maximum amount of mints for the phase
+    mintCounter: BigInt!     # The current amount of items minted
+    merkleRoot: Bytes        # The merkle tree root for the phase
+    merkleIPFSHash: String   # The IPFS hash referencing the merkle tree
+}
+
+type GatedSale @entity {
+    id: ID!                 # The ID of the sale
+    editionId: BigInt!      # The ID of the edition the sale will mint
+    paused: Boolean!        # Whether the sale is currently paused
+    primarySaleCommission: BigInt! # overridden sales commission for KO
+    phases: [Phase!]!       # associated sales
+}
+
+# TODO gated sale mints per user
+
 ##########################
 ## Accountable entities ##
 ##########################
@@ -563,10 +592,4 @@ type Collector @entity {
     # all tokens currently owned by this account - derivedFrom only work at query time, not runtime!
     tokens: [Token!]! @derivedFrom(field: "currentOwner")
     tokenIds: [Token!]!
-}
-
-# A single collector who has at sometime held a KO asset
-type GatedSale @entity {
-    id: ID! # toString for address
-    editionId: BigInt!
 }

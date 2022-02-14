@@ -643,7 +643,7 @@ export function handleReserveAuctionConvertedToOffers(event: ReserveAuctionConve
 }
 
 
-function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector, tokenId: BigInt, price: BigInt): void {
+export function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector, tokenId: BigInt, price: BigInt): void {
 
     // Count total sale value
     editionEntity.totalEthSpentOnEdition = editionEntity.totalEthSpentOnEdition.plus(toEther(price));
@@ -666,11 +666,11 @@ function _handleEditionPrimarySale(editionEntity: Edition, collector: Collector,
     editionEntity.sales = sales
 }
 
-function _handleTokenPrimarySale(tokenEntity: Token, price: BigInt): void {
+export function _handleTokenPrimarySale(tokenEntity: Token, price: BigInt): void {
     tokenService.recordTokenSaleMetrics(tokenEntity, price, true)
 }
 
-function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {
+export function _handleArtistAndDayCounts(event: ethereum.Event, editionEntity: Edition, tokenId: BigInt, price: BigInt, artistAddress: Address, buyer: Address): void {
     dayService.recordDayValue(event, tokenId, price)
     dayService.recordDayCounts(event, price)
 
