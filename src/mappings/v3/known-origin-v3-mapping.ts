@@ -296,7 +296,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle transfer //
         /////////////////////
 
-        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to);
+        activityEventService.recordTransfer(event, tokenEntity, editionEntity, from, to);
 
         //////////////////////////////////////////////////////////////////////////////////
         // Everytime a transfer is made we work out burns, mints, available, unsold etc //
