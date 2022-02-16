@@ -3,6 +3,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 import {
     KODAV3UpgradableGatedMarketplace
 } from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import {loadOrCreateCollector} from "./Collector.service";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
@@ -21,10 +22,16 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         }
         gatedSale.primarySaleCommission = salesCommission
 
-        // Create the phase
-        let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromString("0"))
         let phases = gatedSale.phases
-        phases.push(phase.id)
+
+        for (let i = 0; i < 3; i++) {
+            // Try and create the phase
+            let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromString(`${i}`))
+            if (phase != null) {
+                phases.push(phase.id)
+            }
+        }
+
         gatedSale.phases = phases
 
         gatedSale.save();
@@ -37,32 +44,59 @@ export function loadNonNullableGatedSale(saleId: BigInt): GatedSale | null {
     return GatedSale.load(saleId.toString());
 }
 
+function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt) {
+    return saleId.toString()
+        .concat("-")
+        .concat(editionId.toString())
+        .concat("-")
+        .concat(phaseId.toString());
+}
+
 export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt, phaseId: BigInt): Phase {
     let phase = Phase.load(saleId.toString());
 
     if (phase == null) {
-        const ID = saleId.toString()
-            .concat("-")
-            .concat(editionId.toString())
-            .concat("-")
-            .concat(phaseId.toString());
+        const phaseDetails = gatedMarketplace.try_phases(saleId, phaseId)
+        if (!phaseDetails.reverted) {
+            let _phaseData = phaseDetails.value;
 
-        phase = new Phase(ID);
-        phase.saleId = saleId.toString();
-        phase.editionId = editionId.toString();
-        phase.phaseId = phaseId.toString();
+            const ID = createPhaseId(saleId, editionId, phaseId)
 
-        const phaseDetails = gatedMarketplace.phases(saleId, phaseId)
-        phase.startTime = phaseDetails.value0;
-        phase.endTime = phaseDetails.value1;
-        phase.walletMintLimit = BigInt.fromI32(phaseDetails.value2);
-        phase.priceInWei = phaseDetails.value3;
-        phase.merkleRoot = phaseDetails.value4;
-        phase.merkleIPFSHash = phaseDetails.value5;
-        phase.mintCap = phaseDetails.value6;
-        phase.mintCounter = phaseDetails.value7;
-        phase.save();
+            phase = new Phase(ID);
+            phase.saleId = saleId.toString();
+            phase.editionId = editionId.toString();
+            phase.phaseId = phaseId.toString();
+
+
+            phase.startTime = _phaseData.value0;
+            phase.endTime = _phaseData.value1;
+            phase.walletMintLimit = BigInt.fromI32(_phaseData.value2);
+            phase.priceInWei = _phaseData.value3;
+            phase.merkleRoot = _phaseData.value4;
+            phase.merkleIPFSHash = _phaseData.value5;
+            phase.mintCap = _phaseData.value6;
+            phase.mintCounter = _phaseData.value7;
+            phase.save();
+        }
     }
 
     return phase as Phase;
+}
+
+export function removePhaseFromSale(saleId: BigInt, editionId: BigInt, phaseId: BigInt) {
+    let sale = loadNonNullableGatedSale(saleId);
+    let salePhases = new Array<string>()
+    let existingPhases = sale.phases;
+
+    let expectedPhaseId = createPhaseId(saleId, editionId, phaseId)
+
+    for (let i = 0; i < existingPhases.length; i++) {
+        let currentPhaseId = existingPhases[i];
+        if (currentPhaseId.toString() !== expectedPhaseId) {
+            salePhases.push(currentPhaseId)
+        }
+    }
+    sale.phases = salePhases;
+    sale.save();
+    return sale
 }

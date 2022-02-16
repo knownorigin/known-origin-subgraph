@@ -25,6 +25,7 @@ import * as tokenService from "../../services/Token.service";
 import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
+import {removePhaseFromSale} from "../../services/GatedSale.service";
 
 
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
@@ -69,12 +70,13 @@ export function handlePhaseCreated(event: PhaseCreated): void {
 }
 
 export function handlePhaseRemoved(event: PhaseRemoved): void {
-    log.info("KO V3 Gated Marketplace handlePhaseRemoved() called - sale {} edition {}", [
+    log.info("KO V3 Gated Marketplace handlePhaseRemoved() called - sale {} edition {} phase {}", [
         event.params.saleId.toString(),
         event.params.editionId.toString(),
+        event.params.phaseId.toString()
     ]);
 
-    // TODO remove phase from sale
+    removePhaseFromSale(event.params.saleId, event.params.editionId, event.params.phaseId)
 }
 
 export function handleMintFromSale(event: MintFromSale): void {
@@ -125,9 +127,11 @@ export function handleSalePaused(event: SalePaused): void {
         event.params.editionId.toString(),
     ]);
 
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+
     // TODO Create activity event?
 
-    const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params.saleId, event.params.editionId);
     gatedSale.paused = true;
     gatedSale.save();
 }
@@ -138,9 +142,11 @@ export function handleSaleResumed(event: SaleResumed): void {
         event.params.editionId.toString(),
     ]);
 
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+
     // TODO Create activity event?
 
-    const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params.saleId, event.params.editionId);
     gatedSale.paused = false;
     gatedSale.save();
 }
