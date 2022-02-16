@@ -612,7 +612,7 @@ dataSources:
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
-        - event:  BuyNowPurchased(indexed uint256,address,address,uint256)
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleTokenPurchased
         - event: BuyNowPriceChanged(indexed uint256,uint256)
           handler: handleBuyNowTokenPriceChanged
@@ -724,4 +724,9 @@ dataSources:
           handler: handleSaleResumed
         - event: AdminUpdatePlatformPrimarySaleCommissionGatedSale(indexed uint256,uint256)
           handler: handleAdminUpdatePlatformPrimarySaleCommissionGatedSale
+
+          # TODO make config toggled on/off
+          # TODO contract Pausable
+          # TODO update PlatformConfig entity
+
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts

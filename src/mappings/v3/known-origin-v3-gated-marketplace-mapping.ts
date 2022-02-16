@@ -1,4 +1,4 @@
-import {log} from "@graphprotocol/graph-ts/index";
+import {Address, log} from "@graphprotocol/graph-ts/index";
 
 import {
     AdminUpdatePlatformPrimarySaleCommissionGatedSale,
@@ -8,12 +8,23 @@ import {
     SalePaused,
     SaleResumed,
     SaleWithPhaseCreated,
-} from "../../../generated/KODAV3GatedMarketplace/KODAV3GatedMarketplace";
-import {KODAV3UpgradableGatedMarketplace} from "../../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+    KODAV3UpgradableGatedMarketplace
+} from "../../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
 import * as editionService from "../../services/Edition.service";
 import * as gatedSaleService from "../../services/GatedSale.service";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {
+    _handleArtistAndDayCounts,
+    _handleEditionPrimarySale,
+    _handleTokenPrimarySale
+} from "./known-origin-v3-primary-marketplace-mapping";
+import * as collectorService from "../../services/Collector.service";
+import * as tokenService from "../../services/Token.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as EVENT_TYPES from "../../utils/EventTypes";
 
 
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
@@ -46,6 +57,8 @@ export function handlePhaseCreated(event: PhaseCreated): void {
 
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
 
+    // TODO Create activity event?
+
     // add phase to sale
     const phases = gatedSale.phases
     phases.push(phase.id)
@@ -63,44 +76,45 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
 }
 
 export function handleMintFromSale(event: MintFromSale): void {
-    log.info("KO V3 Gated Marketplace handleMintFromSale() called - sale {} edition {}", [
+    log.info("KO V3 Gated Marketplace handleMintFromSale() called - sale {} phase {} token {}", [
         event.params.saleId.toString(),
-        event.params.editionId.toString(),
+        event.params.phaseId.toString(),
+        event.params.tokenId.toString(),
     ]);
 
-    // TODO re-enable once we know what token ha just sold
+    let kodaV3Contract = KnownOriginV3.bind(
+        KODAV3UpgradableGatedMarketplace.bind(event.address).koda()
+    );
 
-    // let kodaV3Contract = KnownOriginV3.bind(
-    //     KODAV3UpgradableGatedMarketplace.bind(event.address).koda()
-    // );
-    //
-    // let editionId = kodaV3Contract.getEditionIdOfToken(event.params._tokenId)
-    //
-    // log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
-    //
-    // // Action edition data changes
-    // let editionEntity = editionService.loadNonNullableEdition(editionId)
-    //
-    // // Create collector
-    // let collector = collectorService.loadOrCreateCollector(event.params._buyer, event.block);
-    // collector.save();
-    //
-    // _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, event.params._price)
-    // editionEntity.save()
-    //
-    // let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
-    // tokenTransferEvent.save();
-    //
-    // // Set price against token
-    // let tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
-    // _handleTokenPrimarySale(tokenEntity, event.params._price)
-    // tokenEntity.save()
-    //
-    // // Record Artist Data
-    // let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
-    // _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, event.params._price, artistAddress, event.params._buyer);
-    //
-    // activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, event.params._price, event.params._buyer)
+    let editionId = kodaV3Contract.getEditionIdOfToken(event.params.tokenId)
+
+    log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
+
+    let saleValue = event.transaction.value.div(event.params.mintCount);
+
+    // Action edition data changes
+    let editionEntity = editionService.loadNonNullableEdition(editionId)
+
+    // Create collector
+    let collector = collectorService.loadOrCreateCollector(event.params.account, event.block);
+    collector.save();
+
+    _handleEditionPrimarySale(editionEntity, collector, event.params.tokenId, saleValue)
+    editionEntity.save()
+
+    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params.tokenId, event.params.account, saleValue);
+    tokenTransferEvent.save();
+
+    // Set price against token
+    let tokenEntity = tokenService.loadNonNullableToken(event.params.tokenId)
+    _handleTokenPrimarySale(tokenEntity, saleValue)
+    tokenEntity.save()
+
+    // Record Artist Data
+    let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
+    _handleArtistAndDayCounts(event, editionEntity, event.params.tokenId, saleValue, artistAddress, event.params.account);
+
+    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, saleValue, event.params.account)
 }
 
 export function handleSalePaused(event: SalePaused): void {
@@ -108,6 +122,9 @@ export function handleSalePaused(event: SalePaused): void {
         event.params.saleId.toString(),
         event.params.editionId.toString(),
     ]);
+
+    // TODO Create activity event?
+
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
     gatedSale.paused = true;
     gatedSale.save();
@@ -118,6 +135,9 @@ export function handleSaleResumed(event: SaleResumed): void {
         event.params.saleId.toString(),
         event.params.editionId.toString(),
     ]);
+
+    // TODO Create activity event?
+
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
     gatedSale.paused = false;
     gatedSale.save();
