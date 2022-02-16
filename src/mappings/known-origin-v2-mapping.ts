@@ -169,7 +169,7 @@ export function handleTransfer(event: Transfer): void {
         offerService.updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
-    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to)
+    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._from, event.params._to)
 
     ///////////////
     // Transfers //
