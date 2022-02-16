@@ -33,13 +33,15 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
         event.params.editionId.toString(),
     ]);
 
-    const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params.saleId, event.params.editionId);
     gatedSale.save();
 
     // TODO Create activity event?
 
     const edition = editionService.loadNonNullableEdition(event.params.editionId)
-    edition.salesType = SaleTypes.GATED_SALE_ONCHAIN;
+    edition.salesType = SaleTypes.GATED_SALE_ONCHAIN_BUY_NOW;
     edition.gatedSale = gatedSale.id
     edition.save()
 }
@@ -55,7 +57,7 @@ export function handlePhaseCreated(event: PhaseCreated): void {
 
     const phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params.saleId, event.params.editionId, event.params.phaseId);
 
-    const gatedSale = gatedSaleService.loadOrCreateGatedSale(event.params.saleId, event.params.editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params.saleId, event.params.editionId);
 
     // TODO Create activity event?
 

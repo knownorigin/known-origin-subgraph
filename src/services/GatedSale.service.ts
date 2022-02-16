@@ -1,8 +1,10 @@
-import {GatedSale, Phase,} from "../../generated/schema";
+import {GatedSale, Phase} from "../../generated/schema";
 import {BigInt} from "@graphprotocol/graph-ts/index";
-import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import {
+    KODAV3UpgradableGatedMarketplace
+} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 
-export function loadOrCreateGatedSale(saleId: BigInt, editionId: BigInt): GatedSale {
+export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
 
     if (gatedSale == null) {
@@ -11,13 +13,26 @@ export function loadOrCreateGatedSale(saleId: BigInt, editionId: BigInt): GatedS
         gatedSale.phases = new Array<string>();
         gatedSale.paused = false;
 
-        // TODO this should not be hard coded - call contract when possible
-        gatedSale.primarySaleCommission = BigInt.fromString("15"); // default commission
+        // Get the sales commission
+        let salesCommission = gatedMarketplace.saleCommission(saleId)
+        if (salesCommission == BigInt.fromString("0")) {
+            // TODO this should not be hard coded - call contract to check default commission
+            salesCommission = BigInt.fromString("15")
+        }
+        gatedSale.primarySaleCommission = salesCommission
+
+        // Create the phase
+        let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromString("0"))
+        let phases = gatedSale.phases
+        phases.push(phase.id)
+        gatedSale.phases = phases
+
         gatedSale.save();
     }
 
     return gatedSale as GatedSale;
 }
+
 export function loadNonNullableGatedSale(saleId: BigInt): GatedSale | null {
     return GatedSale.load(saleId.toString());
 }
