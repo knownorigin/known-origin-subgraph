@@ -159,7 +159,7 @@ export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Toke
 
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.TOKEN_LISTED, rawEvent, edition, token, value, owner, null)
+        event = createTokenEvent(id, EVENT_TYPES.TOKEN_LISTED, rawEvent, edition, token, value, null, owner)
         event.save()
     }
 }
@@ -170,7 +170,7 @@ export function recordSecondaryTokenReserveAuctionListed(rawEvent: ethereum.Even
 
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.RESERVE_AUCTION_LISTED, rawEvent, edition, token, value, owner, null)
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_AUCTION_LISTED, rawEvent, edition, token, value, null, owner)
         event.save()
     }
 }
@@ -215,7 +215,7 @@ export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event,
 
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, token, value, owner, null)
+        event = createTokenEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, token, value, null, owner)
         event.save()
     }
 }
@@ -226,7 +226,7 @@ export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: To
 
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.TOKEN_DELISTED, rawEvent, edition, token, null, owner, null)
+        event = createTokenEvent(id, EVENT_TYPES.TOKEN_DELISTED, rawEvent, edition, token, null, null, owner)
         event.save()
     }
 }
@@ -300,11 +300,11 @@ function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
 
 // ['Transfer'', 'EditionGifted', 'PriceChanged']
 
-export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, to: Address): void {
+export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, from: Address, to: Address): void {
     let id: string = tokenActivityId(token, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, null, to, null)
+        event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, null, to, from)
         event.save()
     }
 }
