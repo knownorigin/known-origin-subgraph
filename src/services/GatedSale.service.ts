@@ -44,7 +44,11 @@ export function loadNonNullableGatedSale(saleId: BigInt): GatedSale | null {
     return GatedSale.load(saleId.toString());
 }
 
-function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt) {
+export function loadNonNullabledGatedPhase(phaseId: BigInt): Phase | null {
+    return Phase.load(phaseId.toString());
+}
+
+export function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt): string {
     return saleId.toString()
         .concat("-")
         .concat(editionId.toString())
@@ -53,14 +57,13 @@ function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt) {
 }
 
 export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt, phaseId: BigInt): Phase {
-    let phase = Phase.load(saleId.toString());
+    let ID = createPhaseId(saleId, editionId, phaseId)
+    let phase = Phase.load(ID.toString());
 
     if (phase == null) {
-        const phaseDetails = gatedMarketplace.try_phases(saleId, phaseId)
+        let phaseDetails = gatedMarketplace.try_phases(saleId, phaseId)
         if (!phaseDetails.reverted) {
             let _phaseData = phaseDetails.value;
-
-            const ID = createPhaseId(saleId, editionId, phaseId)
 
             phase = new Phase(ID);
             phase.saleId = saleId.toString();
@@ -83,7 +86,7 @@ export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGat
     return phase as Phase;
 }
 
-export function removePhaseFromSale(saleId: BigInt, editionId: BigInt, phaseId: BigInt) {
+export function removePhaseFromSale(saleId: BigInt, editionId: BigInt, phaseId: BigInt): void {
     let sale = loadNonNullableGatedSale(saleId);
     let salePhases = new Array<string>()
     let existingPhases = sale.phases;
@@ -98,5 +101,4 @@ export function removePhaseFromSale(saleId: BigInt, editionId: BigInt, phaseId: 
     }
     sale.phases = salePhases;
     sale.save();
-    return sale
 }

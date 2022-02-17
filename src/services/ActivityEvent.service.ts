@@ -1,7 +1,9 @@
 import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
-import {ActivityEvent, Edition, Token} from "../../generated/schema";
+import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
+import {SaleWithPhaseCreated} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import {GATED_SALE_CREATED, GATED_SALE_PHASE_REMOVED} from "../utils/EventTypes";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -96,7 +98,7 @@ function editionActivityId(edition: Edition, rawEvent: ethereum.Event): string {
 function getStakeholderAddressesPrimary(edition: Edition, buyer: Address | null): Bytes[] {
     let arr = edition.collaborators
 
-    if(buyer) {
+    if (buyer) {
         arr.push(buyer as Bytes)
     }
 
@@ -349,11 +351,97 @@ export function recordComposableClaimed(rawEvent: ethereum.Event, edition: Editi
 function getStakeholderAddressesSecondary(creator: Bytes, seller: Address | null, buyer: Address | null): Bytes[] {
     let arr: Array<Bytes> = new Array<Bytes>()
     arr.push(creator as Bytes)
-    if(buyer) {
+    if (buyer) {
         arr.push(buyer as Bytes)
     }
-    if(seller) {
+    if (seller) {
         arr.push(seller as Bytes)
     }
     return arr
+}
+
+function createGatedId(type: string, saleId: string, phaseId: string, editionId: string, event: ethereum.Event): string {
+    return `${type}`
+        .concat("-")
+        .concat(saleId)
+        .concat("-")
+        .concat(phaseId)
+        .concat("-")
+        .concat(editionId)
+        .concat("-")
+        .concat(event.transaction.hash.toString())
+}
+
+function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): ActivityEvent {
+    let event: ActivityEvent = new ActivityEvent(ID);
+
+    event.version = edition.version
+    event.type = TYPE_EDITION
+    event.eventType = type
+    event.edition = edition.id
+    event.seller = ZERO_ADDRESS
+    event.creator = edition.artistAccount || ZERO_ADDRESS;
+    event.creatorCommission = sale.primarySaleCommission
+    event.collaborator = ZERO_ADDRESS
+    event.collaboratorCommission = edition.optionalCommissionRate;
+    event.stakeholderAddresses = [edition.artistAccount || ZERO_ADDRESS]
+    event.triggeredBy = edition.artistAccount || ZERO_ADDRESS;
+
+    event.eventValueInWei = ZERO;
+    if (phase != null) {
+        event.eventValueInWei = phase.priceInWei;
+    }
+
+    event.timestamp = rawEvent.block.timestamp;
+    event.transactionHash = rawEvent.transaction.hash;
+    event.logIndex = rawEvent.transaction.index;
+    event.eventAddress = rawEvent.address;
+    if (rawEvent.transaction.to) {
+        event.eventTxTo = rawEvent.transaction.to;
+    }
+    event.eventTxFrom = rawEvent.transaction.from;
+    event.blockNumber = rawEvent.block.number;
+
+    return event
+}
+
+export function recordGatedSaleCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
+    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_CREATED, rawEvent, sale, edition, null)
+
+    event.save()
+}
+
+export function recordGatedPhaseCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): void {
+    let ID = createGatedId("gatedSalePhase", sale.id.toString(), phase.id.toString(), edition.id.toString(), rawEvent)
+
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_CREATED, rawEvent, sale, edition, phase)
+
+    event.save()
+}
+
+// TODO do we need to record the phase ID that was removed somewhere or is an event enough?
+export function recordGatedPhaseRemoved(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): void {
+    let ID = createGatedId("gatedSalePhase", sale.id.toString(), phase.id.toString(), edition.id.toString(), rawEvent)
+
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_REMOVED, rawEvent, sale, edition, phase)
+
+    event.save()
+}
+
+export function recordGatedSalePaused(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
+    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PAUSED, rawEvent, sale, edition, null)
+
+    event.save()
+}
+
+export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
+    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_RESUMED, rawEvent, sale, edition, null)
+
+    event.save()
 }
