@@ -716,7 +716,7 @@ dataSources:
           handler: handlePhaseCreated
         - event: PhaseRemoved(indexed uint256,indexed uint256,indexed uint256)
           handler: handlePhaseRemoved
-        - event: MintFromSale(indexed uint256,indexed uint256,indexed uint256,address,uint256)
+        - event: MintFromSale(uint256,uint256,uint256,address,uint256)
           handler: handleMintFromSale
         - event: SalePaused(indexed uint256,indexed uint256)
           handler: handleSalePaused
