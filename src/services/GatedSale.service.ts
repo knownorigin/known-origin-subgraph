@@ -3,7 +3,6 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 import {
     KODAV3UpgradableGatedMarketplace
 } from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
-import {loadOrCreateCollector} from "./Collector.service";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
@@ -26,7 +25,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
 
         for (let i = 0; i < 3; i++) {
             // Try and create the phase
-            let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromString(`${i}`))
+            let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromI32(i))
             if (phase != null) {
                 phases.push(phase.id)
             }

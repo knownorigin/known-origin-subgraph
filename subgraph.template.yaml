@@ -706,6 +706,7 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - GatedSale
+        - Phase
       abis:
         - name: KODAV3UpgradableGatedMarketplace
           file: ./abis/kodav3/KODAV3UpgradableGatedMarketplace.json

@@ -25,8 +25,6 @@ import * as tokenService from "../../services/Token.service";
 import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
-import {loadNonNullabledGatedPhase, removePhaseFromSale} from "../../services/GatedSale.service";
-import {recordGatedPhaseCreated} from "../../services/ActivityEvent.service";
 import {Phase} from "../../../generated/schema";
 
 
