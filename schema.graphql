@@ -512,6 +512,7 @@ type GatedSale @entity {
     editionId: BigInt!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
     primarySaleCommission: BigInt! # overridden sales commission for KO
+    artistAccount: String   # The address of the artist associated with the given edition ID
     phases: [Phase!]!       # associated sales
 }
 

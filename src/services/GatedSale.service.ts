@@ -3,6 +3,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 import {
     KODAV3UpgradableGatedMarketplace
 } from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import * as editionService from "./Edition.service";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
@@ -32,6 +33,11 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         }
 
         gatedSale.phases = phases
+
+        let edition = editionService.loadNonNullableEdition(editionId)
+        if(edition.artistAccount) {
+            gatedSale.artistAccount = edition.metadataArtistAccount
+        }
 
         gatedSale.save();
     }
