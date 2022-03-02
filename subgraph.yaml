@@ -711,19 +711,19 @@ dataSources:
         - name: KODAV3UpgradableGatedMarketplace
           file: ./abis/kodav3/KODAV3UpgradableGatedMarketplace.json
       eventHandlers:
-        - event: SaleWithPhaseCreated(indexed uint256,indexed uint256)
+        - event: SaleWithPhaseCreated(indexed uint256)
           handler: handleSaleWithPhaseCreated
-        - event: PhaseCreated(indexed uint256,indexed uint256,indexed uint256)
+        - event: PhaseCreated(indexed uint256,indexed uint256)
           handler: handlePhaseCreated
-        - event: PhaseRemoved(indexed uint256,indexed uint256,indexed uint256)
+        - event: PhaseRemoved(indexed uint256,indexed uint256)
           handler: handlePhaseRemoved
-        - event: MintFromSale(uint256,uint256,uint256,address,uint256)
+        - event: MintFromSale(indexed uint256,indexed uint256,indexed uint256,address)
           handler: handleMintFromSale
-        - event: SalePaused(indexed uint256,indexed uint256)
+        - event: SalePaused(indexed uint256)
           handler: handleSalePaused
-        - event: SaleResumed(indexed uint256,indexed uint256)
+        - event: SaleResumed(indexed uint256)
           handler: handleSaleResumed
-        - event: AdminUpdatePlatformPrimarySaleCommissionGatedSale(indexed uint256,uint256)
+        - event: AdminSetKoCommissionOverrideForSale(indexed uint256,uint256)
           handler: handleAdminUpdatePlatformPrimarySaleCommissionGatedSale
 
           # TODO make config toggled on/off

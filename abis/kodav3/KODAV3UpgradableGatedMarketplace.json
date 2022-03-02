@@ -67,6 +67,25 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_platformPrimarySaleCommission",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminSetKoCommissionOverrideForSale",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "contract IKOAccessControlsLookup",
         "name": "_oldAddress",
         "type": "address"
@@ -92,6 +111,63 @@
       }
     ],
     "name": "AdminUpdateBidLockupPeriod",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newCreator",
+        "type": "address"
+      }
+    ],
+    "name": "AdminUpdateCreator",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_newFundsReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "AdminUpdateFundReceiver",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newMaxEditionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdminUpdateMaxEditionId",
     "type": "event"
   },
   {
@@ -150,38 +226,6 @@
       }
     ],
     "name": "AdminUpdatePlatformPrimaryCommission",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_platformPrimarySaleCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "AdminUpdatePlatformPrimarySaleCommission",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "platformPrimarySaleCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "AdminUpdatePlatformPrimarySaleCommissionGatedSale",
     "type": "event"
   },
   {
@@ -277,121 +321,26 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "platformPrimarySaleCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "MerkleAdminUpdatePlatformPrimarySaleCommissionGatedSale",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "saleId",
+        "name": "_saleId",
         "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "phaseId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "MerklePhaseCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
+        "name": "_phaseId",
         "type": "uint256"
       },
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "phaseId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "MerklePhaseRemoved",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPaused",
-        "type": "bool"
-      }
-    ],
-    "name": "MerkleSalePauseUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      }
-    ],
-    "name": "MerkleSaleWithPhaseCreated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "phaseId",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "account",
+        "name": "_recipient",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "mintCount",
-        "type": "uint256"
       }
     ],
     "name": "MintFromSale",
@@ -416,19 +365,13 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
+        "name": "_saleId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "phaseId",
+        "name": "_phaseId",
         "type": "uint256"
       }
     ],
@@ -441,19 +384,13 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
+        "name": "_saleId",
         "type": "uint256"
       },
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "phaseId",
+        "name": "_phaseId",
         "type": "uint256"
       }
     ],
@@ -466,13 +403,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "editionId",
+        "name": "_saleId",
         "type": "uint256"
       }
     ],
@@ -485,13 +416,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "editionId",
+        "name": "_saleId",
         "type": "uint256"
       }
     ],
@@ -504,13 +429,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "saleId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "editionId",
+        "name": "_saleId",
         "type": "uint256"
       }
     ],
@@ -557,24 +476,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_phaseIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "addPhasesToMerkleSale",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "bidLockupPeriod",
     "outputs": [
@@ -595,24 +496,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes32[]",
-        "name": "_phaseIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "createMerkleSaleWithPhases",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
         "internalType": "uint128",
         "name": "_startTime",
         "type": "uint128"
@@ -621,6 +504,16 @@
         "internalType": "uint128",
         "name": "_endTime",
         "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_priceInWei",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "_mintCap",
+        "type": "uint16"
       },
       {
         "internalType": "uint16",
@@ -636,16 +529,6 @@
         "internalType": "string",
         "name": "_merkleIPFSHash",
         "type": "string"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_priceInWei",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_mintCap",
-        "type": "uint128"
       }
     ],
     "name": "createPhase",
@@ -671,6 +554,16 @@
         "type": "uint128[]"
       },
       {
+        "internalType": "uint128[]",
+        "name": "_pricesInWei",
+        "type": "uint128[]"
+      },
+      {
+        "internalType": "uint16[]",
+        "name": "_mintCaps",
+        "type": "uint16[]"
+      },
+      {
         "internalType": "uint16[]",
         "name": "_walletMintLimits",
         "type": "uint16[]"
@@ -684,16 +577,6 @@
         "internalType": "string[]",
         "name": "_merkleIPFSHashes",
         "type": "string[]"
-      },
-      {
-        "internalType": "uint128[]",
-        "name": "_pricesInWei",
-        "type": "uint128[]"
-      },
-      {
-        "internalType": "uint128[]",
-        "name": "_mintCaps",
-        "type": "uint128[]"
       }
     ],
     "name": "createSaleWithPhases",
@@ -749,57 +632,19 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "name": "koCommissionOverrideForSale",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "active",
+        "type": "bool"
       },
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "isPhaseWhitelisted",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "koCommission",
         "type": "uint256"
-      }
-    ],
-    "name": "isSaleCommissionForPlatformDisabled",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "isSalePaused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -816,71 +661,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_phaseId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint16",
-        "name": "_mintCount",
-        "type": "uint16"
-      },
-      {
-        "internalType": "address",
-        "name": "_recipient",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "startTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "endTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint16",
-            "name": "walletMintLimit",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint128",
-            "name": "priceInWei",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "mintCap",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct IKODAV3GatedMerkleMarketplace.MerklePhaseMetadata",
-        "name": "_phase",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_merkleProof",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "merkleMint",
-    "outputs": [],
-    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -919,11 +699,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
-        "name": "_recipient",
-        "type": "address"
-      },
-      {
         "internalType": "bytes32[]",
         "name": "_merkleProof",
         "type": "bytes32[]"
@@ -942,72 +717,6 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_phaseId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "startTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "endTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint16",
-            "name": "walletMintLimit",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint128",
-            "name": "priceInWei",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "mintCap",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct IKODAV3GatedMerkleMarketplace.MerklePhaseMetadata",
-        "name": "_phase",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_merkleProof",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "onPhaseMerkleList",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1075,25 +784,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "phaseMintCount",
-    "outputs": [
-      {
-        "internalType": "uint128",
-        "name": "",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -1117,14 +807,24 @@
         "type": "uint128"
       },
       {
-        "internalType": "uint16",
-        "name": "walletMintLimit",
-        "type": "uint16"
-      },
-      {
         "internalType": "uint128",
         "name": "priceInWei",
         "type": "uint128"
+      },
+      {
+        "internalType": "uint16",
+        "name": "mintCounter",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "mintCap",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint16",
+        "name": "walletMintLimit",
+        "type": "uint16"
       },
       {
         "internalType": "bytes32",
@@ -1135,16 +835,6 @@
         "internalType": "string",
         "name": "merkleIPFSHash",
         "type": "string"
-      },
-      {
-        "internalType": "uint128",
-        "name": "mintCap",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "mintCounter",
-        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -1202,67 +892,19 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_phaseId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "_account",
+        "internalType": "address payable",
+        "name": "_recipient",
         "type": "address"
       },
       {
-        "components": [
-          {
-            "internalType": "uint128",
-            "name": "startTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "endTime",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint16",
-            "name": "walletMintLimit",
-            "type": "uint16"
-          },
-          {
-            "internalType": "uint128",
-            "name": "priceInWei",
-            "type": "uint128"
-          },
-          {
-            "internalType": "uint128",
-            "name": "mintCap",
-            "type": "uint128"
-          }
-        ],
-        "internalType": "struct IKODAV3GatedMerkleMarketplace.MerklePhaseMetadata",
-        "name": "_phase",
-        "type": "tuple"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_merkleProof",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "remainingMerklePhaseMintAllowance",
-    "outputs": [
-      {
         "internalType": "uint256",
-        "name": "",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "name": "recoverStuckETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1323,51 +965,8 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_phaseIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "removePhasesFromMerkleSale",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "saleCommission",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "saleToEditionId",
+    "inputs": [],
+    "name": "saleIdCounter",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1399,9 +998,29 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "fundsReceiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxEditionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "mintCounter",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
         "name": "paused",
-        "type": "bool"
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -1413,22 +1032,19 @@
         "internalType": "uint256",
         "name": "_saleId",
         "type": "uint256"
-      }
-    ],
-    "name": "toggleMerkleSalePause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
+      {
+        "internalType": "bool",
+        "name": "_active",
+        "type": "bool"
+      },
       {
         "internalType": "uint256",
-        "name": "_saleId",
+        "name": "_koCommission",
         "type": "uint256"
       }
     ],
-    "name": "togglePlatformCommissionDisabledForSale",
+    "name": "setKoCommissionOverrideForSale",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1454,48 +1070,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "totalMerkleMints",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "name": "totalMints",
@@ -1538,6 +1115,60 @@
       }
     ],
     "name": "updateBidLockupPeriod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newCreator",
+        "type": "address"
+      }
+    ],
+    "name": "updateCreator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_newFundsReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "updateFundsReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_saleId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newMaxEditionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateMaxEditionId",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1590,24 +1221,6 @@
       }
     ],
     "name": "updatePlatformPrimaryCommission",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_saleId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_platformPrimarySaleCommission",
-        "type": "uint256"
-      }
-    ],
-    "name": "updatePlatformPrimarySaleCommission",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

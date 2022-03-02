@@ -1,8 +1,6 @@
 import {GatedSale, Phase} from "../../generated/schema";
 import {BigInt} from "@graphprotocol/graph-ts/index";
-import {
-    KODAV3UpgradableGatedMarketplace
-} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
+import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import * as editionService from "./Edition.service";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
@@ -14,11 +12,11 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         gatedSale.phases = new Array<string>();
         gatedSale.paused = false;
 
+        let salesCommission = gatedMarketplace.platformPrimaryCommission();
         // Get the sales commission
-        let salesCommission = gatedMarketplace.saleCommission(saleId)
-        if (salesCommission == BigInt.fromString("0")) {
-            // TODO this should not be hard coded - call contract to check default commission
-            salesCommission = BigInt.fromString("15")
+        let commissionConfig = gatedMarketplace.koCommissionOverrideForSale(saleId)
+        if (commissionConfig.value0) {
+            salesCommission = commissionConfig.value1
         }
         gatedSale.primarySaleCommission = salesCommission
 
@@ -35,7 +33,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         gatedSale.phases = phases
 
         let edition = editionService.loadNonNullableEdition(editionId)
-        if(edition.artistAccount) {
+        if (edition.artistAccount) {
             gatedSale.artistAccount = edition.metadataArtistAccount
         }
 
@@ -45,12 +43,12 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
     return gatedSale as GatedSale;
 }
 
-export function loadNonNullableGatedSale(saleId: BigInt): GatedSale | null {
-    return GatedSale.load(saleId.toString());
+export function loadNonNullableGatedSale(saleId: BigInt): GatedSale {
+    return GatedSale.load(saleId.toString()) as GatedSale;
 }
 
-export function loadNonNullabledGatedPhase(phaseId: BigInt): Phase | null {
-    return Phase.load(phaseId.toString());
+export function loadNonNullabledGatedPhase(phaseId: string): Phase {
+    return Phase.load(phaseId) as Phase;
 }
 
 export function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt): string {
@@ -75,15 +73,14 @@ export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGat
             phase.editionId = editionId.toString();
             phase.phaseId = phaseId.toString();
 
-
             phase.startTime = _phaseData.value0;
             phase.endTime = _phaseData.value1;
-            phase.walletMintLimit = BigInt.fromI32(_phaseData.value2);
-            phase.priceInWei = _phaseData.value3;
-            phase.merkleRoot = _phaseData.value4;
-            phase.merkleIPFSHash = _phaseData.value5;
-            phase.mintCap = _phaseData.value6;
-            phase.mintCounter = _phaseData.value7;
+            phase.priceInWei = _phaseData.value2;
+            phase.mintCounter = BigInt.fromI32(_phaseData.value3);
+            phase.mintCap = BigInt.fromI32(_phaseData.value4);
+            phase.walletMintLimit = BigInt.fromI32(_phaseData.value5);
+            phase.merkleRoot = _phaseData.value6;
+            phase.merkleIPFSHash = _phaseData.value7;
             phase.save();
         }
     }
