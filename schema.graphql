@@ -408,7 +408,7 @@ type Edition @entity {
     # ----- Offers logic - #
 
     # ----- Gated sale config - #
-    gatedSale: GatedSale # the linked gated sale
+    gatedSale: GatedSale        # the linked gated sale
     # ----- Gated sale config - #
 
     # Events and histories

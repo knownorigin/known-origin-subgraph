@@ -41,7 +41,6 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     gatedSale.save();
 
     let edition = editionService.loadNonNullableEdition(editionId)
-    edition.salesType = SaleTypes.GATED_SALE_ONCHAIN_BUY_NOW;
     edition.gatedSale = gatedSale.id
     edition.save()
 

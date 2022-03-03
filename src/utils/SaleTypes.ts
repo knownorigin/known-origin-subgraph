@@ -15,9 +15,3 @@ export const STEPPED_SALE = BigInt.fromI32(4);
 
 // V3 only
 export const RESERVE_COUNTDOWN_AUCTION = BigInt.fromI32(5);
-
-// V3 only
-export const GATED_SALE_ONCHAIN_BUY_NOW = BigInt.fromI32(6);
-
-// V3 only
-export const GATED_SALE_SIGNATURE = BigInt.fromI32(7);
