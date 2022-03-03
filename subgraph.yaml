@@ -697,9 +697,9 @@ dataSources:
     name: KODAV3UpgradableGatedMarketplace
     network: rinkeby
     source:
-      address: '0x274077eca704885d3137e0b6072332097c341249'
+      address: '0x60d119840cE1f19c1e1230AC79cfA1E780CE2Fb9'
       abi: KODAV3UpgradableGatedMarketplace
-      startBlock: 10185674
+      startBlock: 10263426
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
