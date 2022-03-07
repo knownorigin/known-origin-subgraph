@@ -23,6 +23,8 @@
   "koda-v3-startBlock": 9738449,
   "koda-v3-minting-factory-address": "0x35668a2Fd45452231a2639edcb887cD45951e597",
   "koda-v3-minting-factory-startBlock": 9738480,
+  "koda-v3-minting-factory-v2-address": "0x35668a2Fd45452231a2639edcb887cD45951e597",
+  "koda-v3-minting-factory-v2-startBlock": 9738480,
   "koda-v3-primary-marketplace-address": "0x4B7A8Ce7d004C5c68207F355F6A838C941FF6B96",
   "koda-v3-primary-marketplace-startBlock": 9738462,
   "koda-v3-secondary-marketplace-address": "0x1f31f522b51cd5cB847c7228fE3bF9916800aaDe",

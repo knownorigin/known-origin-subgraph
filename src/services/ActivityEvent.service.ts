@@ -2,8 +2,7 @@ import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
-import {SaleWithPhaseCreated} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
-import {GATED_SALE_CREATED, GATED_SALE_PHASE_REMOVED} from "../utils/EventTypes";
+import {GATED_SALE_CREATED} from "../utils/EventTypes";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -408,7 +407,7 @@ function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, s
 export function recordGatedSaleCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
     let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
 
-    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_CREATED, rawEvent, sale, edition, null)
+    let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_CREATED, rawEvent, sale, edition, null)
 
     event.save()
 }
@@ -421,7 +420,6 @@ export function recordGatedPhaseCreated(rawEvent: ethereum.Event, sale: GatedSal
     event.save()
 }
 
-// TODO do we need to record the phase ID that was removed somewhere or is an event enough?
 export function recordGatedPhaseRemoved(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): void {
     let ID = createGatedId("gatedSalePhase", sale.id.toString(), phase.id.toString(), edition.id.toString(), rawEvent)
 

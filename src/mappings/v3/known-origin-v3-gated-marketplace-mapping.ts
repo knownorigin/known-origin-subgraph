@@ -8,13 +8,13 @@ import {
     PhaseRemoved,
     SalePaused,
     SaleResumed,
+    SaleCreated,
     SaleWithPhaseCreated
 } from "../../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
 
 import * as editionService from "../../services/Edition.service";
 import * as gatedSaleService from "../../services/GatedSale.service";
-import * as SaleTypes from "../../utils/SaleTypes";
 import {
     _handleArtistAndDayCounts,
     _handleEditionPrimarySale,
@@ -26,10 +26,30 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {Phase} from "../../../generated/schema";
+import {recordGatedSaleCreated} from "../../services/ActivityEvent.service";
 
 
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() called - sale {}", [
+        event.params._saleId.toString()
+    ]);
+
+    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+
+    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+
+    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    gatedSale.save();
+
+    let edition = editionService.loadNonNullableEdition(editionId)
+    edition.gatedSale = gatedSale.id
+    edition.save()
+
+    activityEventService.recordGatedSaleCreated(event, gatedSale, edition)
+}
+
+export function handleSaleCreated(event: SaleCreated): void {
+    log.info("KO V3 Gated Marketplace handleSaleCreated() called - sale {}", [
         event.params._saleId.toString()
     ]);
 
@@ -86,14 +106,14 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
 
     let phaseId = gatedSaleService.createPhaseId(event.params._saleId, editionId, event.params._phaseId)
 
-    let phase = gatedSaleService.loadNonNullabledGatedPhase(phaseId);
+    let phase = gatedSaleService.loadNonNullableGatedPhase(phaseId);
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     let edition = editionService.loadNonNullableEdition(editionId)
 
     activityEventService.recordGatedPhaseRemoved(event, gatedSale, edition, phase)
 
-    store.remove('Phase', event.params._phaseId.toString())
+    store.remove('Phase', phaseId.toString())
 }
 
 export function handleMintFromSale(event: MintFromSale): void {

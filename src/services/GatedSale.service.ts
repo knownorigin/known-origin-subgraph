@@ -20,17 +20,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         }
         gatedSale.primarySaleCommission = salesCommission
 
-        let phases = gatedSale.phases
-
-        for (let i = 0; i < 3; i++) {
-            // Try and create the phase
-            let phase = loadOrCreateGatedSalePhase(gatedMarketplace, saleId, editionId, BigInt.fromI32(i))
-            if (phase != null) {
-                phases.push(phase.id)
-            }
-        }
-
-        gatedSale.phases = phases
+        // Note: dont setup phases as these are driven from their own events
 
         let edition = editionService.loadNonNullableEdition(editionId)
         if (edition.artistAccount) {
@@ -47,7 +37,7 @@ export function loadNonNullableGatedSale(saleId: BigInt): GatedSale {
     return GatedSale.load(saleId.toString()) as GatedSale;
 }
 
-export function loadNonNullabledGatedPhase(phaseId: string): Phase {
+export function loadNonNullableGatedPhase(phaseId: string): Phase {
     return Phase.load(phaseId) as Phase;
 }
 

@@ -28,6 +28,7 @@ export const RESERVE_PRICE_CHANGED = "ReservePriceChanged";
 export const COMPOSABLE_ADDED = "ComposableAdded";
 export const COMPOSABLE_CLAIMED = "ComposableClaimed";
 
+// Gated sale magic
 export const GATED_SALE_CREATED = "GatedSaleCreated"
 export const GATED_SALE_PHASE_CREATED = "GatedSalePhaseCreated"
 export const GATED_SALE_PHASE_REMOVED = "GatedSalePhaseRemoved"
