@@ -461,9 +461,9 @@ dataSources:
     name: MintingFactoryV2
     network: rinkeby
     source:
-      address: '0x35668a2Fd45452231a2639edcb887cD45951e597'
+      address: '0x32f43177CB70EB482cFD5DD1f3D48A760241A36F'
       abi: MintingFactory
-      startBlock: 9738480
+      startBlock: 10288893
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -714,9 +714,9 @@ dataSources:
     name: KODAV3UpgradableGatedMarketplace
     network: rinkeby
     source:
-      address: '0x60d119840cE1f19c1e1230AC79cfA1E780CE2Fb9'
+      address: '0xB3563C45E45714d9B1a61171c0774a6deb07123D'
       abi: KODAV3UpgradableGatedMarketplace
-      startBlock: 10263426
+      startBlock: 10288880
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
