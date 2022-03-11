@@ -9,6 +9,14 @@ let MAPPING_OVERRIDES = new Map<String, String>();
 // Edition ID to IPFS hash
 MAPPING_OVERRIDES.set("23000", "QmQfekqvArSBwqUZisArmXpsZDb9cqyauHkyJBh141sR8Y")
 
+function nameOverrides(editionId:BigInt, originalName:string) : string {
+    // Invalid manual mint from back in the day
+    if(editionId.equals(BigInt.fromString("22000"))){
+        return "XCOPY"
+    }
+    return originalName;
+}
+
 function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
     let metaData: MetaData = new MetaData(ipfsHash);
 
@@ -229,6 +237,7 @@ export function constructMetaData(editionNumber: BigInt, tokenURI: string): Meta
         }
 
         if (metaData) {
+            metaData.name = nameOverrides(editionNumber, metaData.name);
             return metaData as MetaData;
         }
 
