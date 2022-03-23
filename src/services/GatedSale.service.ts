@@ -1,5 +1,5 @@
 import {GatedSale, Phase} from "../../generated/schema";
-import {BigInt} from "@graphprotocol/graph-ts/index";
+import {BigInt, log} from "@graphprotocol/graph-ts/index";
 import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import * as editionService from "./Edition.service";
 
@@ -22,9 +22,9 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
 
         // Note: dont setup phases as these are driven from their own events
 
-        let edition = editionService.loadNonNullableEdition(editionId)
-        if (edition.artistAccount) {
-            gatedSale.artistAccount = edition.metadataArtistAccount
+        let edition = editionService.loadNonNullableEdition(editionId);
+        if (edition.artistAccount !== null) {
+            gatedSale.artistAccount = edition.artistAccount.toHexString()
         }
 
         gatedSale.save();

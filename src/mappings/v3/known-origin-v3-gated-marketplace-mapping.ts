@@ -26,8 +26,6 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {Phase} from "../../../generated/schema";
-import {recordGatedSaleCreated} from "../../services/ActivityEvent.service";
-
 
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() called - sale {}", [
@@ -37,6 +35,9 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() editionToSale {}", [
+        editionId.toString()
+    ]);
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
@@ -78,6 +79,7 @@ export function handlePhaseCreated(event: PhaseCreated): void {
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
 
     let phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId);
+    phase.save()
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
 
@@ -107,8 +109,11 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
     let phaseId = gatedSaleService.createPhaseId(event.params._saleId, editionId, event.params._phaseId)
 
     let phase = gatedSaleService.loadNonNullableGatedPhase(phaseId);
+    phase.save();
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    gatedSale.save();
+
     let edition = editionService.loadNonNullableEdition(editionId)
 
     activityEventService.recordGatedPhaseRemoved(event, gatedSale, edition, phase)
