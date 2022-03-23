@@ -171,6 +171,7 @@ export function handleMintFromSale(event: MintFromSale): void {
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, saleValue, event.params._recipient);
 
+    gatedSaleService.recordSaleMintCount(event.params._saleId, editionId, event.params._phaseId);
     gatedSaleService.recordAddressMintCount(event.params._saleId, editionId, event.params._phaseId, event.params._recipient.toHexString());
 }
 

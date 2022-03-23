@@ -34,6 +34,16 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
     return gatedSale as GatedSale;
 }
 
+export function recordSaleMintCount(saleId: BigInt, editionId: BigInt, phaseId: BigInt): void {
+    let sale = loadNonNullableGatedSale(saleId);
+    sale.mintCount = sale.mintCount.plus(ONE)
+    sale.save()
+
+    let phase = loadNonNullableGatedPhase(createPhaseId(saleId, editionId, phaseId));
+    phase.mintCount = phase.mintCount.plus(ONE)
+    phase.save()
+}
+
 export function recordAddressMintCount(saleId: BigInt, editionId: BigInt, phaseId: BigInt, minter: string): void {
     let ID = createPhaseMintCountId(saleId, editionId, phaseId, minter);
 
@@ -95,7 +105,7 @@ export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGat
             phase.startTime = _phaseData.value0;
             phase.endTime = _phaseData.value1;
             phase.priceInWei = _phaseData.value2;
-            phase.mintCounter = BigInt.fromI32(_phaseData.value3);
+            phase.mintCount = BigInt.fromI32(_phaseData.value3);
             phase.mintCap = BigInt.fromI32(_phaseData.value4);
             phase.walletMintLimit = BigInt.fromI32(_phaseData.value5);
             phase.merkleRoot = _phaseData.value6;

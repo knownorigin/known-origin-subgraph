@@ -513,7 +513,7 @@ type Phase @entity {
     walletMintLimit: BigInt! # The mint limit per wallet for the phase
     priceInWei: BigInt!      # Price in wei for one mint
     mintCap: BigInt!         # The maximum amount of mints for the phase
-    mintCounter: BigInt!     # The current amount of items minted
+    mintCount: BigInt!       # The current amount of items minted in this phase
     merkleRoot: Bytes        # The merkle tree root for the phase
     merkleIPFSHash: String   # The IPFS hash referencing the merkle tree
 }
@@ -525,6 +525,7 @@ type GatedSale @entity {
     paused: Boolean!        # Whether the sale is currently paused
     primarySaleCommission: BigInt! # overridden sales commission for KO
     artistAccount: String   # The address of the artist associated with the given edition ID
+    mintCount: BigInt!      # The total mint current for the sale
     phases: [Phase!]!       # associated sales
 }
 
