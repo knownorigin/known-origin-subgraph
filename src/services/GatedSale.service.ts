@@ -1,7 +1,8 @@
-import {GatedSale, Phase} from "../../generated/schema";
-import {BigInt, log} from "@graphprotocol/graph-ts/index";
+import {GatedSale, Phase, PhaseMintCount} from "../../generated/schema";
+import {BigInt} from "@graphprotocol/graph-ts/index";
 import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import * as editionService from "./Edition.service";
+import {ONE} from "../utils/constants";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
@@ -33,6 +34,24 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
     return gatedSale as GatedSale;
 }
 
+export function recordAddressMintCount(saleId: BigInt, editionId: BigInt, phaseId: BigInt, minter: string): void {
+    let ID = createPhaseMintCountId(saleId, editionId, phaseId, minter);
+
+    let phaseMintCount = PhaseMintCount.load(ID);
+
+    if (phaseMintCount == null) {
+        phaseMintCount = new PhaseMintCount(ID)
+        phaseMintCount.count = ONE
+        phaseMintCount.saleId = saleId.toString()
+        phaseMintCount.editionId = editionId.toString()
+        phaseMintCount.phaseId = phaseId.toString()
+        phaseMintCount.minter = minter
+    } else {
+        phaseMintCount.count = phaseMintCount.count.plus(ONE)
+    }
+    phaseMintCount.save()
+}
+
 export function loadNonNullableGatedSale(saleId: BigInt): GatedSale {
     return GatedSale.load(saleId.toString()) as GatedSale;
 }
@@ -47,6 +66,16 @@ export function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt
         .concat(editionId.toString())
         .concat("-")
         .concat(phaseId.toString());
+}
+
+export function createPhaseMintCountId(saleId: BigInt, editionId: BigInt, phaseId: BigInt, minter: string): string {
+    return saleId.toString()
+        .concat("-")
+        .concat(editionId.toString())
+        .concat("-")
+        .concat(phaseId.toString())
+        .concat("-")
+        .concat(minter.toString());
 }
 
 export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt, phaseId: BigInt): Phase {

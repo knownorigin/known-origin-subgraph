@@ -492,6 +492,15 @@ type Offer @entity {
     isActive: Boolean!              # Only active offers can be seen in the UI
 }
 
+type PhaseMintCount @entity {
+    id: ID!
+    saleId: String!          # The sale this phase relates to
+    editionId: String!       # The edition this phase relates to
+    phaseId: String!         # The actual phase number
+    minter: String!          # The minter
+    count: BigInt!           # How many have they minted
+}
+
 type Phase @entity {
     id: ID!
     saleId: String!          # The sale this phase relates to
@@ -515,8 +524,6 @@ type GatedSale @entity {
     artistAccount: String   # The address of the artist associated with the given edition ID
     phases: [Phase!]!       # associated sales
 }
-
-# TODO gated sale mints per user
 
 ##########################
 ## Accountable entities ##

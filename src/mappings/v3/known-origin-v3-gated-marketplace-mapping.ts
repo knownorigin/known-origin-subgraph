@@ -6,9 +6,9 @@ import {
     MintFromSale,
     PhaseCreated,
     PhaseRemoved,
+    SaleCreated,
     SalePaused,
     SaleResumed,
-    SaleCreated,
     SaleWithPhaseCreated
 } from "../../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
@@ -26,6 +26,7 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {Phase} from "../../../generated/schema";
+import {ZERO} from "../../utils/constants";
 
 export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() called - sale {}", [
@@ -38,6 +39,13 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() editionToSale {}", [
         editionId.toString()
     ]);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handleSaleWithPhaseCreated() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
@@ -57,6 +65,13 @@ export function handleSaleCreated(event: SaleCreated): void {
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handleSaleCreated() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
@@ -77,6 +92,13 @@ export function handlePhaseCreated(event: PhaseCreated): void {
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handlePhaseCreated() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     let phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId);
     phase.save()
@@ -103,6 +125,13 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handlePhaseRemoved() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     gatedSaleService.removePhaseFromSale(event.params._saleId, editionId, event.params._phaseId)
 
@@ -133,6 +162,13 @@ export function handleMintFromSale(event: MintFromSale): void {
     );
 
     let editionId = kodaV3Contract.getEditionIdOfToken(event.params._tokenId)
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handleMintFromSale() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
 
@@ -160,7 +196,9 @@ export function handleMintFromSale(event: MintFromSale): void {
     let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
     _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, saleValue, artistAddress, event.params._recipient);
 
-    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, saleValue, event.params._recipient)
+    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, saleValue, event.params._recipient);
+
+    gatedSaleService.recordAddressMintCount(event.params._saleId, editionId, event.params._phaseId, event.params._recipient.toHexString());
 }
 
 export function handleSalePaused(event: SalePaused): void {
@@ -170,6 +208,13 @@ export function handleSalePaused(event: SalePaused): void {
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handleSalePaused() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.paused = true;
@@ -186,6 +231,13 @@ export function handleSaleResumed(event: SaleResumed): void {
     ]);
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
     let editionId = gatedMarketplace.editionToSale(event.params._saleId);
+    if (editionId.equals(ZERO)) {
+        log.warning("KO V3 Gated Marketplace handleSaleResumed() invalid edition ID {} for sale {}", [
+            editionId.toString(),
+            event.params._saleId.toString()
+        ]);
+        return;
+    }
 
     let edition = editionService.loadNonNullableEdition(editionId)
 
