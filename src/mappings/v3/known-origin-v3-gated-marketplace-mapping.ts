@@ -35,17 +35,8 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    log.info("KO V3 Gated Marketplace handleSaleWithPhaseCreated() editionToSale {}", [
-        editionId.toString()
-    ]);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handleSaleWithPhaseCreated() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
@@ -64,14 +55,8 @@ export function handleSaleCreated(event: SaleCreated): void {
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handleSaleCreated() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
@@ -91,14 +76,8 @@ export function handlePhaseCreated(event: PhaseCreated): void {
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handlePhaseCreated() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     let phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId);
     phase.save()
@@ -124,14 +103,8 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handlePhaseRemoved() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     gatedSaleService.removePhaseFromSale(event.params._saleId, editionId, event.params._phaseId)
 
@@ -207,14 +180,9 @@ export function handleSalePaused(event: SalePaused): void {
     ]);
 
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handleSalePaused() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.paused = true;
@@ -230,14 +198,9 @@ export function handleSaleResumed(event: SaleResumed): void {
         event.params._saleId.toString()
     ]);
     let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
-    let editionId = gatedMarketplace.editionToSale(event.params._saleId);
-    if (editionId.equals(ZERO)) {
-        log.warning("KO V3 Gated Marketplace handleSaleResumed() invalid edition ID {} for sale {}", [
-            editionId.toString(),
-            event.params._saleId.toString()
-        ]);
-        return;
-    }
+
+    let sales = gatedMarketplace.sales(event.params._saleId);
+    let editionId = sales.value1;
 
     let edition = editionService.loadNonNullableEdition(editionId)
 
