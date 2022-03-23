@@ -2,7 +2,7 @@ import {GatedSale, Phase, PhaseMintCount} from "../../generated/schema";
 import {BigInt} from "@graphprotocol/graph-ts/index";
 import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import * as editionService from "./Edition.service";
-import {ONE} from "../utils/constants";
+import {ONE, ZERO} from "../utils/constants";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
     let gatedSale = GatedSale.load(saleId.toString());
@@ -12,6 +12,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
         gatedSale.editionId = editionId;
         gatedSale.phases = new Array<string>();
         gatedSale.paused = false;
+        gatedSale.mintCount = ZERO;
 
         let salesCommission = gatedMarketplace.platformPrimaryCommission();
         // Get the sales commission
@@ -101,6 +102,7 @@ export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGat
             phase.saleId = saleId.toString();
             phase.editionId = editionId.toString();
             phase.phaseId = phaseId.toString();
+            phase.mintCount = ZERO;
 
             phase.startTime = _phaseData.value0;
             phase.endTime = _phaseData.value1;
