@@ -727,6 +727,10 @@ dataSources:
       abis:
         - name: KODAV3UpgradableGatedMarketplace
           file: ./abis/kodav3/KODAV3UpgradableGatedMarketplace.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
+        - name: MintingFactory
+          file: ./abis/kodav3/MintingFactoryV2.json
       eventHandlers:
         - event: SaleCreated(indexed uint256)
           handler: handleSaleCreated
