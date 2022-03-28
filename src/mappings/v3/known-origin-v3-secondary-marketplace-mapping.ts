@@ -534,6 +534,8 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
         listedToken.reserveAuctionEndTimestamp = bidEnd
     }
 
+    activityEventService.recordSecondaryTokenListingPriceChange(event, token,edition, event.params._reservePrice, Address.fromString(listedToken.lister))
+
     listedToken.save()
     token.save()
 }
