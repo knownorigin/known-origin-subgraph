@@ -360,7 +360,7 @@ function getStakeholderAddressesSecondary(creator: Bytes, seller: Address | null
 }
 
 function createGatedId(type: string, saleId: string, phaseId: string, editionId: string, event: ethereum.Event): string {
-    return `${type}`
+    return type
         .concat("-")
         .concat(saleId)
         .concat("-")
@@ -368,7 +368,9 @@ function createGatedId(type: string, saleId: string, phaseId: string, editionId:
         .concat("-")
         .concat(editionId)
         .concat("-")
-        .concat(event.transaction.hash.toString())
+        .concat(event.transaction.hash.toHexString())
+        .concat("-")
+        .concat(event.logIndex.toString());
 }
 
 function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): ActivityEvent {
@@ -378,17 +380,17 @@ function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, s
     event.type = TYPE_EDITION
     event.eventType = type
     event.edition = edition.id
-    event.seller = ZERO_ADDRESS
-    event.creator = edition.artistAccount || ZERO_ADDRESS;
+    event.seller = edition.artistAccount || ZERO_ADDRESS
+    event.creator = edition.artistAccount || ZERO_ADDRESS
     event.creatorCommission = sale.primarySaleCommission
     event.collaborator = ZERO_ADDRESS
     event.collaboratorCommission = edition.optionalCommissionRate;
     event.stakeholderAddresses = [edition.artistAccount || ZERO_ADDRESS]
-    event.triggeredBy = edition.artistAccount || ZERO_ADDRESS;
+    event.triggeredBy = edition.artistAccount || ZERO_ADDRESS
 
-    event.eventValueInWei = ZERO;
+    event.eventValueInWei = ZERO
     if (phase != null) {
-        event.eventValueInWei = phase.priceInWei;
+        event.eventValueInWei = phase.priceInWei
     }
 
     event.timestamp = rawEvent.block.timestamp;
@@ -405,7 +407,7 @@ function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, s
 }
 
 export function recordGatedSaleCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_CREATED, rawEvent, sale, edition, null)
 
@@ -413,7 +415,7 @@ export function recordGatedSaleCreated(rawEvent: ethereum.Event, sale: GatedSale
 }
 
 export function recordGatedPhaseCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): void {
-    let ID = createGatedId("gatedSalePhase", sale.id.toString(), phase.id.toString(), edition.id.toString(), rawEvent)
+    let ID = createGatedId("gatedSalePhase", sale.id, phase.id, edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_CREATED, rawEvent, sale, edition, phase)
 
@@ -421,7 +423,7 @@ export function recordGatedPhaseCreated(rawEvent: ethereum.Event, sale: GatedSal
 }
 
 export function recordGatedPhaseRemoved(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): void {
-    let ID = createGatedId("gatedSalePhase", sale.id.toString(), phase.id.toString(), edition.id.toString(), rawEvent)
+    let ID = createGatedId("gatedSalePhase", sale.id, phase.id, edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PHASE_REMOVED, rawEvent, sale, edition, phase)
 
@@ -429,7 +431,7 @@ export function recordGatedPhaseRemoved(rawEvent: ethereum.Event, sale: GatedSal
 }
 
 export function recordGatedSalePaused(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PAUSED, rawEvent, sale, edition, null)
 
@@ -437,7 +439,7 @@ export function recordGatedSalePaused(rawEvent: ethereum.Event, sale: GatedSale,
 }
 
 export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id.toString(), "0", edition.id.toString(), rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_RESUMED, rawEvent, sale, edition, null)
 
