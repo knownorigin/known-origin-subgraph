@@ -43,6 +43,7 @@ import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
 import {OFFERS_ONLY, RESERVE_COUNTDOWN_AUCTION} from "../../utils/SaleTypes";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
+import {recordSecondaryTokenReserveListingPriceChange} from "../../services/ActivityEvent.service";
 
 export function handleAdminUpdateSecondarySaleCommission(event: AdminUpdateSecondarySaleCommission): void {
     log.info("KO V3 handleAdminUpdatePlatformPrimarySaleCommission() called - platformSecondarySaleCommission {}", [event.params._platformSecondarySaleCommission.toString()]);
@@ -534,7 +535,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
         listedToken.reserveAuctionEndTimestamp = bidEnd
     }
 
-    activityEventService.recordSecondaryTokenListingPriceChange(event, token,edition, event.params._reservePrice, Address.fromString(listedToken.lister))
+    activityEventService.recordSecondaryTokenReserveListingPriceChange(event, token,edition, event.params._reservePrice, Address.fromString(listedToken.lister))
 
     listedToken.save()
     token.save()
