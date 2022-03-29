@@ -2,6 +2,7 @@ import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
+import {RESERVE_PRICE_CHANGED} from "../utils/EventTypes";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -216,6 +217,17 @@ export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event,
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, token, value, null, owner)
+        event.save()
+    }
+}
+
+export function recordSecondaryTokenReserveListingPriceChange(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
+
+    let id: string = tokenActivityId(token, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createTokenEvent(id, EVENT_TYPES.RESERVE_PRICE_CHANGED, rawEvent, edition, token, value, null, owner)
         event.save()
     }
 }
