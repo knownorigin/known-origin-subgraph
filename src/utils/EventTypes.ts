@@ -14,6 +14,7 @@ export const EDITION_CREATED = "EditionCreated";
 
 // Artwork management actions
 export const PRICE_CHANGED = "PriceChanged";
+export const SALES_TYPE_CHANGED = "SalesTypeChanged"
 
 // V3 + events
 export const STEPPED_AUCTION_LISTED = "SteppedListed";

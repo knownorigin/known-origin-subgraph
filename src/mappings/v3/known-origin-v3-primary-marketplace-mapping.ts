@@ -50,6 +50,7 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {recordPriceChanged} from "../../services/ActivityEvent.service";
 
 export function handleAdminUpdateModulo(event: AdminUpdateModulo): void {
     log.info("KO V3 handleAdminUpdateModulo() called - modulo {}", [event.params._modulo.toString()]);
@@ -85,6 +86,9 @@ export function handleEditionPriceChanged(event: BuyNowPriceChanged): void {
     let editionEntity = editionService.loadOrCreateV3EditionFromTokenId(event.params._id, event.block, kodaV3Contract)
     editionEntity.priceInWei = event.params._price
     editionEntity.metadataPrice = event.params._price;
+
+    activityEventService.recordPriceChanged(event, editionEntity, event.params._price)
+
     editionEntity.save()
 }
 
@@ -588,6 +592,8 @@ export function handleConvertFromBuyNowToOffers(event: ConvertFromBuyNowToOffers
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.startDate = event.params._startDate
     editionEntity.auctionEnabled = true
+
+    activityEventService.recordSalesTypeChange(event, editionEntity)
 
     editionEntity.save()
 }
