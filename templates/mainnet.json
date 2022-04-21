@@ -24,12 +24,16 @@
   "koda-v3-startBlock": 13080871,
   "koda-v3-minting-factory-address": "0x36CF31019816E9490959F75Ba9164eDd304De01D",
   "koda-v3-minting-factory-startBlock": 13081038,
+  "koda-v3-minting-factory-v2-address": "0xcEcF098DC0F513C68a0003b540CBDAE130dD0014",
+  "koda-v3-minting-factory-v2-startBlock": 14583177,
   "koda-v3-primary-marketplace-address": "0xf11ED77fD65840b64602526DDC38311E9923c81B",
   "koda-v3-primary-marketplace-startBlock": 13080907,
   "koda-v3-secondary-marketplace-address": "0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A",
   "koda-v3-secondary-marketplace-startBlock": 13080962,
   "koda-v3-collab-registry-address": "0xe28e054d596576841682e8c993E415B3ccB2EBeB",
   "koda-v3-collab-registry-startBlock": 13080981,
+  "koda-v3-gated-marketplace-address": "0x8fC72C856EB661F072F0f7322449f3fcCF088f42",
+  "koda-v3-gated-marketplace-startBlock": 14583128,
   "accesscontrols-v3-address": "0x9028b16494a9363F3EAaf381a6Fde67296abc68C",
   "accesscontrols-v3-startBlock": 13080815
 }

@@ -418,9 +418,9 @@ dataSources:
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
       file: ./src/mappings/v3/platform-config-mapping.ts
 
-  ## MintingFactory for KODA V3
+  ## MintingFactory V1 for KODA V3
   - kind: ethereum/contract
-    name: MintingFactoryConfig
+    name: MintingFactoryV1
     network: {{network}}
     source:
       address: '{{koda-v3-minting-factory-address}}'
@@ -431,6 +431,7 @@ dataSources:
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
+        - EditionMintedAndListed
         - MintingFactoryCreated
         - AdminMintingPeriodChanged
         - AdminMaxMintsInPeriodChanged
@@ -443,6 +444,8 @@ dataSources:
         - name: KnownOriginV2
           file: ./abis/kodav2/KnownOriginV2.json
       eventHandlers:
+        - event: EditionMintedAndListed(indexed uint256,uint8)
+          handler: handleEditionMintedAndListed
         - event: MintingFactoryCreated()
           handler: handleMintingFactoryCreated
         - event: AdminMintingPeriodChanged(uint256)
@@ -451,25 +454,29 @@ dataSources:
           handler: handleAdminMaxMintsInPeriodChanged
         - event: AdminFrequencyOverrideChanged(address,bool)
           handler: handleAdminFrequencyOverrideChanged
-      file: ./src/mappings/v3/platform-config-mapping.ts
+      file: ./src/mappings/v3/minting-factory-v1-mapping.ts
 
-  ## MintingFactory for KODA V3
+  ## MintingFactory V2 for KODA V3
   - kind: ethereum/contract
-    name: MintingFactoryCreations
+    name: MintingFactoryV2
     network: {{network}}
     source:
-      address: '{{koda-v3-minting-factory-address}}'
+      address: '{{koda-v3-minting-factory-v2-address}}'
       abi: MintingFactory
-      startBlock: {{koda-v3-minting-factory-startBlock}}
+      startBlock: {{koda-v3-minting-factory-v2-startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
         - EditionMintedAndListed
+        - MintingFactoryCreated
+        - AdminMintingPeriodChanged
+        - AdminMaxMintsInPeriodChanged
+        - AdminFrequencyOverrideChanged
       abis:
         - name: MintingFactory
-          file: ./abis/kodav3/MintingFactory.json
+          file: ./abis/kodav3/MintingFactoryV2.json
         - name: KnownOriginV3
           file: ./abis/kodav3/KnownOriginV3.json
         - name: KnownOriginV2
@@ -477,7 +484,17 @@ dataSources:
       eventHandlers:
         - event: EditionMintedAndListed(indexed uint256,uint8)
           handler: handleEditionMintedAndListed
-      file: ./src/mappings/v3/minting-factory-mapping.ts
+        - event: EditionMinted(indexed uint256)
+          handler: handleEditionMinted
+        - event: MintingFactoryCreated()
+          handler: handleMintingFactoryCreated
+        - event: AdminMintingPeriodChanged(uint256)
+          handler: handleAdminMintingPeriodChanged
+        - event: AdminMaxMintsInPeriodChanged(uint256)
+          handler: handleAdminMaxMintsInPeriodChanged
+        - event: AdminFrequencyOverrideChanged(address,bool)
+          handler: handleAdminFrequencyOverrideChanged
+      file: ./src/mappings/v3/minting-factory-v2-mapping.ts
 
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
@@ -612,7 +629,7 @@ dataSources:
           handler: handleTokenListed
         - event: TokenDeListed(indexed uint256)
           handler: handleTokenDeListed
-        - event:  BuyNowPurchased(indexed uint256,address,address,uint256)
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleTokenPurchased
         - event: BuyNowPriceChanged(indexed uint256,uint256)
           handler: handleBuyNowTokenPriceChanged
@@ -691,3 +708,47 @@ dataSources:
         - event: HandlerRemoved(address)
           handler: handleHandlerRemoved
       file: ./src/mappings/v3/known-origin-v3-collab-registry-mapping.ts
+
+  # koda-v3-gated-marketplace registry
+  - kind: ethereum/contract
+    name: KODAV3UpgradableGatedMarketplace
+    network: {{network}}
+    source:
+      address: '{{koda-v3-gated-marketplace-address}}'
+      abi: KODAV3UpgradableGatedMarketplace
+      startBlock: {{koda-v3-gated-marketplace-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - GatedSale
+        - Phase
+      abis:
+        - name: KODAV3UpgradableGatedMarketplace
+          file: ./abis/kodav3/KODAV3UpgradableGatedMarketplace.json
+        - name: KnownOriginV3
+          file: ./abis/kodav3/KnownOriginV3.json
+        - name: MintingFactory
+          file: ./abis/kodav3/MintingFactoryV2.json
+      eventHandlers:
+        - event: SaleCreated(indexed uint256)
+          handler: handleSaleCreated
+        - event: SaleWithPhaseCreated(indexed uint256)
+          handler: handleSaleWithPhaseCreated
+        - event: PhaseCreated(indexed uint256,indexed uint256)
+          handler: handlePhaseCreated
+        - event: PhaseRemoved(indexed uint256,indexed uint256)
+          handler: handlePhaseRemoved
+        - event: MintFromSale(indexed uint256,indexed uint256,indexed uint256,address)
+          handler: handleMintFromSale
+        - event: SalePaused(indexed uint256)
+          handler: handleSalePaused
+        - event: SaleResumed(indexed uint256)
+          handler: handleSaleResumed
+        - event: AdminSetKoCommissionOverrideForSale(indexed uint256,uint256)
+          handler: handleAdminUpdatePlatformPrimarySaleCommissionGatedSale
+          # TODO make config toggled on/off
+          # TODO contract Pausable
+
+      file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
