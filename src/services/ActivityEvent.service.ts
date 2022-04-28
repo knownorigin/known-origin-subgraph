@@ -71,9 +71,13 @@ function createEditionEvent(
         event.buyer = buyer as Address
     }
 
+    // `${transactionHash}-${logIndex}` is unique to each log
     event.timestamp = rawEvent.block.timestamp;
     event.transactionHash = rawEvent.transaction.hash;
-    event.logIndex = rawEvent.transaction.index;
+    // The transactionIndex is the index of the transaction in the block
+    event.transactionIndex = rawEvent.transaction.index;
+    // The logIndex is the index of the log in the block logs
+    event.logIndex = rawEvent.transactionLogIndex;
     event.eventAddress = rawEvent.address;
     if (rawEvent.transaction.to) {
         event.eventTxTo = rawEvent.transaction.to;
@@ -283,9 +287,13 @@ function createTokenEvent(
         event.buyer = buyer as Address
     }
 
+    // `${transactionHash}-${logIndex}` is unique to each log
     event.timestamp = rawEvent.block.timestamp;
     event.transactionHash = rawEvent.transaction.hash;
-    event.logIndex = rawEvent.transaction.index;
+    // The transactionIndex is the index of the transaction in the block
+    event.transactionIndex = rawEvent.transaction.index;
+    // The logIndex is the index of the log in the block logs
+    event.logIndex = rawEvent.transactionLogIndex;
     event.eventAddress = rawEvent.address;
     if (rawEvent.transaction.to) {
         event.eventTxTo = rawEvent.transaction.to;
@@ -413,9 +421,13 @@ function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, s
         event.eventValueInWei = phase.priceInWei
     }
 
+    // `${transactionHash}-${logIndex}` is unique to each log
     event.timestamp = rawEvent.block.timestamp;
     event.transactionHash = rawEvent.transaction.hash;
-    event.logIndex = rawEvent.transaction.index;
+    // The transactionIndex is the index of the transaction in the block
+    event.transactionIndex = rawEvent.transaction.index;
+    // The logIndex is the index of the log in the block logs
+    event.logIndex = rawEvent.transactionLogIndex;
     event.eventAddress = rawEvent.address;
     if (rawEvent.transaction.to) {
         event.eventTxTo = rawEvent.transaction.to;

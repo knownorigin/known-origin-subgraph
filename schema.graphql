@@ -18,6 +18,7 @@ type TokenEvent @entity {
     # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    transactionIndex: BigInt!
     logIndex: BigInt!
     eventAddress: Bytes!
     eventTxFrom: Bytes!
@@ -37,6 +38,7 @@ type TransferEvent @entity {
     # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    transactionIndex: BigInt!
     logIndex: BigInt!
     eventAddress: Bytes!
     eventTxFrom: Bytes!
@@ -58,6 +60,7 @@ type AuctionEvent @entity {
     # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    transactionIndex: BigInt!
     logIndex: BigInt!
     eventAddress: Bytes!
     eventTxFrom: Bytes!
@@ -89,6 +92,7 @@ type ActivityEvent @entity {
     # Common event details
     timestamp: BigInt!
     transactionHash: Bytes!
+    transactionIndex: BigInt!
     logIndex: BigInt!
     eventAddress: Bytes!
     eventTxFrom: Bytes!
