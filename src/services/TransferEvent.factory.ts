@@ -26,7 +26,8 @@ export function createTransferEvent(event: ethereum.Event, tokenId: BigInt, from
 function populateEventDetails(event: ethereum.Event, transferEvent: TransferEvent): void {
     transferEvent.timestamp = event.block.timestamp;
     transferEvent.transactionHash = event.transaction.hash;
-    transferEvent.logIndex = event.transaction.index;
+    transferEvent.transactionIndex = event.transaction.index;
+    transferEvent.logIndex = event.transactionLogIndex;
     transferEvent.eventAddress = event.address;
     if (event.transaction.to) {
         transferEvent.eventTxTo = event.transaction.to;

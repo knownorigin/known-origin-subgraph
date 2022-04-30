@@ -290,7 +290,8 @@ export function createBidWithdrawnEvent(
 function populateEventDetails(event: ethereum.Event, tokenEvent: TokenEvent): void {
     tokenEvent.timestamp = event.block.timestamp;
     tokenEvent.transactionHash = event.transaction.hash;
-    tokenEvent.logIndex = event.transaction.index;
+    tokenEvent.transactionIndex = event.transaction.index;
+    tokenEvent.logIndex = event.transactionLogIndex;
     tokenEvent.eventAddress = event.address;
     if (event.transaction.to) {
         tokenEvent.eventTxTo = event.transaction.to;

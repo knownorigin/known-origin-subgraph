@@ -120,11 +120,14 @@ export function createBidIncreased(
 function populateEventDetails(event: ethereum.Event, auctionEvent: AuctionEvent): void {
     auctionEvent.timestamp = event.block.timestamp;
     auctionEvent.transactionHash = event.transaction.hash;
-    auctionEvent.logIndex = event.transaction.index;
+    auctionEvent.transactionIndex = event.transaction.index;
+    auctionEvent.logIndex = event.transactionLogIndex;
     auctionEvent.eventAddress = event.address;
     if (event.transaction.to) {
         auctionEvent.eventTxTo = event.transaction.to;
     }
     auctionEvent.eventTxFrom = event.transaction.from;
     auctionEvent.blockNumber = event.block.number;
+
+
 }
