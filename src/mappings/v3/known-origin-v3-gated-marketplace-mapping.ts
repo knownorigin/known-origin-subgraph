@@ -144,8 +144,9 @@ export function handleMintFromSale(event: MintFromSale): void {
 
     log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
 
-    const salePhase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, event.params._phaseId, editionId)
-
+    const salePhase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId)
+    salePhase.save()
+    
     const saleValue = salePhase.priceInWei;
 
     // Action edition data changes
