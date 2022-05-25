@@ -33,15 +33,15 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
         event.params._saleId.toString()
     ]);
 
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
     edition.gatedSale = gatedSale.id
     edition.save()
 
@@ -53,15 +53,15 @@ export function handleSaleCreated(event: SaleCreated): void {
         event.params._saleId.toString()
     ]);
 
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
     edition.gatedSale = gatedSale.id
     edition.save()
 
@@ -74,23 +74,23 @@ export function handlePhaseCreated(event: PhaseCreated): void {
         event.params._phaseId.toString(),
     ]);
 
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
-    let phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId);
+    const phase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId);
     phase.save()
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
 
     // add phase to sale
-    let phases = gatedSale.phases
+    const phases = gatedSale.phases
     phases.push(phase.id)
     gatedSale.phases = phases
     gatedSale.save();
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
 
     activityEventService.recordGatedPhaseCreated(event, gatedSale, edition, phase)
 }
@@ -101,22 +101,22 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
         event.params._phaseId.toString()
     ]);
 
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
     gatedSaleService.removePhaseFromSale(event.params._saleId, editionId, event.params._phaseId)
 
-    let phaseId = gatedSaleService.createPhaseId(event.params._saleId, editionId, event.params._phaseId)
+    const phaseId = gatedSaleService.createPhaseId(event.params._saleId, editionId, event.params._phaseId)
 
-    let phase = gatedSaleService.loadNonNullableGatedPhase(phaseId);
+    const phase = gatedSaleService.loadNonNullableGatedPhase(phaseId);
     phase.save();
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
 
     activityEventService.recordGatedPhaseRemoved(event, gatedSale, edition, phase)
 
@@ -130,11 +130,10 @@ export function handleMintFromSale(event: MintFromSale): void {
         event.params._tokenId.toString(),
     ]);
 
-    let kodaV3Contract = KnownOriginV3.bind(
-        KODAV3UpgradableGatedMarketplace.bind(event.address).koda()
-    );
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address);
+    const kodaV3Contract = KnownOriginV3.bind(gatedMarketplace.koda());
 
-    let editionId = kodaV3Contract.getEditionIdOfToken(event.params._tokenId)
+    const editionId = kodaV3Contract.getEditionIdOfToken(event.params._tokenId)
     if (editionId.equals(ZERO)) {
         log.warning("KO V3 Gated Marketplace handleMintFromSale() invalid edition ID {} for sale {}", [
             editionId.toString(),
@@ -145,28 +144,31 @@ export function handleMintFromSale(event: MintFromSale): void {
 
     log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
 
-    let saleValue = event.transaction.value;
+    const salePhase = gatedSaleService.loadOrCreateGatedSalePhase(gatedMarketplace, event.params._saleId, editionId, event.params._phaseId)
+    salePhase.save()
+    
+    const saleValue = salePhase.priceInWei;
 
     // Action edition data changes
-    let editionEntity = editionService.loadNonNullableEdition(editionId)
+    const editionEntity = editionService.loadNonNullableEdition(editionId)
 
     // Create collector
-    let collector = collectorService.loadOrCreateCollector(event.params._recipient, event.block);
+    const collector = collectorService.loadOrCreateCollector(event.params._recipient, event.block);
     collector.save();
 
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, saleValue)
     editionEntity.save()
 
-    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._recipient, saleValue);
+    const tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._recipient, saleValue);
     tokenTransferEvent.save();
 
     // Set price against token
-    let tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
+    const tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
     _handleTokenPrimarySale(tokenEntity, saleValue)
     tokenEntity.save()
 
     // Record Artist Data
-    let artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
+    const artistAddress = Address.fromString(editionEntity.artistAccount.toHexString());
     _handleArtistAndDayCounts(event, editionEntity, event.params._tokenId, saleValue, artistAddress, event.params._recipient);
 
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, editionEntity, tokenEntity, saleValue, event.params._recipient);
@@ -180,16 +182,16 @@ export function handleSalePaused(event: SalePaused): void {
         event.params._saleId.toString()
     ]);
 
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.paused = true;
     gatedSale.save();
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
 
     activityEventService.recordGatedSalePaused(event, gatedSale, edition)
 }
@@ -198,14 +200,14 @@ export function handleSaleResumed(event: SaleResumed): void {
     log.info("KO V3 Gated Marketplace handleSaleResumed() called - sale {}", [
         event.params._saleId.toString()
     ]);
-    let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
+    const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address)
 
-    let sales = gatedMarketplace.sales(event.params._saleId);
-    let editionId = sales.value1;
+    const sales = gatedMarketplace.sales(event.params._saleId);
+    const editionId = sales.value1;
 
-    let edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId)
 
-    let gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
+    const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.paused = false;
     gatedSale.save();
 
@@ -215,11 +217,11 @@ export function handleSaleResumed(event: SaleResumed): void {
 export function handleAdminUpdatePlatformPrimarySaleCommissionGatedSale(event: AdminSetKoCommissionOverrideForSale): void {
     log.info("KO V3 Gated Marketplace primarySaleCommission set - sale {}", [event.params._saleId.toString()]);
 
-    let gatedSale = gatedSaleService.loadNonNullableGatedSale(event.params._saleId);
+    const gatedSale = gatedSaleService.loadNonNullableGatedSale(event.params._saleId);
     if (gatedSale !== null) {
-        let gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address);
+        const gatedMarketplace = KODAV3UpgradableGatedMarketplace.bind(event.address);
 
-        let commissionConfig = gatedMarketplace.koCommissionOverrideForSale(event.params._saleId);
+        const commissionConfig = gatedMarketplace.koCommissionOverrideForSale(event.params._saleId);
 
         gatedSale.primarySaleCommission = commissionConfig.value0
             ? commissionConfig.value1
