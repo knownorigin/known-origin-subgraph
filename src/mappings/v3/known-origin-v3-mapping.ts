@@ -40,6 +40,7 @@ import * as editionService from "../../services/Edition.service";
 import * as composableService from "../../services/Composables.service";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {recordEditionDisabled} from "../../services/ActivityEvent.service";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -382,6 +383,7 @@ export function handleAdminArtistAccountReported(event: AdminArtistAccountReport
         if (edition !== null && edition.version.equals(KodaVersions.KODA_V3)) {
             edition.active = false
             edition.save()
+            activityEventService.recordEditionDisabled(event, edition);
         }
     }
     artist.save()
@@ -396,6 +398,8 @@ export function handleAdminEditionReported(event: AdminEditionReported): void {
     let edition = editionService.loadNonNullableEdition(event.params._editionId)
     edition.active = false
     edition.save()
+
+    activityEventService.recordEditionDisabled(event, edition);
 }
 
 export function handleApprovalForAll(event: ApprovalForAll): void {
