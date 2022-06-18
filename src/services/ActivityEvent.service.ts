@@ -2,7 +2,6 @@ import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
-import {RESERVE_PRICE_CHANGED, SALES_TYPE_CHANGED} from "../utils/EventTypes";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -20,6 +19,17 @@ export function recordEditionCreated(rawEvent: ethereum.Event, edition: Edition)
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.EDITION_CREATED, rawEvent, edition, null, null)
+        event.save()
+    }
+}
+
+export function recordEditionDisabled(rawEvent: ethereum.Event, edition: Edition): void {
+
+    let id: string = editionActivityId(edition, rawEvent);
+
+    let event = ActivityEvent.load(id)
+    if (event == null) {
+        event = createEditionEvent(id, EVENT_TYPES.EDITION_DISABLED, rawEvent, edition, null, null)
         event.save()
     }
 }

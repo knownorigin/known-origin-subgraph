@@ -199,6 +199,11 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
             editionEntity.active = false
         }
 
+        if (isEditionBurnt(_editionId)) {
+            log.debug("Edition in hardcoded burn list {} setting to inactive", [_editionId.toString()]);
+            editionEntity.active = false
+        }
+
         // add creator to collaborators list
         let collaborators: Array<Bytes> = editionEntity.collaborators
         collaborators.push(editionEntity.artistAccount)
