@@ -34,5 +34,8 @@
   "koda-v3-gated-marketplace-address": "0x048b36a7cc30127cE2C2C8E1C6AF9c3d0D8787eC",
   "koda-v3-gated-marketplace-startBlock": 10377112,
   "accesscontrols-v3-address": "0x64699bC10a4E4639eD319397200CF16fa0aD1Fc9",
-  "accesscontrols-v3-startBlock": 9738444
+  "accesscontrols-v3-startBlock": 9738444,
+
+  "cc-factory-address": "0xA49Ca61a012083AFC909dAbdEfF5E5B3F97C15Dc",
+  "cc-factory-startBlock": 11091553
 }

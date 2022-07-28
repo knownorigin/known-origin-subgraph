@@ -533,6 +533,25 @@ type GatedSale @entity {
     phases: [Phase!]!       # associated sales
 }
 
+# Any KODA V4 Contract Deployed from the V4 factory
+type CreatorContract @entity {
+    id: ID!
+    deploymentBlockNumber: BigInt!
+    deploymentTimestamp: BigInt!
+    implementation: Bytes!
+    deployer: Bytes!
+    creator: Bytes!
+    defaultFundsHandler: Bytes!
+    owner: Bytes!
+    minter: Bytes!
+
+    # Interface ID
+    ERC165InterfaceID: Bytes # TODO - call contract to request info
+
+    # banned
+    isHidden: Boolean!
+}
+
 ##########################
 ## Accountable entities ##
 ##########################

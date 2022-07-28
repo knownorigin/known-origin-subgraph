@@ -752,3 +752,27 @@ dataSources:
           # TODO contract Pausable
 
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
+
+
+  ## KODA V4 (Creator Contract)
+  - kind: ethereum/contract
+    name: KnownOriginV4Factory
+    network: {{network}}
+    source:
+      address: '{{cc-factory-address}}'
+      abi: KnownOriginV4Factory
+      startBlock: {{cc-factory-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - Transfer
+      abis:
+        - name: KnownOriginV4Factory
+          file: ./abis/kodav4/CreatorFactory.json
+      eventHandlers:
+        # event: SelfSovereignERC721Deployed(address indexed deployer, address indexed artist, address indexed selfSovereignNFT, address implementation, address fundsHandler)
+        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
+          handler: handleSelfSovereignERC721Deployed
+      file: ./src/mappings/creator-contracts/mapping.ts
