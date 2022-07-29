@@ -6,7 +6,12 @@ import {
     CreatorContract
 } from "../../../generated/schema"
 
+import {
+    CreatorContract as CreatorContractTemplate
+} from '../../../generated/templates';
+
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
+    // Capture the contract global properties so the list of creator contracts can be fetched
     let contract = new CreatorContract(event.params.selfSovereignNFT.toHexString())
     contract.deploymentBlockNumber = event.block.number
     contract.deploymentTimestamp = event.block.timestamp
@@ -18,4 +23,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     contract.minter = event.params.artist
     contract.isHidden = false
     contract.save()
+
+    // Inform the subgraph to index events from the creator contract
+    CreatorContractTemplate.create(event.params.selfSovereignNFT)
 }

@@ -775,4 +775,24 @@ dataSources:
         # event: SelfSovereignERC721Deployed(address indexed deployer, address indexed artist, address indexed selfSovereignNFT, address implementation, address fundsHandler)
         - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
-      file: ./src/mappings/creator-contracts/mapping.ts
+      file: ./src/mappings/creator-contracts/factory.ts
+templates:
+  - name: CreatorContract
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: BatchCreatorContract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
+      entities:
+        - Transfer
+        - ListedEditionForBuyNow
+      abis:
+        - name: BatchCreatorContract
+          file: ./abis/kodav4/BatchCreatorContract.json
+      eventHandlers:
+        - event: ListedEditionForBuyNow(indexed uint256,uint256,uint256)
+          handler: handleListedEditionForBuyNow
