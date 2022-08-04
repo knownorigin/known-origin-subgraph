@@ -541,12 +541,17 @@ type CreatorContract @entity {
     implementation: Bytes!
     deployer: Bytes!
     creator: Bytes!
-    defaultFundsHandler: Bytes!
     owner: Bytes!
     minter: Bytes!
 
+    # Funds handler
+    defaultFundsHandler: Bytes!
+    defaultFundsRecipients: [Bytes!]!
+    defaultFundsShares: [BigInt!]!
+
     # Interface ID
-    ERC165InterfaceID: Bytes # TODO - call contract to request info
+    ERC165InterfaceID: Bytes
+    isBatchBuyItNow: Boolean!
 
     # banned
     isHidden: Boolean!

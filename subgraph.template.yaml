@@ -771,10 +771,17 @@ dataSources:
       abis:
         - name: KnownOriginV4Factory
           file: ./abis/kodav4/CreatorFactory.json
+        - name: FundsHandler
+          file: ./abis/kodav4/SelfSovereignFundsHandler.json
+        - name: BatchCreatorContract
+          file: ./abis/kodav4/BatchCreatorContract.json
       eventHandlers:
         # event: SelfSovereignERC721Deployed(address indexed deployer, address indexed artist, address indexed selfSovereignNFT, address implementation, address fundsHandler)
         - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
+        # event: CreatorContractBanned(address indexed contractAddress);
+        - event: CreatorContractBanned(indexed address)
+          handler: handleCreatorContractBanned
       file: ./src/mappings/creator-contracts/factory.ts
 templates:
   - name: CreatorContract
@@ -784,7 +791,7 @@ templates:
       abi: BatchCreatorContract
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
       entities:
