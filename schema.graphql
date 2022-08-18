@@ -332,7 +332,7 @@ type Collective @entity {
 # A token/editions and its meta data
 type Edition @entity {
     id: ID!
-    version: BigInt! # KODA 2 or 3
+    version: BigInt! # KODA 2 or 3 or 4
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition

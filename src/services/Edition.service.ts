@@ -1,5 +1,6 @@
 import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
 import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
+import {BatchCreatorContract} from "../../generated/KnownOriginV4Factory/BatchCreatorContract";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {constructMetaData} from "./MetaData.service";
@@ -166,6 +167,29 @@ export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block,
     return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract);
 }
 
+export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address): Edition {
+    log.info("Calling loadOrCreateV4Edition() call for edition ID {} ", [_editionId.toString()])
+
+    let contractInstance = BatchCreatorContract.bind(contractAddress)
+    let originalCreator = contractInstance.getCreatorOfEdition(_editionId)
+    let size = contractInstance.getSizeOfEdition(_editionId)
+    let uri = contractInstance.editionURI(_editionId)
+
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress);
+}
+
+export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address): Edition {
+    log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
+
+    let contractInstance = BatchCreatorContract.bind(contractAddress)
+    let _editionId = contractInstance.getEditionIdOfToken(tokenId)
+    let originalCreator = contractInstance.getCreatorOfEdition(_editionId)
+    let size = contractInstance.getSizeOfEdition(_editionId)
+    let uri = contractInstance.editionURI(_editionId)
+
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress);
+}
+
 function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     let editionEntity = Edition.load(_editionId.toString());
     if (editionEntity == null) {
@@ -237,6 +261,82 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
 
         }
+    }
+    return editionEntity as Edition;
+}
+
+function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address): Edition {
+    let editionEntity = Edition.load(_editionId.toString());
+    if (editionEntity == null) {
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block);
+
+        editionEntity.version = KodaVersions.KODA_V4
+        editionEntity.editionType = ONE // todo - check this
+        editionEntity.startDate = ZERO // todo - check this
+        editionEntity.endDate = MAX_UINT_256 // todo - check this
+        editionEntity.artistCommission = BigInt.fromI32(100) // todo - check this
+        editionEntity.artistAccount = _originalCreator
+        editionEntity.tokenURI = _uri
+        editionEntity.totalSupply = ZERO // todo - is this a total purchased value?
+        editionEntity.totalAvailable = _size
+        editionEntity.originalEditionSize = _size
+        editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
+        editionEntity.active = true;
+
+        // if we have reported this edition, assume its disabled
+        // if (kodaV3Contract.reportedEditionIds(_editionId)) {
+        //     log.debug("Edition {} reported - setting edition to inactive", [_editionId.toString()]);
+        //     editionEntity.active = false
+        // }
+        //  todo - enable
+
+        // if this artist has been reported, always disable their work
+        // if (kodaV3Contract.reportedArtistAccounts(_originalCreator)) {
+        //     log.debug("Artist {} reported - setting edition {} to inactive", [
+        //         _originalCreator.toHexString(),
+        //         _editionId.toString()
+        //     ]);
+        //     editionEntity.active = false
+        // }
+        //  todo - enable
+
+        if (isEditionBurnt(_editionId)) {
+            log.debug("Edition in hardcoded burn list {} setting to inactive", [_editionId.toString()]);
+            editionEntity.active = false
+        }
+
+        // add creator to collaborators list
+        let collaborators: Array<Bytes> = editionEntity.collaborators
+        collaborators.push(editionEntity.artistAccount)
+        editionEntity.collaborators = collaborators
+
+        // Pricing logic
+        editionEntity.offersOnly = false
+
+        // Set genesis flag if not existing editions created
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
+        editionEntity.artist = artist.id.toString()
+
+        // let metaData = constructMetaData(_editionId, _uri)
+        // if (metaData != null) {
+        //     metaData.save()
+        //     editionEntity.metadata = metaData.id
+        //     editionEntity.metadataFormat = metaData.format
+        //     editionEntity.metadataTheme = metaData.theme
+        //     editionEntity.metadataName = metaData.name ? metaData.name : ""
+        //     editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+        //     editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
+        //     if (metaData.image_type) {
+        //         let types = splitMimeType(metaData.image_type)
+        //         editionEntity.primaryAssetShortType = types.primaryAssetShortType
+        //         editionEntity.primaryAssetActualType = types.primaryAssetActualType
+        //     }
+        //     editionEntity.hasCoverImage = metaData.cover_image !== null;
+        //     if (metaData.tags != null && metaData.tags.length > 0) {
+        //         editionEntity.metadataTagString = metaData.tags.toString()
+        //     }
+        // }
+        //  todo - enable
     }
     return editionEntity as Edition;
 }

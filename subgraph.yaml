@@ -801,5 +801,5 @@ templates:
         - name: BatchCreatorContract
           file: ./abis/kodav4/BatchCreatorContract.json
       eventHandlers:
-        - event: ListedEditionForBuyNow(indexed uint256,uint256,uint256)
-          handler: handleListedEditionForBuyNow
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
