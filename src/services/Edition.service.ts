@@ -29,7 +29,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
     let editionEntity = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(KodaVersions.KODA_V2, editionNumber, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V2, editionNumber, block, editionNumber.toString());
 
         let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
@@ -193,7 +193,7 @@ export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereu
 function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     let editionEntity = Edition.load(_editionId.toString());
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block, _editionId.toString());
 
         editionEntity.version = KodaVersions.KODA_V3
         editionEntity.editionType = ONE
@@ -266,39 +266,32 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 }
 
 function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address): Edition {
-    let editionEntity = Edition.load(_editionId.toString());
+    let entityId = _editionId.toString() + "-" + address.toHexString()
+    let editionEntity = Edition.load(entityId);
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block, entityId);
 
         editionEntity.version = KodaVersions.KODA_V4
-        editionEntity.editionType = ONE // todo - check this
-        editionEntity.startDate = ZERO // todo - check this
-        editionEntity.endDate = MAX_UINT_256 // todo - check this
+        editionEntity.editionType = ONE // todo - would be worth using ths for one == batch, two open edition etc.
+        editionEntity.startDate = ZERO
+        editionEntity.endDate = MAX_UINT_256
         editionEntity.artistCommission = BigInt.fromI32(100) // todo - check this
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
-        editionEntity.totalSupply = ZERO // todo - is this a total purchased value?
+        editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
         editionEntity.originalEditionSize = _size
         editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
         editionEntity.active = true;
+
+        editionEntity.editionContract = address
 
         // if we have reported this edition, assume its disabled
         // if (kodaV3Contract.reportedEditionIds(_editionId)) {
         //     log.debug("Edition {} reported - setting edition to inactive", [_editionId.toString()]);
         //     editionEntity.active = false
         // }
-        //  todo - enable
-
-        // if this artist has been reported, always disable their work
-        // if (kodaV3Contract.reportedArtistAccounts(_originalCreator)) {
-        //     log.debug("Artist {} reported - setting edition {} to inactive", [
-        //         _originalCreator.toHexString(),
-        //         _editionId.toString()
-        //     ]);
-        //     editionEntity.active = false
-        // }
-        //  todo - enable
+        //  todo - enable by querying creator contract factory
 
         if (isEditionBurnt(_editionId)) {
             log.debug("Edition in hardcoded burn list {} setting to inactive", [_editionId.toString()]);
@@ -341,9 +334,9 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
     return editionEntity as Edition;
 }
 
-function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block): Edition {
+function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block, entityId: string): Edition {
     // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
-    let editionEntity = new Edition(_editionId.toString());
+    let editionEntity = new Edition(entityId);
     editionEntity.version = version
     editionEntity.editionNmber = _editionId
     editionEntity.salesType = SaleTypes.OFFERS_ONLY

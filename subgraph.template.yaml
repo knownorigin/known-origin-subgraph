@@ -791,7 +791,7 @@ templates:
       abi: BatchCreatorContract
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.4
+      apiVersion: 0.0.3
       language: wasm/assemblyscript
       file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
       entities:
@@ -803,3 +803,7 @@ templates:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SecondaryRoyaltyUpdated(uint256)
+          handler: handleSecondaryRoyaltyUpdated

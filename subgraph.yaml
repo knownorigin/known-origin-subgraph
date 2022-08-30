@@ -759,9 +759,9 @@ dataSources:
     name: KnownOriginV4Factory
     network: rinkeby
     source:
-      address: '0xA49Ca61a012083AFC909dAbdEfF5E5B3F97C15Dc'
+      address: '0xE3c0Df76526ae66c16803cd8E8eCF8FE63663274'
       abi: KnownOriginV4Factory
-      startBlock: 11091553
+      startBlock: 11291927
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -803,3 +803,7 @@ templates:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SecondaryRoyaltyUpdated(uint256)
+          handler: handleSecondaryRoyaltyUpdated

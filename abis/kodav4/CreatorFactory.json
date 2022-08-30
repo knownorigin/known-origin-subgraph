@@ -264,49 +264,6 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_secondaryRoyalty",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_artistIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_artistProof",
-        "type": "bytes32[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_recipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_splitAmounts",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "deploy",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address[]",
         "name": "_recipients",
         "type": "address[]"
@@ -331,24 +288,41 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_artist",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyalty",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",
-        "name": "_secondaryRoyalty",
+        "name": "_artistIndex",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "_artistProof",
+        "type": "bytes32[]"
       },
       {
         "internalType": "address[]",
@@ -361,7 +335,7 @@
         "type": "uint256[]"
       }
     ],
-    "name": "deployOnBehalfOfArtist",
+    "name": "deployNFTAndSplitter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -374,19 +348,81 @@
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyalty",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
       },
       {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
       },
       {
-        "internalType": "uint256",
-        "name": "_secondaryRoyalty",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "deployNFTAndSplitterOnBehalfOfArtist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_artist",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyalty",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
       },
       {
         "internalType": "address",
@@ -402,19 +438,31 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_secondaryRoyalty",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyalty",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
       },
       {
         "internalType": "uint256",

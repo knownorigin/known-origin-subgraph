@@ -25,6 +25,7 @@ import {ZERO, ONE} from "../../utils/constants";
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
     // Capture the contract global properties so the list of creator contracts can be fetched
     let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
+    let sovereignContractInstance = BatchCreatorContract.bind(event.params.selfSovereignNFT)
     creatorContractEntity.deploymentBlockNumber = event.block.number
     creatorContractEntity.deploymentTimestamp = event.block.timestamp
     creatorContractEntity.implementation = event.params.implementation
@@ -34,8 +35,10 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.minter = event.params.artist
     creatorContractEntity.isHidden = false
 
+    // TODO - this breaks??
+    //creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.secondarySaleRoyalty()
+
     // ERC165 interface lookup
-    let sovereignContractInstance = BatchCreatorContract.bind(event.params.selfSovereignNFT)
     creatorContractEntity.isBatchBuyItNow = sovereignContractInstance.supportsInterface(Bytes.fromHexString("0x0c7cb431") as Bytes)
     if (creatorContractEntity.isBatchBuyItNow) {
         creatorContractEntity.ERC165InterfaceID = Bytes.fromHexString("0x0c7cb431") as Bytes

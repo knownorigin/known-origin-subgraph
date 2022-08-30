@@ -336,6 +336,7 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
+    editionContract: Bytes # address of non shared contract that minted the edition
 
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
@@ -360,6 +361,8 @@ type Edition @entity {
     totalSold: BigInt!           # sold = purchase/bid accepted with price > 0
     totalBurnt: BigInt!          # number of items send to 0xDead or 0x0 (only applicable for V3)
     originalEditionSize: BigInt! # original edition size of the edition at mint - this field should NEVER change once set
+
+    secondaryRoyaltyV4EditionOverride: BigInt
 
     sales: [Token!]!
     totalEthSpentOnEdition: BigDecimal!,
@@ -548,6 +551,10 @@ type CreatorContract @entity {
     defaultFundsHandler: Bytes!
     defaultFundsRecipients: [Bytes!]!
     defaultFundsShares: [BigInt!]!
+
+    # Secondary royalty
+    #secondaryRoyaltyPercentage: BigInt!
+    # TODO : fix
 
     # Interface ID
     ERC165InterfaceID: Bytes
