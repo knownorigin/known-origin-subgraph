@@ -45,7 +45,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     }
 
     // Inform the subgraph to index events from the creator creatorContractEntity
-    CreatorContractTemplate.create(event.params.selfSovereignNFT)
+    //CreatorContractTemplate.create(event.params.selfSovereignNFT)
 
     // Check if the funds handler is a self sovereign funds handler or just a regular address
     creatorContractEntity.defaultFundsHandler = event.params.fundsHandler

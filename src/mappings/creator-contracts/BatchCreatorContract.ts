@@ -38,9 +38,9 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
 }
 
 export function handleSecondaryRoyaltyUpdated(event: SecondaryRoyaltyUpdated): void {
-    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    //let creatorContractEntity = CreatorContract.load(event.address.toHexString())
     //creatorContractEntity.secondaryRoyaltyPercentage = event.params.newRoyalty
-    creatorContractEntity.save()
+    //creatorContractEntity.save()
 }
 
 export function handleSecondaryEditionRoyaltyUpdated(event: SecondaryEditionRoyaltyUpdated): void {
