@@ -776,30 +776,28 @@ dataSources:
         - name: BatchCreatorContract
           file: ./abis/kodav4/BatchCreatorContract.json
       eventHandlers:
-        # event: SelfSovereignERC721Deployed(address indexed deployer, address indexed artist, address indexed selfSovereignNFT, address implementation, address fundsHandler)
         - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
-        # event: CreatorContractBanned(address indexed contractAddress);
         - event: CreatorContractBanned(indexed address)
           handler: handleCreatorContractBanned
       file: ./src/mappings/creator-contracts/factory.ts
-#templates:
-#  - name: CreatorContract
-#    kind: ethereum/contract
-#    network: {{network}}
-#    source:
-#      abi: BatchCreatorContract
-#    mapping:
-#      kind: ethereum/events
-#      apiVersion: 0.0.3
-#      language: wasm/assemblyscript
-#      file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
-#      entities:
-#        - Transfer
-#        - ListedEditionForBuyNow
-#      abis:
-#        - name: BatchCreatorContract
-#          file: ./abis/kodav4/BatchCreatorContract.json
-#      eventHandlers:
-#        - event: Transfer(indexed address,indexed address,indexed uint256)
-#          handler: handleTransfer
+templates:
+  - name: CreatorContract
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: BatchCreatorContract
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
+      entities:
+        - Transfer
+        - ListedEditionForBuyNow
+      abis:
+        - name: BatchCreatorContract
+          file: ./abis/kodav4/BatchCreatorContract.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer

@@ -34,6 +34,8 @@ export function loadOrCreateArtist(address: Address): Artist {
         mintConfig.save()
 
         artist.mintingConfig = mintConfig.id
+
+        artist.creatorContracts = new Array<string>()
     }
 
     return artist as Artist;

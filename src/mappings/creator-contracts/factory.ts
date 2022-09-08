@@ -21,6 +21,7 @@ import {
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
 import {ZERO, ONE} from "../../utils/constants";
+import {loadOrCreateArtist} from "../../services/Artist.service";
 
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
     // Capture the contract global properties so the list of creator contracts can be fetched
@@ -45,7 +46,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     }
 
     // Inform the subgraph to index events from the creator creatorContractEntity
-    //CreatorContractTemplate.create(event.params.selfSovereignNFT)
+    CreatorContractTemplate.create(event.params.selfSovereignNFT)
 
     // Check if the funds handler is a self sovereign funds handler or just a regular address
     creatorContractEntity.defaultFundsHandler = event.params.fundsHandler
@@ -75,6 +76,13 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     }
 
     creatorContractEntity.save()
+
+    // Update the artist
+    let artistEntity = loadOrCreateArtist(event.params.artist)
+    let creatorContracts = artistEntity.creatorContracts
+    creatorContracts.push(event.params.selfSovereignNFT.toHexString())
+    artistEntity.creatorContracts = creatorContracts
+    artistEntity.save()
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {

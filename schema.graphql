@@ -611,6 +611,8 @@ type Artist @entity {
     editionIds: [Edition!]!
 
     mintingConfig: ArtistMintingConfig!
+
+    creatorContracts: [CreatorContract!]!
 }
 
 # A single collector who has at sometime held a KO asset
