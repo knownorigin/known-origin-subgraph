@@ -553,8 +553,7 @@ type CreatorContract @entity {
     defaultFundsShares: [BigInt!]!
 
     # Secondary royalty
-    #secondaryRoyaltyPercentage: BigInt!
-    # TODO : fix
+    secondaryRoyaltyPercentage: BigInt!
 
     # Interface ID
     ERC165InterfaceID: Bytes

@@ -36,8 +36,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.minter = event.params.artist
     creatorContractEntity.isHidden = false
 
-    // TODO - this breaks??
-    //creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.secondarySaleRoyalty()
+    creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.secondarySaleRoyalty()
 
     // ERC165 interface lookup
     creatorContractEntity.isBatchBuyItNow = sovereignContractInstance.supportsInterface(Bytes.fromHexString("0x0c7cb431") as Bytes)
