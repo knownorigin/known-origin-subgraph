@@ -167,7 +167,7 @@ export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block,
     return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract);
 }
 
-export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address): Edition {
+export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
     log.info("Calling loadOrCreateV4Edition() call for edition ID {} ", [_editionId.toString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
@@ -175,7 +175,7 @@ export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block,
     let size = contractInstance.getSizeOfEdition(_editionId)
     let uri = contractInstance.editionURI(_editionId)
 
-    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress);
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);
 }
 
 export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
@@ -272,16 +272,16 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block, entityId);
 
         editionEntity.version = KodaVersions.KODA_V4
-        editionEntity.editionType = ONE // todo - would be worth using ths for one == batch, two open edition etc.
+        editionEntity.editionType = ONE
         editionEntity.startDate = ZERO
         editionEntity.endDate = MAX_UINT_256
-        editionEntity.artistCommission = BigInt.fromI32(100)
+        editionEntity.artistCommission = BigInt.fromI32(85)
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
         editionEntity.originalEditionSize = _size
-        editionEntity.remainingSupply = editionEntity.totalAvailable // todo - for open edition remaining needs to be pulled through seperately
+        editionEntity.remainingSupply = editionEntity.totalAvailable
         editionEntity.active = true;
 
         editionEntity.editionContract = address

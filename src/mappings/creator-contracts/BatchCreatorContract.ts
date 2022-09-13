@@ -3,6 +3,7 @@ import {
     Transfer,
     SecondaryRoyaltyUpdated,
     SecondaryEditionRoyaltyUpdated,
+    ListedEditionForBuyNow
 } from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
 
 import {
@@ -13,6 +14,7 @@ import {
 import {ZERO_ADDRESS} from "../../utils/constants";
 
 import {
+    loadOrCreateV4Edition,
     loadOrCreateV4EditionFromTokenId
 } from "../../services/Edition.service";
 
@@ -33,6 +35,24 @@ export function handleTransfer(event: Transfer): void {
         edition.version = BigInt.fromI32(4)
         edition.save()
     }
+}
+
+export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
+    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()])
+
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+
+    let edition = loadOrCreateV4Edition(
+        event.params._id,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    )
+
+    edition.startDate = event.params._startDate
+    edition.priceInWei = event.params._price
+
+    edition.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

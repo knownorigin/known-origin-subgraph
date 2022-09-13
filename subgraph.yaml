@@ -801,3 +801,11 @@ templates:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: ListedTokenForBuyNow(indexed uint256,uint256,uint256)
+          handler: handleListedForBuyItNow
+        - event: SecondaryEditionRoyaltyUpdated(uint256,uint256)
+          handler: handleSecondaryEditionRoyaltyUpdated
+        - event: SecondaryRoyaltyUpdated(uint256)
+          handler: handleSecondaryRoyaltyUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
