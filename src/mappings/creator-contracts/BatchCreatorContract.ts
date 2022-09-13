@@ -2,7 +2,7 @@ import {
     OwnershipTransferred,
     Transfer,
     SecondaryRoyaltyUpdated,
-    SecondaryEditionRoyaltyUpdated
+    SecondaryEditionRoyaltyUpdated,
 } from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
 
 import {
@@ -20,11 +20,15 @@ import {BigInt, log} from "@graphprotocol/graph-ts/index";
 
 export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for contract {} ", [event.address.toHexString()])
+
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+
     if (event.params.from.equals(ZERO_ADDRESS)) { // Mint
         let edition = loadOrCreateV4EditionFromTokenId(
             event.params.tokenId,
             event.block,
-            event.address
+            event.address,
+            contractEntity.isHidden
         )
         edition.version = BigInt.fromI32(4)
         edition.save()
@@ -38,9 +42,9 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
 }
 
 export function handleSecondaryRoyaltyUpdated(event: SecondaryRoyaltyUpdated): void {
-    //let creatorContractEntity = CreatorContract.load(event.address.toHexString())
-    //creatorContractEntity.secondaryRoyaltyPercentage = event.params.newRoyalty
-    //creatorContractEntity.save()
+    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    creatorContractEntity.secondaryRoyaltyPercentage = event.params.newRoyalty
+    creatorContractEntity.save()
 }
 
 export function handleSecondaryEditionRoyaltyUpdated(event: SecondaryEditionRoyaltyUpdated): void {

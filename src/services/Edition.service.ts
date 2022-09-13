@@ -178,7 +178,7 @@ export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block,
     return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress);
 }
 
-export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address): Edition {
+export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
     log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
@@ -187,7 +187,7 @@ export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereu
     let size = contractInstance.getSizeOfEdition(_editionId)
     let uri = contractInstance.editionURI(_editionId)
 
-    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress);
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);
 }
 
 function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
@@ -265,7 +265,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
     return editionEntity as Edition;
 }
 
-function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address): Edition {
+function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address, isHidden: boolean): Edition {
     let entityId = _editionId.toString() + "-" + address.toHexString()
     let editionEntity = Edition.load(entityId);
     if (editionEntity == null) {
@@ -275,23 +275,22 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         editionEntity.editionType = ONE // todo - would be worth using ths for one == batch, two open edition etc.
         editionEntity.startDate = ZERO
         editionEntity.endDate = MAX_UINT_256
-        editionEntity.artistCommission = BigInt.fromI32(100) // todo - check this
+        editionEntity.artistCommission = BigInt.fromI32(100)
         editionEntity.artistAccount = _originalCreator
         editionEntity.tokenURI = _uri
         editionEntity.totalSupply = ZERO
         editionEntity.totalAvailable = _size
         editionEntity.originalEditionSize = _size
-        editionEntity.remainingSupply = editionEntity.totalAvailable // set to initial supply
+        editionEntity.remainingSupply = editionEntity.totalAvailable // todo - for open edition remaining needs to be pulled through seperately
         editionEntity.active = true;
 
         editionEntity.editionContract = address
 
-        // if we have reported this edition, assume its disabled
-        // if (kodaV3Contract.reportedEditionIds(_editionId)) {
-        //     log.debug("Edition {} reported - setting edition to inactive", [_editionId.toString()]);
-        //     editionEntity.active = false
-        // }
-        //  todo - enable by querying creator contract factory
+        // if we have reported the creator contract, assume its disabled
+        if (isHidden) {
+            log.debug("Creator contract {} reported - setting edition to inactive", [address.toHexString()]);
+            editionEntity.active = false
+        }
 
         if (isEditionBurnt(_editionId)) {
             log.debug("Edition in hardcoded burn list {} setting to inactive", [_editionId.toString()]);
@@ -310,26 +309,25 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
         editionEntity.artist = artist.id.toString()
 
-        // let metaData = constructMetaData(_editionId, _uri)
-        // if (metaData != null) {
-        //     metaData.save()
-        //     editionEntity.metadata = metaData.id
-        //     editionEntity.metadataFormat = metaData.format
-        //     editionEntity.metadataTheme = metaData.theme
-        //     editionEntity.metadataName = metaData.name ? metaData.name : ""
-        //     editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
-        //     editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
-        //     if (metaData.image_type) {
-        //         let types = splitMimeType(metaData.image_type)
-        //         editionEntity.primaryAssetShortType = types.primaryAssetShortType
-        //         editionEntity.primaryAssetActualType = types.primaryAssetActualType
-        //     }
-        //     editionEntity.hasCoverImage = metaData.cover_image !== null;
-        //     if (metaData.tags != null && metaData.tags.length > 0) {
-        //         editionEntity.metadataTagString = metaData.tags.toString()
-        //     }
-        // }
-        //  todo - enable
+        let metaData = constructMetaData(_editionId, _uri)
+        if (metaData != null) {
+            metaData.save()
+            editionEntity.metadata = metaData.id
+            editionEntity.metadataFormat = metaData.format
+            editionEntity.metadataTheme = metaData.theme
+            editionEntity.metadataName = metaData.name ? metaData.name : ""
+            editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+            editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
+            if (metaData.image_type) {
+                let types = splitMimeType(metaData.image_type)
+                editionEntity.primaryAssetShortType = types.primaryAssetShortType
+                editionEntity.primaryAssetActualType = types.primaryAssetActualType
+            }
+            editionEntity.hasCoverImage = metaData.cover_image !== null;
+            if (metaData.tags != null && metaData.tags.length > 0) {
+                editionEntity.metadataTagString = metaData.tags.toString()
+            }
+        }
     }
     return editionEntity as Edition;
 }
