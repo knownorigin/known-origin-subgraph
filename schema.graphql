@@ -539,21 +539,24 @@ type GatedSale @entity {
 # Any KODA V4 Contract Deployed from the V4 factory
 type CreatorContract @entity {
     id: ID!
+
+    # Deployment
     deploymentBlockNumber: BigInt!
     deploymentTimestamp: BigInt!
     implementation: Bytes!
     deployer: Bytes!
     creator: Bytes!
+
+    # Current Settings
+    paused: Boolean!
     owner: Bytes!
+    secondaryRoyaltyPercentage: BigInt!
     minter: Bytes!
 
     # Funds handler
     defaultFundsHandler: Bytes!
     defaultFundsRecipients: [Bytes!]!
     defaultFundsShares: [BigInt!]!
-
-    # Secondary royalty
-    secondaryRoyaltyPercentage: BigInt!
 
     # Interface ID
     ERC165InterfaceID: Bytes

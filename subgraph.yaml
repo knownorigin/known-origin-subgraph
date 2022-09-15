@@ -809,3 +809,13 @@ templates:
           handler: handleSecondaryRoyaltyUpdated
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+        - event: BuyNowDeListed(indexed uint256)
+          handler: handleBuyNowDeListed
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowPriceChanged
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
+          handler: handleBuyNowPurchased
