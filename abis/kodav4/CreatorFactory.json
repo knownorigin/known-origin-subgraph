@@ -63,7 +63,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "contractAddress",
+        "name": "_contract",
         "type": "address"
       }
     ],
@@ -76,11 +76,11 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "newDefault",
+        "name": "_identifier",
         "type": "string"
       }
     ],
-    "name": "DefaultContractDeployedUpdated",
+    "name": "DefaultImplementationUpdated",
     "type": "event"
   },
   {
@@ -89,11 +89,11 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "splitter",
+        "name": "_handler",
         "type": "address"
       }
     ],
-    "name": "FundSplitterDeployed",
+    "name": "FundsHandlerDeployed",
     "type": "event"
   },
   {
@@ -115,7 +115,7 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "identifier",
+        "name": "_identifier",
         "type": "string"
       }
     ],
@@ -224,7 +224,7 @@
         "type": "string"
       }
     ],
-    "name": "addSelfSovereignImplementation",
+    "name": "addCreatorImplementation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -264,30 +264,6 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_recipients",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_splitAmounts",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "deployFundSplitter",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "components": [
           {
             "internalType": "string",
@@ -306,11 +282,11 @@
           },
           {
             "internalType": "uint256",
-            "name": "secondaryRoyalty",
+            "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
           }
         ],
-        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
         "name": "_deploymentParams",
         "type": "tuple"
       },
@@ -335,7 +311,7 @@
         "type": "uint256[]"
       }
     ],
-    "name": "deployNFTAndSplitter",
+    "name": "deployCreatorContractAndFundsHandler",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -366,11 +342,11 @@
           },
           {
             "internalType": "uint256",
-            "name": "secondaryRoyalty",
+            "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
           }
         ],
-        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
         "name": "_deploymentParams",
         "type": "tuple"
       },
@@ -385,7 +361,57 @@
         "type": "uint256[]"
       }
     ],
-    "name": "deployNFTAndSplitterOnBehalfOfArtist",
+    "name": "deployCreatorContractAndFundsHandlerOnBehalfOfArtist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "symbol",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "contractIdentifier",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "secondaryRoyaltyPercentage",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
+        "name": "_deploymentParams",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_artistIndex",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_fundsHandler",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "_artistProof",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "deployCreatorContractWithCustomFundsHandler",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -416,11 +442,11 @@
           },
           {
             "internalType": "uint256",
-            "name": "secondaryRoyalty",
+            "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
           }
         ],
-        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
+        "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
         "name": "_deploymentParams",
         "type": "tuple"
       },
@@ -430,7 +456,7 @@
         "type": "address"
       }
     ],
-    "name": "deployOnBehalfOfArtistWithCustomFundsHandler",
+    "name": "deployCreatorContractWithCustomFundsHandlerOnBehalfOfArtist",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -438,50 +464,24 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "symbol",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "contractIdentifier",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "secondaryRoyalty",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct KODASelfSovereignERC721Factory.SelfSovereignDeployment",
-        "name": "_deploymentParams",
-        "type": "tuple"
+        "internalType": "address[]",
+        "name": "_recipients",
+        "type": "address[]"
       },
       {
-        "internalType": "uint256",
-        "name": "_artistIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_fundSplitter",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "_artistProof",
-        "type": "bytes32[]"
+        "internalType": "uint256[]",
+        "name": "_splitAmounts",
+        "type": "uint256[]"
       }
     ],
-    "name": "deployUsingCustomFundsHandler",
-    "outputs": [],
+    "name": "deployFundsHandler",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -719,7 +719,7 @@
         "type": "string"
       }
     ],
-    "name": "updateDefaultSelfSovereignContractName",
+    "name": "updateDefaultCreatorIdentifier",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

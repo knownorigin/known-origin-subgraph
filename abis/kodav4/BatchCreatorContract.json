@@ -1,6 +1,11 @@
 [
   {
     "inputs": [],
+    "name": "AlreadyListed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "AlreadySet",
     "type": "error"
   },
@@ -12,6 +17,36 @@
   {
     "inputs": [],
     "name": "EditionDisabled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionNotListed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionSalesDisabled",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionSizeExceeded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionSizeTooLarge",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EditionSizeTooSmall",
     "type": "error"
   },
   {
@@ -36,12 +71,22 @@
   },
   {
     "inputs": [],
+    "name": "InvalidMintQuantity",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidOwner",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "InvalidPrice",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidRange",
     "type": "error"
   },
   {
@@ -56,7 +101,32 @@
   },
   {
     "inputs": [],
+    "name": "NotAuthorised",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "OwnerRevoked",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "PrimarySaleMade",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RoyaltyPercentageTooLarge",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenAlreadyMinted",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TokenDoesNotExist",
     "type": "error"
   },
   {
@@ -71,13 +141,27 @@
   },
   {
     "inputs": [],
-    "name": "UnknownEdition",
+    "name": "ZeroAddress",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "ZeroAddress",
-    "type": "error"
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_minter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "AdditionalMinterEnabled",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -135,7 +219,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_editionId",
         "type": "uint256"
       }
     ],
@@ -148,7 +232,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_editionId",
         "type": "uint256"
       },
       {
@@ -198,7 +282,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
@@ -211,7 +295,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -267,11 +351,81 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "editionId",
+        "name": "_percentage",
         "type": "uint256"
       }
     ],
-    "name": "EditionLevelFundSplitterSet",
+    "name": "DefaultRoyaltyPercentageUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "EditionCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "EditionCreatorUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_handler",
+        "type": "address"
+      }
+    ],
+    "name": "EditionFundsHandlerUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "EditionRoyaltyPercentageUpdated",
     "type": "event"
   },
   {
@@ -286,17 +440,30 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "_oldValue",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "_newValue",
+        "name": "_disabled",
         "type": "bool"
       }
     ],
-    "name": "EditionSalesDisabledToggled",
+    "name": "EditionSalesDisabledUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_editionSize",
+        "type": "uint256"
+      }
+    ],
+    "name": "EditionSizeUpdated",
     "type": "event"
   },
   {
@@ -331,7 +498,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_editionId",
         "type": "uint256"
       },
       {
@@ -356,7 +523,7 @@
       {
         "indexed": true,
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -373,19 +540,6 @@
       }
     ],
     "name": "ListedTokenForBuyNow",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "OpenEditionSetup",
     "type": "event"
   },
   {
@@ -424,64 +578,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "editionId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newRoyalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "SecondaryEditionRoyaltyUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "newRoyalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "SecondaryRoyaltyUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "minter",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isEnabled",
-        "type": "bool"
-      }
-    ],
-    "name": "SubMinterConfigured",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": true,
         "internalType": "address",
         "name": "_tokenUriResolver",
         "type": "address"
       }
     ],
-    "name": "TokenUriResolverSet",
+    "name": "TokenURIResolverUpdated",
     "type": "event"
   },
   {
@@ -527,9 +630,9 @@
     "name": "MAX_EDITION_SIZE",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "",
-        "type": "uint16"
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",
@@ -543,6 +646,25 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "additionalMinterEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -612,7 +734,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_editionId",
         "type": "uint256"
       },
       {
@@ -630,7 +752,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       },
       {
@@ -647,12 +769,171 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_mintQuantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "createEdition",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "cancelBuyNowPriceListing",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "createEditionAndMintToOwner",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_listingPrice",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      }
+    ],
+    "name": "createEditionBuyItNowListing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "createOpenEdition",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_listingPrice",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      }
+    ],
+    "name": "createTokenBuyItNowListing",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultFundsHandler",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "defaultRoyaltyPercentage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "deleteEditionBuyItNowListing",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -661,11 +942,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_id",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
-    "name": "cancelTokenBuyNowListing",
+    "name": "deleteTokenBuyItNowListing",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -687,16 +968,72 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_editionId",
         "type": "uint256"
       }
     ],
-    "name": "editionCreatorOverride",
+    "name": "editionCreator",
     "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionDetails",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "editionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mintedCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "size",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOpenEdition",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "uri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IERC721KODAEditions.EditionDetails",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -725,11 +1062,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_editionId",
         "type": "uint256"
       }
     ],
-    "name": "editionLevelFundSplitterOverrideAddress",
+    "name": "editionFundsHandler",
     "outputs": [
       {
         "internalType": "address",
@@ -765,8 +1102,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "editionPointer",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionMaxTokenId",
     "outputs": [
       {
         "internalType": "uint256",
@@ -781,11 +1124,173 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionMintedCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
     ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionOwner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionRoyaltyPercentage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
     "name": "editionSalesDisabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionSalesDisabledOrSoldOut",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_startId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionSalesDisabledOrSoldOutFrom",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionSize",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionSoldOut",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_startId",
+        "type": "uint256"
+      }
+    ],
+    "name": "editionSoldOutFrom",
     "outputs": [
       {
         "internalType": "bool",
@@ -835,19 +1340,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "fundHandlerForAllEditions",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -874,132 +1366,12 @@
         "type": "uint256"
       }
     ],
-    "name": "getCreatorOfEdition",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_originalCreator",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getCreatorOfToken",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_originalCreator",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getEditionDetails",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "creator",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "size",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint256",
-        "name": "editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isOpenEdition",
-        "type": "bool"
-      },
-      {
-        "internalType": "string",
-        "name": "uri",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getEditionIdOfToken",
+    "name": "getNextAvailablePrimarySaleToken",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getEditionSizeOfToken",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_size",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getFundSplitterByEditionId",
-    "outputs": [
-      {
-        "internalType": "address",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1010,6 +1382,11 @@
       {
         "internalType": "uint256",
         "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_startId",
         "type": "uint256"
       }
     ],
@@ -1017,37 +1394,18 @@
     "outputs": [
       {
         "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getSizeOfEdition",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_size",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
         "type": "uint256"
       }
     ],
@@ -1066,7 +1424,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct KODASelfSovereignERC721WithBuyItNow.TokenListing",
+        "internalType": "struct IERC721KODACreatorWithBuyItNow.TokenListing",
         "name": "",
         "type": "tuple"
       }
@@ -1093,7 +1451,7 @@
       },
       {
         "internalType": "address",
-        "name": "_fundHandlerForAllEditions",
+        "name": "_defaultFundsHandler",
         "type": "address"
       },
       {
@@ -1144,64 +1502,7 @@
         "type": "uint256"
       }
     ],
-    "name": "isEditionSalesDisabled",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "isEditionSoldOut",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "isMinter",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "isSalesDisabledOrSoldOut",
+    "name": "isOpenEdition",
     "outputs": [
       {
         "internalType": "bool",
@@ -1228,124 +1529,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "lastSoldOpenEditionTokenId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_listingPrice",
-        "type": "uint128"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "listEditionForBuyNow",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint96",
-        "name": "_listingPrice",
-        "type": "uint96"
-      },
-      {
-        "internalType": "uint128",
-        "name": "_startDate",
-        "type": "uint128"
-      }
-    ],
-    "name": "listTokenForBuyNow",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_minter",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_isEnabled",
-        "type": "bool"
-      }
-    ],
-    "name": "manageMinter",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "maxTokenIdOfEdition",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "minBidAmount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
+        "internalType": "uint32",
         "name": "_editionSize",
-        "type": "uint16"
+        "type": "uint32"
       },
       {
         "internalType": "string",
@@ -1377,17 +1563,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "_editionSize",
-        "type": "uint16"
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
       },
       {
-        "internalType": "string",
-        "name": "_uri",
-        "type": "string"
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
       }
     ],
-    "name": "mintBatchEdition",
+    "name": "mintOpenEditionToken",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1406,6 +1592,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextEditionId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1564,38 +1763,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "secondarySaleRoyalty",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "secondarySaleRoyaltyEditionOverride",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -1616,116 +1783,34 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
       },
       {
         "internalType": "uint128",
         "name": "_listingPrice",
         "type": "uint128"
-      }
-    ],
-    "name": "setBuyNowPriceListing",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_id",
-        "type": "uint256"
       },
       {
-        "internalType": "uint96",
-        "name": "_listingPrice",
-        "type": "uint96"
-      }
-    ],
-    "name": "setBuyNowTokenPriceListing",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
       },
       {
-        "internalType": "address",
-        "name": "_override",
-        "type": "address"
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
       }
     ],
-    "name": "setEditionCreatorOverride",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+    "name": "setupAndListOpenEdition",
+    "outputs": [
       {
         "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_fundSplitter",
-        "type": "address"
-      }
-    ],
-    "name": "setEditionLevelFundSplitterOverride",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_newSecondaryRoyalty",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "setSecondarySaleRoyalty",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_editionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_secondaryRoyalty",
-        "type": "uint256"
-      }
-    ],
-    "name": "setSecondarySaleRoyaltyEditionOverride",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "contract ITokenUriResolver",
-        "name": "_tokenUriResolver",
-        "type": "address"
-      }
-    ],
-    "name": "setTokenUriResolver",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1772,6 +1857,119 @@
     "name": "toggleEditionSalesDisabled",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenEditionCreator",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenEditionDetails",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "owner",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "editionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mintedCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "size",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isOpenEdition",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "uri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IERC721KODAEditions.EditionDetails",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenEditionId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenEditionSize",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1887,6 +2085,158 @@
   {
     "inputs": [],
     "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_minter",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "updateAdditionalMinterEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateDefaultRoyaltyPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_listingPrice",
+        "type": "uint128"
+      }
+    ],
+    "name": "updateEditionBuyItNowListingPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      }
+    ],
+    "name": "updateEditionCreator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_fundsHandler",
+        "type": "address"
+      }
+    ],
+    "name": "updateEditionFundsHandler",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_percentage",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateEditionRoyaltyPercentage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateEditionSize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_listingPrice",
+        "type": "uint96"
+      }
+    ],
+    "name": "updateTokenBuyItNowListingPrice",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ITokenUriResolver",
+        "name": "_tokenUriResolver",
+        "type": "address"
+      }
+    ],
+    "name": "updateTokenURIResolver",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

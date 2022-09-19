@@ -37,7 +37,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.isHidden = false
     creatorContractEntity.paused = false
 
-    creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.secondarySaleRoyalty()
+    creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
     // ERC165 interface lookup
     creatorContractEntity.isBatchBuyItNow = sovereignContractInstance.supportsInterface(Bytes.fromHexString("0x0c7cb431") as Bytes)
@@ -86,7 +86,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
-    let creatorContractEntity = CreatorContract.load(event.params.contractAddress.toHexString())
+    let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
     creatorContractEntity.isHidden = true
     creatorContractEntity.save()
 }

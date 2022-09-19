@@ -171,8 +171,8 @@ export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block,
     log.info("Calling loadOrCreateV4Edition() call for edition ID {} ", [_editionId.toString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
-    let originalCreator = contractInstance.getCreatorOfEdition(_editionId)
-    let size = contractInstance.getSizeOfEdition(_editionId)
+    let originalCreator = contractInstance.editionCreator(_editionId)
+    let size = contractInstance.editionSize(_editionId)
     let uri = contractInstance.editionURI(_editionId)
 
     return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);
@@ -182,9 +182,9 @@ export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereu
     log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
-    let _editionId = contractInstance.getEditionIdOfToken(tokenId)
-    let originalCreator = contractInstance.getCreatorOfEdition(_editionId)
-    let size = contractInstance.getSizeOfEdition(_editionId)
+    let _editionId = contractInstance.tokenEditionId(tokenId)
+    let originalCreator = contractInstance.editionCreator(_editionId)
+    let size = contractInstance.editionSize(_editionId)
     let uri = contractInstance.editionURI(_editionId)
 
     return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);

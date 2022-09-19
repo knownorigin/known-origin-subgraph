@@ -1,20 +1,20 @@
 import {
     Paused,
     Unpaused,
-    SubMinterConfigured,
+    //SubMinterConfigured,
     OwnershipTransferred,
     Transfer,
-    SecondaryRoyaltyUpdated,
-    SecondaryEditionRoyaltyUpdated,
+    DefaultRoyaltyPercentageUpdated,
+    EditionRoyaltyPercentageUpdated,
     ListedEditionForBuyNow,
     BuyNowDeListed,
     BuyNowPriceChanged,
     BuyNowPurchased,
 
-    EditionLevelFundSplitterSet,
-    EditionSalesDisabledToggled,
-    EditionURIUpdated,
-    TokenUriResolverSet,
+    // EditionLevelFundSplitterSet,
+    // EditionSalesDisabledToggled,
+    // EditionURIUpdated,
+    // TokenUriResolverSet,
 
     // TODO - index the secondary events
     ListedTokenForBuyNow,
@@ -74,7 +74,7 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
 
     let edition = loadOrCreateV4Edition(
-        event.params._id,
+        event.params._editionId,
         event.block,
         event.address,
         contractEntity.isHidden
@@ -90,7 +90,7 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
     let edition = loadOrCreateV4Edition(
-        event.params._id,
+        event.params._editionId,
         event.block,
         event.address,
         contractEntity.isHidden
@@ -106,7 +106,7 @@ export function handleBuyNowDeListed(event: BuyNowDeListed): void {
 export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
     let edition = loadOrCreateV4Edition(
-        event.params._id,
+        event.params._editionId,
         event.block,
         event.address,
         contractEntity.isHidden
@@ -138,17 +138,17 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     creatorContractEntity.save()
 }
 
-export function handleSecondaryRoyaltyUpdated(event: SecondaryRoyaltyUpdated): void {
+export function handleSecondaryRoyaltyUpdated(event: DefaultRoyaltyPercentageUpdated): void {
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
-    creatorContractEntity.secondaryRoyaltyPercentage = event.params.newRoyalty
+    creatorContractEntity.secondaryRoyaltyPercentage = event.params._percentage
     creatorContractEntity.save()
 }
 
-export function handleSecondaryEditionRoyaltyUpdated(event: SecondaryEditionRoyaltyUpdated): void {
-    let entityId = event.params.editionId.toString() + "-" + event.address.toHexString()
+export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercentageUpdated): void {
+    let entityId = event.params._editionId.toString() + "-" + event.address.toHexString()
     let entity = Edition.load(entityId)
     if (entity != null) {
-        entity.secondaryRoyaltyV4EditionOverride = event.params.newRoyalty
+        entity.secondaryRoyaltyV4EditionOverride = event.params._percentage
         entity.save()
     }
 }
