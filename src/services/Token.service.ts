@@ -1,5 +1,5 @@
-import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
-import {Token} from "../../generated/schema";
+import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {
     KnownOriginV2,
@@ -14,10 +14,10 @@ import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
 import * as SaleTypes from "../utils/SaleTypes";
 import {toEther} from "../utils/utils";
 
-function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
-    log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])
+function newTokenEntity(tokenId: BigInt, version: BigInt, entityId: string): Token {
+    log.info("Calling newTokenEntity() call for {} ", [entityId])
 
-    let tokenEntity = new Token(tokenId.toString())
+    let tokenEntity = new Token(entityId)
     tokenEntity.version = version
     tokenEntity.transfers = new Array<string>()
     tokenEntity.allOwners = new Array<string>()
@@ -92,7 +92,7 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2)
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2, tokenId.toString())
 
         // Populate it
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
@@ -145,7 +145,7 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3)
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3, tokenId.toString())
 
         // Populate it
         tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity as Token);
@@ -155,6 +155,32 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
     return tokenEntity as Token;
 }
 
+function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, block: ethereum.Block): Token {
+    tokenEntity.salesType = edition.salesType
+    tokenEntity.transferCount = ONE
+    tokenEntity.editionNumber = edition.editionNmber
+    tokenEntity.edition = edition.id
+    tokenEntity.tokenURI = edition.tokenURI
+    tokenEntity.metadata = edition.metadata
+    tokenEntity.birthTimestamp = block.timestamp
+    tokenEntity.lastTransferTimestamp = block.timestamp
+    tokenEntity.editionActive = edition.active
+    return tokenEntity
+}
+
+export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, edition: Edition, block: ethereum.Block): Token {
+    let entityId = tokenId.toString() + "-" + contractAddress.toHexString()
+    log.info("Calling loadOrCreateV4Token() call for {} ", [entityId])
+
+    let tokenEntity = Token.load(entityId);
+
+    if (tokenEntity == null) {
+        tokenEntity = newTokenEntity(tokenId, BigInt.fromString("4"), entityId);
+        tokenEntity = attemptToLoadV4TokenData(tokenEntity as Token, edition, block);
+    }
+
+    return tokenEntity as Token;
+}
 
 export function recordTokenSaleMetrics(tokenEntity: Token, salePriceInWei: BigInt, isPrimarySale: boolean): Token {
     tokenEntity.lastSalePriceInEth = toEther(salePriceInWei)

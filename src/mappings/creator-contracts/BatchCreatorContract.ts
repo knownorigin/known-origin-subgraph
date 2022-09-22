@@ -41,6 +41,7 @@ import {Address, BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts/i
 import * as SaleTypes from "../../utils/SaleTypes";
 import * as transferEventFactory from "../../services/TransferEvent.factory";
 import {loadOrCreateCollector} from "../../services/Collector.service";
+import {loadOrCreateV4Token} from "../../services/Token.service";
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
@@ -58,17 +59,31 @@ export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for contract {} ", [event.address.toHexString()])
 
     let contractEntity = CreatorContract.load(event.address.toHexString())
+    let edition = loadOrCreateV4EditionFromTokenId(
+        event.params.tokenId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    )
 
-    if (event.params.from.equals(ZERO_ADDRESS)) { // Mint
-        let edition = loadOrCreateV4EditionFromTokenId(
-            event.params.tokenId,
-            event.block,
-            event.address,
-            contractEntity.isHidden
-        )
-        edition.version = BigInt.fromI32(4)
-        edition.save()
+    if (event.params.from.equals(ZERO_ADDRESS) == false) { // Mint
+        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+        let collector = loadOrCreateCollector(event.params.to, event.block)
+        let allOwners = tokenEntity.allOwners
+        allOwners.push(collector.id)
+        tokenEntity.allOwners = allOwners
+
+        let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params.to, edition)
+        let transfers = tokenEntity.transfers
+        transfers.push(tEvent.id)
+        tokenEntity.transfers = transfers
+
+        tokenEntity.artistAccount = contractEntity.owner
+
+        tokenEntity.save()
     }
+
+    edition.save()
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
@@ -135,27 +150,15 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenIds.push(event.params._tokenId)
     edition.tokenIds
 
-    let tokenEntityId = event.params._tokenId.toString() + "-" + event.address.toHexString()
-    let tokenEntity = new Token(tokenEntityId)
-    tokenEntity.version = BigInt.fromString("4")
-    tokenEntity.salesType = edition.salesType
-    tokenEntity.tokenId = event.params._tokenId
-    tokenEntity.transferCount = ONE
-    tokenEntity.editionNumber = edition.editionNmber
-    tokenEntity.edition = edition.id
-    tokenEntity.tokenURI = edition.tokenURI
-    tokenEntity.metadata = edition.metadata
-    tokenEntity.birthTimestamp = event.block.timestamp
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
     tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
     tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
     tokenEntity.totalPurchaseCount = ONE
-    tokenEntity.largestSecondaryValueInEth = ZERO_BIG_DECIMAL
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
-    tokenEntity.lastTransferTimestamp = event.block.timestamp
 
-    let collector = loadOrCreateCollector(event.params._buyer, event.block)
     tokenEntity.currentOwner = event.params._buyer.toHexString()
 
+    let collector = loadOrCreateCollector(event.params._buyer, event.block)
     let allOwners = new Array<string>()
     allOwners.push(collector.id)
     tokenEntity.allOwners = allOwners
