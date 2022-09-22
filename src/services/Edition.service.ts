@@ -168,7 +168,7 @@ export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block,
 }
 
 export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
-    log.info("Calling loadOrCreateV4Edition() call for edition ID {} ", [_editionId.toString()])
+    log.info("Calling loadOrCreateV4Edition() call for edition ID {} on contract {}", [_editionId.toString(), contractAddress.toHexString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
     let originalCreator = contractInstance.editionCreator(_editionId)
@@ -179,7 +179,7 @@ export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block,
 }
 
 export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
-    log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
+    log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} on contract {}", [tokenId.toString(), contractAddress.toHexString()])
 
     let contractInstance = BatchCreatorContract.bind(contractAddress)
     let _editionId = contractInstance.tokenEditionId(tokenId)

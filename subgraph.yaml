@@ -801,7 +801,7 @@ templates:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: ListedTokenForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedEditionForBuyNow(indexed uint256,uint256,uint256)
           handler: handleListedForBuyItNow
         - event: EditionRoyaltyPercentageUpdated(indexed uint256,uint256)
           handler: handleSecondaryEditionRoyaltyUpdated
