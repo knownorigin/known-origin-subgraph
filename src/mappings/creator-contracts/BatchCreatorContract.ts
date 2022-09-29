@@ -66,22 +66,22 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
-    if (event.params.from.equals(ZERO_ADDRESS) == false) { // Mint
-        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
-        let collector = loadOrCreateCollector(event.params.to, event.block)
-        let allOwners = tokenEntity.allOwners
-        allOwners.push(collector.id)
-        tokenEntity.allOwners = allOwners
-
-        let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params.to, edition)
-        let transfers = tokenEntity.transfers
-        transfers.push(tEvent.id)
-        tokenEntity.transfers = transfers
-
-        tokenEntity.artistAccount = contractEntity.owner
-
-        tokenEntity.save()
-    }
+    // if (event.params.from.equals(ZERO_ADDRESS) == false) { // Mint
+    //     let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+    //     let collector = loadOrCreateCollector(event.params.to, event.block)
+    //     let allOwners = tokenEntity.allOwners
+    //     allOwners.push(collector.id)
+    //     tokenEntity.allOwners = allOwners
+    //
+    //     let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params.to, edition)
+    //     let transfers = tokenEntity.transfers
+    //     transfers.push(tEvent.id)
+    //     tokenEntity.transfers = transfers
+    //
+    //     tokenEntity.artistAccount = contractEntity.owner
+    //
+    //     tokenEntity.save()
+    // }
 
     edition.save()
 }
@@ -150,42 +150,39 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenIds.push(event.params._tokenId)
     edition.tokenIds
 
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
-    tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
-    tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
-    tokenEntity.totalPurchaseCount = ONE
-    tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
+    // let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    // tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
+    // tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
+    // tokenEntity.totalPurchaseCount = ONE
+    // tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
 
-    tokenEntity.currentOwner = event.params._buyer.toHexString()
+    //tokenEntity.currentOwner = event.params._buyer.toHexString()
 
-    let collector = loadOrCreateCollector(event.params._buyer, event.block)
-    let allOwners = new Array<string>()
-    allOwners.push(collector.id)
-    tokenEntity.allOwners = allOwners
+    // let collector = loadOrCreateCollector(event.params._buyer, event.block)
+    // let allOwners = new Array<string>()
+    // allOwners.push(collector.id)
+    // tokenEntity.allOwners = allOwners
 
-    let tEvent = transferEventFactory.createTransferEvent(event, event.params._tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params._buyer, edition)
-    let transfers = new Array<string>()
-    transfers.push(tEvent.id)
-    tokenEntity.transfers = transfers
+    // let tEvent = transferEventFactory.createTransferEvent(event, event.params._tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params._buyer, edition)
+    // let transfers = new Array<string>()
+    // transfers.push(tEvent.id)
+    // tokenEntity.transfers = transfers
 
-    tokenEntity.tokenEvents = new Array<string>() // todo - index
+    // tokenEntity.editionActive = contractEntity.isHidden
+    // tokenEntity.revokedApproval = false
+    // tokenEntity.isListed = false
+    //
+    // tokenEntity.artistAccount = contractEntity.owner
+    // tokenEntity.save()
 
-    tokenEntity.editionActive = contractEntity.isHidden
-    tokenEntity.revokedApproval = false
-    tokenEntity.isListed = false
-
-    tokenEntity.artistAccount = contractEntity.owner // TODO - check this
-    tokenEntity.save()
-
-    let tokens = edition.tokens
-    tokens.push(tokenEntity.id)
-    edition.tokens = tokens
-    edition.sales = tokens
+    //let tokens = edition.tokens
+    //tokens.push(tokenEntity.id)
+    //edition.tokens = tokens
+    //edition.sales = tokens
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition + (BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
 
     edition.save()
 }
-
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
@@ -233,14 +230,21 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         collective.isDeployed = true;
     }
 
-    // TODO - de dupe
     let editions = collective.editions
     editions.push(edition.id)
     collective.editions = editions
 
-    // TODO - will need to do population if it adheres to interface
-    // collective.recipients
-    // collective.splits
+    // TODO - will need to populate the array if it adheres to funds handler interface and has many collabs
+    let defaultFundsRecipients = new Array<Bytes>()
+    let defaultFundsShares = new Array<BigInt>()
+    defaultFundsRecipients.push(event.params._handler)
+    defaultFundsShares.push(BigInt.fromString("10000000"))
+
+    creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
+    creatorContractEntity.defaultFundsShares = defaultFundsShares
+
+    collective.recipients = creatorContractEntity.defaultFundsRecipients
+    collective.splits = creatorContractEntity.defaultFundsShares
 
     collective.save()
 
