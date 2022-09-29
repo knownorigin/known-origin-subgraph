@@ -1,7 +1,6 @@
 import {
     Paused,
     Unpaused,
-    //SubMinterConfigured,
     OwnershipTransferred,
     Transfer,
     DefaultRoyaltyPercentageUpdated,
@@ -73,25 +72,25 @@ export function handleTransfer(event: Transfer): void {
 
     // If the token is being gifted outside of marketplace (it is not being minted from zero to either owner or creator)
     let to = event.params.to
+    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
     if (editionCreator.equals(ZERO_ADDRESS) == false && to.equals(editionCreator) == false && to.equals(owner) == false) {
+        let collector = loadOrCreateCollector(event.params.to, event.block)
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+
+        let allOwners = tokenEntity.allOwners
+        allOwners.push(collector.id)
+        tokenEntity.allOwners = allOwners
+
+        let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
+        let transfers = tokenEntity.transfers
+        transfers.push(tEvent.id)
+        tokenEntity.transfers = transfers
+
         tokenEntity.currentOwner = to.toHexString()
         tokenEntity.editionActive = contractEntity.isHidden
-        tokenEntity.artistAccount = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+        tokenEntity.artistAccount = creator
         tokenEntity.save()
     }
-
-    // if (event.params.from.equals(ZERO_ADDRESS) == false) { // Mint
-    //     let collector = loadOrCreateCollector(event.params.to, event.block)
-    //     let allOwners = tokenEntity.allOwners
-    //     allOwners.push(collector.id)
-    //     tokenEntity.allOwners = allOwners
-    //
-    //     let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params.to, edition)
-    //     let transfers = tokenEntity.transfers
-    //     transfers.push(tEvent.id)
-    //     tokenEntity.transfers = transfers
-    // }
 
     edition.save()
 }
@@ -172,24 +171,31 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     tokenEntity.currentOwner = event.params._buyer.toHexString()
 
-    // let collector = loadOrCreateCollector(event.params._buyer, event.block)
-    // let allOwners = new Array<string>()
-    // allOwners.push(collector.id)
-    // tokenEntity.allOwners = allOwners
+    let collector = loadOrCreateCollector(event.params._buyer, event.block)
+    let allOwners = tokenEntity.allOwners
+    allOwners.push(collector.id)
+    tokenEntity.allOwners = allOwners
 
-    // let tEvent = transferEventFactory.createTransferEvent(event, event.params._tokenId, Address.fromString(contractEntity.owner.toHexString()), event.params._buyer, edition)
-    // let transfers = new Array<string>()
-    // transfers.push(tEvent.id)
-    // tokenEntity.transfers = transfers
+    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+    let tEvent = transferEventFactory.createTransferEvent(
+        event,
+        event.params._tokenId,
+        creator,
+        event.params._buyer,
+        edition
+    )
+    let transfers = tokenEntity.transfers
+    transfers.push(tEvent.id)
+    tokenEntity.transfers = transfers
 
     tokenEntity.editionActive = contractEntity.isHidden
-    tokenEntity.artistAccount = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+    tokenEntity.artistAccount = creator
     tokenEntity.save()
 
-    //let tokens = edition.tokens
-    //tokens.push(tokenEntity.id)
-    //edition.tokens = tokens
-    //edition.sales = tokens
+    let sales = edition.sales
+    sales.push(tokenEntity.id)
+    edition.sales = sales
+
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition + (BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
 
     edition.save()
