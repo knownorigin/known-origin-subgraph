@@ -20,7 +20,8 @@ import {
     ListedTokenForBuyNow,
     BuyNowTokenDeListed,
     BuyNowTokenPriceChanged,
-    BuyNowTokenPurchased
+    BuyNowTokenPurchased,
+    BatchCreatorContract
 } from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
 
 import {
@@ -66,8 +67,21 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
+    let creatorContractInstance = BatchCreatorContract.bind(event.address)
+    let owner = creatorContractInstance.owner()
+    let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
+
+    // If the token is being gifted outside of marketplace (it is not being minted from zero to either owner or creator)
+    let to = event.params.to
+    if (editionCreator.equals(ZERO_ADDRESS) == false && to.equals(editionCreator) == false && to.equals(owner) == false) {
+        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+        tokenEntity.currentOwner = to.toHexString()
+        tokenEntity.editionActive = contractEntity.isHidden
+        tokenEntity.artistAccount = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+        tokenEntity.save()
+    }
+
     // if (event.params.from.equals(ZERO_ADDRESS) == false) { // Mint
-    //     let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
     //     let collector = loadOrCreateCollector(event.params.to, event.block)
     //     let allOwners = tokenEntity.allOwners
     //     allOwners.push(collector.id)
@@ -77,10 +91,6 @@ export function handleTransfer(event: Transfer): void {
     //     let transfers = tokenEntity.transfers
     //     transfers.push(tEvent.id)
     //     tokenEntity.transfers = transfers
-    //
-    //     tokenEntity.artistAccount = contractEntity.owner
-    //
-    //     tokenEntity.save()
     // }
 
     edition.save()
@@ -141,6 +151,10 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
         contractEntity.isHidden
     )
 
+    let creatorContractInstance = BatchCreatorContract.bind(event.address)
+    let owner = creatorContractInstance.owner()
+    let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
+
     edition.totalSupply = edition.totalSupply + ONE;
     edition.totalAvailable = edition.totalAvailable - ONE;
     edition.remainingSupply = edition.totalAvailable - edition.totalSupply
@@ -150,13 +164,13 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenIds.push(event.params._tokenId)
     edition.tokenIds
 
-    // let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
-    // tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
-    // tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
-    // tokenEntity.totalPurchaseCount = ONE
-    // tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
+    tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
+    tokenEntity.totalPurchaseCount = ONE
+    tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
 
-    //tokenEntity.currentOwner = event.params._buyer.toHexString()
+    tokenEntity.currentOwner = event.params._buyer.toHexString()
 
     // let collector = loadOrCreateCollector(event.params._buyer, event.block)
     // let allOwners = new Array<string>()
@@ -168,12 +182,9 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     // transfers.push(tEvent.id)
     // tokenEntity.transfers = transfers
 
-    // tokenEntity.editionActive = contractEntity.isHidden
-    // tokenEntity.revokedApproval = false
-    // tokenEntity.isListed = false
-    //
-    // tokenEntity.artistAccount = contractEntity.owner
-    // tokenEntity.save()
+    tokenEntity.editionActive = contractEntity.isHidden
+    tokenEntity.artistAccount = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+    tokenEntity.save()
 
     //let tokens = edition.tokens
     //tokens.push(tokenEntity.id)
