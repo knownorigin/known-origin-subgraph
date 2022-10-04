@@ -564,6 +564,9 @@ type CreatorContract @entity {
 
     # banned
     isHidden: Boolean!
+
+    ## Global stats
+    totalNumOfEditions: BigInt!
 }
 
 ##########################

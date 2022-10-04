@@ -5,6 +5,7 @@ import {
     Transfer,
     DefaultRoyaltyPercentageUpdated,
     EditionRoyaltyPercentageUpdated,
+
     ListedEditionForBuyNow,
     BuyNowDeListed,
     BuyNowPriceChanged,
@@ -37,11 +38,20 @@ import {
     loadOrCreateV4EditionFromTokenId
 } from "../../services/Edition.service";
 
-import {Address, BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts/index";
+import {BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts/index";
 import * as SaleTypes from "../../utils/SaleTypes";
 import * as transferEventFactory from "../../services/TransferEvent.factory";
+import * as activityEventService from "../../services/ActivityEvent.service";
 import {loadOrCreateCollector} from "../../services/Collector.service";
 import {loadOrCreateV4Token} from "../../services/Token.service";
+import * as EVENT_TYPES from "../../utils/EventTypes";
+import {
+    addEditionToDay,
+    recordDayCounts,
+    recordDayIssued,
+    recordDayTransfer,
+    recordDayValue
+} from "../../services/Day.service";
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
@@ -59,6 +69,10 @@ export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for contract {} ", [event.address.toHexString()])
 
     let contractEntity = CreatorContract.load(event.address.toHexString())
+    let creatorContractInstance = BatchCreatorContract.bind(event.address)
+    let editionId = creatorContractInstance.tokenEditionId(event.params.tokenId)
+    let isNewEdition = Edition.load(editionId.toString() + "-" + event.address.toHexString()) == null
+
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params.tokenId,
         event.block,
@@ -66,14 +80,13 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
-    let creatorContractInstance = BatchCreatorContract.bind(event.address)
     let owner = creatorContractInstance.owner()
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
 
     // If the token is being gifted outside of marketplace (it is not being minted from zero to either owner or creator)
     let to = event.params.to
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
-    if (editionCreator.equals(ZERO_ADDRESS) == false && to.equals(editionCreator) == false && to.equals(owner) == false) {
+    if (to.equals(creator) == false) {
         let collector = loadOrCreateCollector(event.params.to, event.block)
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
 
@@ -90,9 +103,24 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.editionActive = contractEntity.isHidden
         tokenEntity.artistAccount = creator
         tokenEntity.save()
+
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to);
+
+        recordDayTransfer(event);
+        recordDayIssued(event, event.params.tokenId);
     }
 
     edition.save()
+
+    // Finally, if the edition is new, lets record its creation
+    if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
+        addEditionToDay(event, edition.id);
+
+        activityEventService.recordEditionCreated(event, edition);
+
+        contractEntity.totalNumOfEditions = contractEntity.totalNumOfEditions + ONE;
+        contractEntity.save();
+    }
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
@@ -139,6 +167,8 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
     )
     edition.priceInWei = event.params._price
     edition.save()
+
+    activityEventService.recordPriceChanged(event, edition, event.params._price);
 }
 
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
@@ -199,6 +229,16 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition + (BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
 
     edition.save()
+
+    // Activity events
+    activityEventService.recordTransfer(event, tokenEntity, edition, creator, event.params._buyer);
+    activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, edition, tokenEntity, event.params._price, event.params._buyer);
+
+    // Day events
+    recordDayTransfer(event);
+    recordDayCounts(event, event.params._price);
+    recordDayValue(event, event.params._tokenId, event.params._price);
+    recordDayIssued(event, event.params._tokenId);
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

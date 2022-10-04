@@ -36,6 +36,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.minter = event.params.artist
     creatorContractEntity.isHidden = false
     creatorContractEntity.paused = false
+    creatorContractEntity.totalNumOfEditions = ZERO
 
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
