@@ -41,10 +41,8 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
     // ERC165 interface lookup
-    creatorContractEntity.isBatchBuyItNow = sovereignContractInstance.supportsInterface(Bytes.fromHexString("0x0c7cb431") as Bytes)
-    if (creatorContractEntity.isBatchBuyItNow) {
-        creatorContractEntity.ERC165InterfaceID = Bytes.fromHexString("0x0c7cb431") as Bytes
-    }
+    creatorContractEntity.isBatchBuyItNow = true
+    // TODO - when there is the ability to deploy different types of creator contract, then the exact interface ID can be captured
 
     // Inform the subgraph to index events from the creator creatorContractEntity
     CreatorContractTemplate.create(event.params.selfSovereignNFT)

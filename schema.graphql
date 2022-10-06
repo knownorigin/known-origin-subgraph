@@ -540,7 +540,7 @@ type GatedSale @entity {
 type CreatorContract @entity {
     id: ID!
 
-    # Deployment
+    # Deployment information
     deploymentBlockNumber: BigInt!
     deploymentTimestamp: BigInt!
     implementation: Bytes!
@@ -562,11 +562,16 @@ type CreatorContract @entity {
     ERC165InterfaceID: Bytes
     isBatchBuyItNow: Boolean!
 
-    # banned
+    # banned - flagged by the creator contract factory
     isHidden: Boolean!
 
-    ## Global stats
+    # Global stats
     totalNumOfEditions: BigInt!
+    totalNumOfTokensSold: BigInt!
+    totalNumOfTransfers: BigInt!
+
+    # Editions created by contract
+    editions: [Edition!]!
 }
 
 ##########################

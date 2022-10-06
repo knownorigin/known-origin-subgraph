@@ -68,11 +68,13 @@ export function handleUnpaused(event: Unpaused): void {
 export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for contract {} ", [event.address.toHexString()])
 
+    // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString())
     let creatorContractInstance = BatchCreatorContract.bind(event.address)
     let editionId = creatorContractInstance.tokenEditionId(event.params.tokenId)
     let isNewEdition = Edition.load(editionId.toString() + "-" + event.address.toHexString()) == null
 
+    // If the edition has never been seen before, it will be created
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params.tokenId,
         event.block,
@@ -80,37 +82,41 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
+    // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
-
-    // If the token is being gifted outside of marketplace (it is not being minted from zero to either owner or creator)
-    let to = event.params.to
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
-    if (to.equals(creator) == false) {
+
+    // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
+    if (event.params.to.equals(creator) == false) {
         let collector = loadOrCreateCollector(event.params.to, event.block)
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
 
+        // Add a new token owner
         let allOwners = tokenEntity.allOwners
         allOwners.push(collector.id)
         tokenEntity.allOwners = allOwners
 
+        // Process transfer events and record them in various places
         let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
         let transfers = tokenEntity.transfers
         transfers.push(tEvent.id)
         tokenEntity.transfers = transfers
 
-        tokenEntity.currentOwner = to.toHexString()
+        tokenEntity.currentOwner = event.params.to.toHexString()
         tokenEntity.editionActive = contractEntity.isHidden
         tokenEntity.artistAccount = creator
         tokenEntity.save()
 
         activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to);
 
+        // Record day stats
         recordDayTransfer(event);
         recordDayIssued(event, event.params.tokenId);
-    }
 
-    edition.save()
+        // Record total number of transfers at the contract level
+        contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE;
+    }
 
     // Finally, if the edition is new, lets record its creation
     if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
@@ -119,8 +125,15 @@ export function handleTransfer(event: Transfer): void {
         activityEventService.recordEditionCreated(event, edition);
 
         contractEntity.totalNumOfEditions = contractEntity.totalNumOfEditions + ONE;
-        contractEntity.save();
+
+        let editions = contractEntity.editions;
+        editions.push(edition.id);
+        contractEntity.editions = editions;
     }
+
+    // Save entities at once
+    edition.save();
+    contractEntity.save();
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
@@ -173,6 +186,10 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
+    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
+    contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE
+    contractEntity.save()
+
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,
