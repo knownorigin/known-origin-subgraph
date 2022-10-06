@@ -37,6 +37,9 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.isHidden = false
     creatorContractEntity.paused = false
     creatorContractEntity.totalNumOfEditions = ZERO
+    creatorContractEntity.totalNumOfTokensSold = ZERO
+    creatorContractEntity.totalNumOfTransfers = ZERO
+    creatorContractEntity.editions = new Array<string>()
 
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
