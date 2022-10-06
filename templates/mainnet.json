@@ -8,8 +8,6 @@
   "auction-v1-startBlock": 6568535,
   "auction-v2-address": "0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639",
   "auction-v2-startBlock": 7271800,
-  "includeCallHandlers": true,
-  "includeTokenMarketplace": true,
   "token-marketplace-v1-address": "0xc1697d340807324200e26e4617Ce9c0070488E23",
   "token-marketplace-v1-startBlock": 9927235,
   "token-marketplace-v2-address": "0xc322cdd03f34b6d25633c2abbc8716a058c7fe9e",
@@ -19,7 +17,6 @@
   "artist-edition-controls-v2-address": "0x5327cf8b4127e81013d706330043e8bf5673f50d",
   "artist-edition-controls-v2-startBlock": 7271760,
 
-  "include-koda-v3": true,
   "koda-v3-address": "0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B",
   "koda-v3-startBlock": 13080871,
   "koda-v3-minting-factory-address": "0x36CF31019816E9490959F75Ba9164eDd304De01D",

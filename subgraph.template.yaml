@@ -73,6 +73,7 @@ dataSources:
 
       file: ./src/mappings/known-origin-v2-mapping.ts
 
+  {{#auction-v1-address}}
   ## Auctions V1 (Deprecated)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV1
@@ -111,7 +112,9 @@ dataSources:
         - event: AuctionCancelled(indexed uint256)
           handler: handleAuctionCancelled
       file: ./src/mappings/auction-v1-mapping.ts
+  {{/auction-v1-address}}
 
+  {{#auction-v2-address}}
   ## Auctions V2 (Current)
   - kind: ethereum/contract
     name: ArtistAcceptingBidsV2
@@ -156,7 +159,9 @@ dataSources:
         - event: BidderRefunded(indexed uint256,indexed address,uint256)
           handler: handleBidderRefunded
       file: ./src/mappings/auction-v2-mapping.ts
+  {{/auction-v2-address}}
 
+  {{#token-marketplace-v1-address}}
   ## TokenMarketplace V1 (Current)
   - kind: ethereum/contract
     name: TokenMarketplace
@@ -201,7 +206,9 @@ dataSources:
           handler: handleBidWithdrawn
 
       file: ./src/mappings/token-marketplace-mapping.ts
+  {{/token-marketplace-v1-address}}
 
+  {{#token-marketplace-v2-address}}
   ## TokenMarketplace V2 (Current)
   - kind: ethereum/contract
     name: TokenMarketplaceV2
@@ -260,7 +267,9 @@ dataSources:
           handler: handleTokenPurchased
 
       file: ./src/mappings/token-marketplace-v2-mapping.ts
+  {{/token-marketplace-v2-address}}
 
+  {{#artist-burner-address}}
   ## Artist Burner (Current)
   - kind: ethereum/contract
     name: ArtistEditionBurner
@@ -289,7 +298,9 @@ dataSources:
           handler: handleEditionSupplyReducedEvent
 
       file: ./src/mappings/artist-burner-mapping.ts
+  {{/artist-burner-address}}
 
+  {{#artist-edition-controls-v2-address}}
   ## Artist Tools V2
   - kind: ethereum/contract
     name: ArtistEditionControlsV2
@@ -311,6 +322,7 @@ dataSources:
         - event: PriceChanged(indexed uint256,indexed address,uint256)
           handler: handlePriceChangedEvent
       file: ./src/mappings/artist-edition-controls-v2-mapping.ts
+  {{/artist-edition-controls-v2-address}}
 
   # only include the below in V3
   ## KODA V3 (V3 NFT)
@@ -418,6 +430,7 @@ dataSources:
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
       file: ./src/mappings/v3/platform-config-mapping.ts
 
+  {{#koda-v3-minting-factory-address}}
   ## MintingFactory V1 for KODA V3
   - kind: ethereum/contract
     name: MintingFactoryV1
@@ -455,6 +468,7 @@ dataSources:
         - event: AdminFrequencyOverrideChanged(address,bool)
           handler: handleAdminFrequencyOverrideChanged
       file: ./src/mappings/v3/minting-factory-v1-mapping.ts
+  {{/koda-v3-minting-factory-address}}
 
   ## MintingFactory V2 for KODA V3
   - kind: ethereum/contract

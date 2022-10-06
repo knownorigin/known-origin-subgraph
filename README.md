@@ -7,19 +7,26 @@ Must belong to the `knownorigin` github:
 ### URIs
 
 ##### Main
-https://thegraph.com/explorer/subgraph/knownorigin/known-origin
 
-##### Rinkeby
-https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby
+https://thegraph.com/hosted-service/subgraph/knownorigin/known-origin
 
-### Subgraphs 
+##### Goerli
 
-| Purpose | URL |
-|---|---|
-| Production (mainnet) | https://thegraph.com/explorer/subgraph/knownorigin/known-origin ||
-| Staging (mainnet) | https://thegraph.com/explorer/subgraph/knownorigin/known-origin-staging ||
-| Development (rinkeby) | https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby ||
-| Alpha Studio (mainnet) | https://thegraph.com/studio/subgraph/known-origin |
+https://thegraph.com/hosted-service/subgraph/knownorigin/known-origin-goerli
+
+##### Rinkeby (Deprecated)
+
+~~https://thegraph.com/hosted-service/subgraph/knownorigin/knownoriginrinkeby~~ **Deprecated**
+
+### Subgraphs
+
+| Purpose               | URL                                                                                 |
+|-----------------------|-------------------------------------------------------------------------------------|
+| Production (mainnet)  | https://thegraph.com/explorer/subgraph/knownorigin/known-origin                     ||
+| Staging (mainnet)     | https://thegraph.com/explorer/subgraph/knownorigin/known-origin-staging             ||
+| Development (goerli)  | https://thegraph.com/hosted-service/subgraph/knownorigin/known-origin-goerli        ||
+| Development (rinkeby) | ~~https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby~~ Deprecated ||
+| Alpha Studio (mainnet) | https://thegraph.com/studio/subgraph/known-origin                                   ||
 
 ### Built via
 
@@ -42,21 +49,25 @@ graph init --from-contract <address> knownorigin/known-origin graph-known-origin
 ### Dev cycle
 
 Install
+
 ```bash
 yarn install
 ```
 
 If schema changes
+
 ```bash
 yarn codegen
 ```
 
 Compile mappings
+
 ```bash
 yarn build
 ```
 
 Push that puppy!
+
 ```bash
 yarn deploy
 ```
