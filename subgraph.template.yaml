@@ -767,6 +767,33 @@ dataSources:
 
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
 
+  ## KODA V4 Platform Settings contract
+  - kind: ethereum/contract
+    name: KODASettings
+    network: {{network}}
+    source:
+      address: '{{cc-koda-settings-address}}'
+      abi: KODASettings
+      startBlock: {{cc-koda-settings-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - PlatformPrimaryCommissionUpdated
+        - PlatformSecondaryCommissionUpdated
+        - PlatformUpdated
+      abis:
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
+      eventHandlers:
+        - event: PlatformPrimaryCommissionUpdated(uint256)
+          handler: handlePlatformPrimaryCommissionUpdated
+        - event: PlatformSecondaryCommissionUpdated(uint256)
+          handler: handlePlatformSecondaryCommissionUpdated
+        - event: PlatformUpdated(indexed address)
+          handler: handlePlatformUpdated
+      file: ./src/mappings/creator-contracts/koda-settings.ts
 
   ## KODA V4 (Creator Contract)
   - kind: ethereum/contract
@@ -789,7 +816,11 @@ dataSources:
           file: ./abis/kodav4/SelfSovereignFundsHandler.json
         - name: BatchCreatorContract
           file: ./abis/kodav4/BatchCreatorContract.json
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
       eventHandlers:
+        - event: ContractDeployed()
+          handler: handleContractDeployed
         - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
         - event: CreatorContractBanned(indexed address)
@@ -805,7 +836,7 @@ templates:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
-      file: ./src/mappings/creator-contracts/BatchCreatorContract.ts
+      file: ./src/mappings/creator-contracts/creator-contract.ts
       entities:
         - Transfer
         - ListedEditionForBuyNow

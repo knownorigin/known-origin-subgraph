@@ -28,7 +28,7 @@ import {
     CreatorContract,
     Edition,
     Collective,
-    Token,
+    Token, CreatorContractSetting,
 } from "../../../generated/schema"
 
 import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
@@ -40,6 +40,7 @@ import {
 
 import {BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts/index";
 import * as SaleTypes from "../../utils/SaleTypes";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as transferEventFactory from "../../services/TransferEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import {loadOrCreateCollector} from "../../services/Collector.service";
@@ -52,6 +53,7 @@ import {
     recordDayTransfer,
     recordDayValue
 } from "../../services/Day.service";
+import {addEditionToArtist, recordArtistValue} from "../../services/Artist.service";
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
@@ -66,7 +68,7 @@ export function handleUnpaused(event: Unpaused): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-    log.info("Calling handleTransfer() call for contract {} ", [event.address.toHexString()])
+    log.info("Calling handleTransfer() call for V4 contract {} ", [event.address.toHexString()])
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -116,19 +118,28 @@ export function handleTransfer(event: Transfer): void {
 
         // Record total number of transfers at the contract level
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE;
+
+        // Token Events
+        //tokenEventFactory.createTokenTransferEvent(event, event.params.tokenId, creator, event.params.to);
     }
 
     // Finally, if the edition is new, lets record its creation
     if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
+        // Day counts
         addEditionToDay(event, edition.id);
 
+        // Activity events
         activityEventService.recordEditionCreated(event, edition);
 
+        // Creator contract counts
         contractEntity.totalNumOfEditions = contractEntity.totalNumOfEditions + ONE;
 
         let editions = contractEntity.editions;
         editions.push(edition.id);
         contractEntity.editions = editions;
+
+        // Artist
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
     }
 
     // Save entities at once
@@ -185,11 +196,12 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 }
 
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
+    // Update creator contract stats
     let contractEntity = CreatorContract.load(event.address.toHexString())
     contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
-    contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE
     contractEntity.save()
 
+    // Load and update edition stats
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,
@@ -210,33 +222,12 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenIds.push(event.params._tokenId)
     edition.tokenIds
 
+    // Update token sale stats
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
     tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
     tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
     tokenEntity.totalPurchaseCount = ONE
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
-
-    tokenEntity.currentOwner = event.params._buyer.toHexString()
-
-    let collector = loadOrCreateCollector(event.params._buyer, event.block)
-    let allOwners = tokenEntity.allOwners
-    allOwners.push(collector.id)
-    tokenEntity.allOwners = allOwners
-
-    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
-    let tEvent = transferEventFactory.createTransferEvent(
-        event,
-        event.params._tokenId,
-        creator,
-        event.params._buyer,
-        edition
-    )
-    let transfers = tokenEntity.transfers
-    transfers.push(tEvent.id)
-    tokenEntity.transfers = transfers
-
-    tokenEntity.editionActive = contractEntity.isHidden
-    tokenEntity.artistAccount = creator
     tokenEntity.save()
 
     let sales = edition.sales
@@ -248,6 +239,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     edition.save()
 
     // Activity events
+    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
     activityEventService.recordTransfer(event, tokenEntity, edition, creator, event.params._buyer);
     activityEventService.recordPrimarySaleEvent(event, EVENT_TYPES.PURCHASE, edition, tokenEntity, event.params._price, event.params._buyer);
 
@@ -256,6 +248,17 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     recordDayCounts(event, event.params._price);
     recordDayValue(event, event.params._tokenId, event.params._price);
     recordDayIssued(event, event.params._tokenId);
+
+    // Update artist stats
+    // TODO - the code for working out platform proceeds is failing... look at why
+    //let kodaSettings = CreatorContractSetting.load('settings')
+    let platformProceedsOfSale = BigInt.fromI32(0) //(event.params._price * kodaSettings.platformPrimaryCommission) / kodaSettings.MODULO
+    let artistShareOfETHInWei = event.params._price - platformProceedsOfSale
+    recordArtistValue(creator, event.params._tokenId, event.params._price, artistShareOfETHInWei, true);
+
+    // Update token events
+    tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
+    //tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, creator, event.params._buyer);
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

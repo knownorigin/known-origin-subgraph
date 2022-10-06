@@ -1,7 +1,13 @@
 import {
     SelfSovereignERC721Deployed,
-    CreatorContractBanned
+    CreatorContractBanned,
+    ContractDeployed,
+    KnownOriginV4Factory
 } from "../../../generated/KnownOriginV4Factory/KnownOriginV4Factory";
+
+import {
+    KODASettings
+} from "../../../generated/KnownOriginV4Factory/KODASettings";
 
 import {
     FundsHandler
@@ -12,7 +18,8 @@ import {
 } from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
 
 import {
-    CreatorContract
+    CreatorContract,
+    CreatorContractSetting
 } from "../../../generated/schema"
 
 import {
@@ -22,6 +29,23 @@ import {
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
 import {ZERO, ONE} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
+
+// Index the deployment of the factory in order to capture the global V4 params
+export function handleContractDeployed(event: ContractDeployed): void {
+    let factoryContractInstance = KnownOriginV4Factory.bind(event.address)
+
+    let settings = new CreatorContractSetting('settings');
+    settings.factoryContract = event.address
+    settings.kodaSalesSettingsContract = factoryContractInstance.platformSettings()
+
+    let settingsContractInstance = KODASettings.bind(factoryContractInstance.platformSettings())
+
+    settings.platform = settingsContractInstance.platform()
+    settings.platformPrimaryCommission = settingsContractInstance.platformPrimaryCommission()
+    settings.platformSecondaryCommission = settingsContractInstance.platformSecondaryCommission()
+    settings.MODULO = settingsContractInstance.MODULO()
+    settings.save()
+}
 
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
     // Capture the contract global properties so the list of creator contracts can be fetched

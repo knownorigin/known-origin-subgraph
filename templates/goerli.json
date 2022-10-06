@@ -35,5 +35,7 @@
   "accesscontrols-v3-startBlock": 7703835,
 
   "cc-factory-address": "0xDC0Ca3B2c09579Da356a4C50c51bA8a69388ecaf",
-  "cc-factory-startBlock": 7720997
+  "cc-factory-startBlock": 7720997,
+  "cc-koda-settings-address": "0xa1f89465Eb7ec44c63FA2fA92115E7155407100f",
+  "cc-koda-settings-startBlock": 7715649
 }

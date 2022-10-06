@@ -574,6 +574,19 @@ type CreatorContract @entity {
     editions: [Edition!]!
 }
 
+type CreatorContractSetting @entity {
+    id: ID!
+
+    factoryContract: Bytes!             # Creator contract factory
+    kodaSalesSettingsContract: Bytes!   # Things like current primary sales settings
+    platform: Bytes!                    # Address
+
+    # Settings direct from KODA Settings contract
+    platformPrimaryCommission: BigInt!
+    platformSecondaryCommission: BigInt!
+    MODULO: BigInt!
+}
+
 ##########################
 ## Accountable entities ##
 ##########################
