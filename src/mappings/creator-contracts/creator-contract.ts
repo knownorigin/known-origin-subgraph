@@ -139,7 +139,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.editions = editions;
 
         // Artist
-        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
+        //addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
     }
 
     // Save entities at once
@@ -254,10 +254,10 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     //let kodaSettings = CreatorContractSetting.load('settings')
     let platformProceedsOfSale = BigInt.fromI32(0) //(event.params._price * kodaSettings.platformPrimaryCommission) / kodaSettings.MODULO
     let artistShareOfETHInWei = event.params._price - platformProceedsOfSale
-    recordArtistValue(creator, event.params._tokenId, event.params._price, artistShareOfETHInWei, true);
+    //recordArtistValue(creator, event.params._tokenId, event.params._price, artistShareOfETHInWei, true);
 
     // Update token events
-    tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
+    //tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
     //tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, creator, event.params._buyer);
 }
 
