@@ -75,7 +75,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     let listing = contract.editionOrTokenListings(event.params._id)
     let listingSeller = listing.value2
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = true;
     token.salesType = SaleTypes.BUY_NOW
     token.listPrice = toEther(event.params._price)
@@ -124,7 +124,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
 
 export function handleTokenDeListed(event: TokenDeListed): void {
     log.info("KO V3 handleTokenDeListed() called - tokenId {}", [event.params._tokenId.toString()]);
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
 
     token.isListed = false;
     token.salesType = SaleTypes.OFFERS_ONLY
@@ -148,7 +148,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
 export function handleTokenPurchased(event: BuyNowPurchased): void {
     log.info("KO V3 handleTokenPurchased() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     let edition = Edition.load(token.edition) as Edition
 
     token.isListed = false;
@@ -182,7 +182,7 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     seller.save();
 
     activityEventService.recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
-    tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._currentOwner, event.params._price)
+    tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._currentOwner, event.params._price)
 
     artistService.handleKodaV3CommissionSplit(
         Address.fromString(token.artistAccount.toHexString()),
@@ -198,12 +198,12 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
 export function handleTokenBidPlaced(event: TokenBidPlaced): void {
     log.info("KO V3 handleTokenBidPlaced() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     token.currentTopBidder = event.params._bidder
     token.save()
 
@@ -237,10 +237,10 @@ export function handleTokenBidPlaced(event: TokenBidPlaced): void {
 export function handleTokenBidAccepted(event: TokenBidAccepted): void {
     log.info("KO V3 handleTokenBidAccepted() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     token.openOffer = null
     token.currentTopBidder = null
     token.listing = null
@@ -280,10 +280,10 @@ export function handleTokenBidAccepted(event: TokenBidAccepted): void {
 export function handleTokenBidRejected(event: TokenBidRejected): void {
     log.info("KO V3 handleTokenBidRejected() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     token.openOffer = null
     token.currentTopBidder = null
     token.save();
@@ -297,10 +297,10 @@ export function handleTokenBidRejected(event: TokenBidRejected): void {
 export function handleTokenBidWithdrawn(event: TokenBidWithdrawn): void {
     log.info("KO V3 handleTokenBidWithdrawn() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
+    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId.toString(), event.params._bidder)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     token.openOffer = null
     token.currentTopBidder = null
     token.save();
@@ -314,7 +314,7 @@ export function handleTokenBidWithdrawn(event: TokenBidWithdrawn): void {
 export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
     log.info("KO V3 handleBuyNowTokenPriceChanged() called - tokenId {}", [event.params._id.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.listPrice = toEther(event.params._price)
     token.save()
 
@@ -333,7 +333,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
     let koda = KnownOriginV3.bind(marketplace.koda())
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = true;
     token.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
 
@@ -377,7 +377,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
     let koda = KnownOriginV3.bind(marketplace.koda())
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = true;
     token.salesType = SaleTypes.RESERVE_COUNTDOWN_AUCTION
     token.save()
@@ -448,7 +448,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 export function handleReserveAuctionResulted(event: ReserveAuctionResulted): void {
     log.info("KO V3 handleReserveAuctionResulted() called - tokenId {}", [event.params._id.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = false
     token.listing = null
     token.salesType = OFFERS_ONLY
@@ -466,7 +466,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     let collector = collectorService.loadOrCreateCollector(event.params._winner, event.block);
     collector.save();
 
-    tokenEventFactory.createBidAcceptedEvent(event, event.params._id, event.params._currentOwner, event.params._winner, event.params._finalPrice)
+    tokenEventFactory.createBidAcceptedEvent(event, event.params._id.toString(), event.params._currentOwner, event.params._winner, event.params._finalPrice)
     offerService.clearTokenOffer(event.block, event.params._id)
 
     // BidAccepted emit Transfer events - handle day counts for monetary values in here
@@ -493,7 +493,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 export function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromReserveAuction): void {
     log.info("KO V3 handleBidWithdrawnFromReserveAuction() called - tokenId {}", [event.params._id.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.openOffer = null
     token.currentTopBidder = null
     token.save();
@@ -505,7 +505,7 @@ export function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromRese
     listedToken.reserveAuctionBid = ZERO
     listedToken.save()
 
-    tokenEventFactory.createBidWithdrawnEvent(event, event.params._id, event.params._bidder)
+    tokenEventFactory.createBidWithdrawnEvent(event, event.params._id.toString(), event.params._bidder)
     offerService.clearTokenOffer(event.block, event.params._id)
 
     dayService.recordDayBidWithdrawnCount(event)
@@ -517,7 +517,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
 
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = true
     token.salesType = RESERVE_COUNTDOWN_AUCTION
 
@@ -544,7 +544,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
 export function handleEmergencyBidWithdrawFromReserveAuction(event: EmergencyBidWithdrawFromReserveAuction): void {
     log.info("KO V3 handleEmergencyBidWithdrawFromReserveAuction() called - tokenId {}", [event.params._id.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
     token.isListed = false
     token.listing = null
     token.salesType = OFFERS_ONLY
@@ -568,7 +568,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     let marketplace = KODAV3SecondaryMarketplace.bind(event.address)
     let koda = KnownOriginV3.bind(marketplace.koda())
 
-    let token = tokenService.loadNonNullableToken(event.params._id)
+    let token = tokenService.loadNonNullableToken(event.params._id.toString())
 
     let edition = Edition.load(token.edition) as Edition
 
@@ -592,7 +592,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
 export function handleReserveAuctionConvertedToOffers(event: ReserveAuctionConvertedToOffers): void {
     log.info("KO V3 handleReserveAuctionConvertedToOffers() called - tokenId {}", [event.params._tokenId.toString()]);
 
-    let token = tokenService.loadNonNullableToken(event.params._tokenId)
+    let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
 
     token.isListed = false
     token.salesType = SaleTypes.OFFERS_ONLY

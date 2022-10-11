@@ -159,11 +159,11 @@ export function handleMintFromSale(event: MintFromSale): void {
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, saleValue)
     editionEntity.save()
 
-    const tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._recipient, saleValue);
+    const tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._recipient, saleValue);
     tokenTransferEvent.save();
 
     // Set price against token
-    const tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
+    const tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     _handleTokenPrimarySale(tokenEntity, saleValue)
     tokenEntity.save()
 

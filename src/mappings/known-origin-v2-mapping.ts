@@ -176,7 +176,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////
 
     // Token Events
-    let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, event.params._from, event.params._to);
+    let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId.toString(), event.params._from, event.params._to);
     tokenTransferEvent.save();
 }
 
@@ -224,7 +224,7 @@ export function handlePurchase(event: Purchase): void {
 
         collectorService.addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei);
 
-        let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._priceInWei);
+        let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._priceInWei);
         tokenTransferEvent.save();
 
         // Set price against token

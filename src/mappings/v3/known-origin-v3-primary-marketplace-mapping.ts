@@ -135,11 +135,11 @@ export function handleEditionPurchased(event: BuyNowPurchased): void {
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, event.params._price)
     editionEntity.save()
 
-    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
+    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._price);
     tokenTransferEvent.save();
 
     // Set price against token
-    let tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
+    let tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     _handleTokenPrimarySale(tokenEntity, event.params._price)
     tokenEntity.save()
 
@@ -469,11 +469,11 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
     _handleEditionPrimarySale(editionEntity, collector, event.params._id, event.params._finalPrice)
     editionEntity.save()
 
-    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._id, event.params._winner, event.params._finalPrice);
+    let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._id.toString(), event.params._winner, event.params._finalPrice);
     tokenTransferEvent.save();
 
     // Set price against token
-    let tokenEntity = tokenService.loadNonNullableToken(event.params._id)
+    let tokenEntity = tokenService.loadNonNullableToken(event.params._id.toString())
     _handleTokenPrimarySale(tokenEntity, event.params._finalPrice)
     tokenEntity.save()
 

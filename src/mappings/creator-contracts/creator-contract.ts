@@ -84,6 +84,8 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
+    edition.isOpenEdition = creatorContractInstance.isOpenEdition(edition.editionNmber);
+
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
@@ -120,7 +122,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE;
 
         // Token Events
-        //tokenEventFactory.createTokenTransferEvent(event, event.params.tokenId, creator, event.params.to);
+        tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, creator, event.params.to);
     }
 
     // Finally, if the edition is new, lets record its creation
@@ -139,7 +141,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.editions = editions;
 
         // Artist
-        //addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
     }
 
     // Save entities at once
@@ -250,15 +252,13 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     recordDayIssued(event, event.params._tokenId);
 
     // Update artist stats
-    // TODO - the code for working out platform proceeds is failing... look at why
-    //let kodaSettings = CreatorContractSetting.load('settings')
-    let platformProceedsOfSale = BigInt.fromI32(0) //(event.params._price * kodaSettings.platformPrimaryCommission) / kodaSettings.MODULO
+    let kodaSettings = CreatorContractSetting.load('settings')
+    let platformProceedsOfSale = (event.params._price * kodaSettings.platformPrimaryCommission) / kodaSettings.MODULO
     let artistShareOfETHInWei = event.params._price - platformProceedsOfSale
-    //recordArtistValue(creator, event.params._tokenId, event.params._price, artistShareOfETHInWei, true);
+    recordArtistValue(creator, event.params._tokenId, event.params._price, artistShareOfETHInWei, true);
 
     // Update token events
-    //tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._price);
-    //tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, creator, event.params._buyer);
+    tokenEventFactory.createTokenPrimaryPurchaseEvent(event, tokenEntity.id, event.params._buyer, event.params._price);
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

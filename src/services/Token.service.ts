@@ -101,9 +101,9 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
     return tokenEntity as Token;
 }
 
-export function loadNonNullableToken(tokenId: BigInt): Token {
+export function loadNonNullableToken(tokenId: string): Token {
     log.info("Calling loadNonNullableToken() call for {} ", [tokenId.toString()])
-    return Token.load(tokenId.toString()) as Token;
+    return Token.load(tokenId) as Token;
 }
 
 ///////////////

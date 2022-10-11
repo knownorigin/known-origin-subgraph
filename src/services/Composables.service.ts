@@ -7,7 +7,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 
 export function determineIfEditionIsEnhanced(koda: KnownOriginV3, triggerTokenId: BigInt): boolean {
 
-    let token = loadNonNullableToken(triggerTokenId)
+    let token = loadNonNullableToken(triggerTokenId.toString())
     let edition = loadNonNullableEdition(token.editionNumber)
 
     // Quick exit - does the token have another NFT inside of it

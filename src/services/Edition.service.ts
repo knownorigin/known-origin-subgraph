@@ -144,6 +144,10 @@ export function loadNonNullableEdition(editionNumber: BigInt): Edition {
     return Edition.load(editionNumber.toString()) as Edition
 }
 
+export function loadNonNullableEditionById(id: string): Edition {
+    return Edition.load(id) as Edition
+}
+
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     log.info("Calling loadOrCreateV3EditionFromTokenId() call for token ID {} ", [tokenId.toString()])
 
@@ -367,6 +371,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.offersOnly = false
     editionEntity.isGenesisEdition = false
     editionEntity.isEnhancedEdition = false
+    editionEntity.isOpenEdition = false
     editionEntity.hasCoverImage = false
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.stepSaleStepPrice = ZERO

@@ -285,7 +285,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenEntity.save();
 
         // Token Events
-        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenId, from, to);
+        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenId.toString(), from, to);
         tokenTransferEvent.save();
 
         // Update token offer owner

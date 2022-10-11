@@ -74,7 +74,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
@@ -120,7 +120,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -196,7 +196,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
         address indexed _bidder
       );
     */
-    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
+    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId.toString(), event.params._bidder)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let contract = getKnownOriginV2ForAddress(event.address)
@@ -255,7 +255,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
 
     activityEventService.recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
-    tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._seller, event.params._price)
+    tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._seller, event.params._price)
 
     tokenEntity.save()
 

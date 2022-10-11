@@ -56,7 +56,7 @@ export function recordTokenOffer(block: ethereum.Block,
                                  tokenId: BigInt,
                                  lockedUntil: BigInt | null): Offer {
 
-    let tokenEntity = loadNonNullableToken(tokenId);
+    let tokenEntity = loadNonNullableToken(tokenId.toString());
 
     let offer: Offer = initOffer(block, TOKEN_TYPE, tokenId)
     offer.isActive = true
@@ -128,7 +128,7 @@ function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
         }
 
         if (type == TOKEN_TYPE) {
-            let tokenEntity = loadNonNullableToken(id);
+            let tokenEntity = loadNonNullableToken(id.toString());
             offer.edition = loadNonNullableEdition(tokenEntity.editionNumber).id
             offer.version = tokenEntity.version
             offer.token = tokenEntity.id
