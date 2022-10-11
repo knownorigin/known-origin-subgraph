@@ -85,7 +85,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition);
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition);
     listedToken.listPrice = toEther(event.params._price)
     listedToken.lister = collectorService.loadOrCreateCollector(listingSeller, event.block).id
     listedToken.listingTimestamp = event.block.timestamp
@@ -320,7 +320,7 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition);
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition);
     listedToken.listPrice = toEther(event.params._price)
 
     activityEventService.recordSecondaryTokenListingPriceChange(event, token, edition, event.params._price, Address.fromString(listedToken.lister));
@@ -339,7 +339,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
 
     // Ensure approval is checked during listing
     listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
@@ -384,7 +384,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
     listedToken.reserveAuctionBidder = event.params._bidder
     listedToken.reserveAuctionBid = event.params._amount
 
@@ -456,7 +456,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
     listedToken.isReserveAuctionResulted = true
     listedToken.isReserveAuctionResultedDateTime = event.block.timestamp
     listedToken.reserveAuctionResulter = event.params._resulter
@@ -500,7 +500,7 @@ export function handleBidWithdrawnFromReserveAuction(event: BidWithdrawnFromRese
 
     let edition = Edition.load(token.edition) as Edition
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
     listedToken.reserveAuctionBidder = ZERO_ADDRESS
     listedToken.reserveAuctionBid = ZERO
     listedToken.save()
@@ -522,7 +522,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
     token.salesType = RESERVE_COUNTDOWN_AUCTION
 
     let edition = Edition.load(token.edition) as Edition
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
     listedToken.reservePrice = event.params._reservePrice
 
     // Check if the current bid has gone above or is equal to reserve price as this means that the countdown for auction end has started
@@ -576,7 +576,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     token.salesType = SaleTypes.BUY_NOW
     token.listPrice = toEther(event.params._listingPrice)
 
-    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id, edition)
+    let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
     listedToken.listPrice = toEther(event.params._listingPrice)
 
     // Ensure approval is checked

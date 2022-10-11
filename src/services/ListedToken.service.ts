@@ -5,17 +5,17 @@ import {
 import {BigInt, log} from "@graphprotocol/graph-ts/index";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
-export function loadOrCreateListedToken(tokenId: BigInt, edition: Edition): ListedToken {
-    log.info("loadOrCreateListedToken() called  for token ID {}", [tokenId.toString()])
+export function loadOrCreateListedToken(tokenId: string, edition: Edition): ListedToken {
+    log.info("loadOrCreateListedToken() called  for token ID {}", [tokenId])
 
-    let listedToken = ListedToken.load(tokenId.toString());
+    let listedToken = ListedToken.load(tokenId);
 
     if (listedToken == null) {
-        listedToken = new ListedToken(tokenId.toString());
+        listedToken = new ListedToken(tokenId);
         listedToken.version = edition.version;
         listedToken.editionNumber = ZERO;
 
-        listedToken.fullToken = tokenId.toString();
+        listedToken.fullToken = tokenId;
         listedToken.listPrice = ZERO_BIG_DECIMAL;
         listedToken.lister = ZERO_ADDRESS.toHexString();
         listedToken.listingTimestamp = ZERO;

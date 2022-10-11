@@ -54,6 +54,7 @@ import {
     recordDayValue
 } from "../../services/Day.service";
 import {addEditionToArtist, recordArtistValue} from "../../services/Artist.service";
+import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
@@ -327,4 +328,16 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     edition.collective = editionFundsHandler
     edition.save()
+}
+
+export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
+    let entityId = event.params._tokenId.toString() + '-' + event.address.toHexString();
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let edition = loadOrCreateV4EditionFromTokenId(
+        event.params._tokenId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    )
+    loadOrCreateListedToken(entityId, edition);
 }
