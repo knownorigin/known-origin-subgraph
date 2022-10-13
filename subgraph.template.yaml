@@ -870,5 +870,5 @@ templates:
           handler: handleBuyNowTokenDeListed
         - event: BuyNowTokenPriceChanged(indexed uint256,uint256)
           handler: handleBuyNowTokenPriceChanged
-        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
+        - event: BuyNowTokenPurchased(indexed uint256,address,address,address,uint256)
           handler: handleBuyNowTokenPurchased

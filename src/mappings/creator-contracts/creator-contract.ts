@@ -283,50 +283,50 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
 }
 
 export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpdated): void {
-    // let contractEntity = CreatorContract.load(event.address.toHexString())
-    // let edition = loadOrCreateV4EditionFromTokenId(
-    //     event.params._editionId,
-    //     event.block,
-    //     event.address,
-    //     contractEntity.isHidden
-    // )
-    //
-    // let creatorContractEntity = CreatorContract.load(event.address.toHexString())
-    // let editionFundsHandler = event.params._handler.toHexString();
-    //
-    // let collective = Collective.load(editionFundsHandler);
-    // if (collective == null) {
-    //     collective = new Collective(editionFundsHandler);
-    //     collective.baseHandler = event.params._handler;
-    //     collective.creator = creatorContractEntity.owner; // only owner can trigger this action so capture it
-    //     collective.recipients = new Array<Bytes>(); // set the fund handler as only recipient if it is not possible to query any recipients
-    //     collective.splits = new Array<BigInt>(); // set to 100% if recipients array is length 1
-    //     collective.createdTimestamp = event.block.timestamp;
-    //     collective.transactionHash = event.transaction.hash;
-    //     collective.editions = new Array<string>();
-    //     collective.isDeployed = true;
-    // }
-    //
-    // let editions = collective.editions
-    // editions.push(edition.id)
-    // collective.editions = editions
-    //
-    // // TODO - will need to populate the array if it adheres to funds handler interface and has many collabs
-    // let defaultFundsRecipients = new Array<Bytes>()
-    // let defaultFundsShares = new Array<BigInt>()
-    // defaultFundsRecipients.push(event.params._handler)
-    // defaultFundsShares.push(BigInt.fromString("10000000"))
-    //
-    // creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
-    // creatorContractEntity.defaultFundsShares = defaultFundsShares
-    //
-    // collective.recipients = creatorContractEntity.defaultFundsRecipients
-    // collective.splits = creatorContractEntity.defaultFundsShares
-    //
-    // collective.save()
-    //
-    // edition.collective = editionFundsHandler
-    // edition.save()
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let edition = loadOrCreateV4EditionFromTokenId(
+        event.params._editionId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    )
+
+    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    let editionFundsHandler = event.params._handler.toHexString();
+
+    let collective = Collective.load(editionFundsHandler);
+    if (collective == null) {
+        collective = new Collective(editionFundsHandler);
+        collective.baseHandler = event.params._handler;
+        collective.creator = creatorContractEntity.owner; // only owner can trigger this action so capture it
+        collective.recipients = new Array<Bytes>(); // set the fund handler as only recipient if it is not possible to query any recipients
+        collective.splits = new Array<BigInt>(); // set to 100% if recipients array is length 1
+        collective.createdTimestamp = event.block.timestamp;
+        collective.transactionHash = event.transaction.hash;
+        collective.editions = new Array<string>();
+        collective.isDeployed = true;
+    }
+
+    let editions = collective.editions
+    editions.push(edition.id)
+    collective.editions = editions
+
+    // TODO - will need to populate the array if it adheres to funds handler interface and has many collabs
+    let defaultFundsRecipients = new Array<Bytes>()
+    let defaultFundsShares = new Array<BigInt>()
+    defaultFundsRecipients.push(event.params._handler)
+    defaultFundsShares.push(BigInt.fromString("10000000"))
+
+    creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
+    creatorContractEntity.defaultFundsShares = defaultFundsShares
+
+    collective.recipients = creatorContractEntity.defaultFundsRecipients
+    collective.splits = creatorContractEntity.defaultFundsShares
+
+    collective.save()
+
+    edition.collective = editionFundsHandler
+    edition.save()
 }
 
 export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
