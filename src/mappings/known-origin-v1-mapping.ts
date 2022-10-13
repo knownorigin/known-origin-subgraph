@@ -22,7 +22,7 @@ export function handlePurchase(event: PurchasedWithEther): void {
     let tokenId = event.params._tokenId
     let artistAddress = getArtistAddress(contract.editionInfo(tokenId).value4)
 
-    recordArtistValue(artistAddress, tokenId, event.transaction.value, event.transaction.value, true)
+    recordArtistValue(artistAddress, tokenId.toString(), event.transaction.value, event.transaction.value, true)
     recordDayValue(event, event.params._tokenId, event.transaction.value)
 
     addPrimarySaleToCollector(event.block, event.params._buyer, event.transaction.value);

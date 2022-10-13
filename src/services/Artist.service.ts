@@ -68,7 +68,7 @@ export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: Big
         let collective = Collective.load(collectiveId.toString()) as Collective
         recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
     } else {
-        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
+        recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
 }
 
@@ -93,7 +93,7 @@ export function handleKodaV2CommissionSplit(
 
         recordArtistCollaborationValue(collaborators, splits, tokenId, tokenSalePriceInWei, isPrimarySale)
     } else {
-        recordArtistValue(artistCommission.value0, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
+        recordArtistValue(artistCommission.value0, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
 }
 
@@ -119,13 +119,13 @@ export function recordArtistCollaborationValue(
             .div(totalCommissions)
             .times(artistCommission)
 
-        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, saleAllocation, isPrimarySale)
+        recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, saleAllocation, isPrimarySale)
     }
 }
 
 export function recordArtistValue(
     artistAddress: Address,
-    tokenId: BigInt,
+    tokenId: string,
     tokenSalePriceInWei: BigInt,
     artistProportionOfSaleInWei: BigInt,
     isPrimarySale: boolean

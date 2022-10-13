@@ -582,3 +582,9 @@ templates:
           handler: handleBuyNowPurchased
         - event: ListedTokenForBuyNow(indexed uint256,uint256,uint256)
           handler: handleListedTokenForBuyNow
+        - event: BuyNowTokenDeListed(indexed uint256)
+          handler: handleBuyNowTokenDeListed
+        - event: BuyNowTokenPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
+          handler: handleBuyNowTokenPurchased
