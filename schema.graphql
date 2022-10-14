@@ -533,7 +533,7 @@ type GatedSale @entity {
     phases: [Phase!]!       # associated sales
 }
 
-##########################
+#########################
 ## Accountable entities ##
 ##########################
 
