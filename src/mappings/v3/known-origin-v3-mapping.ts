@@ -40,7 +40,6 @@ import * as editionService from "../../services/Edition.service";
 import * as composableService from "../../services/Composables.service";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
-import {recordEditionDisabled} from "../../services/ActivityEvent.service";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -297,7 +296,14 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle transfer //
         /////////////////////
 
-        activityEventService.recordTransfer(event, tokenEntity, editionEntity, from, to);
+        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to, from, event.transaction.value);
+
+        // If we see a msg.value record it as a sale
+        if (event.transaction.value.gt(ZERO)) {
+            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(2));
+            tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
+            tokenEntity.save();
+        }
 
         //////////////////////////////////////////////////////////////////////////////////
         // Everytime a transfer is made we work out burns, mints, available, unsold etc //
