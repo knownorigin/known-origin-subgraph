@@ -569,7 +569,7 @@ type CreatorContract @entity {
     # Global stats
     totalNumOfEditions: BigInt!
     totalNumOfTokensSold: BigInt!
-    totalEthValueOfSales: BigInt!
+    totalEthValueOfSales: BigDecimal!
     totalNumOfTransfers: BigInt!
 
     # Editions created by contract

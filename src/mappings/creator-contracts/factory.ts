@@ -27,7 +27,7 @@ import {
 } from '../../../generated/templates';
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
-import {ZERO, ONE} from "../../utils/constants";
+import {ZERO, ONE, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
@@ -62,7 +62,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.paused = false
     creatorContractEntity.totalNumOfEditions = ZERO
     creatorContractEntity.totalNumOfTokensSold = ZERO
-    creatorContractEntity.totalEthValueOfSales = ZERO
+    creatorContractEntity.totalEthValueOfSales = ZERO_BIG_DECIMAL
     creatorContractEntity.totalNumOfTransfers = ZERO
     creatorContractEntity.editions = new Array<string>()
 
