@@ -203,6 +203,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     // Update creator contract stats
     let contractEntity = CreatorContract.load(event.address.toHexString())
     contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
+    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
     contractEntity.save()
 
     // Load and update edition stats

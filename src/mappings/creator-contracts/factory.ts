@@ -62,6 +62,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.paused = false
     creatorContractEntity.totalNumOfEditions = ZERO
     creatorContractEntity.totalNumOfTokensSold = ZERO
+    creatorContractEntity.totalEthValueOfSales = ZERO
     creatorContractEntity.totalNumOfTransfers = ZERO
     creatorContractEntity.editions = new Array<string>()
 
@@ -84,7 +85,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
 
-        for(let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
+        for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
             defaultFundsRecipients.push(share.value0)
             defaultFundsShares.push(share.value1)
