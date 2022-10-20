@@ -1,3 +1,5 @@
+import {Address, BigDecimal, BigInt, Bytes, log, store} from "@graphprotocol/graph-ts";
+
 import {
     Paused,
     Unpaused,
@@ -12,9 +14,8 @@ import {
     BuyNowPurchased,
 
     EditionFundsHandlerUpdated,
-    // EditionSalesDisabledToggled,
-    // EditionURIUpdated,
-    // TokenUriResolverSet,
+    EditionSalesDisabledUpdated,
+    EditionURIUpdated,
 
     ListedTokenForBuyNow,
     BuyNowTokenDeListed,
@@ -24,27 +25,22 @@ import {
 } from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
 
 import {
+    FundsHandler
+} from "../../../generated/KnownOriginV4Factory/FundsHandler";
+
+import {
     CreatorContract,
     Edition,
     Collective,
-    Token, CreatorContractSetting,
+    CreatorContractSetting,
 } from "../../../generated/schema"
-
-import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 
 import {
     loadOrCreateV4Edition,
-    loadOrCreateV4EditionFromTokenId
+    loadOrCreateV4EditionFromTokenId,
+    populateEditionMetadata
 } from "../../services/Edition.service";
 
-import {Address, BigDecimal, BigInt, Bytes, log} from "@graphprotocol/graph-ts/index";
-import * as SaleTypes from "../../utils/SaleTypes";
-import * as tokenEventFactory from "../../services/TokenEvent.factory";
-import * as transferEventFactory from "../../services/TransferEvent.factory";
-import * as activityEventService from "../../services/ActivityEvent.service";
-import {loadOrCreateCollector} from "../../services/Collector.service";
-import {loadOrCreateV4Token} from "../../services/Token.service";
-import * as EVENT_TYPES from "../../utils/EventTypes";
 import {
     addEditionToDay,
     recordDayCounts,
@@ -52,10 +48,39 @@ import {
     recordDayTransfer,
     recordDayValue
 } from "../../services/Day.service";
+
+import * as SaleTypes from "../../utils/SaleTypes";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as transferEventFactory from "../../services/TransferEvent.factory";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import {loadOrCreateCollector} from "../../services/Collector.service";
+import {loadOrCreateV4Token} from "../../services/Token.service";
+import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
-import {store} from "@graphprotocol/graph-ts";
 import {toEther} from "../../utils/utils";
+import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+
+export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
+    editionEntity.active = event.params._disabled;
+    editionEntity.save()
+}
+
+export function handleEditionURIUpdated(event: EditionURIUpdated): void {
+    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
+
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    populateEditionMetadata(
+        editionEntity,
+        editionEntity.id,
+        creatorContractInstance.editionURI(event.params._editionId)
+    )
+
+    editionEntity.save()
+}
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
@@ -97,6 +122,7 @@ export function handleTransfer(event: Transfer): void {
     if (event.params.to.equals(creator) == false) {
         let collector = loadOrCreateCollector(event.params.to, event.block)
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+        tokenEntity.creatorContract = event.address
 
         // Add a new token owner
         let allOwners = tokenEntity.allOwners
@@ -312,14 +338,24 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     editions.push(edition.id)
     collective.editions = editions
 
-    // TODO - will need to populate the array if it adheres to funds handler interface and has many collabs
+    let maybeFundsHandlerContract = FundsHandler.bind(event.params._handler)
+    let maybeTotalRecipientsResult = maybeFundsHandlerContract.try_totalRecipients()
+
     let defaultFundsRecipients = new Array<Bytes>()
     let defaultFundsShares = new Array<BigInt>()
-    defaultFundsRecipients.push(event.params._handler)
-    defaultFundsShares.push(BigInt.fromString("10000000"))
 
-    creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
-    creatorContractEntity.defaultFundsShares = defaultFundsShares
+    if (maybeTotalRecipientsResult.reverted == false) {
+        let totalRecipients = maybeTotalRecipientsResult.value
+
+        for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
+            let share = maybeFundsHandlerContract.shareAtIndex(i)
+            defaultFundsRecipients.push(share.value0)
+            defaultFundsShares.push(share.value1)
+        }
+    } else {
+        defaultFundsRecipients.push(event.params._handler)
+        defaultFundsShares.push(BigInt.fromString("10000000"))
+    }
 
     collective.recipients = creatorContractEntity.defaultFundsRecipients
     collective.splits = creatorContractEntity.defaultFundsShares
@@ -344,6 +380,7 @@ export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
 
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let listedEntity = loadOrCreateListedToken(entityId, edition);
+    listedEntity.creatorContract = event.address
     listedEntity.listPrice = toEther(event.params._price)
     listedEntity.lister = creatorContractInstance.ownerOf(event.params._tokenId).toHexString()
     listedEntity.listingTimestamp = event.block.timestamp
@@ -408,6 +445,10 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     store.remove("ListedToken", entityId);
 
     let contractEntity = CreatorContract.load(event.address.toHexString());
+    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
+    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
+    contractEntity.save()
+
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,

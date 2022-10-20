@@ -91,16 +91,14 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
             defaultFundsShares.push(share.value1)
         }
 
-        creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
-        creatorContractEntity.defaultFundsShares = defaultFundsShares
     } else {
         // in this case there is just 1 default address that will receive 100%
         defaultFundsRecipients.push(event.params.fundsHandler)
         defaultFundsShares.push(BigInt.fromString("10000000"))
-
-        creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
-        creatorContractEntity.defaultFundsShares = defaultFundsShares
     }
+
+    creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
+    creatorContractEntity.defaultFundsShares = defaultFundsShares
 
     creatorContractEntity.save()
 

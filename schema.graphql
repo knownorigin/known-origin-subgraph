@@ -242,6 +242,9 @@ type Token @entity {
 
     # Complete attached token
     listing: ListedToken
+
+    # Optionally capture creator contract address if it is version 4
+    creatorContract: Bytes
 }
 
 # For Token Secondary market
@@ -292,6 +295,9 @@ type ListedToken @entity {
 
     reserveAuctionCanEmergencyExit: Boolean!
     # ----- End of reserve auction fields - #
+
+    # Optionally capture creator contract address if this is version 4
+    creatorContract: Bytes
 }
 
 # A composable is a combination of a V3 NFT and a set number of tokens
@@ -560,7 +566,7 @@ type CreatorContract @entity {
     defaultFundsShares: [BigInt!]!
 
     # Interface ID
-    ERC165InterfaceID: Bytes
+    ERC165InterfaceID: Bytes # TODO - Assembly script casting issues fetching this from contract
     isBatchBuyItNow: Boolean!
 
     # banned - flagged by the creator contract factory

@@ -65,7 +65,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         collector.save();
         tokenEntity.currentOwner = collector.id
 
-        let metaData = constructMetaData(_tokenData.value0, _tokenData.value3);
+        let metaData = constructMetaData(_tokenData.value0.toString(), _tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id
 
@@ -128,7 +128,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     collector.save();
     tokenEntity.currentOwner = collector.id
 
-    let metaData = constructMetaData(editionNumber, tokenURI);
+    let metaData = constructMetaData(editionNumber.toString(), tokenURI);
     metaData.save()
     tokenEntity.metadata = metaData.id
 

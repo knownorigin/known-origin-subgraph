@@ -89,7 +89,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
                 editionEntity.isGenesisEdition = true
             }
 
-            let metaData = constructMetaData(editionNumber, _editionData.value7)
+            let metaData = constructMetaData(editionNumber.toString(), _editionData.value7)
 
             if (metaData != null) {
                 metaData.save()
@@ -244,7 +244,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
         editionEntity.artist = artist.id.toString()
 
-        let metaData = constructMetaData(_editionId, _uri)
+        let metaData = constructMetaData(_editionId.toString(), _uri)
         if (metaData != null) {
             metaData.save()
             editionEntity.metadata = metaData.id
@@ -313,27 +313,31 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
         editionEntity.artist = artist.id.toString()
 
-        let metaData = constructMetaData(_editionId, _uri)
-        if (metaData != null) {
-            metaData.save()
-            editionEntity.metadata = metaData.id
-            editionEntity.metadataFormat = metaData.format
-            editionEntity.metadataTheme = metaData.theme
-            editionEntity.metadataName = metaData.name ? metaData.name : ""
-            editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
-            editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
-            if (metaData.image_type) {
-                let types = splitMimeType(metaData.image_type)
-                editionEntity.primaryAssetShortType = types.primaryAssetShortType
-                editionEntity.primaryAssetActualType = types.primaryAssetActualType
-            }
-            editionEntity.hasCoverImage = metaData.cover_image !== null;
-            if (metaData.tags != null && metaData.tags.length > 0) {
-                editionEntity.metadataTagString = metaData.tags.toString()
-            }
-        }
+        populateEditionMetadata(editionEntity as Edition, entityId, _uri);
     }
     return editionEntity as Edition;
+}
+
+export function populateEditionMetadata(editionEntity: Edition, _editionId: string, _uri: string): void {
+    let metaData = constructMetaData(_editionId, _uri)
+    if (metaData != null) {
+        metaData.save()
+        editionEntity.metadata = metaData.id
+        editionEntity.metadataFormat = metaData.format
+        editionEntity.metadataTheme = metaData.theme
+        editionEntity.metadataName = metaData.name ? metaData.name : ""
+        editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+        editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
+        if (metaData.image_type) {
+            let types = splitMimeType(metaData.image_type)
+            editionEntity.primaryAssetShortType = types.primaryAssetShortType
+            editionEntity.primaryAssetActualType = types.primaryAssetActualType
+        }
+        editionEntity.hasCoverImage = metaData.cover_image !== null;
+        if (metaData.tags != null && metaData.tags.length > 0) {
+            editionEntity.metadataTagString = metaData.tags.toString()
+        }
+    }
 }
 
 function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block, entityId: string): Edition {

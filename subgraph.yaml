@@ -559,6 +559,8 @@ templates:
       abis:
         - name: BatchCreatorContract
           file: ./abis/kodav4/BatchCreatorContract.json
+        - name: FundsHandler
+          file: ./abis/kodav4/SelfSovereignFundsHandler.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
@@ -588,3 +590,9 @@ templates:
           handler: handleBuyNowTokenPriceChanged
         - event: BuyNowTokenPurchased(indexed uint256,address,address,address,uint256)
           handler: handleBuyNowTokenPurchased
+        - event: EditionSalesDisabledUpdated(indexed uint256,bool)
+          handler: handleEditionSalesDisabledUpdated
+        - event: EditionURIUpdated(indexed uint256)
+          handler: handleEditionURIUpdated
+        - event: EditionFundsHandlerUpdated(indexed uint256,indexed address)
+          handler: handleEditionLevelFundSplitterSet
