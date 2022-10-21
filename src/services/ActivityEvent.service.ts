@@ -2,7 +2,16 @@ import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
-import {EditionURIUpdated} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
+import {
+    BuyNowDeListed,
+    BuyNowPriceChanged,
+    DefaultRoyaltyPercentageUpdated,
+    EditionFundsHandlerUpdated,
+    EditionRoyaltyPercentageUpdated,
+    EditionURIUpdated,
+    ListedEditionForBuyNow,
+    OwnershipTransferred
+} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -551,5 +560,47 @@ export function recordCCContractPauseToggle(address: string, id: string, event: 
     let ID = createCreatorContractEventId(address, id, event);
     let type = "CreatorContractPauseToggled" + (enabled ? "True" : "False")
     let ccEvent = createdCreatorContractEvent(ID, type, event, null);
+    ccEvent.save();
+}
+
+export function recordCCListedEditionForBuyNow(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "ListedEditionForBuyNow", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCBuyNowDeListed(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "BuyNowDeListed", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCBuyNowPriceChanged(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "BuyNowPriceChanged", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCOwnershipTransferred(address: string, id: string, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "OwnershipTransferred", event, null);
+    ccEvent.save();
+}
+
+export function recordCCDefaultRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "DefaultRoyaltyPercentageUpdated", event, null);
+    ccEvent.save();
+}
+
+export function recordCCEditionRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "EditionRoyaltyPercentageUpdated", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCEditionFundsHandlerUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "EditionFundsHandlerUpdated", event, edition);
     ccEvent.save();
 }

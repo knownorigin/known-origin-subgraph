@@ -60,7 +60,11 @@ import {addEditionToArtist, recordArtistValue} from "../../services/Artist.servi
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
 import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
-import {recordCCContractPauseToggle, recordCCEditionURIUpdated} from "../../services/ActivityEvent.service";
+import {
+    recordCCEditionFundsHandlerUpdated,
+    recordCCEditionRoyaltyPercentageUpdated,
+    recordCCOwnershipTransferred
+} from "../../services/ActivityEvent.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -222,6 +226,13 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
     edition.salesType = SaleTypes.BUY_NOW
 
     edition.save()
+
+    activityEventService.recordCCListedEditionForBuyNow(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    );
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
@@ -238,6 +249,13 @@ export function handleBuyNowDeListed(event: BuyNowDeListed): void {
     edition.salesType = SaleTypes.OFFERS_ONLY // Revert back to the default state during de-listing
 
     edition.save()
+
+    activityEventService.recordCCBuyNowDeListed(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    )
 }
 
 export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
@@ -252,6 +270,13 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
     edition.save()
 
     activityEventService.recordPriceChanged(event, edition, event.params._price);
+
+    activityEventService.recordCCBuyNowDeListed(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    );
 }
 
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
@@ -321,12 +346,24 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
     creatorContractEntity.owner = event.params.newOwner
     creatorContractEntity.save()
+
+    activityEventService.recordCCOwnershipTransferred(
+        event.address.toHexString(),
+        event.address.toHexString(),
+        event
+    );
 }
 
 export function handleSecondaryRoyaltyUpdated(event: DefaultRoyaltyPercentageUpdated): void {
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
     creatorContractEntity.secondaryRoyaltyPercentage = event.params._percentage
     creatorContractEntity.save()
+
+    activityEventService.recordCCOwnershipTransferred(
+        event.address.toHexString(),
+        event.address.toHexString(),
+        event
+    );
 }
 
 export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercentageUpdated): void {
@@ -335,6 +372,13 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
     if (entity != null) {
         entity.secondaryRoyaltyV4EditionOverride = event.params._percentage
         entity.save()
+
+        activityEventService.recordCCEditionRoyaltyPercentageUpdated(
+            event.address.toHexString(),
+            entity.id,
+            event,
+            entity
+        );
     }
 }
 
@@ -393,6 +437,13 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     edition.collective = editionFundsHandler
     edition.save()
+
+    activityEventService.recordCCEditionFundsHandlerUpdated(
+      event.address.toHexString(),
+      edition.id,
+      event,
+      edition
+    );
 }
 
 export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
@@ -425,6 +476,14 @@ export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
     tokenEntity.openOffer = null
     tokenEntity.currentTopBidder = null
     tokenEntity.save()
+
+    activityEventService.recordSecondaryTokenListed(
+        event,
+        tokenEntity,
+        edition,
+        event.params._price,
+        creatorContractInstance.ownerOf(event.params._tokenId)
+    );
 }
 
 export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
@@ -448,6 +507,14 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
     tokenEntity.openOffer = null;
     tokenEntity.currentTopBidder = null;
     tokenEntity.save();
+
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    activityEventService.recordSecondaryTokenDeListed(
+        event,
+        tokenEntity,
+        creatorContractInstance.ownerOf(event.params._tokenId),
+        edition
+    );
 }
 
 export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): void {
@@ -467,6 +534,15 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): v
     let listedEntity = loadOrCreateListedToken(entityId, edition);
     listedEntity.listPrice = toEther(event.params._price);
     listedEntity.save();
+
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    activityEventService.recordSecondaryTokenListingPriceChange(
+        event,
+        tokenEntity,
+        edition,
+        event.params._price,
+        creatorContractInstance.ownerOf(event.params._tokenId),
+    );
 }
 
 export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
