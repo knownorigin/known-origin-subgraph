@@ -811,11 +811,11 @@ dataSources:
         - Transfer
       abis:
         - name: KnownOriginV4Factory
-          file: ./abis/kodav4/CreatorFactory.json
+          file: ./abis/kodav4/ERC721KODACreatorFactory.json
         - name: FundsHandler
-          file: ./abis/kodav4/SelfSovereignFundsHandler.json
-        - name: BatchCreatorContract
-          file: ./abis/kodav4/BatchCreatorContract.json
+          file: ./abis/kodav4/ClaimableFundsReceiverV1.json
+        - name: ERC721KODACreatorWithBuyItNow
+          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
         - name: KODASettings
           file: ./abis/kodav4/KODASettings.json
       eventHandlers:
@@ -831,7 +831,7 @@ templates:
     kind: ethereum/contract
     network: {{network}}
     source:
-      abi: BatchCreatorContract
+      abi: ERC721KODACreatorWithBuyItNow
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
@@ -841,10 +841,10 @@ templates:
         - Transfer
         - ListedEditionForBuyNow
       abis:
-        - name: BatchCreatorContract
-          file: ./abis/kodav4/BatchCreatorContract.json
+        - name: ERC721KODACreatorWithBuyItNow
+          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
         - name: FundsHandler
-          file: ./abis/kodav4/SelfSovereignFundsHandler.json
+          file: ./abis/kodav4/ClaimableFundsReceiverV1.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer

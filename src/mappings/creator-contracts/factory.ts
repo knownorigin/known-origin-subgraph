@@ -14,8 +14,8 @@ import {
 } from "../../../generated/KnownOriginV4Factory/FundsHandler";
 
 import {
-    BatchCreatorContract
-} from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
+    ERC721KODACreatorWithBuyItNow
+} from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 
 import {
     CreatorContract,
@@ -50,7 +50,7 @@ export function handleContractDeployed(event: ContractDeployed): void {
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
     // Capture the contract global properties so the list of creator contracts can be fetched
     let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
-    let sovereignContractInstance = BatchCreatorContract.bind(event.params.selfSovereignNFT)
+    let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
     creatorContractEntity.deploymentBlockNumber = event.block.number
     creatorContractEntity.deploymentTimestamp = event.block.timestamp
     creatorContractEntity.implementation = event.params.implementation

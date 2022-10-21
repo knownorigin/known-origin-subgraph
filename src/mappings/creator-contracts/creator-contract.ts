@@ -21,8 +21,8 @@ import {
     BuyNowTokenDeListed,
     BuyNowTokenPriceChanged,
     BuyNowTokenPurchased,
-    BatchCreatorContract as ERC721CreatorContract
-} from "../../../generated/KnownOriginV4Factory/BatchCreatorContract";
+    ERC721KODACreatorWithBuyItNow as ERC721CreatorContract
+} from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 
 import {
     FundsHandler
@@ -60,12 +60,20 @@ import {addEditionToArtist, recordArtistValue} from "../../services/Artist.servi
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
 import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import {recordCCContractPauseToggle, recordCCEditionURIUpdated} from "../../services/ActivityEvent.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
     editionEntity.active = event.params._disabled;
     editionEntity.save()
+
+    activityEventService.recordCCEditionSalesDisabledUpdated(
+        event.address.toHexString(),
+        editionEntity.id,
+        event,
+        editionEntity
+    );
 }
 
 export function handleEditionURIUpdated(event: EditionURIUpdated): void {
@@ -80,18 +88,39 @@ export function handleEditionURIUpdated(event: EditionURIUpdated): void {
     )
 
     editionEntity.save()
+
+    activityEventService.recordCCEditionURIUpdated(
+        event.address.toHexString(),
+        editionEntity.id,
+        event,
+        editionEntity
+    );
 }
 
 export function handlePaused(event: Paused): void {
     let entity = CreatorContract.load(event.address.toHexString());
     entity.paused = true;
     entity.save();
+
+    activityEventService.recordCCContractPauseToggle(
+        event.address.toHexString(),
+        event.address.toHexString(),
+        event,
+        true
+    );
 }
 
 export function handleUnpaused(event: Unpaused): void {
     let entity = CreatorContract.load(event.address.toHexString());
     entity.paused = false;
     entity.save();
+
+    activityEventService.recordCCContractPauseToggle(
+        event.address.toHexString(),
+        event.address.toHexString(),
+        event,
+        true
+    );
 }
 
 export function handleTransfer(event: Transfer): void {

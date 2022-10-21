@@ -71,17 +71,17 @@ type AuctionEvent @entity {
 # Common unified event stream spanning KODA versions and various types
 type ActivityEvent @entity {
     id: ID!
-    type: String!               # Token or Edition
+    type: String!               # Token, Edition or Creator Contract
     version: BigInt!            # KODA 2 or 3
     eventType: String!          # Event types e.g. ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
-    edition: Edition!           # All events relate to an edition
+    edition: Edition            # All events relate to an edition unless it's v3
     token: Token                # (nullable) the token this relates to
     # accounts
     creator: Bytes!             # the original edition creator
-    creatorCommission: BigInt!  # % received as creator - only valid is event has value
+    creatorCommission: BigInt  # % received as creator - only valid is event has value
     collaborator: Bytes        # (nullable) the original edition creator collaborator
     collaboratorCommission: BigInt # (nullable) % received as creator - only valid is event has value
-    triggeredBy: Bytes!         # who fired the transaction
+    triggeredBy: Bytes         # who fired the transaction
     buyer: Bytes                # (nullable) the buyer
     seller: Bytes               # (nullable) the seller
     stakeholderAddresses: [Bytes!]!     # the addresses that interacted during the event
@@ -243,8 +243,7 @@ type Token @entity {
     # Complete attached token
     listing: ListedToken
 
-    # Optionally capture creator contract address if it is version 4
-    creatorContract: Bytes
+    creatorContract: Bytes # Optionally capture creator contract address if it is version 4
 }
 
 # For Token Secondary market
@@ -296,8 +295,7 @@ type ListedToken @entity {
     reserveAuctionCanEmergencyExit: Boolean!
     # ----- End of reserve auction fields - #
 
-    # Optionally capture creator contract address if this is version 4
-    creatorContract: Bytes
+    creatorContract: Bytes # Optionally capture creator contract address if this is version 4
 }
 
 # A composable is a combination of a V3 NFT and a set number of tokens
@@ -342,7 +340,7 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
-    editionContract: Bytes # address of non shared contract that minted the edition
+    creatorContract: Bytes # address of creator contract that minted the edition if version 4
 
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
@@ -368,7 +366,7 @@ type Edition @entity {
     totalBurnt: BigInt!          # number of items send to 0xDead or 0x0 (only applicable for V3)
     originalEditionSize: BigInt! # original edition size of the edition at mint - this field should NEVER change once set
 
-    secondaryRoyaltyV4EditionOverride: BigInt
+    secondaryRoyaltyV4EditionOverride: BigInt # At the edition level, the EIP2981 percentage requested by the creator(s)
 
     sales: [Token!]!
     totalEthSpentOnEdition: BigDecimal!,
@@ -550,14 +548,14 @@ type CreatorContract @entity {
     # Deployment information
     deploymentBlockNumber: BigInt!
     deploymentTimestamp: BigInt!
-    implementation: Bytes!
-    deployer: Bytes!
+    implementation: Bytes!          # address of the contract cloned during the deployment of the creator contract
+    deployer: Bytes!                # deployer may be different to creator in the case that platform deployed a contract
     creator: Bytes!
 
     # Current Settings
     paused: Boolean!
     owner: Bytes!
-    secondaryRoyaltyPercentage: BigInt!
+    secondaryRoyaltyPercentage: BigInt! # Across all editions the currently specified secondary royalty EIP2981
     minter: Bytes!
 
     # Funds handler

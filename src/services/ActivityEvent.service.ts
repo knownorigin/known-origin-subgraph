@@ -2,6 +2,7 @@ import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
 import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
+import {EditionURIUpdated} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
@@ -486,4 +487,69 @@ export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_RESUMED, rawEvent, sale, edition, null)
 
     event.save()
+}
+
+function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
+    return "CreatorContract"
+        .concat("-")
+        .concat(address)
+        .concat("-")
+        .concat(id)
+        .concat("-")
+        .concat(event.transaction.hash.toHexString())
+        .concat("-")
+        .concat(event.logIndex.toString());
+}
+
+function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereum.Event, edition: Edition | null): ActivityEvent {
+    let event: ActivityEvent = new ActivityEvent(ID);
+
+    event.version = edition ? edition.version : BigInt.fromString("4")
+    event.type = edition ? TYPE_EDITION : "CreatorContract" // For V4, we're either dealing with an edition or something at the global contract level
+    event.eventType = type
+    event.edition = edition ? edition.id : null
+    event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
+    event.creator = edition ? edition.artistAccount : ZERO_ADDRESS
+    event.creatorCommission = ZERO
+    event.collaborator = ZERO_ADDRESS
+    event.collaboratorCommission = edition ? edition.optionalCommissionRate : ZERO;
+    event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS]
+    event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS
+
+    event.eventValueInWei = ZERO
+
+    // `${transactionHash}-${logIndex}` is unique to each log
+    event.timestamp = rawEvent.block.timestamp;
+    event.transactionHash = rawEvent.transaction.hash;
+    // The transactionIndex is the index of the transaction in the block
+    event.transactionIndex = rawEvent.transaction.index;
+    // The logIndex is the index of the log in the block logs
+    event.logIndex = rawEvent.transactionLogIndex;
+    event.eventAddress = rawEvent.address;
+    if (rawEvent.transaction.to) {
+        event.eventTxTo = rawEvent.transaction.to;
+    }
+    event.eventTxFrom = rawEvent.transaction.from;
+    event.blockNumber = rawEvent.block.number;
+
+    return event
+}
+
+export function recordCCEditionSalesDisabledUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "CCEditionSalesDisabledUpdated", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCEditionURIUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let ccEvent = createdCreatorContractEvent(ID, "EditionURIUpdated", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCContractPauseToggle(address: string, id: string, event: ethereum.Event, enabled: boolean): void {
+    let ID = createCreatorContractEventId(address, id, event);
+    let type = "CreatorContractPauseToggled" + (enabled ? "True" : "False")
+    let ccEvent = createdCreatorContractEvent(ID, type, event, null);
+    ccEvent.save();
 }

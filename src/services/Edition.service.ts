@@ -1,6 +1,6 @@
 import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
 import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
-import {BatchCreatorContract} from "../../generated/KnownOriginV4Factory/BatchCreatorContract";
+import {ERC721KODACreatorWithBuyItNow} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {constructMetaData} from "./MetaData.service";
@@ -174,7 +174,7 @@ export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block,
 export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
     log.info("Calling loadOrCreateV4Edition() call for edition ID {} on contract {}", [_editionId.toString(), contractAddress.toHexString()])
 
-    let contractInstance = BatchCreatorContract.bind(contractAddress)
+    let contractInstance = ERC721KODACreatorWithBuyItNow.bind(contractAddress)
     let originalCreator = contractInstance.editionCreator(_editionId)
     let size = contractInstance.editionSize(_editionId)
     let uri = contractInstance.editionURI(_editionId)
@@ -185,7 +185,7 @@ export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block,
 export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
     log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} on contract {}", [tokenId.toString(), contractAddress.toHexString()])
 
-    let contractInstance = BatchCreatorContract.bind(contractAddress)
+    let contractInstance = ERC721KODACreatorWithBuyItNow.bind(contractAddress)
     let _editionId = contractInstance.tokenEditionId(tokenId)
     let originalCreator = contractInstance.editionCreator(_editionId)
     let size = contractInstance.editionSize(_editionId)
@@ -288,7 +288,7 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         editionEntity.remainingSupply = editionEntity.totalAvailable
         editionEntity.active = true;
 
-        editionEntity.editionContract = address
+        editionEntity.creatorContract = address
 
         // if we have reported the creator contract, assume its disabled
         if (isHidden) {
