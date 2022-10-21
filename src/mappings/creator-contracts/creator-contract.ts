@@ -173,7 +173,7 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.artistAccount = creator
         tokenEntity.save()
 
-        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to);
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
 
         // Record day stats
         recordDayTransfer(event);
@@ -377,7 +377,7 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
             event.address.toHexString(),
             entity.id,
             event,
-            entity
+            entity as Edition
         );
     }
 }
