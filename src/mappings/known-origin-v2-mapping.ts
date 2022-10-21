@@ -9,7 +9,7 @@ import {
     Transfer
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
-import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
+import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {toEther} from "../utils/utils";
@@ -169,7 +169,14 @@ export function handleTransfer(event: Transfer): void {
         offerService.updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
-    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._from, event.params._to)
+    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to, event.params._from, event.transaction.value);
+
+    // If we see a msg.value record it as a sale
+    if (event.transaction.value.gt(ZERO)) {
+        const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
+        tokenEntity.save();
+    }
 
     ///////////////
     // Transfers //

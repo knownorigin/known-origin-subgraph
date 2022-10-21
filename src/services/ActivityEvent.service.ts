@@ -331,11 +331,11 @@ function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
 
 // ['Transfer'', 'EditionGifted', 'PriceChanged']
 
-export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, from: Address, to: Address): void {
+export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, to: Address, from: Address, value: BigInt | null): void {
     let id: string = tokenActivityId(token, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
-        event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, null, to, from)
+        event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, value, to, from)
         event.save()
     }
 }
