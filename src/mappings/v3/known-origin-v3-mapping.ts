@@ -16,7 +16,7 @@ import {
     TransferChild,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
-import {Composable, ComposableItem, ListedToken, Token} from "../../../generated/schema";
+import {Composable, ComposableItem, ListedToken, Token, Edition} from "../../../generated/schema";
 
 import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {
@@ -85,9 +85,8 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            //editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(artist.firstEdition))
-            editionEntity.isGenesisEdition = false
-            // TODO - fix this. I don't know yet what is going on to be honest.
+            let maybeEdition = Edition.load(artist.firstEdition);
+            editionEntity.isGenesisEdition = maybeEdition != null ? editionEntity.editionNmber.equals(maybeEdition.editionNmber) : false
 
             editionEntity.save()
         }
