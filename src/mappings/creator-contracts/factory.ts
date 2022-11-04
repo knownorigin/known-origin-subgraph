@@ -43,7 +43,7 @@ export function handleContractDeployed(event: ContractDeployed): void {
     settings.platform = settingsContractInstance.platform()
     settings.platformPrimaryCommission = settingsContractInstance.platformPrimaryCommission()
     settings.platformSecondaryCommission = settingsContractInstance.platformSecondaryCommission()
-    settings.MODULO = settingsContractInstance.MODULO()
+    settings.MODULO = BigInt.fromI32(settingsContractInstance.MODULO())
     settings.save()
 }
 
