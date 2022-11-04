@@ -6,6 +6,11 @@
   },
   {
     "inputs": [],
+    "name": "MaxCommissionExceeded",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "OnlyAdmin",
     "type": "error"
   },
@@ -31,6 +36,19 @@
       }
     ],
     "name": "AdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "_baseKOApi",
+        "type": "string"
+      }
+    ],
+    "name": "BaseKOAPIUpdated",
     "type": "event"
   },
   {
@@ -113,12 +131,38 @@
   },
   {
     "inputs": [],
+    "name": "MAX_PLATFORM_COMMISSION",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_ROYALTY_PERCENTAGE",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MODULO",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -138,11 +182,29 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "baseKOApi",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
         "name": "_platform",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_baseKOApi",
+        "type": "string"
       },
       {
         "internalType": "contract IKOAccessControlsLookup",
@@ -205,6 +267,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_baseKOApi",
+        "type": "string"
+      }
+    ],
+    "name": "setBaseKOApi",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
