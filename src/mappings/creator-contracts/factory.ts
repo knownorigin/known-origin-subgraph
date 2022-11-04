@@ -27,7 +27,7 @@ import {
 } from '../../../generated/templates';
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
-import {ZERO, ONE, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS } from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
@@ -112,6 +112,27 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
+    if(!creatorContractEntity) {
+        // This could be called without a contract - handle it gracefully
+        creatorContractEntity = new CreatorContract(event.params._contract.toHexString())
+        creatorContractEntity.deploymentBlockNumber = event.block.number
+        creatorContractEntity.deploymentTimestamp = event.block.timestamp
+        creatorContractEntity.implementation = DEAD_ADDRESS
+        creatorContractEntity.deployer = DEAD_ADDRESS
+        creatorContractEntity.creator = DEAD_ADDRESS
+        creatorContractEntity.owner = DEAD_ADDRESS
+        creatorContractEntity.minter = DEAD_ADDRESS
+        creatorContractEntity.isBatchBuyItNow = true
+        creatorContractEntity.isHidden = true
+        creatorContractEntity.paused = true
+        creatorContractEntity.totalNumOfEditions = ZERO
+        creatorContractEntity.totalNumOfTokensSold = ZERO
+        creatorContractEntity.totalEthValueOfSales = ZERO_BIG_DECIMAL
+        creatorContractEntity.totalNumOfTransfers = ZERO
+        creatorContractEntity.editions = new Array<string>()
+        creatorContractEntity.secondaryRoyaltyPercentage = ZERO
+        creatorContractEntity.save()
+    }
     creatorContractEntity.isHidden = event.params._banned
     creatorContractEntity.save()
 }
