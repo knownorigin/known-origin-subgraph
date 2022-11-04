@@ -66,6 +66,11 @@
   },
   {
     "inputs": [],
+    "name": "InvalidFeesTotal",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidListing",
     "type": "error"
   },
@@ -91,12 +96,22 @@
   },
   {
     "inputs": [],
+    "name": "InvalidRecipient",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "InvalidToken",
     "type": "error"
   },
   {
     "inputs": [],
     "name": "IsOpenEdition",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "MaxRoyaltyPercentageExceeded",
     "type": "error"
   },
   {
@@ -112,11 +127,6 @@
   {
     "inputs": [],
     "name": "PrimarySaleMade",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "RoyaltyPercentageTooLarge",
     "type": "error"
   },
   {
@@ -503,15 +513,15 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint96",
         "name": "_price",
-        "type": "uint256"
+        "type": "uint96"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint128",
         "name": "_startDate",
-        "type": "uint256"
+        "type": "uint128"
       }
     ],
     "name": "ListedEditionForBuyNow",
@@ -522,21 +532,27 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "_seller",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint96",
         "name": "_price",
-        "type": "uint256"
+        "type": "uint96"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint128",
         "name": "_startDate",
-        "type": "uint256"
+        "type": "uint128"
       }
     ],
     "name": "ListedTokenForBuyNow",
@@ -640,12 +656,38 @@
   },
   {
     "inputs": [],
+    "name": "MAX_PLATFORM_COMMISSION",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_ROYALTY_PERCENTAGE",
+    "outputs": [
+      {
+        "internalType": "uint24",
+        "name": "",
+        "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "MODULO",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "uint24",
         "name": "",
-        "type": "uint256"
+        "type": "uint24"
       }
     ],
     "stateMutability": "view",
@@ -767,6 +809,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "contractURI",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint32",
@@ -837,9 +892,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint96",
         "name": "_listingPrice",
-        "type": "uint128"
+        "type": "uint96"
       },
       {
         "internalType": "uint128",
@@ -949,19 +1004,6 @@
     "name": "deleteTokenBuyItNowListing",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "description",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -1414,14 +1456,14 @@
       {
         "components": [
           {
-            "internalType": "uint96",
-            "name": "price",
-            "type": "uint96"
-          },
-          {
             "internalType": "address",
             "name": "seller",
             "type": "address"
+          },
+          {
+            "internalType": "uint128",
+            "name": "price",
+            "type": "uint128"
           }
         ],
         "internalType": "struct IERC721KODACreatorWithBuyItNow.TokenListing",
@@ -1534,19 +1576,19 @@
         "type": "uint32"
       },
       {
-        "internalType": "string",
-        "name": "_uri",
-        "type": "string"
-      },
-      {
-        "internalType": "uint128",
+        "internalType": "uint96",
         "name": "_listingPrice",
-        "type": "uint128"
+        "type": "uint96"
       },
       {
         "internalType": "uint128",
         "name": "_startDate",
         "type": "uint128"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
       }
     ],
     "name": "mintAndListEditionForBuyNow",
@@ -1557,6 +1599,29 @@
         "type": "uint256"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_editionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      }
+    ],
+    "name": "mintMultipleOpenEditionTokens",
+    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -1788,9 +1853,9 @@
         "type": "string"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint96",
         "name": "_listingPrice",
-        "type": "uint128"
+        "type": "uint96"
       },
       {
         "internalType": "uint128",
@@ -1988,14 +2053,14 @@
     "name": "tokenListing",
     "outputs": [
       {
-        "internalType": "uint96",
-        "name": "price",
-        "type": "uint96"
-      },
-      {
         "internalType": "address",
         "name": "seller",
         "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "price",
+        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -2128,9 +2193,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint128",
+        "internalType": "uint96",
         "name": "_listingPrice",
-        "type": "uint128"
+        "type": "uint96"
       }
     ],
     "name": "updateEditionBuyItNowListingPrice",

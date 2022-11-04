@@ -6,6 +6,21 @@
   },
   {
     "inputs": [],
+    "name": "DuplicateIdentifier",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DuplicateImplementation",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyString",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "OnlyAdmin",
     "type": "error"
   },
@@ -65,6 +80,12 @@
         "internalType": "address",
         "name": "_contract",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_banned",
+        "type": "bool"
       }
     ],
     "name": "CreatorContractBanned",
@@ -510,11 +531,35 @@
         "internalType": "address",
         "name": "_contract",
         "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_banned",
+        "type": "bool"
       }
     ],
     "name": "flagBannedContract",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "flaggedContracts",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -563,6 +608,25 @@
       }
     ],
     "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "implementationIdentifiers",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
