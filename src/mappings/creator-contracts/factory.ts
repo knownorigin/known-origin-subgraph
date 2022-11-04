@@ -112,6 +112,6 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
-    creatorContractEntity.isHidden = true
+    creatorContractEntity.isHidden = event.params._banned
     creatorContractEntity.save()
 }
