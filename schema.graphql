@@ -370,7 +370,7 @@ type Edition @entity {
     metadata: MetaData
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     isEnhancedEdition: Boolean! # set true if any of the tokens are enhanced i.e. composed
-    isOpenEdition: Boolean! # applicable to version 4 and editions where the artist does not mint all of the tokens up front
+    isOpenEdition: Boolean # applicable to version 4 and editions where the artist does not mint all of the tokens up front
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
     # Reference to the primary minter
@@ -624,7 +624,7 @@ type Artist @entity {
 
     mintingConfig: ArtistMintingConfig!
 
-    creatorContracts: [CreatorContract!]!
+    creatorContracts: [CreatorContract!]
 }
 
 # A single collector who has at sometime held a KO asset
