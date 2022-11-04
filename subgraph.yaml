@@ -488,9 +488,9 @@ dataSources:
     name: KODASettings
     network: goerli
     source:
-      address: '0xa1f89465Eb7ec44c63FA2fA92115E7155407100f'
+      address: '0x56adEc34Dc2AbD3d9fD2Db5F01c79fF2Bf3a4882'
       abi: KODASettings
-      startBlock: 7715649
+      startBlock: 7849246
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -516,9 +516,9 @@ dataSources:
     name: KnownOriginV4Factory
     network: goerli
     source:
-      address: '0xDC0Ca3B2c09579Da356a4C50c51bA8a69388ecaf'
+      address: '0xc39740b6E45DB19829E9792f48987Ed808578722'
       abi: KnownOriginV4Factory
-      startBlock: 7720997
+      startBlock: 7878891
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -539,7 +539,7 @@ dataSources:
           handler: handleContractDeployed
         - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
-        - event: CreatorContractBanned(indexed address)
+        - event: CreatorContractBanned(indexed address,bool)
           handler: handleCreatorContractBanned
       file: ./src/mappings/creator-contracts/factory.ts
 templates:
@@ -564,7 +564,7 @@ templates:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: ListedEditionForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedEditionForBuyNow(indexed uint256,uint96,uint128)
           handler: handleListedForBuyItNow
         - event: EditionRoyaltyPercentageUpdated(indexed uint256,uint256)
           handler: handleSecondaryEditionRoyaltyUpdated
@@ -582,7 +582,7 @@ templates:
           handler: handleBuyNowPriceChanged
         - event: BuyNowPurchased(indexed uint256,address,address,uint256)
           handler: handleBuyNowPurchased
-        - event: ListedTokenForBuyNow(indexed uint256,uint256,uint256)
+        - event: ListedTokenForBuyNow(indexed address,indexed uint256,uint96,uint128)
           handler: handleListedTokenForBuyNow
         - event: BuyNowTokenDeListed(indexed uint256)
           handler: handleBuyNowTokenDeListed
