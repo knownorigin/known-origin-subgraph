@@ -336,6 +336,7 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
+    creatorContract: Bytes # address of creator contract that minted the edition if version 4
 
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
@@ -361,12 +362,15 @@ type Edition @entity {
     totalBurnt: BigInt!          # number of items send to 0xDead or 0x0 (only applicable for V3)
     originalEditionSize: BigInt! # original edition size of the edition at mint - this field should NEVER change once set
 
+    secondaryRoyaltyV4EditionOverride: BigInt # At the edition level, the EIP2981 percentage requested by the creator(s)
+
     sales: [Token!]!
     totalEthSpentOnEdition: BigDecimal!,
     active: Boolean!
     metadata: MetaData
     isGenesisEdition: Boolean! # set true if edition is an artists first edition
     isEnhancedEdition: Boolean! # set true if any of the tokens are enhanced i.e. composed
+    isOpenEdition: Boolean # applicable to version 4 and editions where the artist does not mint all of the tokens up front
     hasCoverImage: Boolean! # set to true if non-image asset with cover image
 
     # Reference to the primary minter
@@ -533,6 +537,45 @@ type GatedSale @entity {
     phases: [Phase!]!       # associated sales
 }
 
+# Any KODA V4 Contract Deployed from the V4 factory
+type CreatorContract @entity {
+    id: ID!
+
+    # Deployment information
+    deploymentBlockNumber: BigInt!
+    deploymentTimestamp: BigInt!
+    implementation: Bytes!          # address of the contract cloned during the deployment of the creator contract
+    deployer: Bytes!                # deployer may be different to creator in the case that platform deployed a contract
+    creator: Bytes!
+
+    # Current Settings
+    paused: Boolean!
+    owner: Bytes!
+    secondaryRoyaltyPercentage: BigInt! # Across all editions the currently specified secondary royalty EIP2981
+    minter: Bytes!
+
+    # Funds handler
+    defaultFundsHandler: Bytes!
+    defaultFundsRecipients: [Bytes!]!
+    defaultFundsShares: [BigInt!]!
+
+    # Interface ID
+    ERC165InterfaceID: Bytes # TODO - Assembly script casting issues fetching this from contract
+    isBatchBuyItNow: Boolean!
+
+    # banned - flagged by the creator contract factory
+    isHidden: Boolean!
+
+    # Global stats
+    totalNumOfEditions: BigInt!
+    totalNumOfTokensSold: BigInt!
+    totalEthValueOfSales: BigDecimal!
+    totalNumOfTransfers: BigInt!
+
+    # Editions created by contract
+    editions: [Edition!]!
+}
+
 #########################
 ## Accountable entities ##
 ##########################
@@ -580,6 +623,8 @@ type Artist @entity {
     editionIds: [Edition!]!
 
     mintingConfig: ArtistMintingConfig!
+
+    creatorContracts: [CreatorContract!]
 }
 
 # A single collector who has at sometime held a KO asset
