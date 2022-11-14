@@ -1,6 +1,7 @@
 import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {createV4EditionId} from "../utils/KODAV4"
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,
@@ -169,7 +170,8 @@ function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, block: e
 }
 
 export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, edition: Edition, block: ethereum.Block): Token {
-    let entityId = tokenId.toString() + "-" + contractAddress.toHexString()
+    let entityId = createV4EditionId(contractAddress.toHexString(), tokenId.toString())
+
     log.info("Calling loadOrCreateV4Token() call for {} ", [entityId])
 
     let tokenEntity = Token.load(entityId);
