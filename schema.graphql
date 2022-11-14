@@ -243,7 +243,7 @@ type Token @entity {
     # Complete attached token
     listing: ListedToken
 
-    creatorContract: Bytes # Optionally capture creator contract address if it is version 4
+    creatorContract: CreatorContract # Optionally capture creator contract address if it is version 4
 }
 
 # For Token Secondary market
@@ -295,7 +295,7 @@ type ListedToken @entity {
     reserveAuctionCanEmergencyExit: Boolean!
     # ----- End of reserve auction fields - #
 
-    creatorContract: Bytes # Optionally capture creator contract address if this is version 4
+    creatorContract: CreatorContract # Optionally capture creator contract address if this is version 4
 }
 
 # A composable is a combination of a V3 NFT and a set number of tokens
@@ -340,7 +340,7 @@ type Edition @entity {
     editionNmber: BigInt! # edition no. as Bigint
     editionType: BigInt!
     editionData: Bytes # bytes32 - some data about the edition
-    creatorContract: Bytes # address of creator contract that minted the edition if version 4
+    creatorContract: CreatorContract # address of creator contract that minted the edition if version 4
 
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
