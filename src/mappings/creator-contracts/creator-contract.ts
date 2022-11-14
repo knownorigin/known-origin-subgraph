@@ -155,7 +155,7 @@ export function handleTransfer(event: Transfer): void {
     if (event.params.to.equals(creator) == false) {
         let collector = loadOrCreateCollector(event.params.to, event.block)
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
-        tokenEntity.creatorContract = event.address
+        tokenEntity.creatorContract = event.address.toHexString()
 
         // Add a new token owner
         let allOwners = tokenEntity.allOwners
@@ -460,7 +460,7 @@ export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
 
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let listedEntity = loadOrCreateListedToken(entityId, edition);
-    listedEntity.creatorContract = event.address
+    listedEntity.creatorContract = event.address.toHexString()
     listedEntity.listPrice = toEther(event.params._price)
     listedEntity.lister = creatorContractInstance.ownerOf(event.params._tokenId).toHexString()
     listedEntity.listingTimestamp = event.block.timestamp

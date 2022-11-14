@@ -288,7 +288,7 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
         editionEntity.remainingSupply = editionEntity.totalAvailable
         editionEntity.active = true;
 
-        editionEntity.creatorContract = address
+        editionEntity.creatorContract = address.toHexString()
 
         // if we have reported the creator contract, assume its disabled
         if (isHidden) {
