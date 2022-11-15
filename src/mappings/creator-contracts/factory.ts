@@ -29,7 +29,7 @@ import {
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
 import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS } from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
-import {recordCCDeployed} from "../../services/ActivityEvent.service";
+import {recordCCBanned, recordCCDeployed} from "../../services/ActivityEvent.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
 export function handleContractDeployed(event: ContractDeployed): void {
@@ -142,4 +142,6 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
     }
     creatorContractEntity.isHidden = event.params._banned
     creatorContractEntity.save()
+
+    recordCCBanned(event.params._contract.toHexString(), event);
 }

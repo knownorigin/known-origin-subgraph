@@ -610,3 +610,9 @@ export function recordCCDeployed(address: string, event: ethereum.Event): void {
     let ccEvent = createdCreatorContractEvent(ID, "CreatorContractDeployed", event, null);
     ccEvent.save();
 }
+
+export function recordCCBanned(address: string, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, "BAN", event);
+    let ccEvent = createdCreatorContractEvent(ID, "CreatorContractBanned", event, null);
+    ccEvent.save();
+}
