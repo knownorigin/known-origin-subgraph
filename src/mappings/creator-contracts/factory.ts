@@ -57,6 +57,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.transactionHash = event.transaction.hash;
     creatorContractEntity.transactionIndex = event.transaction.index;
     creatorContractEntity.logIndex = event.logIndex;
+    creatorContractEntity.eventAddress = event.address;
     creatorContractEntity.eventTxFrom = event.transaction.from;
     creatorContractEntity.eventTxTo = event.transaction.to;
     creatorContractEntity.implementation = event.params.implementation
@@ -129,6 +130,7 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
         creatorContractEntity.transactionHash = event.transaction.hash;
         creatorContractEntity.transactionIndex = event.transaction.index;
         creatorContractEntity.logIndex = event.logIndex;
+        creatorContractEntity.eventAddress = event.address;
         creatorContractEntity.eventTxFrom = event.transaction.from;
         creatorContractEntity.eventTxTo = event.transaction.to;
         creatorContractEntity.implementation = DEAD_ADDRESS;
