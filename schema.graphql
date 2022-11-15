@@ -546,8 +546,14 @@ type CreatorContract @entity {
     id: ID!
 
     # Deployment information
-    deploymentBlockNumber: BigInt!
-    deploymentTimestamp: BigInt!
+    blockNumber: BigInt!
+    timestamp: BigInt!
+    transactionHash: Bytes!
+    transactionIndex: BigInt!
+    logIndex: BigInt!
+    eventAddress: Bytes!
+    eventTxFrom: Bytes!
+    eventTxTo: Bytes
     implementation: Bytes!          # address of the contract cloned during the deployment of the creator contract
     deployer: Bytes!                # deployer may be different to creator in the case that platform deployed a contract
     creator: Bytes!

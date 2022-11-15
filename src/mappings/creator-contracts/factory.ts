@@ -52,8 +52,13 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     // Capture the contract global properties so the list of creator contracts can be fetched
     let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
     let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
-    creatorContractEntity.deploymentBlockNumber = event.block.number
-    creatorContractEntity.deploymentTimestamp = event.block.timestamp
+    creatorContractEntity.blockNumber = event.block.number;
+    creatorContractEntity.timestamp = event.block.timestamp;
+    creatorContractEntity.transactionHash = event.transaction.hash;
+    creatorContractEntity.transactionIndex = event.transaction.index;
+    creatorContractEntity.logIndex = event.logIndex;
+    creatorContractEntity.eventTxFrom = event.transaction.from;
+    creatorContractEntity.eventTxTo = event.transaction.to;
     creatorContractEntity.implementation = event.params.implementation
     creatorContractEntity.deployer = event.params.deployer
     creatorContractEntity.creator = event.params.artist
@@ -119,8 +124,13 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
     if(!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
         creatorContractEntity = new CreatorContract(event.params._contract.toHexString());
-        creatorContractEntity.deploymentBlockNumber = event.block.number;
-        creatorContractEntity.deploymentTimestamp = event.block.timestamp;
+        creatorContractEntity.blockNumber = event.block.number;
+        creatorContractEntity.timestamp = event.block.timestamp;
+        creatorContractEntity.transactionHash = event.transaction.hash;
+        creatorContractEntity.transactionIndex = event.transaction.index;
+        creatorContractEntity.logIndex = event.logIndex;
+        creatorContractEntity.eventTxFrom = event.transaction.from;
+        creatorContractEntity.eventTxTo = event.transaction.to;
         creatorContractEntity.implementation = DEAD_ADDRESS;
         creatorContractEntity.deployer = DEAD_ADDRESS;
         creatorContractEntity.creator = DEAD_ADDRESS;
