@@ -3,7 +3,7 @@ import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../genera
 import {ERC721KODACreatorWithBuyItNow} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createV4EditionId} from "../utils/KODAV4"
+import {createV4Id} from "../utils/KODAV4"
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
@@ -271,7 +271,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 }
 
 function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address, isHidden: boolean): Edition {
-    let entityId = createV4EditionId(address.toHexString(), _editionId.toString())
+    let entityId = createV4Id(address.toHexString(), _editionId.toString())
     let editionEntity = Edition.load(entityId);
     if (editionEntity == null) {
         editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block, entityId);

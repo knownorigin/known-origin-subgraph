@@ -1,3 +1,3 @@
-export function createV4EditionId(editionId: string, contractAddress: string): string {
-    return contractAddress.concat("-").concat(editionId)
+export function createV4Id(contractAddress: string, editionOrTokenId: string): string {
+    return contractAddress.concat("-").concat(editionOrTokenId)
 }

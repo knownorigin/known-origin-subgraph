@@ -60,7 +60,7 @@ import {addEditionToArtist, recordArtistValue} from "../../services/Artist.servi
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
 import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
-import {createV4EditionId} from "../../utils/KODAV4"
+import {createV4Id} from "../../utils/KODAV4"
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -130,7 +130,7 @@ export function handleTransfer(event: Transfer): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let editionId = creatorContractInstance.tokenEditionId(event.params.tokenId)
-    let isNewEdition = Edition.load(createV4EditionId(event.address.toHexString(), editionId.toString())) == null
+    let isNewEdition = Edition.load(createV4Id(event.address.toHexString(), editionId.toString())) == null
 
     // If the edition has never been seen before, it will be created
     let edition = loadOrCreateV4EditionFromTokenId(
@@ -363,7 +363,7 @@ export function handleSecondaryRoyaltyUpdated(event: DefaultRoyaltyPercentageUpd
 }
 
 export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercentageUpdated): void {
-    let entityId = createV4EditionId(event.address.toHexString(), event.params._editionId.toString())
+    let entityId = createV4Id(event.address.toHexString(), event.params._editionId.toString())
     let entity = Edition.load(entityId)
     if (entity != null) {
         entity.secondaryRoyaltyV4EditionOverride = event.params._percentage
