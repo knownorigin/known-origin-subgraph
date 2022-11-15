@@ -1,6 +1,6 @@
 import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
-import {ZERO, ZERO_ADDRESS} from "../utils/constants";
+import {CREATOR_CONTRACT, ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
 import {
     BuyNowDeListed,
@@ -499,7 +499,7 @@ export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale
 }
 
 function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
-    return "CreatorContract"
+    return CREATOR_CONTRACT
         .concat("-")
         .concat(address)
         .concat("-")
@@ -514,7 +514,7 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     let event: ActivityEvent = new ActivityEvent(ID);
 
     event.version = edition ? edition.version : BigInt.fromString("4")
-    event.type = edition ? TYPE_EDITION : "CreatorContract" // For V4, we're either dealing with an edition or something at the global contract level
+    event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
     event.eventType = type
     event.edition = edition ? edition.id : null
     event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
@@ -602,5 +602,11 @@ export function recordCCEditionRoyaltyPercentageUpdated(address: string, id: str
 export function recordCCEditionFundsHandlerUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
     let ccEvent = createdCreatorContractEvent(ID, "EditionFundsHandlerUpdated", event, edition);
+    ccEvent.save();
+}
+
+export function recordCCDeployed(address: string, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, "DEPLOYMENT", event);
+    let ccEvent = createdCreatorContractEvent(ID, "CreatorContractDeployed", event, null);
     ccEvent.save();
 }
