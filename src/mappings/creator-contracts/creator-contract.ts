@@ -56,10 +56,10 @@ import * as activityEventService from "../../services/ActivityEvent.service";
 import {loadOrCreateCollector} from "../../services/Collector.service";
 import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
-import {addEditionToArtist, recordArtistValue} from "../../services/Artist.service";
+import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
-import {ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import {DEAD_ADDRESS, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "../../utils/KODAV4"
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
@@ -148,15 +148,34 @@ export function handleTransfer(event: Transfer): void {
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (event.params.to.equals(creator) == false) {
-        let collector = loadOrCreateCollector(event.params.to, event.block)
+    if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
-        tokenEntity.creatorContract = event.address.toHexString()
 
-        // Add a new token owner
-        let allOwners = tokenEntity.allOwners
-        allOwners.push(collector.id)
-        tokenEntity.allOwners = allOwners
+        if (event.params.to.equals(DEAD_ADDRESS) == true) {
+            edition.totalBurnt = edition.totalBurnt + ONE
+            edition.totalSupply = edition.totalSupply.minus(ONE)
+
+            // If total burnt is original size then disable the edition
+            if (edition.totalBurnt.equals(edition.originalEditionSize)) {
+
+                // reduce supply of artist if edition is completely removed
+                let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
+                artist.supply = artist.supply.minus(edition.totalBurnt);
+                artist.editionsCount = artist.editionsCount.minus(ONE);
+                artist.save()
+
+                // Set edition as disable as the entity has been removed
+                edition.active = false;
+            }
+        } else {
+            let collector = loadOrCreateCollector(event.params.to, event.block)
+            tokenEntity.creatorContract = event.address.toHexString()
+
+            // Add a new token owner
+            let allOwners = tokenEntity.allOwners
+            allOwners.push(collector.id)
+            tokenEntity.allOwners = allOwners
+        }
 
         // Process transfer events and record them in various places
         let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
