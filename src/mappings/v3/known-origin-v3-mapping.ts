@@ -382,18 +382,18 @@ export function handleAdminArtistAccountReported(event: AdminArtistAccountReport
     ]);
 
     // Set editions to inactive
-    let artist = artistService.loadOrCreateArtist(event.params._account)
-    let editions = artist.editions;
-    for (let i = 0; i < editions.length; i++) {
-        let editionsId = editions[i];
-        let edition = editionService.loadNonNullableEdition(BigInt.fromString(editionsId));
-        if (edition !== null && edition.version.equals(KodaVersions.KODA_V3)) {
-            edition.active = false
-            edition.save()
-            activityEventService.recordEditionDisabled(event, edition);
-        }
-    }
-    artist.save()
+    // let artist = artistService.loadOrCreateArtist(event.params._account)
+    // let editions = artist.editions;
+    // for (let i = 0; i < editions.length; i++) {
+    //     let editionsId = editions[i];
+    //     let edition = editionService.loadNonNullableEdition(BigInt.fromString(editionsId));
+    //     if (edition !== null && edition.version.equals(KodaVersions.KODA_V3)) {
+    //         edition.active = false
+    //         edition.save()
+    //         activityEventService.recordEditionDisabled(event, edition);
+    //     }
+    // }
+    // artist.save()
 }
 
 export function handleAdminEditionReported(event: AdminEditionReported): void {

@@ -314,9 +314,9 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
 
     edition.totalSupply = edition.totalSupply + ONE;
-    edition.totalAvailable = edition.totalAvailable - ONE;
-    edition.remainingSupply = edition.totalAvailable - edition.totalSupply
+    edition.remainingSupply = edition.remainingSupply - ONE
     edition.totalSold = edition.totalSold + ONE
+    edition.salesType = SaleTypes.OFFERS_ONLY // Revert back to the default state
 
     let tokenIds = edition.tokenIds
     tokenIds.push(event.params._tokenId)
