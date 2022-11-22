@@ -1,6 +1,14 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
+graft:
+  base: QmdYC2SeDQyWbxKL5jATqPKJy2m5vnWpNFd1GTNMBcsQsv # Subgraph ID of base subgraph
+  block: 16025405 # Block number
+features:
+  - fullTextSearch
+  - nonFatalErrors
+  - grafting
+  - ipfsOnEthereumContracts
 schema:
   file: ./schema.graphql
 dataSources:
