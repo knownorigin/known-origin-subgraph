@@ -329,6 +329,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
     tokenEntity.totalPurchaseCount = ONE
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
+    tokenEntity.lastSalePriceInEth = tokenEntity.primaryValueInEth
     tokenEntity.save()
 
     let sales = edition.sales
