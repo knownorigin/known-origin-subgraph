@@ -580,6 +580,7 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount + ONE
     tokenEntity.largestSalePriceEth = tokenEntity.largestSalePriceEth < toEther(event.params._price) ? toEther(event.params._price) : tokenEntity.largestSalePriceEth
+    tokenEntity.lastSalePriceInEth = toEther(event.params._price)
     tokenEntity.isListed = false;
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY;
     tokenEntity.listPrice = ZERO_BIG_DECIMAL;
