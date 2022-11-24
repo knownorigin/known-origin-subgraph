@@ -150,6 +150,7 @@ export function handleTransfer(event: Transfer): void {
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
         if (event.params.to.equals(DEAD_ADDRESS) == true) {
             edition.totalBurnt = edition.totalBurnt + ONE
