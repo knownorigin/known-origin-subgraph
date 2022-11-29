@@ -9,7 +9,7 @@ import {
     Transfer
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
-import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {toEther} from "../utils/utils";
@@ -72,11 +72,11 @@ export function handleTransfer(event: Transfer): void {
     /////////////////////
 
     // add tokens to collector
-    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId);
+    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId.toString());
     collector.save();
 
     // remove tokens from collector
-    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId);
+    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId.toString());
 
     ///////////////////
     // Edition Logic //
@@ -258,7 +258,7 @@ export function handleMinted(event: Minted): void {
 
     // Maintain a list of tokenId issued from the edition
     let tokenIds = editionEntity.tokenIds
-    tokenIds.push(event.params._tokenId)
+    tokenIds.push(event.params._tokenId.toString())
     editionEntity.tokenIds = tokenIds
 
     // Save edition entity

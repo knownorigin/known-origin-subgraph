@@ -347,7 +347,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.version = version
     editionEntity.editionNmber = _editionId
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
-    editionEntity.tokenIds = new Array<BigInt>()
+    editionEntity.tokenIds = new Array<string>()
     editionEntity.auctionEnabled = false
     editionEntity.activeBid = null
     editionEntity.biddingHistory = new Array<string>()

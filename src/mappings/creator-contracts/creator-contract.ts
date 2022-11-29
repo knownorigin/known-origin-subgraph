@@ -53,7 +53,12 @@ import * as SaleTypes from "../../utils/SaleTypes";
 import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as transferEventFactory from "../../services/TransferEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
-import {loadOrCreateCollector} from "../../services/Collector.service";
+import {
+    loadOrCreateCollector,
+    addTokenToCollector,
+    removeTokenFromCollector,
+    collectorInList
+} from "../../services/Collector.service";
 import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
@@ -124,7 +129,7 @@ export function handleUnpaused(event: Unpaused): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-    log.info("Calling handleTransfer() call for V4 contract {} ", [event.address.toHexString()])
+    log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [event.address.toHexString(), event.params.tokenId.toString()])
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -147,14 +152,43 @@ export function handleTransfer(event: Transfer): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
+
+    // If the edition is new, lets record its creation
+    if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
+        // Day counts
+        addEditionToDay(event, edition.id);
+
+        // Activity events
+        activityEventService.recordEditionCreated(event, edition);
+
+        // Creator contract counts
+        contractEntity.totalNumOfEditions = contractEntity.totalNumOfEditions.plus(ONE);
+
+        let editions = contractEntity.editions;
+        editions.push(edition.id);
+        contractEntity.editions = editions;
+
+        // Artist
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
+    }
+
+    //////////////////////////////////////////
+    // Transfers outside of the marketplace //
+    //////////////////////////////////////////
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
-        if (event.params.to.equals(DEAD_ADDRESS) == true) {
-            edition.totalBurnt = edition.totalBurnt + ONE
-            edition.totalSupply = edition.totalSupply.minus(ONE)
+        ///////////
+        // Burns //
+        ///////////
+        // A transfer to the dead or zero address is a burn
+        if (event.params.to.equals(DEAD_ADDRESS) == true || event.params.to.equals(ZERO_ADDRESS) == true) {
+            edition.totalBurnt = edition.totalBurnt.plus(ONE)
+            edition.totalSupply = edition.originalEditionSize.minus(ONE)
+            edition.totalAvailable = edition.originalEditionSize.minus(ONE)
 
             // If total burnt is original size then disable the edition
             if (edition.totalBurnt.equals(edition.originalEditionSize)) {
@@ -168,28 +202,81 @@ export function handleTransfer(event: Transfer): void {
                 // Set edition as disable as the entity has been removed
                 edition.active = false;
             }
-        } else {
-            let collector = loadOrCreateCollector(event.params.to, event.block)
-            tokenEntity.creatorContract = event.address.toHexString()
-            tokenEntity.currentOwner = collector.id
 
-            // TODO this needs to be deduped like ko-v3-mapping line 215
-            // Add a new token owner
-            let allOwners = tokenEntity.allOwners
-            allOwners.push(collector.id)
-            tokenEntity.allOwners = allOwners
+        }
+        // Handle the rest of the non burn specific logic
+
+        /////////////////
+        // Collectors //
+        ////////////////
+        // add tokens to collector
+        let collector = addTokenToCollector(event.params.to, event.block, tokenEntity.id);
+
+        // remove tokens from collector
+        removeTokenFromCollector(event.params.from, event.block, tokenEntity.id);
+
+        // Check if the edition already has the owner
+        if (!collectorInList(collector, edition.allOwners)) {
+            let allOwners = edition.allOwners;
+            allOwners.push(collector.id);
+            edition.allOwners = allOwners;
         }
 
-        // TODO this doesn't seem to be working, have empty transfers array
+        // Tally up current owners of edition
+        if (!collectorInList(collector, edition.currentOwners)) {
+            let currentOwners = edition.currentOwners;
+            currentOwners.push(collector.id);
+            edition.currentOwners = currentOwners;
+        }
+
+        // Do the same for the token owner
+        if (!collectorInList(collector, tokenEntity.allOwners)) {
+            let allOwners = tokenEntity.allOwners;
+            allOwners.push(collector.id);
+            tokenEntity.allOwners = allOwners;
+        }
+
+        /////////////////////
+        // Token Handling ///
+        /////////////////////
+        // Handle the token entity and token arrays on the edition
+
+        // Maintain a list of tokenId issued from the edition
+        let tokenIds = edition.tokenIds
+        let foundTokenId = false;
+        for (let i = 0; i < tokenIds.length; i++) {
+            if (tokenIds[i] == tokenEntity.id) {
+                foundTokenId = true;
+            }
+        }
+
+        // if we don't know about this token, add it to the list
+        if (!foundTokenId) tokenIds.push(tokenEntity.id)
+        edition.tokenIds = tokenIds
+
+        // Set the token current owner
+        tokenEntity.currentOwner = collector.id;
+
+        /////////////////////
+        // Transfer Event ///
+        /////////////////////
         // Process transfer events and record them in various places
         let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
-        let transfers = tokenEntity.transfers
-        transfers.push(tEvent.id)
-        tokenEntity.transfers = transfers
+        tEvent.save()
+
+        // TODO this doesn't seem to be working, have empty transfers array
+        // Set Transfers on edition
+        let editionTransfers = edition.transfers;
+        editionTransfers.push(tEvent.id);
+        edition.transfers = editionTransfers;
+
+        // Set transfer on token
+        let tokenTransfers = tokenEntity.transfers;
+        tokenTransfers.push(tEvent.id);
+        tokenEntity.transfers = tokenTransfers;
 
         tokenEntity.editionActive = contractEntity.isHidden
         tokenEntity.artistAccount = creator
-        tokenEntity.save()
 
         activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
 
@@ -198,30 +285,20 @@ export function handleTransfer(event: Transfer): void {
         recordDayIssued(event, event.params.tokenId);
 
         // Record total number of transfers at the contract level
-        contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers + ONE;
+        contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers.plus(ONE);
 
+        log.warning("******* TOKEN ENTITY ID : {}", [tokenEntity.id])
         // Token Events
         tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, creator, event.params.to);
+
+        // Save the token entity
+        tokenEntity.save()
     }
 
-    // Finally, if the edition is new, lets record its creation
-    if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
-        // Day counts
-        addEditionToDay(event, edition.id);
-
-        // Activity events
-        activityEventService.recordEditionCreated(event, edition);
-
-        // Creator contract counts
-        contractEntity.totalNumOfEditions = contractEntity.totalNumOfEditions + ONE;
-
-        let editions = contractEntity.editions;
-        editions.push(edition.id);
-        contractEntity.editions = editions;
-
-        // Artist
-        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
-    }
+    // Finally record any sales totals
+    edition.totalSupply = edition.totalSupply.plus(ONE);
+    edition.remainingSupply = edition.remainingSupply.minus(ONE)
+    edition.totalSold = edition.totalSold.plus(ONE)
 
     // Save entities at once
     edition.save();
@@ -300,8 +377,8 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     // Update creator contract stats
     let contractEntity = CreatorContract.load(event.address.toHexString())
-    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
-    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
+    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold.plus(ONE)
+    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH))
     contractEntity.save()
 
     // Load and update edition stats
@@ -316,26 +393,18 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     let owner = creatorContractInstance.owner()
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
 
-    edition.totalSupply = edition.totalSupply + ONE;
-    edition.remainingSupply = edition.remainingSupply - ONE
-    edition.totalSold = edition.totalSold + ONE
-
-    let tokenIds = edition.tokenIds
-    tokenIds.push(event.params._tokenId)
-    edition.tokenIds
-
     // Update token sale stats
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
-    tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
-    tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()) / ONE_ETH
+    tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)
+    tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)
     tokenEntity.totalPurchaseCount = ONE
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
     tokenEntity.lastSalePriceInEth = tokenEntity.primaryValueInEth
 
-    // TODO really this should have already been handled in transfer? Are we missing an event?
-    // Add the current owner of the token
-    let collector = loadOrCreateCollector(event.params._buyer, event.block)
-    tokenEntity.currentOwner = collector.id
+    // // TODO really this should have already been handled in transfer? Are we missing an event?
+    // // Add the current owner of the token
+    // let collector = loadOrCreateCollector(event.params._buyer, event.block)
+    // tokenEntity.currentOwner = collector.id
 
     tokenEntity.save()
 
@@ -343,7 +412,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     sales.push(tokenEntity.id)
     edition.sales = sales
 
-    edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition + (BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
+    edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition.plus((BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)))
 
     edition.save()
 
