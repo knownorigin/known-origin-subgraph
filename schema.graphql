@@ -347,7 +347,7 @@ type Edition @entity {
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     createdTimestamp: BigInt!
-    tokenIds: [BigInt!]!
+    tokenIds: [String!]!
     tokens: [Token!]! @derivedFrom(field: "edition")
 
     tokenURI: String!

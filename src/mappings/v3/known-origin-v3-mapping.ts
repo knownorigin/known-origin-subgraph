@@ -102,11 +102,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         /////////////////////
 
         // add tokens to collector
-        let collector = collectorService.addTokenToCollector(to, event.block, tokenId);
+        let collector = collectorService.addTokenToCollector(to, event.block, tokenId.toString());
         collector.save();
 
         // remove tokens from collector
-        collectorService.removeTokenFromCollector(from, event.block, tokenId);
+        collectorService.removeTokenFromCollector(from, event.block, tokenId.toString());
 
         /////////////////
         // Token Logic //
@@ -162,13 +162,13 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         let tokenIds = editionEntity.tokenIds
         let foundTokenId = false;
         for (let i = 0; i < tokenIds.length; i++) {
-            if (tokenIds[i].equals(tokenId)) {
+            if (tokenIds[i] == tokenId.toString()) {
                 foundTokenId = true;
             }
         }
 
         // if we dont know about this token, add it to the list
-        if (!foundTokenId) tokenIds.push(tokenId)
+        if (!foundTokenId) tokenIds.push(tokenId.toString())
         editionEntity.tokenIds = tokenIds
 
         let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
