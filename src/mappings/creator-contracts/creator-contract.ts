@@ -171,20 +171,22 @@ export function handleTransfer(event: Transfer): void {
         } else {
             let collector = loadOrCreateCollector(event.params.to, event.block)
             tokenEntity.creatorContract = event.address.toHexString()
+            tokenEntity.currentOwner = collector.id
 
+            // TODO this needs to be deduped like ko-v3-mapping line 215
             // Add a new token owner
             let allOwners = tokenEntity.allOwners
             allOwners.push(collector.id)
             tokenEntity.allOwners = allOwners
         }
 
+        // TODO this doesn't seem to be working, have empty transfers array
         // Process transfer events and record them in various places
         let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
         let transfers = tokenEntity.transfers
         transfers.push(tEvent.id)
         tokenEntity.transfers = transfers
 
-        tokenEntity.currentOwner = event.params.to.toHexString()
         tokenEntity.editionActive = contractEntity.isHidden
         tokenEntity.artistAccount = creator
         tokenEntity.save()
@@ -329,6 +331,12 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenEntity.totalPurchaseCount = ONE
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
     tokenEntity.lastSalePriceInEth = tokenEntity.primaryValueInEth
+
+    // TODO really this should have already been handled in transfer? Are we missing an event?
+    // Add the current owner of the token
+    let collector = loadOrCreateCollector(event.params._buyer, event.block)
+    tokenEntity.currentOwner = collector.id
+
     tokenEntity.save()
 
     let sales = edition.sales
