@@ -381,6 +381,7 @@ export function handleAdminArtistAccountReported(event: AdminArtistAccountReport
         event.params._account.toHexString()
     ]);
 
+    // TODO disable for now
     // Set editions to inactive
     // let artist = artistService.loadOrCreateArtist(event.params._account)
     // let editions = artist.editions;
