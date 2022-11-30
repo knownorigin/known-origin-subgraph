@@ -425,8 +425,8 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     // Update artist stats
     let kodaSettings = CreatorContractSetting.load('settings')
-    let platformProceedsOfSale = (event.params._price * kodaSettings.platformPrimaryCommission) / kodaSettings.MODULO
-    let artistShareOfETHInWei = event.params._price - platformProceedsOfSale
+    let platformProceedsOfSale = (event.params._price.times(kodaSettings.platformPrimaryCommission)).div(kodaSettings.MODULO)
+    let artistShareOfETHInWei = event.params._price.minus(platformProceedsOfSale)
     recordArtistValue(creator, tokenEntity.id, event.params._price, artistShareOfETHInWei, true);
 
     // Update token events
@@ -641,8 +641,8 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     store.remove("ListedToken", entityId);
 
     let contractEntity = CreatorContract.load(event.address.toHexString());
-    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold + ONE
-    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()) / ONE_ETH)
+    contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold.plus(ONE)
+    contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH))
     contractEntity.save()
 
     let edition = loadOrCreateV4EditionFromTokenId(
@@ -653,7 +653,7 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     );
 
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
-    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount + ONE
+    tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.largestSalePriceEth = tokenEntity.largestSalePriceEth < toEther(event.params._price) ? toEther(event.params._price) : tokenEntity.largestSalePriceEth
     tokenEntity.lastSalePriceInEth = toEther(event.params._price)
     tokenEntity.isListed = false;
@@ -672,8 +672,8 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
 
     // Update artist stats
     let kodaSettings = CreatorContractSetting.load('settings')
-    let platformProceedsOfSale = (event.params._price * kodaSettings.platformSecondaryCommission) / kodaSettings.MODULO
-    let artistShareOfETHInWei = event.params._price - platformProceedsOfSale
+    let platformProceedsOfSale = (event.params._price.times(kodaSettings.platformSecondaryCommission)).div(kodaSettings.MODULO)
+    let artistShareOfETHInWei = event.params._price.minus(platformProceedsOfSale)
     recordArtistValue(tokenEntity.artistAccount as Address, entityId, event.params._price, artistShareOfETHInWei, false);
 
     // Update token events
