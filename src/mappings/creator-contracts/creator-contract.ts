@@ -277,6 +277,8 @@ export function handleTransfer(event: Transfer): void {
 
         tokenEntity.editionActive = contractEntity.isHidden
         tokenEntity.artistAccount = creator
+        // Save the token entity
+        tokenEntity.save()
 
         activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
 
@@ -287,18 +289,9 @@ export function handleTransfer(event: Transfer): void {
         // Record total number of transfers at the contract level
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers.plus(ONE);
 
-        log.warning("******* TOKEN ENTITY ID : {}", [tokenEntity.id])
         // Token Events
         tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, creator, event.params.to);
-
-        // Save the token entity
-        tokenEntity.save()
     }
-
-    // Finally record any sales totals
-    edition.totalSupply = edition.totalSupply.plus(ONE);
-    edition.remainingSupply = edition.remainingSupply.minus(ONE)
-    edition.totalSold = edition.totalSold.plus(ONE)
 
     // Save entities at once
     edition.save();
@@ -414,6 +407,11 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition.plus((BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)))
 
+    // Finally record any sales totals
+    edition.totalSupply = edition.totalSupply.plus(ONE);
+    edition.remainingSupply = edition.remainingSupply.minus(ONE)
+    edition.totalSold = edition.totalSold.plus(ONE)
+    
     edition.save()
 
     // Activity events

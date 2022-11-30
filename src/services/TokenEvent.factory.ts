@@ -26,7 +26,6 @@ function generateTokenEventId(name: String, tokenEntity: Token, from: Address, t
 function populateEventData(event: ethereum.Event, tokenEntity: Token, from: Address, to: Address): TokenEvent {
     let timestamp = event.block.timestamp;
     let tokenEventId = generateTokenEventId(EVENT_TYPES.TRANSFER, tokenEntity, from, timestamp);
-    log.warning("^^^^^^ TOKEN EVENT ID : {}", [tokenEventId])
 
     let tokenEvent = new TokenEvent(tokenEventId);
     tokenEvent.version = tokenEntity.version
@@ -49,16 +48,11 @@ function populateEventData(event: ethereum.Event, tokenEntity: Token, from: Addr
 export function createTokenTransferEvent(event: ethereum.Event, tokenId: string, from: Address, to: Address): TokenEvent {
     // Save the token
     let tokenEntity = loadNonNullableToken(tokenId);
-    log.warning("******* TOKEN VERSION : id: {}  version : {} ", [tokenId, tokenEntity.version.toString()])
 
     // Populate data
     let tokenEvent = populateEventData(event, tokenEntity, from, to);
     tokenEvent.edition = tokenEntity.edition;
     tokenEvent.token = tokenEntity.id;
-
-    if (tokenEntity.version.toString() === "4") {
-        log.warning("GETS PAST POPULATE EVENT DATA id: {} ", [tokenEvent.id])
-    }
 
     let tokenEvents = tokenEntity.tokenEvents;
     tokenEvents.push(tokenEvent.id);
