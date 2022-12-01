@@ -152,6 +152,15 @@ export function handleTransfer(event: Transfer): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
+    let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+
+    /////////////////////
+    // Transfer Event ///
+    /////////////////////
+    // Process transfer events and record them in various places
+    activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
+    let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
+    tEvent.save()
 
     // If the edition is new, lets record its creation
     if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
@@ -177,8 +186,6 @@ export function handleTransfer(event: Transfer): void {
     //////////////////////////////////////////
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false) {
-        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
-
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
         ///////////
@@ -257,13 +264,6 @@ export function handleTransfer(event: Transfer): void {
         // Set the token current owner
         tokenEntity.currentOwner = collector.id;
 
-        /////////////////////
-        // Transfer Event ///
-        /////////////////////
-        // Process transfer events and record them in various places
-        let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
-        tEvent.save()
-
         // TODO this doesn't seem to be working, have empty transfers array
         // Set Transfers on edition
         let editionTransfers = edition.transfers;
@@ -279,8 +279,6 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.artistAccount = creator
         // Save the token entity
         tokenEntity.save()
-
-        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
 
         // Record day stats
         recordDayTransfer(event);
