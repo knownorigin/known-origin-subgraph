@@ -152,7 +152,7 @@ export function handleTransfer(event: Transfer): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
-    let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.save()
 
     /////////////////////
@@ -410,7 +410,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     edition.totalSupply = edition.totalSupply.plus(ONE);
     edition.remainingSupply = edition.remainingSupply.minus(ONE)
     edition.totalSold = edition.totalSold.plus(ONE)
-    
+
     edition.save()
 
     // Activity events
