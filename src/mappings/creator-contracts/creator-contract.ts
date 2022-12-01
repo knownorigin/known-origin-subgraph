@@ -154,14 +154,6 @@ export function handleTransfer(event: Transfer): void {
 
     let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
 
-    /////////////////////
-    // Transfer Event ///
-    /////////////////////
-    // Process transfer events and record them in various places
-    activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
-    let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
-    tEvent.save()
-
     // If the edition is new, lets record its creation
     if (event.params.from.equals(ZERO_ADDRESS) && isNewEdition) {
         // Day counts
@@ -294,6 +286,14 @@ export function handleTransfer(event: Transfer): void {
     // Save entities at once
     edition.save();
     contractEntity.save();
+
+    /////////////////////
+    // Transfer Event ///
+    /////////////////////
+    // Process transfer events and record them in various places
+    activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
+    let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
+    tEvent.save()
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
