@@ -12,6 +12,9 @@ import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import {
+    ERC721KODACreatorWithBuyItNow as ERC721CreatorContract
+} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import * as SaleTypes from "../utils/SaleTypes";
 import {toEther} from "../utils/utils";
 
@@ -156,7 +159,7 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
     return tokenEntity as Token;
 }
 
-function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, block: ethereum.Block): Token {
+function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, contract: ERC721CreatorContract, block: ethereum.Block): Token {
     tokenEntity.salesType = edition.salesType
     tokenEntity.transferCount = ONE
     tokenEntity.editionNumber = edition.editionNmber
@@ -166,10 +169,15 @@ function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, block: e
     tokenEntity.birthTimestamp = block.timestamp
     tokenEntity.lastTransferTimestamp = block.timestamp
     tokenEntity.editionActive = edition.active
+
+    let collector = loadOrCreateCollector(contract.ownerOf(tokenEntity.tokenId), block);
+    collector.save();
+    tokenEntity.currentOwner = collector.id
+
     return tokenEntity
 }
 
-export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, edition: Edition, block: ethereum.Block): Token {
+export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, contract: ERC721CreatorContract, edition: Edition, block: ethereum.Block): Token {
     let entityId = createV4Id(contractAddress.toHexString(), tokenId.toString())
 
     log.info("Calling loadOrCreateV4Token() call for {} ", [entityId])
@@ -178,7 +186,7 @@ export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, e
 
     if (tokenEntity == null) {
         tokenEntity = newTokenEntity(tokenId, BigInt.fromString("4"), entityId);
-        tokenEntity = attemptToLoadV4TokenData(tokenEntity as Token, edition, block);
+        tokenEntity = attemptToLoadV4TokenData(tokenEntity as Token, edition, contract, block);
     }
 
     return tokenEntity as Token;
