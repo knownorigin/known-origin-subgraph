@@ -181,37 +181,37 @@ export function handleTransfer(event: Transfer): void {
         addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
     }
 
+    ///////////
+    // Burns //
+    ///////////
+    // A transfer to the dead or zero address is a burn
+    if (event.params.to.equals(DEAD_ADDRESS) == true || event.params.to.equals(ZERO_ADDRESS) == true) {
+        edition.totalBurnt = edition.totalBurnt.plus(ONE)
+        edition.totalSupply = edition.originalEditionSize.minus(ONE)
+        edition.totalAvailable = edition.originalEditionSize.minus(ONE)
+
+        // If total burnt is original size then disable the edition
+        if (edition.totalBurnt.equals(edition.originalEditionSize)) {
+
+            // reduce supply of artist if edition is completely removed
+            let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
+            artist.supply = artist.supply.minus(edition.totalBurnt);
+            artist.editionsCount = artist.editionsCount.minus(ONE);
+            artist.save()
+
+            // Set edition as disable as the entity has been removed
+            edition.active = false;
+        }
+
+    }
+    // Handle the rest of the non burn specific logic
+
     //////////////////////////////////////////
     // Transfers outside of the marketplace //
     //////////////////////////////////////////
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false) {
+    if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false && event.params.to.equals(ZERO_ADDRESS) == false) {
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-
-        ///////////
-        // Burns //
-        ///////////
-        // A transfer to the dead or zero address is a burn
-        if (event.params.to.equals(DEAD_ADDRESS) == true || event.params.to.equals(ZERO_ADDRESS) == true) {
-            edition.totalBurnt = edition.totalBurnt.plus(ONE)
-            edition.totalSupply = edition.originalEditionSize.minus(ONE)
-            edition.totalAvailable = edition.originalEditionSize.minus(ONE)
-
-            // If total burnt is original size then disable the edition
-            if (edition.totalBurnt.equals(edition.originalEditionSize)) {
-
-                // reduce supply of artist if edition is completely removed
-                let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
-                artist.supply = artist.supply.minus(edition.totalBurnt);
-                artist.editionsCount = artist.editionsCount.minus(ONE);
-                artist.save()
-
-                // Set edition as disable as the entity has been removed
-                edition.active = false;
-            }
-
-        }
-        // Handle the rest of the non burn specific logic
 
         /////////////////
         // Collectors //
