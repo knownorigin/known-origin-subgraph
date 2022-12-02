@@ -152,14 +152,10 @@ export function handleTransfer(event: Transfer): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
-    let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
-    tokenEntity.save()
-
     /////////////////////
     // Transfer Event ///
     /////////////////////
     // Process transfer events and record them in various places
-    activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
     let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
     tEvent.save()
 
@@ -212,6 +208,11 @@ export function handleTransfer(event: Transfer): void {
     //////////////////////////////////////////
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false && event.params.to.equals(ZERO_ADDRESS) == false) {
+        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
+        tokenEntity.save()
+
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
+
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
         /////////////////
