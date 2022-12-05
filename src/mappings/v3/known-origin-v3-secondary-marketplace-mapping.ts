@@ -184,6 +184,9 @@ export function handleTokenPurchased(event: BuyNowPurchased): void {
     activityEventService.recordSecondarySale(event, token, edition, event.params._price, event.params._buyer, listingSeller)
     tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._currentOwner, event.params._price)
 
+    collectorService.addSecondarySaleToSeller(event.block, event.params._currentOwner, event.params._price);
+    collectorService.addSecondaryPurchaseToCollector(event.block, event.params._buyer, event.params._price);
+
     artistService.handleKodaV3CommissionSplit(
         Address.fromString(token.artistAccount.toHexString()),
         event.params._tokenId,
