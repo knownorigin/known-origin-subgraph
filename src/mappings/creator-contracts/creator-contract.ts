@@ -156,14 +156,10 @@ export function handleTransfer(event: Transfer): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
-    let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, edition, event.block);
-    tokenEntity.save()
-
     /////////////////////
     // Transfer Event ///
     /////////////////////
     // Process transfer events and record them in various places
-    activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
     let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
     tEvent.save()
 
@@ -216,6 +212,11 @@ export function handleTransfer(event: Transfer): void {
     //////////////////////////////////////////
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false && event.params.to.equals(ZERO_ADDRESS) == false) {
+        let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
+        tokenEntity.save()
+
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
+
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
         /////////////////
@@ -390,7 +391,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
 
     // Update token sale stats
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.primaryValueInEth = BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)
     tokenEntity.totalPurchaseValue = BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)
     tokenEntity.totalPurchaseCount = ONE
@@ -413,7 +414,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     // Finally record any sales totals
     edition.remainingSupply = edition.remainingSupply.minus(ONE)
     edition.totalSold = edition.totalSold.plus(ONE)
-    
+
     edition.save()
 
     // Activity events
@@ -560,7 +561,7 @@ export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
     listedEntity.save();
 
     // update token info
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.isListed = true;
     tokenEntity.salesType = SaleTypes.BUY_NOW
     tokenEntity.listPrice = toEther(event.params._price)
@@ -584,6 +585,8 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
     store.remove("ListedToken", entityId);
 
     let contractEntity = CreatorContract.load(event.address.toHexString());
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,
@@ -591,7 +594,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
         contractEntity.isHidden
     );
 
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.isListed = false;
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY;
     tokenEntity.listPrice = ZERO_BIG_DECIMAL;
@@ -601,7 +604,6 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
     tokenEntity.currentTopBidder = null;
     tokenEntity.save();
 
-    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     activityEventService.recordSecondaryTokenDeListed(
         event,
         tokenEntity,
@@ -612,6 +614,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
 
 export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): void {
     let contractEntity = CreatorContract.load(event.address.toHexString());
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,
@@ -619,7 +622,7 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): v
         contractEntity.isHidden
     );
 
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.listPrice = toEther(event.params._price);
     tokenEntity.save();
 
@@ -628,7 +631,6 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): v
     listedEntity.listPrice = toEther(event.params._price);
     listedEntity.save();
 
-    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     activityEventService.recordSecondaryTokenListingPriceChange(
         event,
         tokenEntity,
@@ -641,6 +643,7 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): v
 export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     let entityId = event.params._tokenId.toString() + '-' + event.address.toHexString();
     store.remove("ListedToken", entityId);
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
 
     let contractEntity = CreatorContract.load(event.address.toHexString());
     contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold.plus(ONE)
@@ -654,7 +657,7 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
         contractEntity.isHidden
     );
 
-    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, edition, event.block);
+    let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
     tokenEntity.totalPurchaseCount = tokenEntity.totalPurchaseCount.plus(ONE)
     tokenEntity.largestSalePriceEth = tokenEntity.largestSalePriceEth < toEther(event.params._price) ? toEther(event.params._price) : tokenEntity.largestSalePriceEth
     tokenEntity.lastSalePriceInEth = toEther(event.params._price)
