@@ -145,7 +145,11 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.isHidden
     )
 
+    // Check whether we're looking at an open edition
     edition.isOpenEdition = creatorContractInstance.isOpenEdition(edition.editionNmber);
+
+    // Amount in supply goes up
+    edition.totalSupply = edition.totalSupply.plus(ONE);
 
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
@@ -188,7 +192,7 @@ export function handleTransfer(event: Transfer): void {
     // A transfer to the dead or zero address is a burn
     if (event.params.to.equals(DEAD_ADDRESS) == true || event.params.to.equals(ZERO_ADDRESS) == true) {
         edition.totalBurnt = edition.totalBurnt.plus(ONE)
-        edition.totalSupply = edition.originalEditionSize.minus(ONE)
+        edition.totalSupply = edition.totalSupply.minus(ONE)
         edition.totalAvailable = edition.originalEditionSize.minus(ONE)
 
         // If total burnt is original size then disable the edition
@@ -407,7 +411,6 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition.plus((BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)))
 
     // Finally record any sales totals
-    edition.totalSupply = edition.totalSupply.plus(ONE);
     edition.remainingSupply = edition.remainingSupply.minus(ONE)
     edition.totalSold = edition.totalSold.plus(ONE)
     
