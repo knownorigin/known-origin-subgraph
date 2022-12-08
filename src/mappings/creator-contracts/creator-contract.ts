@@ -150,6 +150,9 @@ export function handleTransfer(event: Transfer): void {
 
     // Amount in supply goes up
     edition.totalSupply = edition.totalSupply.plus(ONE);
+    if (edition.totalSupply.gt(edition.totalAvailable)) {
+        edition.totalSupply = edition.totalAvailable;
+    }
 
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
