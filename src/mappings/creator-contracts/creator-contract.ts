@@ -32,7 +32,7 @@ import {
     CreatorContract,
     Edition,
     Collective,
-    CreatorContractSetting,
+    CreatorContractSetting, Token,
 } from "../../../generated/schema"
 
 import {
@@ -148,12 +148,6 @@ export function handleTransfer(event: Transfer): void {
     // Check whether we're looking at an open edition
     edition.isOpenEdition = creatorContractInstance.isOpenEdition(edition.editionNmber);
 
-    // Amount in supply goes up
-    edition.totalSupply = edition.totalSupply.plus(ONE);
-    if (edition.totalSupply.gt(edition.totalAvailable)) {
-        edition.totalSupply = edition.totalAvailable;
-    }
-
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
     let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
@@ -162,6 +156,7 @@ export function handleTransfer(event: Transfer): void {
     /////////////////////
     // Transfer Event ///
     /////////////////////
+
     // Process transfer events and record them in various places
     let tEvent = transferEventFactory.createTransferEvent(event, event.params.tokenId, creator, event.params.to, edition)
     tEvent.save()
@@ -185,34 +180,17 @@ export function handleTransfer(event: Transfer): void {
         addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
     }
 
-    ///////////
-    // Burns //
-    ///////////
-    // A transfer to the dead or zero address is a burn
-    if (event.params.to.equals(DEAD_ADDRESS) == true || event.params.to.equals(ZERO_ADDRESS) == true) {
-        edition.totalBurnt = edition.totalBurnt.plus(ONE)
-        edition.totalSupply = edition.totalSupply.minus(ONE)
-        edition.totalAvailable = edition.originalEditionSize.minus(ONE)
-
-        // If total burnt is original size then disable the edition
-        if (edition.totalBurnt.equals(edition.originalEditionSize)) {
-
-            // reduce supply of artist if edition is completely removed
-            let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
-            artist.supply = artist.supply.minus(edition.totalBurnt);
-            artist.editionsCount = artist.editionsCount.minus(ONE);
-            artist.save()
-
-            // Set edition as disable as the entity has been removed
-            edition.active = false;
-        }
-
+    // When we have an open edition from zero address i.e. a primary mint/purchase
+    if (event.params.from.equals(ZERO_ADDRESS) && edition.isOpenEdition) {
+        edition.totalSupply = edition.totalSupply.plus(ONE);
     }
+
     // Handle the rest of the non burn specific logic
 
     //////////////////////////////////////////
     // Transfers outside of the marketplace //
     //////////////////////////////////////////
+
     // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false && event.params.to.equals(ZERO_ADDRESS) == false) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
@@ -298,6 +276,55 @@ export function handleTransfer(event: Transfer): void {
 
         // Token Events
         tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, creator, event.params.to);
+    }
+
+    /////////////////////////////////////////////////////
+    // Handle counting tokens from each transfer event //
+    /////////////////////////////////////////////////////
+
+    let tokenIds = edition.tokenIds
+
+    // work out how many have been burnt vs issued
+    let totalBurnt: i32 = 0;
+    for (let i: i32 = 0; i < tokenIds.length; i++) {
+        let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+        if (token) {
+            const tokenOwner = Address.fromString(token.currentOwner);
+            // Either zero address or dead address we classify  as burns
+            if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
+                // record total burnt tokens
+                totalBurnt = totalBurnt + 1
+            }
+        }
+    }
+
+    // total supply is the total tokens issued minus the burns
+    edition.totalSupply = BigInt.fromI32(edition.tokenIds.length).minus(BigInt.fromI32(totalBurnt))
+
+    // track the total burns on the edition
+    edition.totalBurnt = BigInt.fromI32(totalBurnt)
+
+    // keep these in sync = total supply = edition size & total available = edition size
+    edition.totalAvailable = edition.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
+
+    // update the remaining supply based on original size minus issued supply
+    edition.remainingSupply = edition.totalAvailable.minus(edition.totalSupply)
+
+    ///////////
+    // Burns //
+    ///////////
+
+    // If total burnt is original size then disable the edition
+    if (edition.totalBurnt.equals(edition.originalEditionSize)) {
+
+        // reduce supply of artist if edition is completely removed
+        let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
+        artist.supply = artist.supply.minus(edition.totalBurnt);
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.save()
+
+        // Set edition as disable as the entity has been removed
+        edition.active = false;
     }
 
     // Save entities at once
@@ -414,8 +441,9 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition.plus((BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)))
 
+    // TODO this should be handled in the transfer event
+    // edition.remainingSupply = edition.remainingSupply.minus(ONE)
     // Finally record any sales totals
-    edition.remainingSupply = edition.remainingSupply.minus(ONE)
     edition.totalSold = edition.totalSold.plus(ONE)
 
     edition.save()
