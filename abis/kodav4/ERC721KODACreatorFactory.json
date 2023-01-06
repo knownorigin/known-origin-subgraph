@@ -188,6 +188,12 @@
         "internalType": "address",
         "name": "fundsHandler",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "KOOperatorRegistry",
+        "type": "address"
       }
     ],
     "name": "SelfSovereignERC721Deployed",
@@ -218,6 +224,19 @@
     ],
     "name": "Upgraded",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "KOOperatorRegistry",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -654,6 +673,11 @@
       {
         "internalType": "contract KODASettings",
         "name": "_settings",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_KOOperatorRegistry",
         "type": "address"
       }
     ],

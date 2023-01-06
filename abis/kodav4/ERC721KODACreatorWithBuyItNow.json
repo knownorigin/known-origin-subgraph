@@ -146,6 +146,11 @@
   },
   {
     "inputs": [],
+    "name": "TooLate",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "TransferFailed",
     "type": "error"
   },
@@ -153,6 +158,25 @@
     "inputs": [],
     "name": "ZeroAddress",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "AdditionalCreatorEnabled",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -553,6 +577,12 @@
         "internalType": "uint128",
         "name": "_startDate",
         "type": "uint128"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint128",
+        "name": "_endDate",
+        "type": "uint128"
       }
     ],
     "name": "ListedTokenForBuyNow",
@@ -688,6 +718,25 @@
         "internalType": "uint24",
         "name": "",
         "type": "uint24"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "additionalCreatorEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -887,6 +936,50 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_mintQuantity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_collabFundsHandler",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "createEditionAsCollaboration",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "editionId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_editionId",
         "type": "uint256"
@@ -899,6 +992,11 @@
       {
         "internalType": "uint128",
         "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_endDate",
         "type": "uint128"
       }
     ],
@@ -934,6 +1032,35 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "_collabFundsHandler",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "createOpenEditionAsCollaboration",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "editionId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "_tokenId",
         "type": "uint256"
@@ -946,6 +1073,11 @@
       {
         "internalType": "uint128",
         "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_endDate",
         "type": "uint128"
       }
     ],
@@ -1137,6 +1269,11 @@
       {
         "internalType": "uint128",
         "name": "startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "endDate",
         "type": "uint128"
       }
     ],
@@ -1505,6 +1642,11 @@
         "internalType": "uint256",
         "name": "_secondaryRoyaltyPercentage",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_KOOperatorRegistry",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -1583,6 +1725,55 @@
       {
         "internalType": "uint128",
         "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_endDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "address",
+        "name": "_collabFundsHandler",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "name": "mintAndListEditionAsCollaborationForBuyNow",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_listingPrice",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_endDate",
         "type": "uint128"
       },
       {
@@ -1863,12 +2054,61 @@
         "type": "uint128"
       },
       {
+        "internalType": "uint128",
+        "name": "_endDate",
+        "type": "uint128"
+      },
+      {
         "internalType": "uint32",
         "name": "_editionSize",
         "type": "uint32"
       }
     ],
     "name": "setupAndListOpenEdition",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_uri",
+        "type": "string"
+      },
+      {
+        "internalType": "uint96",
+        "name": "_listingPrice",
+        "type": "uint96"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_endDate",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint32",
+        "name": "_editionSize",
+        "type": "uint32"
+      },
+      {
+        "internalType": "address",
+        "name": "_collabFundsHandler",
+        "type": "address"
+      }
+    ],
+    "name": "setupAndListOpenEditionAsCollaboration",
     "outputs": [
       {
         "internalType": "uint256",
@@ -2150,6 +2390,24 @@
   {
     "inputs": [],
     "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_creator",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "updateAdditionalCreatorEnabled",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
