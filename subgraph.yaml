@@ -496,9 +496,9 @@ dataSources:
     name: KODASettings
     network: goerli
     source:
-      address: '0x56adEc34Dc2AbD3d9fD2Db5F01c79fF2Bf3a4882'
+      address: '0x89afAfb0f3C025b53CE863d02f91FaF63D71C1bA'
       abi: KODASettings
-      startBlock: 7849246
+      startBlock: 8267421
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -524,9 +524,9 @@ dataSources:
     name: KnownOriginV4Factory
     network: goerli
     source:
-      address: '0xc39740b6E45DB19829E9792f48987Ed808578722'
+      address: '0xC3AF7bb2FB805929729CC7b0334B53D4d8ce5E24'
       abi: KnownOriginV4Factory
-      startBlock: 7878891
+      startBlock: 8267442
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
