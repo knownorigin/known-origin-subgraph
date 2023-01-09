@@ -9,9 +9,9 @@ let MAPPING_OVERRIDES = new Map<String, String>();
 // Edition ID to IPFS hash
 MAPPING_OVERRIDES.set("23000", "QmQfekqvArSBwqUZisArmXpsZDb9cqyauHkyJBh141sR8Y")
 
-function nameOverrides(editionId:string, originalName:string) : string {
+function artistOverrides(editionId:string, originalName:string) : string {
     // Invalid manual mint from back in the day
-    if(editionId === "22000") {
+    if(editionId === "22000"){
         return "XCOPY"
     }
     return originalName;
@@ -204,7 +204,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
 }
 
 export function constructMetaData(editionNumber: string, tokenURI: string): MetaData {
-    log.info("constructMetaData() for edition [{}] tokenURI [{}]", [editionNumber, tokenURI]);
+    log.info("constructMetaData() for tokenURI [{}]", [tokenURI]);
 
     let ipfsParts: string[] = tokenURI.split('/')
 
@@ -215,7 +215,7 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         if (MAPPING_OVERRIDES.has(editionNumber)) {
             let override = MAPPING_OVERRIDES.get(editionNumber) as string;
             log.warning("Edition mapping override found for ID {} - mapped hash {}", [
-                editionNumber,
+                editionNumber.toString(),
                 override
             ])
             ipfsHash = override;
@@ -237,7 +237,11 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         }
 
         if (metaData) {
-            metaData.name = nameOverrides(editionNumber, metaData.name);
+
+            if (metaData.artist) {
+                metaData.artist = artistOverrides(editionNumber, metaData.artist);
+            }
+
             return metaData as MetaData;
         }
 
