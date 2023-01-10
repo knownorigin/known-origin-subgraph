@@ -829,7 +829,7 @@ dataSources:
       eventHandlers:
         - event: ContractDeployed()
           handler: handleContractDeployed
-        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address,address)
+        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
         - event: CreatorContractBanned(indexed address,bool)
           handler: handleCreatorContractBanned

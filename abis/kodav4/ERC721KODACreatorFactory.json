@@ -188,12 +188,6 @@
         "internalType": "address",
         "name": "fundsHandler",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "KOOperatorRegistry",
-        "type": "address"
       }
     ],
     "name": "SelfSovereignERC721Deployed",
@@ -224,19 +218,6 @@
     ],
     "name": "Upgraded",
     "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "KOOperatorRegistry",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
   },
   {
     "inputs": [],
@@ -324,6 +305,16 @@
             "internalType": "uint256",
             "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
           }
         ],
         "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
@@ -384,6 +375,16 @@
             "internalType": "uint256",
             "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
           }
         ],
         "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
@@ -429,6 +430,16 @@
             "internalType": "uint256",
             "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
           }
         ],
         "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
@@ -436,14 +447,14 @@
         "type": "tuple"
       },
       {
-        "internalType": "uint256",
-        "name": "_artistIndex",
-        "type": "uint256"
-      },
-      {
         "internalType": "address",
         "name": "_fundsHandler",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_artistIndex",
+        "type": "uint256"
       },
       {
         "internalType": "bytes32[]",
@@ -484,6 +495,16 @@
             "internalType": "uint256",
             "name": "secondaryRoyaltyPercentage",
             "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "filterRegistry",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "subscriptionOrRegistrantToCopy",
+            "type": "address"
           }
         ],
         "internalType": "struct IERC721KODACreatorFactory.SelfSovereignDeployment",
@@ -673,11 +694,6 @@
       {
         "internalType": "contract KODASettings",
         "name": "_settings",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_KOOperatorRegistry",
         "type": "address"
       }
     ],

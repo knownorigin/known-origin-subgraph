@@ -524,9 +524,9 @@ dataSources:
     name: KnownOriginV4Factory
     network: goerli
     source:
-      address: '0xC3AF7bb2FB805929729CC7b0334B53D4d8ce5E24'
+      address: '0x9F01f6cB996A4cA47841dD9392335296933c7a9F'
       abi: KnownOriginV4Factory
-      startBlock: 8267442
+      startBlock: 8284430
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -545,7 +545,7 @@ dataSources:
       eventHandlers:
         - event: ContractDeployed()
           handler: handleContractDeployed
-        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address,address)
+        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
           handler: handleSelfSovereignERC721Deployed
         - event: CreatorContractBanned(indexed address,bool)
           handler: handleCreatorContractBanned
