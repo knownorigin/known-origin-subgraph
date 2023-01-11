@@ -76,7 +76,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         editionEntity.save()
 
         // We only need to record the edition being created once
-        if (editionEntity.editionNmber.equals(tokenId)) {
+        if (BigInt.fromString(editionEntity.editionNmber).equals(tokenId)) {
             dayService.addEditionToDay(event, editionEntity.id);
 
             let creator = kodaV3Contract.getCreatorOfToken(tokenId);
@@ -86,7 +86,9 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
             // Only the first edition is classed as a Genesis edition
             let maybeEdition = Edition.load(artist.firstEdition);
-            editionEntity.isGenesisEdition = maybeEdition != null ? editionEntity.editionNmber.equals(maybeEdition.editionNmber) : false
+            editionEntity.isGenesisEdition = maybeEdition != null
+              ? BigInt.fromString(editionEntity.editionNmber).equals(BigInt.fromString(maybeEdition.editionNmber))
+              : false
 
             editionEntity.save()
         }
@@ -171,7 +173,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         if (!foundTokenId) tokenIds.push(tokenId.toString())
         editionEntity.tokenIds = tokenIds
 
-        let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
+        let maxSize = kodaV3Contract.getSizeOfEdition(BigInt.fromString(editionEntity.editionNmber));
 
         // Reduce remaining supply for each mint -
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
@@ -338,7 +340,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // total remaining primary sales - original edition size minus tokens issued
         //                                 a new token ID is created on ever 'first transfer' up to edition size
-        let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
+        let originalSize = kodaV3Contract.getSizeOfEdition(BigInt.fromString(editionEntity.editionNmber))
         editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
 
         // If total burnt is original size then disable the edition

@@ -296,10 +296,10 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.revokedApproval = !contract.isApprovedForAll(event.params._seller, event.address)
 
     // Add filter flags
-    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);
-    let firstTokenId = editionEntity.editionNmber.plus(ONE);
+    let biggestTokenId: BigInt = BigInt.fromString(editionEntity.editionNmber).plus(editionEntity.totalAvailable);
+    let firstTokenId = BigInt.fromString(editionEntity.editionNmber).plus(ONE);
 
-    listedToken.seriesNumber = event.params._tokenId.minus(editionEntity.editionNmber)
+    listedToken.seriesNumber = event.params._tokenId.minus(BigInt.fromString(editionEntity.editionNmber))
     listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
     listedToken.isGenesisEdition = editionEntity.isGenesisEdition

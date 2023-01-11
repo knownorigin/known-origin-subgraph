@@ -252,7 +252,7 @@ type ListedToken @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
 
-    editionNumber: BigInt!
+    editionNumber: String!
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     listPrice: BigDecimal!
@@ -336,12 +336,11 @@ type Collective @entity {
 type Edition @entity {
     id: ID! # Composite ID from edition ID and optional contract address for CC
     version: BigInt! # KODA 2 or 3 or 4
-    editionNmber: BigInt! # edition no. as Bigint <- @deprecated <- this field should not be used going forward
+    editionNmber: String! # edition no. not composite key
     editionType: BigInt! # legacy field from KODA V2
     editionData: Bytes # bytes32 - legacy field from KODA V2 - some additional data about the edition
     creatorContract: CreatorContract # address of creator contract that minted the edition if version 4
-
-
+    
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
@@ -533,7 +532,7 @@ type Phase @entity {
 # A gate sale configuration - one per edition
 type GatedSale @entity {
     id: ID!                 # The ID of the sale
-    editionId: BigInt!      # The ID of the edition the sale will mint
+    editionId: String!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
     primarySaleCommission: BigInt! # overridden sales commission for KO
     artistAccount: String   # The address of the artist associated with the given edition ID

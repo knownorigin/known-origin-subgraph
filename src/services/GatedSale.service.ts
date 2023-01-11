@@ -9,7 +9,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
 
     if (gatedSale == null) {
         gatedSale = new GatedSale(saleId.toString());
-        gatedSale.editionId = editionId;
+        gatedSale.editionId = editionId.toString();
         gatedSale.phases = new Array<string>();
         gatedSale.paused = false;
         gatedSale.mintCount = ZERO;

@@ -75,13 +75,13 @@ export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: Big
 
 export function handleKodaV2CommissionSplit(
     contract: KnownOriginV2,
-    editionNumber: BigInt,
+    editionNumber: string,
     tokenId: BigInt,
     tokenSalePriceInWei: BigInt,
     isPrimarySale: boolean
 ): void {
-    let artistCommission = contract.artistCommission(editionNumber)
-    let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
+    let artistCommission = contract.artistCommission(BigInt.fromString(editionNumber))
+    let _optionalCommission = contract.try_editionOptionalCommission(BigInt.fromString(editionNumber))
     if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
 
         let collaborators = new Array<Address>();

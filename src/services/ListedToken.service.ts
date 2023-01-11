@@ -13,7 +13,7 @@ export function loadOrCreateListedToken(tokenId: string, edition: Edition): List
     if (listedToken == null) {
         listedToken = new ListedToken(tokenId);
         listedToken.version = edition.version;
-        listedToken.editionNumber = ZERO;
+        listedToken.editionNumber = ZERO.toString();
 
         listedToken.fullToken = tokenId;
         listedToken.listPrice = ZERO_BIG_DECIMAL;
