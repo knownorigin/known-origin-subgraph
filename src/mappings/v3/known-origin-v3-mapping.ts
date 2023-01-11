@@ -80,7 +80,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             dayService.addEditionToDay(event, editionEntity.id);
 
             let creator = kodaV3Contract.getCreatorOfToken(tokenId);
-            let artist = artistService.addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
+            let artist = artistService.addEditionToArtist(creator, editionEntity.editionNmber, editionEntity.totalAvailable, event.block.timestamp)
 
             activityEventService.recordEditionCreated(event, editionEntity)
 
