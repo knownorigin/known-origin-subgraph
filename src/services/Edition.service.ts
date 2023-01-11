@@ -141,7 +141,7 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 // V3 stuff //
 //////////////
 
-export function loadNonNullableEdition(editionNumber: BigInt): Edition {
+export function loadNonNullableEdition(editionNumber: string): Edition {
     return Edition.load(editionNumber.toString()) as Edition
 }
 

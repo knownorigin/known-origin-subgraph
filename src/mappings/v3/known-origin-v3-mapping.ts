@@ -132,7 +132,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Edition Logic
 
         // Record transfer against the edition
-        let editionEntity = editionService.loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
+        let editionEntity = editionService.loadOrCreateV3Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, kodaV3Contract);
 
         // Transfer Events
         let transferEvent = transferEventFactory.createTransferEvent(event, tokenId, from, to, editionEntity);
@@ -403,7 +403,7 @@ export function handleAdminEditionReported(event: AdminEditionReported): void {
     ]);
 
     // find edition and disable
-    let edition = editionService.loadNonNullableEdition(event.params._editionId)
+    let edition = editionService.loadNonNullableEdition(event.params._editionId.toString())
     edition.active = false
     edition.save()
 
@@ -505,7 +505,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = true
     edition.save()
 
@@ -544,7 +544,7 @@ export function handleTransferERC20(event: TransferERC20): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
     edition.save()
 
@@ -599,7 +599,7 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = true;
     edition.save()
 
@@ -629,7 +629,7 @@ export function handleTransferERC721(event: TransferChild): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
     edition.save()
 
