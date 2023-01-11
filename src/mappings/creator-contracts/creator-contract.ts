@@ -54,7 +54,6 @@ import * as tokenEventFactory from "../../services/TokenEvent.factory";
 import * as transferEventFactory from "../../services/TransferEvent.factory";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import {
-    loadOrCreateCollector,
     addTokenToCollector,
     removeTokenFromCollector,
     collectorInList
@@ -150,8 +149,8 @@ export function handleTransfer(event: Transfer): void {
 
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
-    let editionCreator = creatorContractInstance.editionCreator(BigInt.fromString(edition.editionNmber))
-    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
+    let editionCreator = creatorContractInstance.tokenEditionCreator(event.params.tokenId)
+    let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator;
 
     /////////////////////
     // Transfer Event ///
@@ -191,14 +190,19 @@ export function handleTransfer(event: Transfer): void {
     // Transfers outside of the marketplace //
     //////////////////////////////////////////
 
-    // If the token is being gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (event.params.to.equals(creator) == false && event.params.to.equals(DEAD_ADDRESS) == false && event.params.to.equals(ZERO_ADDRESS) == false) {
+    const isBurntDeadAddress = event.params.to.equals(DEAD_ADDRESS);
+    const isBurntZeroAddress = event.params.to.equals(ZERO_ADDRESS);
+    const isGiftedToCreator = event.params.to.equals(creator);
+
+    // If the token is being sold/gifted outside of marketplace (it is not being minted from zero to the edition creator)
+    if (!isGiftedToCreator && !isBurntDeadAddress && !isBurntZeroAddress) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
+        tokenEntity.currentOwner = event.params.to.toString()
+        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
         tokenEntity.save()
 
-        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, null);
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, event.transaction.value);
 
-        tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
         /////////////////
         // Collectors //
@@ -251,7 +255,6 @@ export function handleTransfer(event: Transfer): void {
         // Set the token current owner
         tokenEntity.currentOwner = collector.id;
 
-        // TODO this doesn't seem to be working, have empty transfers array
         // Set Transfers on edition
         let editionTransfers = edition.transfers;
         editionTransfers.push(tEvent.id);
@@ -275,7 +278,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers.plus(ONE);
 
         // Token Events
-        tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, creator, event.params.to);
+        tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, event.params.from, event.params.to);
     }
 
     /////////////////////////////////////////////////////
@@ -420,7 +423,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let owner = creatorContractInstance.owner()
-    let editionCreator = creatorContractInstance.editionCreator(BigInt.fromString(edition.editionNmber))
+    let editionCreator = creatorContractInstance.tokenEditionCreator(BigInt.fromString(edition.editionNmber))
 
     // Update token sale stats
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);
@@ -429,12 +432,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     tokenEntity.totalPurchaseCount = ONE
     tokenEntity.largestSalePriceEth = tokenEntity.primaryValueInEth
     tokenEntity.lastSalePriceInEth = tokenEntity.primaryValueInEth
-
-    // // TODO really this should have already been handled in transfer? Are we missing an event?
-    // // Add the current owner of the token
-    // let collector = loadOrCreateCollector(event.params._buyer, event.block)
-    // tokenEntity.currentOwner = collector.id
-
+    tokenEntity.artistAccount = editionCreator
     tokenEntity.save()
 
     let sales = edition.sales
@@ -443,8 +441,6 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     edition.totalEthSpentOnEdition = edition.totalEthSpentOnEdition.plus((BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH)))
 
-    // TODO this should be handled in the transfer event
-    // edition.remainingSupply = edition.remainingSupply.minus(ONE)
     // Finally record any sales totals
     edition.totalSold = edition.totalSold.plus(ONE)
 
