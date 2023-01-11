@@ -141,7 +141,7 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 // V3 stuff //
 //////////////
 
-export function loadNonNullableEdition(editionNumber: BigInt): Edition {
+export function loadNonNullableEdition(editionNumber: string): Edition {
     return Edition.load(editionNumber.toString()) as Edition
 }
 
@@ -345,7 +345,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
     let editionEntity = new Edition(entityId);
     editionEntity.version = version
-    editionEntity.editionNmber = _editionId
+    editionEntity.editionNmber = _editionId.toString()
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
     editionEntity.tokenIds = new Array<string>()
     editionEntity.auctionEnabled = false

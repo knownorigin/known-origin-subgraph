@@ -94,11 +94,11 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     listedToken.revokedApproval = !koda.isApprovedForAll(listingSeller, event.address)
 
     // Add filter flags
-    let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
-    let firstTokenId = edition.editionNmber.plus(ONE);
+    let biggestTokenId: BigInt = BigInt.fromString(edition.editionNmber).plus(edition.totalAvailable);
+    let firstTokenId = BigInt.fromString(edition.editionNmber).plus(ONE);
 
     listedToken.editionNumber = edition.editionNmber
-    listedToken.seriesNumber = event.params._id.minus(edition.editionNmber)
+    listedToken.seriesNumber = event.params._id.minus(BigInt.fromString(edition.editionNmber))
     listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._id)
     listedToken.isGenesisEdition = edition.isGenesisEdition
@@ -354,10 +354,10 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     listedToken.reservePrice = event.params._reservePrice
     listedToken.reserveAuctionStartDate = event.params._startDate
     listedToken.listingTimestamp = event.block.timestamp
-    listedToken.seriesNumber = event.params._id.minus(edition.editionNmber)
+    listedToken.seriesNumber = event.params._id.minus(BigInt.fromString(edition.editionNmber))
 
-    let biggestTokenId: BigInt = edition.editionNmber.plus(edition.totalAvailable);
-    let firstTokenId = edition.editionNmber.plus(ONE);
+    let biggestTokenId: BigInt = BigInt.fromString(edition.editionNmber).plus(edition.totalAvailable);
+    let firstTokenId = BigInt.fromString(edition.editionNmber).plus(ONE);
     listedToken.editionNumber = edition.editionNmber
     listedToken.isFirstEdition = firstTokenId.equals(event.params._id)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._id)

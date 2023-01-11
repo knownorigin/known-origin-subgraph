@@ -32,7 +32,7 @@ function newTokenEntity(tokenId: BigInt, version: BigInt, entityId: string): Tok
     // Entity fields can be set using simple assignments
     tokenEntity.transferCount = ZERO // set up the owner count
     tokenEntity.tokenId = tokenId
-    tokenEntity.editionNumber = ZERO
+    tokenEntity.editionNumber = ZERO.toString()
     tokenEntity.tokenURI = ""
     tokenEntity.birthTimestamp = ZERO
     tokenEntity.lastTransferTimestamp = ZERO
@@ -61,7 +61,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
-        tokenEntity.editionNumber = _tokenData.value0
+        tokenEntity.editionNumber = _tokenData.value0.toString()
         tokenEntity.edition = _tokenData.value0.toString()
         tokenEntity.tokenURI = _tokenData.value3
 
@@ -73,7 +73,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         metaData.save()
         tokenEntity.metadata = metaData.id
 
-        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(_tokenData.value0)
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
             tokenEntity.editionActive = _editionData.value10
@@ -124,7 +124,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     let ownerOf = contract.ownerOf(tokenId);
 
     tokenEntity.version = KodaVersions.KODA_V3
-    tokenEntity.editionNumber = editionNumber
+    tokenEntity.editionNumber = editionNumber.toString()
     tokenEntity.edition = editionNumber.toString()
     tokenEntity.tokenURI = tokenURI
 

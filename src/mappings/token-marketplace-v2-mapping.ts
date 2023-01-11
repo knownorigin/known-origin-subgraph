@@ -86,7 +86,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract);
     editionEntity.save()
 
     tokenOffer.timestamp = timestamp;
@@ -136,7 +136,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collector.save();
 
     // Edition updates
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
 
     // Tally up primary sale owners
     if (!collectorService.collectorInList(collector, editionEntity.primaryOwners)) {
@@ -173,7 +173,7 @@ export function handleBidRejected(event: BidRejected): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -181,7 +181,7 @@ export function handleBidRejected(event: BidRejected): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
     editionEntity.save();
 
     dayService.recordDayBidRejectedCount(event)
@@ -205,7 +205,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
     editionEntity.save();
 
     dayService.recordDayBidWithdrawnCount(event)
@@ -252,7 +252,7 @@ export function handleTokenPurchased(event: TokenPurchased): void {
     seller.save();
 
     // Edition updates
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
 
     activityEventService.recordSecondarySale(event, tokenEntity, editionEntity, event.params._price, event.params._buyer, event.params._seller)
     tokenEventFactory.createTokenSecondaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._seller, event.params._price)
@@ -286,7 +286,7 @@ export function handleTokenListed(event: TokenListed): void {
     tokenEntity.listingTimestamp = event.block.timestamp
     tokenEntity.save()
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
 
     // Add ListedToken to store
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._tokenId.toString(), editionEntity);
@@ -296,10 +296,10 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.revokedApproval = !contract.isApprovedForAll(event.params._seller, event.address)
 
     // Add filter flags
-    let biggestTokenId: BigInt = editionEntity.editionNmber.plus(editionEntity.totalAvailable);
-    let firstTokenId = editionEntity.editionNmber.plus(ONE);
+    let biggestTokenId: BigInt = BigInt.fromString(editionEntity.editionNmber).plus(editionEntity.totalAvailable);
+    let firstTokenId = BigInt.fromString(editionEntity.editionNmber).plus(ONE);
 
-    listedToken.seriesNumber = event.params._tokenId.minus(editionEntity.editionNmber)
+    listedToken.seriesNumber = event.params._tokenId.minus(BigInt.fromString(editionEntity.editionNmber))
     listedToken.isFirstEdition = firstTokenId.equals(event.params._tokenId)
     listedToken.isLastEdition = biggestTokenId.equals(event.params._tokenId)
     listedToken.isGenesisEdition = editionEntity.isGenesisEdition
@@ -344,7 +344,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
 
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
-        let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+        let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
         activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
     }
 

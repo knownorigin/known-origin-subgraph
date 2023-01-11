@@ -146,11 +146,11 @@ export function handleTransfer(event: Transfer): void {
     )
 
     // Check whether we're looking at an open edition
-    edition.isOpenEdition = creatorContractInstance.isOpenEdition(edition.editionNmber);
+    edition.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(edition.editionNmber));
 
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
-    let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
+    let editionCreator = creatorContractInstance.editionCreator(BigInt.fromString(edition.editionNmber))
     let creator = editionCreator.equals(ZERO_ADDRESS) ? owner : editionCreator
 
     /////////////////////
@@ -285,7 +285,9 @@ export function handleTransfer(event: Transfer): void {
     let tokenIds = edition.tokenIds
 
     // work out how many have been burnt vs issued
+    // @ts-ignore
     let totalBurnt: i32 = 0;
+    // @ts-ignore
     for (let i: i32 = 0; i < tokenIds.length; i++) {
         let token = store.get("Token", tokenIds[i].toString()) as Token | null;
         if (token) {
@@ -418,7 +420,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let owner = creatorContractInstance.owner()
-    let editionCreator = creatorContractInstance.editionCreator(edition.editionNmber)
+    let editionCreator = creatorContractInstance.editionCreator(BigInt.fromString(edition.editionNmber))
 
     // Update token sale stats
     let tokenEntity = loadOrCreateV4Token(event.params._tokenId, event.address, creatorContractInstance, edition, event.block);

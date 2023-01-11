@@ -1,3 +1,4 @@
+# noinspection GraphQLMissingType
 ########################
 ## Time series events ##
 ########################
@@ -211,7 +212,7 @@ type Token @entity {
     salesType: BigInt! # The current sales mechanic being used on this edition
     tokenId: BigInt!
     transferCount: BigInt!
-    editionNumber: BigInt!
+    editionNumber: String! # Composite ID from edition ID and optional contract address for CC
     edition: Edition!
     tokenURI: String!
     metadata: MetaData
@@ -246,12 +247,12 @@ type Token @entity {
     creatorContract: CreatorContract # Optionally capture creator contract address if it is version 4
 }
 
-# For Token Secondary market
+# For Token Secondary market (KODA V2/3 only)
 type ListedToken @entity {
     id: ID!
     version: BigInt! # KODA 2 or 3
 
-    editionNumber: BigInt!
+    editionNumber: String!
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
     listPrice: BigDecimal!
@@ -272,8 +273,6 @@ type ListedToken @entity {
 
     # Complete attached token
     fullToken: Token!
-
-    # TODO handle start date from V3 on secondary
 
     # ---- Reserve auction fields --------- #
     reserveAuctionSeller: Bytes!     # edition seller
@@ -335,14 +334,13 @@ type Collective @entity {
 
 # A token/editions and its meta data
 type Edition @entity {
-    id: ID!
+    id: ID! # Composite ID from edition ID and optional contract address for CC
     version: BigInt! # KODA 2 or 3 or 4
-    editionNmber: BigInt! # edition no. as Bigint
-    editionType: BigInt!
-    editionData: Bytes # bytes32 - some data about the edition
+    editionNmber: String! # edition no. not composite key
+    editionType: BigInt! # legacy field from KODA V2
+    editionData: Bytes # bytes32 - legacy field from KODA V2 - some additional data about the edition
     creatorContract: CreatorContract # address of creator contract that minted the edition if version 4
-
-
+    
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
@@ -534,7 +532,7 @@ type Phase @entity {
 # A gate sale configuration - one per edition
 type GatedSale @entity {
     id: ID!                 # The ID of the sale
-    editionId: BigInt!      # The ID of the edition the sale will mint
+    editionId: String!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
     primarySaleCommission: BigInt! # overridden sales commission for KO
     artistAccount: String   # The address of the artist associated with the given edition ID

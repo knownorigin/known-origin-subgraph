@@ -205,7 +205,7 @@ export function handlePurchase(event: Purchase): void {
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
-    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.transaction.value, true)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber.toString(), event.params._tokenId, event.transaction.value, true)
 
     dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
     dayService.recordDayCounts(event, event.transaction.value)

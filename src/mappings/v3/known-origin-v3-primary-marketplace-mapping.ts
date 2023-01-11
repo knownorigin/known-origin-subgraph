@@ -126,7 +126,7 @@ export function handleEditionPurchased(event: BuyNowPurchased): void {
     log.info("KO V3 handleEditionPurchased() called - edition Id {}", [editionId.toString()]);
 
     // Action edition data changes
-    let editionEntity = editionService.loadNonNullableEdition(editionId)
+    let editionEntity = editionService.loadNonNullableEdition(editionId.toString())
 
     // Create collector
     let collector = collectorService.loadOrCreateCollector(event.params._buyer, event.block);
@@ -211,7 +211,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
 export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
     log.info("KO V3 handleEditionBidWithdrawn() called - editionId {}", [event.params._editionId.toString()]);
 
-    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
+    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId.toString())
 
     let auctionEvent = auctionEventFactory.createBidWithdrawn(event, editionEntity, event.params._bidder);
     auctionEvent.save()
@@ -239,7 +239,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
     let collector = collectorService.loadOrCreateCollector(event.params._bidder, event.block);
     collector.save();
 
-    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
+    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId.toString())
 
     let auctionEvent = auctionEventFactory.createBidAccepted(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
@@ -272,7 +272,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
 export function handleEditionBidRejected(event: EditionBidRejected): void {
     log.info("KO V3 handleEditionBidRejected() called - editionId {}", [event.params._editionId.toString()]);
 
-    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
+    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId.toString())
 
     let auctionEvent = auctionEventFactory.createBidRejected(event, editionEntity, event.params._bidder, event.params._amount);
     auctionEvent.save()
@@ -301,7 +301,7 @@ export function handleEditionSteppedSaleBuy(event: EditionSteppedSaleBuy): void 
     let collector = collectorService.loadOrCreateCollector(event.params._buyer, event.block);
     collector.save();
 
-    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId)
+    let editionEntity = editionService.loadNonNullableEdition(event.params._editionId.toString())
     editionEntity.priceInWei = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
     editionEntity.metadataPrice = event.params._price.plus(editionEntity.stepSaleStepPrice || ZERO)
     editionEntity.currentStep = BigInt.fromI32(event.params._currentStep)
