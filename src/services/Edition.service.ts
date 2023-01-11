@@ -188,7 +188,7 @@ export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereu
 
     let contractInstance = ERC721KODACreatorWithBuyItNow.bind(contractAddress)
     let _editionId = contractInstance.tokenEditionId(tokenId)
-    let originalCreator = contractInstance.editionCreator(_editionId)
+    let originalCreator = contractInstance.tokenEditionCreator(tokenId)
     let size = contractInstance.editionSize(_editionId)
     let uri = contractInstance.editionURI(_editionId)
 
