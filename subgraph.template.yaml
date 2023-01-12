@@ -775,6 +775,7 @@ dataSources:
 
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
 
+  {{#cc-factory-address}}
   ## KODA V4 Platform Settings contract
   - kind: ethereum/contract
     name: KODASettings
@@ -888,3 +889,4 @@ templates:
           handler: handleEditionURIUpdated
         - event: EditionFundsHandlerUpdated(indexed uint256,indexed address)
           handler: handleEditionLevelFundSplitterSet
+  {{/cc-factory-address}}
