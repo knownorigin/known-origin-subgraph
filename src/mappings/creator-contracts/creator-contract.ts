@@ -128,7 +128,10 @@ export function handleUnpaused(event: Unpaused): void {
 }
 
 export function handleTransfer(event: Transfer): void {
-    log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [event.address.toHexString(), event.params.tokenId.toString()])
+    log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [
+        event.address.toHexString(),
+        event.params.tokenId.toString()
+   ]);
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -338,28 +341,28 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
-    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()])
+   log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
 
-    let contractEntity = CreatorContract.load(event.address.toHexString())
-    let edition = loadOrCreateV4Edition(
-        event.params._editionId,
-        event.block,
-        event.address,
-        contractEntity.isHidden
-    )
+   let contractEntity = CreatorContract.load(event.address.toHexString());
+   let edition = loadOrCreateV4Edition(
+     event.params._editionId,
+     event.block,
+     event.address,
+     contractEntity.isHidden
+   );
 
-    edition.startDate = event.params._startDate
-    edition.priceInWei = event.params._price
-    edition.salesType = SaleTypes.BUY_NOW
+   edition.startDate = event.params._startDate;
+   edition.priceInWei = event.params._price;
+   edition.salesType = SaleTypes.BUY_NOW;
 
-    edition.save()
+   edition.save();
 
-    activityEventService.recordCCListedEditionForBuyNow(
-        event.address.toHexString(),
-        edition.id,
-        event,
-        edition
-    );
+   activityEventService.recordCCListedEditionForBuyNow(
+     event.address.toHexString(),
+     edition.id,
+     event,
+     edition
+   );
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
@@ -550,7 +553,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         }
     } else {
         defaultFundsRecipients.push(event.params._handler)
-        defaultFundsShares.push(BigInt.fromString("10000000"))
+        defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
     }
 
     collective.recipients = creatorContractEntity.defaultFundsRecipients

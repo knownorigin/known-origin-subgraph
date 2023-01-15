@@ -121,6 +121,22 @@
   },
   {
     "inputs": [],
+    "name": "OnlyOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      }
+    ],
+    "name": "OperatorNotAllowed",
+    "type": "error"
+  },
+  {
+    "inputs": [],
     "name": "OwnerRevoked",
     "type": "error"
   },
@@ -1873,6 +1889,19 @@
   },
   {
     "inputs": [],
+    "name": "operatorFilterRegistry",
+    "outputs": [
+      {
+        "internalType": "contract IOperatorFilterRegistry",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "originalDeployer",
     "outputs": [
       {
@@ -2534,6 +2563,29 @@
       }
     ],
     "name": "updateEditionSize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newRegistry",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "subscriptionOrRegistrantToCopy",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "subscribe",
+        "type": "bool"
+      }
+    ],
+    "name": "updateOperatorFilterRegistryAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

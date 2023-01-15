@@ -2,13 +2,13 @@ specVersion: 0.0.4
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
 #graft:
-#  base: QmSc5UpJfKf9fN3LCJ4TW1bjFiwzw6eAr51Mz51ALeB9HB # Subgraph ID of base subgraph
-#  block: 16027996 # Block number
+#  base: QmW1DpgHdLNtHgV7yJ9sk65sw2bTBAt5iYVnqFnE47KZgh # Subgraph ID of base subgraph
+#  block: 16399358 # Block number
 features:
   - fullTextSearch
-  - nonFatalErrors
   - grafting
   - ipfsOnEthereumContracts
+  - nonFatalErrors
 schema:
   file: ./schema.graphql
 dataSources:
@@ -774,9 +774,8 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - PlatformPrimaryCommissionUpdated
-        - PlatformSecondaryCommissionUpdated
-        - PlatformUpdated
+        - CreatorContract
+        - CreatorContractSetting
       abis:
         - name: KODASettings
           file: ./abis/kodav4/KODASettings.json
@@ -802,7 +801,15 @@ dataSources:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Transfer
+        - ActivityEvent
+        - Day
+        - Token
+        - Edition
+        - MetaData
+        - CreatorContract
+        - CreatorContractSetting
+        - Artist
+        - Collector
       abis:
         - name: KnownOriginV4Factory
           file: ./abis/kodav4/ERC721KODACreatorFactory.json
@@ -832,13 +839,28 @@ templates:
       language: wasm/assemblyscript
       file: ./src/mappings/creator-contracts/creator-contract.ts
       entities:
-        - Transfer
-        - ListedEditionForBuyNow
+        - TokenEvent
+        - TransferEvent
+        - ActivityEvent
+        - Day
+        - ListedToken
+        - Token
+        - Edition
+        - MetaData
+        - CreatorContract
+        - CreatorContractSetting
+        - ArtistMintingConfig
+        - Artist
+        - Collector
       abis:
-        - name: ERC721KODACreatorWithBuyItNow
-          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+        - name: KnownOriginV4Factory
+          file: ./abis/kodav4/ERC721KODACreatorFactory.json
         - name: FundsHandler
           file: ./abis/kodav4/ClaimableFundsReceiverV1.json
+        - name: ERC721KODACreatorWithBuyItNow
+          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
@@ -874,3 +896,4 @@ templates:
           handler: handleEditionURIUpdated
         - event: EditionFundsHandlerUpdated(indexed uint256,indexed address)
           handler: handleEditionLevelFundSplitterSet
+          ## TODO approval events not captured

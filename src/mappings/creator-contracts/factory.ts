@@ -1,3 +1,4 @@
+import {log} from "@graphprotocol/graph-ts/index";
 import {
     SelfSovereignERC721Deployed,
     CreatorContractBanned,
@@ -27,12 +28,13 @@ import {
 } from '../../../generated/templates';
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
-import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS } from "../../utils/constants";
+import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS } from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
 import {recordCCBanned, recordCCDeployed} from "../../services/ActivityEvent.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
 export function handleContractDeployed(event: ContractDeployed): void {
+    log.info("KO V4 handleContractDeployed() found {}", [event.address.toHexString()]);
     let factoryContractInstance = KnownOriginV4Factory.bind(event.address)
 
     let settings = new CreatorContractSetting('settings');
@@ -49,6 +51,16 @@ export function handleContractDeployed(event: ContractDeployed): void {
 }
 
 export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Deployed): void {
+    log.info("KO V4 handleSelfSovereignERC721Deployed() - implementation {} deployed contract {}", [
+        event.params.implementation.toHexString(),
+        event.params.selfSovereignNFT.toHexString()
+    ]);
+
+    // Ignore all zero address implementations - pre-launch deployment before we set the registry address properly
+    if(event.params.implementation.equals(ZERO_ADDRESS)) {
+        return;
+    }
+
     // Capture the contract global properties so the list of creator contracts can be fetched
     let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
     let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
@@ -101,7 +113,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     } else {
         // in this case there is just 1 default address that will receive 100%
         defaultFundsRecipients.push(event.params.fundsHandler)
-        defaultFundsShares.push(BigInt.fromString("10000000"))
+        defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this is wrong <- it needs to read the default royalty amount from the mint EIP2981
     }
 
     creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
