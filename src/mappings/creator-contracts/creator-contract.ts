@@ -193,19 +193,19 @@ export function handleTransfer(event: Transfer): void {
     // Transfers outside of the marketplace //
     //////////////////////////////////////////
 
-    const isBurntDeadAddress = event.params.to.equals(DEAD_ADDRESS);
-    const isBurntZeroAddress = event.params.to.equals(ZERO_ADDRESS);
-    const isGiftedToCreator = event.params.to.equals(creator);
+    // const isBurntDeadAddress = event.params.to.equals(DEAD_ADDRESS);
+    // const isBurntZeroAddress = event.params.to.equals(ZERO_ADDRESS);
+    // const isGiftedToCreator = event.params.to.equals(creator);
+    const isBirthToken = event.params.from.equals(ZERO_ADDRESS);
 
     // If the token is being sold/gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (!isGiftedToCreator && !isBurntDeadAddress && !isBurntZeroAddress) {
+    if (!isBirthToken) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
         tokenEntity.currentOwner = event.params.to.toString()
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
         tokenEntity.save()
 
         activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, event.transaction.value);
-
 
         /////////////////
         // Collectors //
