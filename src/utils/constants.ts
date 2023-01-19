@@ -11,4 +11,7 @@ export const MAX_UINT_256 = BigInt.fromUnsignedBytes(Bytes.fromHexString("0xffff
 export const ONE_ETH = new BigDecimal(BigInt.fromI32(1).times(BigInt.fromI32(10).pow(18)))
 export const SECONDS_IN_DAY = BigInt.fromI32(86400)
 
-export const CREATOR_CONTRACT = "CreatorContract"
+export const CREATOR_CONTRACT = "CreatorContract";
+
+const WETH_ADDRESS_MAINNET = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
+const WETH_ADDRESS_GOERLI = "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6";

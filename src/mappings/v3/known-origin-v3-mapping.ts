@@ -24,7 +24,7 @@ import {
     PRIMARY_SALE_RINKEBY,
     SECONDARY_SALE_MAINNET,
     SECONDARY_SALE_RINKEBY
-} from "../../utils/KODAV3";
+} from "./KODAV3";
 
 import * as platformConfig from "../../services/PlatformConfig.factory";
 import * as offerService from "../../services/Offers.service";

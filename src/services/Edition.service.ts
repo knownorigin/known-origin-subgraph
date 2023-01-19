@@ -3,7 +3,7 @@ import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../genera
 import {ERC721KODACreatorWithBuyItNow} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createV4Id} from "../utils/KODAV4"
+import {createV4Id} from "../mappings/v4-creator-contracts/KODAV4"
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";

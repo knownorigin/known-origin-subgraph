@@ -1,7 +1,7 @@
 import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createV4Id} from "../utils/KODAV4"
+import {createV4Id} from "../mappings/v4-creator-contracts/KODAV4"
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,

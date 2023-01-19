@@ -425,7 +425,7 @@ type Edition @entity {
     # Events and histories
     biddingHistory: [AuctionEvent!]!
     transfers: [TransferEvent!]! # total number of token transfers made for all tokens from the edition
-    allOwners: [Collector]! # list (set) of all unique owners for all tokens
+    allOwners: [Collector!]! # list (set) of all unique owners for all tokens
     currentOwners: [Collector!]! # Current set of owners for this edition
     primaryOwners: [Collector!]! # Owners (set) when sold in primary sale
 

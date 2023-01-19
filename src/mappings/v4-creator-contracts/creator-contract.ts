@@ -64,7 +64,7 @@ import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../s
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
 import {DEAD_ADDRESS, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
-import {createV4Id} from "../../utils/KODAV4"
+import {createV4Id} from "./KODAV4"
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())

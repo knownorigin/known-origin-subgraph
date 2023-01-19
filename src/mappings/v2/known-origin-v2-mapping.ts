@@ -7,34 +7,34 @@ import {
     Minted,
     Purchase,
     Transfer
-} from "../../generated/KnownOriginV2/KnownOriginV2"
+} from "../../../generated/KnownOriginV2/KnownOriginV2"
 
 import {Address, BigInt, ethereum, log, store} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 
-import {toEther} from "../utils/utils";
+import {toEther} from "../../utils/utils";
 
-import {getArtistAddress} from "../services/AddressMapping.service";
+import {getArtistAddress} from "../../services/AddressMapping.service";
 
-import * as EVENT_TYPES from "../utils/EventTypes";
-import * as SaleTypes from "../utils/SaleTypes";
+import * as EVENT_TYPES from "../../utils/EventTypes";
+import * as SaleTypes from "../../utils/SaleTypes";
 
-import * as editionService from "../services/Edition.service";
-import * as dayService from "../services/Day.service";
-import * as tokenService from "../services/Token.service";
-import * as transferEventFactory from "../services/TransferEvent.factory";
-import * as artistService from "../services/Artist.service";
-import * as collectorService from "../services/Collector.service";
-import * as tokenEventFactory from "../services/TokenEvent.factory";
-import * as offerService from "../services/Offers.service";
-import * as activityEventService from "../services/ActivityEvent.service";
+import * as editionService from "../../services/Edition.service";
+import * as dayService from "../../services/Day.service";
+import * as tokenService from "../../services/Token.service";
+import * as transferEventFactory from "../../services/TransferEvent.factory";
+import * as artistService from "../../services/Artist.service";
+import * as collectorService from "../../services/Collector.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as offerService from "../../services/Offers.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
 
 import {
     KODA_V2_MAINNET_SECONDARY_MARKETPLACE,
     KODA_V2_RINKEBY_SECONDARY_MARKETPLACE
-} from "../utils/KODAV2AddressLookup";
-import * as KodaVersions from "../utils/KodaVersions";
-import * as approvalService from "../services/Approval.service";
+} from "./KODAV2AddressLookup";
+import * as KodaVersions from "../../utils/KodaVersions";
+import * as approvalService from "../../services/Approval.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -177,6 +177,8 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
         tokenEntity.save();
     }
+
+    const eventLogs = event.receipt!.logs;
 
     ///////////////
     // Transfers //
