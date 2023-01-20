@@ -1,4 +1,4 @@
-import {BigDecimal, BigInt,} from "@graphprotocol/graph-ts/index";
+import {BigDecimal, BigInt, Bytes} from "@graphprotocol/graph-ts/index";
 import {ONE_ETH} from "./constants";
 
 export function toEther(value: BigInt): BigDecimal {
@@ -7,9 +7,7 @@ export function toEther(value: BigInt): BigDecimal {
 }
 
 export class ImageType {
-    // @ts-ignore
     primaryAssetShortType: string;
-    // @ts-ignore
     primaryAssetActualType: string;
 }
 
@@ -49,4 +47,8 @@ export function toLowerCase(input: String): string {
     }
 
     return lowerString
+}
+
+export function convertByteStringToHexAddress(byteString: Bytes): string {
+    return "0x" + byteString.toHexString().slice(-40);
 }

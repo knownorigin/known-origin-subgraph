@@ -9,8 +9,8 @@ import {
     Transfer
 } from "../../../generated/KnownOriginV2/KnownOriginV2"
 
-import {Address, BigInt, ethereum, log, store} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { Address, BigInt, Bytes, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import { isWETHAddress, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 
 import {toEther} from "../../utils/utils";
 
@@ -18,6 +18,7 @@ import {getArtistAddress} from "../../services/AddressMapping.service";
 
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
+import {convertByteStringToHexAddress} from "../../utils/utils";
 
 import * as editionService from "../../services/Edition.service";
 import * as dayService from "../../services/Day.service";
@@ -35,6 +36,7 @@ import {
 } from "./KODAV2AddressLookup";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as approvalService from "../../services/Approval.service";
+import { WETH } from "../../../generated/KnownOriginV2/WETH";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -176,9 +178,22 @@ export function handleTransfer(event: Transfer): void {
         const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
         tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
         tokenEntity.save();
-    }
+    } else {
+        // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+        const eventLogs = event.receipt!.logs;
+        for (let index = 0; index < eventLogs.length; index++) {
+            const eventLog = eventLogs[index];
+            const eventAddress = eventLog.address.toHexString();
 
-    const eventLogs = event.receipt!.logs;
+            if (isWETHAddress(eventAddress)) {
+                let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                tokenEntity.save();
+                break;
+            }
+        }
+    }
 
     ///////////////
     // Transfers //
