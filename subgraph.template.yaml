@@ -2,13 +2,13 @@ specVersion: 0.0.4
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
 #graft:
-#  base: QmSc5UpJfKf9fN3LCJ4TW1bjFiwzw6eAr51Mz51ALeB9HB # Subgraph ID of base subgraph
-#  block: 16027996 # Block number
+#  base: QmNY4srwS33xHY157ZMj8k6kU3qXYgi1KhQq9vgBCBqQuT # Subgraph ID of base subgraph
+#  block: 16430000 # Block number
 features:
   - fullTextSearch
-  - nonFatalErrors
   - grafting
   - ipfsOnEthereumContracts
+  - nonFatalErrors
 schema:
   file: ./schema.graphql
 dataSources:
@@ -774,3 +774,142 @@ dataSources:
           # TODO contract Pausable
 
       file: ./src/mappings/v3/known-origin-v3-gated-marketplace-mapping.ts
+
+  {{#cc-factory-address}}
+  ## KODA V4 Platform Settings contract
+  - kind: ethereum/contract
+    name: KODASettings
+    network: {{network}}
+    source:
+      address: '{{cc-koda-settings-address}}'
+      abi: KODASettings
+      startBlock: {{cc-koda-settings-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - CreatorContract
+        - CreatorContractSetting
+      abis:
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
+      eventHandlers:
+        - event: PlatformPrimaryCommissionUpdated(uint256)
+          handler: handlePlatformPrimaryCommissionUpdated
+        - event: PlatformSecondaryCommissionUpdated(uint256)
+          handler: handlePlatformSecondaryCommissionUpdated
+        - event: PlatformUpdated(indexed address)
+          handler: handlePlatformUpdated
+      file: ./src/mappings/creator-contracts/koda-settings.ts
+
+  ## KODA V4 (Creator Contract)
+  - kind: ethereum/contract
+    name: KnownOriginV4Factory
+    network: {{network}}
+    source:
+      address: '{{cc-factory-address}}'
+      abi: KnownOriginV4Factory
+      startBlock: {{cc-factory-startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - ActivityEvent
+        - Day
+        - Token
+        - Edition
+        - MetaData
+        - CreatorContract
+        - CreatorContractSetting
+        - Artist
+        - Collector
+      abis:
+        - name: KnownOriginV4Factory
+          file: ./abis/kodav4/ERC721KODACreatorFactory.json
+        - name: FundsHandler
+          file: ./abis/kodav4/ClaimableFundsReceiverV1.json
+        - name: ERC721KODACreatorWithBuyItNow
+          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
+      eventHandlers:
+        - event: ContractDeployed()
+          handler: handleContractDeployed
+        - event: SelfSovereignERC721Deployed(indexed address,indexed address,indexed address,address,address)
+          handler: handleSelfSovereignERC721Deployed
+        - event: CreatorContractBanned(indexed address,bool)
+          handler: handleCreatorContractBanned
+      file: ./src/mappings/creator-contracts/factory.ts
+templates:
+  - name: CreatorContract
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: ERC721KODACreatorWithBuyItNow
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      file: ./src/mappings/creator-contracts/creator-contract.ts
+      entities:
+        - TokenEvent
+        - TransferEvent
+        - ActivityEvent
+        - Day
+        - ListedToken
+        - Token
+        - Edition
+        - MetaData
+        - CreatorContract
+        - CreatorContractSetting
+        - ArtistMintingConfig
+        - Artist
+        - Collector
+      abis:
+        - name: KnownOriginV4Factory
+          file: ./abis/kodav4/ERC721KODACreatorFactory.json
+        - name: FundsHandler
+          file: ./abis/kodav4/ClaimableFundsReceiverV1.json
+        - name: ERC721KODACreatorWithBuyItNow
+          file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+        - name: KODASettings
+          file: ./abis/kodav4/KODASettings.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+        - event: ListedEditionForBuyNow(indexed uint256,uint96,uint128)
+          handler: handleListedForBuyItNow
+        - event: EditionRoyaltyPercentageUpdated(indexed uint256,uint256)
+          handler: handleSecondaryEditionRoyaltyUpdated
+        - event: DefaultRoyaltyPercentageUpdated(uint256)
+          handler: handleSecondaryRoyaltyUpdated
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: Paused(address)
+          handler: handlePaused
+        - event: Unpaused(address)
+          handler: handleUnpaused
+        - event: BuyNowDeListed(indexed uint256)
+          handler: handleBuyNowDeListed
+        - event: BuyNowPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowPriceChanged
+        - event: BuyNowPurchased(indexed uint256,address,address,uint256)
+          handler: handleBuyNowPurchased
+        - event: ListedTokenForBuyNow(indexed address,indexed uint256,uint96,uint128,uint128)
+          handler: handleListedTokenForBuyNow
+        - event: BuyNowTokenDeListed(indexed uint256)
+          handler: handleBuyNowTokenDeListed
+        - event: BuyNowTokenPriceChanged(indexed uint256,uint256)
+          handler: handleBuyNowTokenPriceChanged
+        - event: BuyNowTokenPurchased(indexed uint256,address,address,address,uint256)
+          handler: handleBuyNowTokenPurchased
+        - event: EditionSalesDisabledUpdated(indexed uint256,bool)
+          handler: handleEditionSalesDisabledUpdated
+        - event: EditionURIUpdated(indexed uint256)
+          handler: handleEditionURIUpdated
+        - event: EditionFundsHandlerUpdated(indexed uint256,indexed address)
+          handler: handleEditionLevelFundSplitterSet
+          ## TODO approval events not captured
+  {{/cc-factory-address}}

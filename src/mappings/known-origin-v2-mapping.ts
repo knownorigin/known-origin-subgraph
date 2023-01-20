@@ -9,7 +9,7 @@ import {
     Transfer
 } from "../../generated/KnownOriginV2/KnownOriginV2"
 
-import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 import {toEther} from "../utils/utils";
@@ -72,11 +72,11 @@ export function handleTransfer(event: Transfer): void {
     /////////////////////
 
     // add tokens to collector
-    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId);
+    let collector = collectorService.addTokenToCollector(event.params._to, event.block, event.params._tokenId.toString());
     collector.save();
 
     // remove tokens from collector
-    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId);
+    collectorService.removeTokenFromCollector(event.params._from, event.block, event.params._tokenId.toString());
 
     ///////////////////
     // Edition Logic //
@@ -183,7 +183,7 @@ export function handleTransfer(event: Transfer): void {
     ///////////////
 
     // Token Events
-    let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId, event.params._from, event.params._to);
+    let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, event.params._tokenId.toString(), event.params._from, event.params._to);
     tokenTransferEvent.save();
 }
 
@@ -205,7 +205,7 @@ export function handlePurchase(event: Purchase): void {
     let editionNumber = event.params._editionNumber
     let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
-    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber, event.params._tokenId, event.transaction.value, true)
+    artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber.toString(), event.params._tokenId, event.transaction.value, true)
 
     dayService.recordDayValue(event, event.params._tokenId, event.transaction.value)
     dayService.recordDayCounts(event, event.transaction.value)
@@ -231,7 +231,7 @@ export function handlePurchase(event: Purchase): void {
 
         collectorService.addPrimarySaleToCollector(event.block, event.params._buyer, event.params._priceInWei);
 
-        let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._buyer, event.params._priceInWei);
+        let tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._buyer, event.params._priceInWei);
         tokenTransferEvent.save();
 
         // Set price against token
@@ -258,7 +258,7 @@ export function handleMinted(event: Minted): void {
 
     // Maintain a list of tokenId issued from the edition
     let tokenIds = editionEntity.tokenIds
-    tokenIds.push(event.params._tokenId)
+    tokenIds.push(event.params._tokenId.toString())
     editionEntity.tokenIds = tokenIds
 
     // Save edition entity

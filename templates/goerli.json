@@ -16,7 +16,6 @@
   "artist-burner-startBlock": 0,
   "artist-edition-controls-v2-address": false,
   "artist-edition-controls-v2-startBlock": 0,
-
   "koda-v3-address": "0x05f5eC654fD95646609964C6c8a0e5b3156CDa08",
   "koda-v3-startBlock": 7704132,
   "koda-v3-minting-factory-address": false,
@@ -32,5 +31,9 @@
   "koda-v3-gated-marketplace-address": "0x04994ebf4bfc6366c1624366d8f25e2d382fe3d0",
   "koda-v3-gated-marketplace-startBlock": 7704632,
   "accesscontrols-v3-address": "0x891afBaE7613103d6408817FF73d1DF97b575fd2",
-  "accesscontrols-v3-startBlock": 7703835
+  "accesscontrols-v3-startBlock": 7703835,
+  "cc-factory-address": "0x9F01f6cB996A4cA47841dD9392335296933c7a9F",
+  "cc-factory-startBlock": 8284430,
+  "cc-koda-settings-address": "0x89afAfb0f3C025b53CE863d02f91FaF63D71C1bA",
+  "cc-koda-settings-startBlock": 8267421
 }

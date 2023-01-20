@@ -9,7 +9,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
 
     if (gatedSale == null) {
         gatedSale = new GatedSale(saleId.toString());
-        gatedSale.editionId = editionId;
+        gatedSale.editionId = editionId.toString();
         gatedSale.phases = new Array<string>();
         gatedSale.paused = false;
         gatedSale.mintCount = ZERO;
@@ -24,7 +24,7 @@ export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMar
 
         // Note: dont setup phases as these are driven from their own events
 
-        let edition = editionService.loadNonNullableEdition(editionId);
+        let edition = editionService.loadNonNullableEdition(editionId.toString());
         if (edition.artistAccount !== null) {
             gatedSale.artistAccount = edition.artistAccount.toHexString()
         }

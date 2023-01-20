@@ -7,7 +7,7 @@ import {
     AuctionEnabled
 } from "../../generated/TokenMarketplace/TokenMarketplace";
 
-import {Address} from "@graphprotocol/graph-ts/index";
+import { Address, BigInt } from "@graphprotocol/graph-ts/index";
 
 import {TokenOffer} from "../../generated/schema";
 
@@ -68,7 +68,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
     let id = timestamp.toString().concat(event.params._tokenId.toHexString())
@@ -80,7 +80,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     tokenEntity.currentTopBidder = event.params._bidder
     tokenEntity.save()
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract);
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract);
     editionEntity.save()
 
     tokenOffer.timestamp = timestamp;
@@ -114,7 +114,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidAcceptedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
@@ -130,7 +130,7 @@ export function handleBidAccepted(event: BidAccepted): void {
     collector.save();
 
     // Edition updates
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
 
     // Tally up primary sale owners
     if (!collectorService.collectorInList(collector, editionEntity.primaryOwners)) {
@@ -167,7 +167,7 @@ export function handleBidRejected(event: BidRejected): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId, event.params._currentOwner, event.params._bidder, event.params._amount)
+    tokenEventFactory.createBidRejectedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -175,7 +175,7 @@ export function handleBidRejected(event: BidRejected): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
     editionEntity.save();
 
     dayService.recordDayBidRejectedCount(event)
@@ -192,7 +192,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     */
     let contract = getKnownOriginV2ForAddress(event.address)
 
-    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId, event.params._bidder)
+    tokenEventFactory.createBidWithdrawnEvent(event, event.params._tokenId.toString(), event.params._bidder)
     offerService.clearTokenOffer(event.block, event.params._tokenId)
 
     let tokenEntity = tokenService.loadOrCreateV2Token(event.params._tokenId, contract, event.block)
@@ -200,7 +200,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     tokenEntity.currentTopBidder = null
     tokenEntity.save();
 
-    let editionEntity = editionService.loadOrCreateV2Edition(tokenEntity.editionNumber, event.block, contract)
+    let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
     editionEntity.save();
 
     dayService.recordDayBidWithdrawnCount(event)

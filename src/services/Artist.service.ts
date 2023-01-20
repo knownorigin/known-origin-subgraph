@@ -35,6 +35,8 @@ export function loadOrCreateArtist(address: Address): Artist {
         mintConfig.save()
 
         artist.mintingConfig = mintConfig.id
+
+        artist.creatorContracts = new Array<string>()
     }
 
     return artist as Artist;
@@ -67,19 +69,19 @@ export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: Big
         let collective = Collective.load(collectiveId.toString()) as Collective
         recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
     } else {
-        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
+        recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
 }
 
 export function handleKodaV2CommissionSplit(
     contract: KnownOriginV2,
-    editionNumber: BigInt,
+    editionNumber: string,
     tokenId: BigInt,
     tokenSalePriceInWei: BigInt,
     isPrimarySale: boolean
 ): void {
-    let artistCommission = contract.artistCommission(editionNumber)
-    let _optionalCommission = contract.try_editionOptionalCommission(editionNumber)
+    let artistCommission = contract.artistCommission(BigInt.fromString(editionNumber))
+    let _optionalCommission = contract.try_editionOptionalCommission(BigInt.fromString(editionNumber))
     if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
 
         let collaborators = new Array<Address>();
@@ -92,7 +94,7 @@ export function handleKodaV2CommissionSplit(
 
         recordArtistCollaborationValue(collaborators, splits, tokenId, tokenSalePriceInWei, isPrimarySale)
     } else {
-        recordArtistValue(artistCommission.value0, tokenId, tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
+        recordArtistValue(artistCommission.value0, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
 }
 
@@ -118,13 +120,13 @@ export function recordArtistCollaborationValue(
             .div(totalCommissions)
             .times(artistCommission)
 
-        recordArtistValue(artistAddress, tokenId, tokenSalePriceInWei, saleAllocation, isPrimarySale)
+        recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, saleAllocation, isPrimarySale)
     }
 }
 
 export function recordArtistValue(
     artistAddress: Address,
-    tokenId: BigInt,
+    tokenId: string,
     tokenSalePriceInWei: BigInt,
     artistProportionOfSaleInWei: BigInt,
     isPrimarySale: boolean

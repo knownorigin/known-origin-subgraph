@@ -1,6 +1,7 @@
-import {BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
-import {Token} from "../../generated/schema";
+import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {createV4Id} from "../utils/KODAV4"
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,
@@ -11,13 +12,16 @@ import {loadOrCreateCollector} from "./Collector.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import * as KodaVersions from "../utils/KodaVersions";
 import {KnownOriginV3} from "../../generated/KnownOriginV3/KnownOriginV3";
+import {
+    ERC721KODACreatorWithBuyItNow as ERC721CreatorContract
+} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import * as SaleTypes from "../utils/SaleTypes";
 import {toEther} from "../utils/utils";
 
-function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
-    log.info("Calling newTokenEntity() call for {} ", [tokenId.toString()])
+function newTokenEntity(tokenId: BigInt, version: BigInt, entityId: string): Token {
+    log.info("Calling newTokenEntity() call for {} ", [entityId])
 
-    let tokenEntity = new Token(tokenId.toString())
+    let tokenEntity = new Token(entityId)
     tokenEntity.version = version
     tokenEntity.transfers = new Array<string>()
     tokenEntity.allOwners = new Array<string>()
@@ -28,7 +32,7 @@ function newTokenEntity(tokenId: BigInt, version: BigInt): Token {
     // Entity fields can be set using simple assignments
     tokenEntity.transferCount = ZERO // set up the owner count
     tokenEntity.tokenId = tokenId
-    tokenEntity.editionNumber = ZERO
+    tokenEntity.editionNumber = ZERO.toString()
     tokenEntity.tokenURI = ""
     tokenEntity.birthTimestamp = ZERO
     tokenEntity.lastTransferTimestamp = ZERO
@@ -57,7 +61,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
     if (!_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
-        tokenEntity.editionNumber = _tokenData.value0
+        tokenEntity.editionNumber = _tokenData.value0.toString()
         tokenEntity.edition = _tokenData.value0.toString()
         tokenEntity.tokenURI = _tokenData.value3
 
@@ -65,11 +69,11 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         collector.save();
         tokenEntity.currentOwner = collector.id
 
-        let metaData = constructMetaData(_tokenData.value0, _tokenData.value3);
+        let metaData = constructMetaData(_tokenData.value0.toString(), _tokenData.value3);
         metaData.save()
         tokenEntity.metadata = metaData.id
 
-        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(tokenEntity.editionNumber)
+        let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(_tokenData.value0)
         if (!_editionDataResult.reverted) {
             let _editionData = _editionDataResult.value;
             tokenEntity.editionActive = _editionData.value10
@@ -92,7 +96,7 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2)
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2, tokenId.toString())
 
         // Populate it
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
@@ -101,7 +105,7 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
     return tokenEntity as Token;
 }
 
-export function loadNonNullableToken(tokenId: BigInt): Token {
+export function loadNonNullableToken(tokenId: string): Token {
     log.info("Calling loadNonNullableToken() call for {} ", [tokenId.toString()])
     return Token.load(tokenId.toString()) as Token;
 }
@@ -120,7 +124,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     let ownerOf = contract.ownerOf(tokenId);
 
     tokenEntity.version = KodaVersions.KODA_V3
-    tokenEntity.editionNumber = editionNumber
+    tokenEntity.editionNumber = editionNumber.toString()
     tokenEntity.edition = editionNumber.toString()
     tokenEntity.tokenURI = tokenURI
 
@@ -128,7 +132,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
     collector.save();
     tokenEntity.currentOwner = collector.id
 
-    let metaData = constructMetaData(editionNumber, tokenURI);
+    let metaData = constructMetaData(editionNumber.toString(), tokenURI);
     metaData.save()
     tokenEntity.metadata = metaData.id
 
@@ -145,7 +149,7 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3)
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3, tokenId.toString())
 
         // Populate it
         tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity as Token);
@@ -155,6 +159,38 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
     return tokenEntity as Token;
 }
 
+function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, contract: ERC721CreatorContract, block: ethereum.Block): Token {
+    tokenEntity.salesType = edition.salesType
+    tokenEntity.transferCount = ONE
+    tokenEntity.editionNumber = edition.editionNmber
+    tokenEntity.edition = edition.id
+    tokenEntity.tokenURI = edition.tokenURI
+    tokenEntity.metadata = edition.metadata
+    tokenEntity.birthTimestamp = block.timestamp
+    tokenEntity.lastTransferTimestamp = block.timestamp
+    tokenEntity.editionActive = edition.active
+
+    let collector = loadOrCreateCollector(contract.ownerOf(tokenEntity.tokenId), block);
+    collector.save();
+    tokenEntity.currentOwner = collector.id
+
+    return tokenEntity
+}
+
+export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, contract: ERC721CreatorContract, edition: Edition, block: ethereum.Block): Token {
+    let entityId = createV4Id(contractAddress.toHexString(), tokenId.toString())
+
+    log.info("Calling loadOrCreateV4Token() call for {} ", [entityId])
+
+    let tokenEntity = Token.load(entityId);
+
+    if (tokenEntity == null) {
+        tokenEntity = newTokenEntity(tokenId, BigInt.fromString("4"), entityId);
+        tokenEntity = attemptToLoadV4TokenData(tokenEntity as Token, edition, contract, block);
+    }
+
+    return tokenEntity as Token;
+}
 
 export function recordTokenSaleMetrics(tokenEntity: Token, salePriceInWei: BigInt, isPrimarySale: boolean): Token {
     tokenEntity.lastSalePriceInEth = toEther(salePriceInWei)

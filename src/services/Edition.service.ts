@@ -1,7 +1,9 @@
 import {BigInt, ethereum, log, Address, Bytes} from "@graphprotocol/graph-ts";
 import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../generated/KnownOriginV2/KnownOriginV2";
+import {ERC721KODACreatorWithBuyItNow} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {createV4Id} from "../utils/KODAV4"
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
@@ -28,7 +30,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
     let editionEntity = Edition.load(editionNumber.toString());
 
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(KodaVersions.KODA_V2, editionNumber, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V2, editionNumber, block, editionNumber.toString());
 
         let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(editionNumber)
 
@@ -88,7 +90,7 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
                 editionEntity.isGenesisEdition = true
             }
 
-            let metaData = constructMetaData(editionNumber, _editionData.value7)
+            let metaData = constructMetaData(editionNumber.toString(), _editionData.value7)
 
             if (metaData != null) {
                 metaData.save()
@@ -139,8 +141,12 @@ export function loadOrCreateV2EditionFromTokenId(tokenId: BigInt, block: ethereu
 // V3 stuff //
 //////////////
 
-export function loadNonNullableEdition(editionNumber: BigInt): Edition {
+export function loadNonNullableEdition(editionNumber: string): Edition {
     return Edition.load(editionNumber.toString()) as Edition
+}
+
+export function loadNonNullableEditionById(id: string): Edition {
+    return Edition.load(id) as Edition
 }
 
 export function loadOrCreateV3EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
@@ -166,10 +172,33 @@ export function loadOrCreateV3Edition(_editionId: BigInt, block: ethereum.Block,
     return buildEdition(_editionId, _originalCreator, _size, _uri, block, kodaV3Contract);
 }
 
+export function loadOrCreateV4Edition(_editionId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
+    log.info("Calling loadOrCreateV4Edition() call for edition ID {} on contract {}", [_editionId.toString(), contractAddress.toHexString()])
+
+    let contractInstance = ERC721KODACreatorWithBuyItNow.bind(contractAddress)
+    let originalCreator = contractInstance.editionCreator(_editionId)
+    let size = contractInstance.editionSize(_editionId)
+    let uri = contractInstance.editionURI(_editionId)
+
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);
+}
+
+export function loadOrCreateV4EditionFromTokenId(tokenId: BigInt, block: ethereum.Block, contractAddress: Address, isHidden: boolean): Edition {
+    log.info("Calling loadOrCreateV4EditionFromTokenId() call for token ID {} on contract {}", [tokenId.toString(), contractAddress.toHexString()])
+
+    let contractInstance = ERC721KODACreatorWithBuyItNow.bind(contractAddress)
+    let _editionId = contractInstance.tokenEditionId(tokenId)
+    let originalCreator = contractInstance.tokenEditionCreator(tokenId)
+    let size = contractInstance.editionSize(_editionId)
+    let uri = contractInstance.editionURI(_editionId)
+
+    return buildV4Edition(_editionId, originalCreator, size, uri, block, contractAddress, isHidden);
+}
+
 function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, kodaV3Contract: KnownOriginV3): Edition {
     let editionEntity = Edition.load(_editionId.toString());
     if (editionEntity == null) {
-        editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block);
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V3, _editionId, block, _editionId.toString());
 
         editionEntity.version = KodaVersions.KODA_V3
         editionEntity.editionType = ONE
@@ -216,7 +245,7 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
         let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
         editionEntity.artist = artist.id.toString()
 
-        let metaData = constructMetaData(_editionId, _uri)
+        let metaData = constructMetaData(_editionId.toString(), _uri)
         if (metaData != null) {
             metaData.save()
             editionEntity.metadata = metaData.id
@@ -241,13 +270,84 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
     return editionEntity as Edition;
 }
 
-function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block): Edition {
+function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: BigInt, _uri: string, block: ethereum.Block, address: Address, isHidden: boolean): Edition {
+    let entityId = createV4Id(address.toHexString(), _editionId.toString())
+    let editionEntity = Edition.load(entityId);
+    if (editionEntity == null) {
+        editionEntity = createDefaultEdition(KodaVersions.KODA_V4, _editionId, block, entityId);
+
+        editionEntity.version = KodaVersions.KODA_V4
+        editionEntity.editionType = ONE
+        editionEntity.startDate = ZERO
+        editionEntity.endDate = MAX_UINT_256
+        editionEntity.artistCommission = BigInt.fromI32(85)
+        editionEntity.artistAccount = _originalCreator
+        editionEntity.tokenURI = _uri
+        editionEntity.totalSupply = ZERO
+        editionEntity.totalAvailable = _size
+        editionEntity.originalEditionSize = _size
+        editionEntity.remainingSupply = editionEntity.totalAvailable
+        editionEntity.active = true;
+
+        editionEntity.creatorContract = address.toHexString()
+
+        // if we have reported the creator contract, assume its disabled
+        if (isHidden) {
+            log.debug("Creator contract {} reported - setting edition to inactive", [address.toHexString()]);
+            editionEntity.active = false
+        }
+
+        if (isEditionBurnt(_editionId)) {
+            log.debug("Edition in hardcoded burn list {} setting to inactive", [_editionId.toString()]);
+            editionEntity.active = false
+        }
+
+        // add creator to collaborators list
+        let collaborators: Array<Bytes> = editionEntity.collaborators
+        collaborators.push(editionEntity.artistAccount)
+        editionEntity.collaborators = collaborators
+
+        // Pricing logic
+        editionEntity.offersOnly = false
+
+        // Set genesis flag if not existing editions created
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()))
+        editionEntity.artist = artist.id.toString()
+
+        populateEditionMetadata(editionEntity as Edition, entityId, _uri);
+    }
+    return editionEntity as Edition;
+}
+
+export function populateEditionMetadata(editionEntity: Edition, _editionId: string, _uri: string): void {
+    let metaData = constructMetaData(_editionId, _uri)
+    if (metaData != null) {
+        metaData.save()
+        editionEntity.metadata = metaData.id
+        editionEntity.metadataFormat = metaData.format
+        editionEntity.metadataTheme = metaData.theme
+        editionEntity.metadataName = metaData.name ? metaData.name : ""
+        editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+        editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
+        if (metaData.image_type) {
+            let types = splitMimeType(metaData.image_type)
+            editionEntity.primaryAssetShortType = types.primaryAssetShortType
+            editionEntity.primaryAssetActualType = types.primaryAssetActualType
+        }
+        editionEntity.hasCoverImage = metaData.cover_image !== null;
+        if (metaData.tags != null && metaData.tags.length > 0) {
+            editionEntity.metadataTagString = metaData.tags.toString()
+        }
+    }
+}
+
+function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethereum.Block, entityId: string): Edition {
     // Unfortunately there is some dodgy data on rinkeby which means some calls fail so we default everything to blank to avoid failures on reverts on rinkeby
-    let editionEntity = new Edition(_editionId.toString());
+    let editionEntity = new Edition(entityId);
     editionEntity.version = version
-    editionEntity.editionNmber = _editionId
+    editionEntity.editionNmber = _editionId.toString()
     editionEntity.salesType = SaleTypes.OFFERS_ONLY
-    editionEntity.tokenIds = new Array<BigInt>()
+    editionEntity.tokenIds = new Array<string>()
     editionEntity.auctionEnabled = false
     editionEntity.activeBid = null
     editionEntity.biddingHistory = new Array<string>()
@@ -276,6 +376,7 @@ function createDefaultEdition(version: BigInt, _editionId: BigInt, block: ethere
     editionEntity.offersOnly = false
     editionEntity.isGenesisEdition = false
     editionEntity.isEnhancedEdition = false
+    editionEntity.isOpenEdition = false
     editionEntity.hasCoverImage = false
     editionEntity.stepSaleBasePrice = ZERO
     editionEntity.stepSaleStepPrice = ZERO

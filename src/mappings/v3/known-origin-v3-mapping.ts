@@ -16,7 +16,7 @@ import {
     TransferChild,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
-import {Composable, ComposableItem, ListedToken, Token} from "../../../generated/schema";
+import {Composable, ComposableItem, ListedToken, Token, Edition} from "../../../generated/schema";
 
 import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {
@@ -76,16 +76,19 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         editionEntity.save()
 
         // We only need to record the edition being created once
-        if (editionEntity.editionNmber.equals(tokenId)) {
+        if (BigInt.fromString(editionEntity.editionNmber).equals(tokenId)) {
             dayService.addEditionToDay(event, editionEntity.id);
 
             let creator = kodaV3Contract.getCreatorOfToken(tokenId);
-            let artist = artistService.addEditionToArtist(creator, editionEntity.editionNmber.toString(), editionEntity.totalAvailable, event.block.timestamp)
+            let artist = artistService.addEditionToArtist(creator, editionEntity.editionNmber, editionEntity.totalAvailable, event.block.timestamp)
 
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            editionEntity.isGenesisEdition = editionEntity.editionNmber.equals(BigInt.fromString(artist.firstEdition))
+            let maybeEdition = Edition.load(artist.firstEdition);
+            editionEntity.isGenesisEdition = maybeEdition != null
+              ? BigInt.fromString(editionEntity.editionNmber).equals(BigInt.fromString(maybeEdition.editionNmber))
+              : false
 
             editionEntity.save()
         }
@@ -101,11 +104,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         /////////////////////
 
         // add tokens to collector
-        let collector = collectorService.addTokenToCollector(to, event.block, tokenId);
+        let collector = collectorService.addTokenToCollector(to, event.block, tokenId.toString());
         collector.save();
 
         // remove tokens from collector
-        collectorService.removeTokenFromCollector(from, event.block, tokenId);
+        collectorService.removeTokenFromCollector(from, event.block, tokenId.toString());
 
         /////////////////
         // Token Logic //
@@ -131,7 +134,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Edition Logic
 
         // Record transfer against the edition
-        let editionEntity = editionService.loadOrCreateV3Edition(tokenEntity.editionNumber, event.block, kodaV3Contract);
+        let editionEntity = editionService.loadOrCreateV3Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, kodaV3Contract);
 
         // Transfer Events
         let transferEvent = transferEventFactory.createTransferEvent(event, tokenId, from, to, editionEntity);
@@ -161,16 +164,16 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         let tokenIds = editionEntity.tokenIds
         let foundTokenId = false;
         for (let i = 0; i < tokenIds.length; i++) {
-            if (tokenIds[i].equals(tokenId)) {
+            if (tokenIds[i] == tokenId.toString()) {
                 foundTokenId = true;
             }
         }
 
         // if we dont know about this token, add it to the list
-        if (!foundTokenId) tokenIds.push(tokenId)
+        if (!foundTokenId) tokenIds.push(tokenId.toString())
         editionEntity.tokenIds = tokenIds
 
-        let maxSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber);
+        let maxSize = kodaV3Contract.getSizeOfEdition(BigInt.fromString(editionEntity.editionNmber));
 
         // Reduce remaining supply for each mint -
         editionEntity.remainingSupply = maxSize.minus(BigInt.fromI32(tokenIds.length))
@@ -284,7 +287,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         tokenEntity.save();
 
         // Token Events
-        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenId, from, to);
+        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenId.toString(), from, to);
         tokenTransferEvent.save();
 
         // Update token offer owner
@@ -337,7 +340,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
 
         // total remaining primary sales - original edition size minus tokens issued
         //                                 a new token ID is created on ever 'first transfer' up to edition size
-        let originalSize = kodaV3Contract.getSizeOfEdition(editionEntity.editionNmber)
+        let originalSize = kodaV3Contract.getSizeOfEdition(BigInt.fromString(editionEntity.editionNmber))
         editionEntity.remainingSupply = originalSize.minus(BigInt.fromI32(tokenIds.length))
 
         // If total burnt is original size then disable the edition
@@ -402,7 +405,7 @@ export function handleAdminEditionReported(event: AdminEditionReported): void {
     ]);
 
     // find edition and disable
-    let edition = editionService.loadNonNullableEdition(event.params._editionId)
+    let edition = editionService.loadNonNullableEdition(event.params._editionId.toString())
     edition.active = false
     edition.save()
 
@@ -504,7 +507,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = true
     edition.save()
 
@@ -543,7 +546,7 @@ export function handleTransferERC20(event: TransferERC20): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
     edition.save()
 
@@ -598,7 +601,7 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = true;
     edition.save()
 
@@ -628,7 +631,7 @@ export function handleTransferERC721(event: TransferChild): void {
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
-    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId))
+    let edition = editionService.loadNonNullableEdition(koda.getEditionIdOfToken(event.params._tokenId).toString())
     edition.isEnhancedEdition = composableService.determineIfEditionIsEnhanced(koda, event.params._tokenId);
     edition.save()
 

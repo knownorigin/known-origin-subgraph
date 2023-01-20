@@ -32,5 +32,9 @@
   "koda-v3-gated-marketplace-address": "0x8fC72C856EB661F072F0f7322449f3fcCF088f42",
   "koda-v3-gated-marketplace-startBlock": 14583128,
   "accesscontrols-v3-address": "0x9028b16494a9363F3EAaf381a6Fde67296abc68C",
-  "accesscontrols-v3-startBlock": 13080815
+  "accesscontrols-v3-startBlock": 13080815,
+  "cc-factory-address": "0x4B7A8Ce7d004C5c68207F355F6A838C941FF6B96",
+  "cc-factory-startBlock": 16390497,
+  "cc-koda-settings-address": "0x3abC8C65A9516D5B487A9F7423aE2C4c6a3Adf51",
+  "cc-koda-settings-startBlock": 16390455
 }

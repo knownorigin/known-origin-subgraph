@@ -1,4 +1,4 @@
-import {Address, log, store} from "@graphprotocol/graph-ts/index";
+import { Address, BigInt, log, store } from "@graphprotocol/graph-ts/index";
 
 import {
     AdminSetKoCommissionOverrideForSale,
@@ -41,7 +41,7 @@ export function handleSaleWithPhaseCreated(event: SaleWithPhaseCreated): void {
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
     edition.gatedSale = gatedSale.id
     edition.save()
 
@@ -61,7 +61,7 @@ export function handleSaleCreated(event: SaleCreated): void {
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
     edition.gatedSale = gatedSale.id
     edition.save()
 
@@ -90,7 +90,7 @@ export function handlePhaseCreated(event: PhaseCreated): void {
     gatedSale.phases = phases
     gatedSale.save();
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
 
     activityEventService.recordGatedPhaseCreated(event, gatedSale, edition, phase)
 }
@@ -116,7 +116,7 @@ export function handlePhaseRemoved(event: PhaseRemoved): void {
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.save();
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
 
     activityEventService.recordGatedPhaseRemoved(event, gatedSale, edition, phase)
 
@@ -150,7 +150,7 @@ export function handleMintFromSale(event: MintFromSale): void {
     const saleValue = salePhase.priceInWei;
 
     // Action edition data changes
-    const editionEntity = editionService.loadNonNullableEdition(editionId)
+    const editionEntity = editionService.loadNonNullableEdition(editionId.toString())
 
     // Create collector
     const collector = collectorService.loadOrCreateCollector(event.params._recipient, event.block);
@@ -159,11 +159,11 @@ export function handleMintFromSale(event: MintFromSale): void {
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, saleValue)
     editionEntity.save()
 
-    const tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId, event.params._recipient, saleValue);
+    const tokenTransferEvent = tokenEventFactory.createTokenPrimaryPurchaseEvent(event, event.params._tokenId.toString(), event.params._recipient, saleValue);
     tokenTransferEvent.save();
 
     // Set price against token
-    const tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId)
+    const tokenEntity = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     _handleTokenPrimarySale(tokenEntity, saleValue)
     tokenEntity.save()
 
@@ -191,7 +191,7 @@ export function handleSalePaused(event: SalePaused): void {
     gatedSale.paused = true;
     gatedSale.save();
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
 
     activityEventService.recordGatedSalePaused(event, gatedSale, edition)
 }
@@ -205,7 +205,7 @@ export function handleSaleResumed(event: SaleResumed): void {
     const sales = gatedMarketplace.sales(event.params._saleId);
     const editionId = sales.value1;
 
-    const edition = editionService.loadNonNullableEdition(editionId)
+    const edition = editionService.loadNonNullableEdition(editionId.toString())
 
     const gatedSale = gatedSaleService.loadOrCreateGatedSale(gatedMarketplace, event.params._saleId, editionId);
     gatedSale.paused = false;

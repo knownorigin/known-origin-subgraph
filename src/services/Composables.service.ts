@@ -7,7 +7,7 @@ import {BigInt} from "@graphprotocol/graph-ts/index";
 
 export function determineIfEditionIsEnhanced(koda: KnownOriginV3, triggerTokenId: BigInt): boolean {
 
-    let token = loadNonNullableToken(triggerTokenId)
+    let token = loadNonNullableToken(triggerTokenId.toString())
     let edition = loadNonNullableEdition(token.editionNumber)
 
     // Quick exit - does the token have another NFT inside of it
@@ -21,22 +21,22 @@ export function determineIfEditionIsEnhanced(koda: KnownOriginV3, triggerTokenId
         let tokenId = tokenIds[i]
 
         // Check token has NFT inside
-        let results = koda.try_kodaTokenComposedNFT(tokenId)
+        let results = koda.try_kodaTokenComposedNFT(BigInt.fromString(tokenId))
         if (!results.reverted && results.value.value1.gt(ZERO)) {
             return true
         }
 
         // Get all possible embedded token contracts
-        let contracts = koda.try_totalERC20Contracts(tokenId)
+        let contracts = koda.try_totalERC20Contracts(BigInt.fromString(tokenId))
         if (!contracts.reverted) {
             for (let t = ZERO; t < contracts.value;) {
 
                 // Get associated token balance for contract
-                let tokenContract = koda.try_erc20ContractByIndex(tokenId, t);
+                let tokenContract = koda.try_erc20ContractByIndex(BigInt.fromString(tokenId), t);
                 if (!tokenContract.reverted) {
 
                     // Get and check balance > zero signifying its enhanced
-                    let balance = koda.try_balanceOfERC20(tokenId, tokenContract.value)
+                    let balance = koda.try_balanceOfERC20(BigInt.fromString(tokenId), tokenContract.value)
                     if (!balance.reverted) {
                         if (balance.value.gt(ZERO)) {
                             return true;
