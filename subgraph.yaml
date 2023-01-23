@@ -136,6 +136,7 @@ dataSources:
           receipt: true
         - event: ConsecutiveTransfer(indexed uint256,uint256,indexed address,indexed address)
           handler: handleConsecutiveTransfer
+          receipt: true
 
         # Approvals
         - event: ApprovalForAll(indexed address,indexed address,bool)

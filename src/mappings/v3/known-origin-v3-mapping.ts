@@ -310,18 +310,21 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.save();
         } else {
             // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
-            const eventLogs = event.receipt!.logs;
-            for (let index = 0; index < eventLogs.length; index++) {
-                const eventLog = eventLogs[index];
-                const eventAddress = eventLog.address.toHexString();
-                if (isWETHAddress(eventAddress)) {
-                    let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
-                    transferValue = wethTradeValue;
+            let receipt = event.receipt;
+            if(receipt && receipt.logs.length > 0) {
+                const eventLogs = receipt.logs;
+                for (let index = 0; index < eventLogs.length; index++) {
+                    const eventLog = eventLogs[index];
+                    const eventAddress = eventLog.address.toHexString();
+                    if (isWETHAddress(eventAddress)) {
+                        let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                        transferValue = wethTradeValue;
 
-                    let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
-                    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
-                    tokenEntity.save();
-                    break;
+                        let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                        tokenEntity.save();
+                        break;
+                    }
                 }
             }
         }
