@@ -58,7 +58,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
     log.info("Calling attemptToLoadV2TokenData() call for {} ", [tokenId.toString()])
 
     let _tokenDataResult: ethereum.CallResult<KnownOriginV2__tokenDataResult> = contract.try_tokenData(tokenId)
-    if (!_tokenDataResult.reverted) {
+    if (tokenEntity && !_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
         tokenEntity.editionNumber = _tokenData.value0.toString()
@@ -100,7 +100,9 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 
         // Populate it
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
-        tokenEntity.save();
+        if(tokenEntity) {
+            tokenEntity.save();
+        }
     }
     return tokenEntity as Token;
 }

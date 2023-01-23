@@ -124,6 +124,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     // Update the artist
     let artistEntity = loadOrCreateArtist(event.params.artist)
     let creatorContracts = artistEntity.creatorContracts
+    if(!creatorContracts) creatorContracts = new Array<string>()
     creatorContracts.push(event.params.selfSovereignNFT.toHexString())
     artistEntity.creatorContracts = creatorContracts
     artistEntity.save()

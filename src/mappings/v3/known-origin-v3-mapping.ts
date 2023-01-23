@@ -85,7 +85,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            let maybeEdition = Edition.load(artist.firstEdition);
+            let maybeEdition = Edition.load(artist.firstEdition as string);
             editionEntity.isGenesisEdition = maybeEdition != null
               ? BigInt.fromString(editionEntity.editionNmber).equals(BigInt.fromString(maybeEdition.editionNmber))
               : false
@@ -245,26 +245,28 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             //     tokenEntity.isListed ? 'TRUE' : 'FALSE'
             // ]);
 
-            let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
+            if(tokenEntity.listing) {
+                let listing = store.get("ListedToken", tokenEntity.listing as string) as ListedToken;
 
-            // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
-            if (listing !== null) {
+                // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
+                if (listing !== null) {
 
-                // Disable listing
-                tokenEntity.isListed = false;
+                    // Disable listing
+                    tokenEntity.isListed = false;
 
-                // Set flag to signify force withdrawal possible
-                listing.reserveAuctionCanEmergencyExit = true
-                listing.save()
+                    // Set flag to signify force withdrawal possible
+                    listing.reserveAuctionCanEmergencyExit = true
+                    listing.save()
 
-                triggerredForceWithdrawalFrom = true;
+                    triggerredForceWithdrawalFrom = true;
 
-                log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
-                    tokenId.toString(),
-                    listing.reserveAuctionBidder.toHexString(),
-                    from.toHexString(),
-                    to.toHexString(),
-                ]);
+                    log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
+                        tokenId.toString(),
+                        listing.reserveAuctionBidder.toHexString(),
+                        from.toHexString(),
+                        to.toHexString(),
+                    ]);
+                }
             }
         }
 
@@ -337,7 +339,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         for (let i: i32 = 0; i < tokenIds.length; i++) {
             let token = store.get("Token", tokenIds[i].toString()) as Token | null;
             if (token) {
-                const tokenOwner = Address.fromString(token.currentOwner);
+                const tokenOwner = Address.fromString(token.currentOwner as string);
 
                 // Either zero address or dead address we classify  as burns
                 if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
@@ -519,6 +521,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
+    if(!items) items = new Array<string>();
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
@@ -613,6 +616,7 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
+    if(!items) items = new Array<string>();
     items.push(item.id.toString());
     composable.items = items;
     composable.save()

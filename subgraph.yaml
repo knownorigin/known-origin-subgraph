@@ -15,11 +15,11 @@ dataSources:
   ## KODA V1 (Alpha)
   - kind: ethereum/contract
     name: KnownOriginV1
-    network: mainnet
+    network: goerli
     source:
-      address: '0xdde2d979e8d39bb8416eafcfc1758f3cab2c9c72'
+      address: '0x7ed902db2b8e579254a2a211819bd24bbaa3c4e1'
       abi: KnownOriginV1
-      startBlock: 5381767
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -40,11 +40,11 @@ dataSources:
   ## KODA V2 (Current)
   - kind: ethereum/contract
     name: KnownOriginV2
-    network: mainnet
+    network: goerli
     source:
-      address: '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
+      address: '0x8a5df57c179ea7b86e923eb91501a519ee8bbd6d'
       abi: KnownOriginV2
-      startBlock: 6270484
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -83,254 +83,21 @@ dataSources:
 
       file: ./src/mappings/v2/known-origin-v2-mapping.ts
 
-  ## Auctions V1 (Deprecated)
-  - kind: ethereum/contract
-    name: ArtistAcceptingBidsV1
-    network: mainnet
-    source:
-      address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
-      abi: ArtistAcceptingBidsV1
-      startBlock: 6568535
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - AuctionEnabled
-      abis:
-        - name: ArtistAcceptingBidsV1
-          file: ./abis/kodav2/ArtistAcceptingBidsV1.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: BidPlaced(indexed address,indexed uint256,indexed uint256)
-          handler: handleBidPlaced
 
-        - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
-          handler: handleBidAccepted
 
-        - event: BidWithdrawn(indexed address,indexed uint256)
-          handler: handleBidWithdrawn
 
-        - event: BidIncreased(indexed address,indexed uint256,indexed uint256)
-          handler: handleBidIncreased
 
-        - event: BidderRefunded(indexed uint256,indexed address,indexed uint256)
-          handler: handleBidderRefunded
 
-        - event: AuctionCancelled(indexed uint256)
-          handler: handleAuctionCancelled
-      file: ./src/mappings/v2/auction-v1-mapping.ts
-
-  ## Auctions V2 (Current)
-  - kind: ethereum/contract
-    name: ArtistAcceptingBidsV2
-    network: mainnet
-    source:
-      address: '0x848b0ea643e5a352d78e2c0c12a2dd8c96fec639'
-      abi: ArtistAcceptingBidsV2
-      startBlock: 7271800
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - AuctionEnabled
-      abis:
-        - name: ArtistAcceptingBidsV2
-          file: ./abis/kodav2/ArtistAcceptingBidsV2.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: AuctionEnabled(indexed uint256,indexed address)
-          handler: handleAuctionEnabled
-
-        - event: AuctionCancelled(indexed uint256)
-          handler: handleAuctionCancelled
-
-        - event: BidPlaced(indexed address,indexed uint256,uint256)
-          handler: handleBidPlaced
-
-        - event: BidAccepted(indexed address,indexed uint256,indexed uint256,uint256)
-          handler: handleBidAccepted
-
-        - event: BidRejected(indexed address,indexed address,indexed uint256,uint256)
-          handler: handleBidRejected
-
-        - event: BidWithdrawn(indexed address,indexed uint256)
-          handler: handleBidWithdrawn
-
-        - event: BidIncreased(indexed address,indexed uint256,uint256)
-          handler: handleBidIncreased
-
-        - event: BidderRefunded(indexed uint256,indexed address,uint256)
-          handler: handleBidderRefunded
-      file: ./src/mappings/v2/auction-v2-mapping.ts
-
-  ## TokenMarketplace V1 (Current)
-  - kind: ethereum/contract
-    name: TokenMarketplace
-    network: mainnet
-    source:
-      address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
-      abi: TokenMarketplace
-      startBlock: 9927235
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - BidPlaced
-        - BidWithdrawn
-        - BidAccepted
-        - BidRejected
-        - AuctionEnabled
-        - AuctionDisabled
-      abis:
-        - name: TokenMarketplace
-          file: ./abis/kodav2/TokenMarketplace.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: AuctionEnabled(indexed uint256,indexed address)
-          handler: handleAuctionEnabled
-
-        - event: AuctionDisabled(indexed uint256,indexed address)
-          handler: handleAuctionDisabled
-
-        - event: BidPlaced(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidPlaced
-
-        - event: BidAccepted(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidAccepted
-
-        - event: BidRejected(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidRejected
-
-        - event: BidWithdrawn(indexed uint256,indexed address)
-          handler: handleBidWithdrawn
-
-      file: ./src/mappings/v2/token-marketplace-mapping.ts
-
-  ## TokenMarketplace V2 (Current)
-  - kind: ethereum/contract
-    name: TokenMarketplaceV2
-    network: mainnet
-    source:
-      address: '0xc322cdd03f34b6d25633c2abbc8716a058c7fe9e'
-      abi: TokenMarketplaceV2
-      startBlock: 11250377
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - AuctionEnabled
-        - AuctionDisabled
-        - BidPlaced
-        - BidWithdrawn
-        - BidAccepted
-        - BidRejected
-        - AuctionEnabled
-        - AuctionDisabled
-        - TokenPurchased
-        - TokenDeListed
-        - TokenListed
-      abis:
-        - name: TokenMarketplaceV2
-          file: ./abis/kodav2/TokenMarketplaceV2.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: AuctionEnabled(indexed uint256,indexed address)
-          handler: handleAuctionEnabled
-
-        - event: AuctionDisabled(indexed uint256,indexed address)
-          handler: handleAuctionDisabled
-
-        - event: BidPlaced(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidPlaced
-
-        - event: BidAccepted(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidAccepted
-
-        - event: BidRejected(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleBidRejected
-
-        - event: BidWithdrawn(indexed uint256,indexed address)
-          handler: handleBidWithdrawn
-
-        - event: TokenListed(indexed uint256,indexed address,uint256)
-          handler: handleTokenListed
-
-        - event: TokenDeListed(indexed uint256)
-          handler: handleTokenDeListed
-
-        - event: TokenPurchased(indexed uint256,indexed address,indexed address,uint256)
-          handler: handleTokenPurchased
-
-      file: ./src/mappings/v2/token-marketplace-v2-mapping.ts
-
-  ## Artist Burner (Current)
-  - kind: ethereum/contract
-    name: ArtistEditionBurner
-    network: mainnet
-    source:
-      address: '0xcc0b7707ba4d7d7f9acdd16ab2e0b1997e816166'
-      abi: ArtistEditionBurner
-      startBlock: 10098533
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - EditionDeactivated
-        - EditionSupplyReduced
-      abis:
-        - name: ArtistEditionBurner
-          file: ./abis/kodav2/ArtistEditionBurner.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: EditionDeactivated(indexed uint256)
-          handler: handleEditionDeactivatedEvent
-
-        - event: EditionSupplyReduced(indexed uint256)
-          handler: handleEditionSupplyReducedEvent
-
-      file: ./src/mappings/v2/artist-burner-mapping.ts
-
-  ## Artist Tools V2
-  - kind: ethereum/contract
-    name: ArtistEditionControlsV2
-    network: mainnet
-    source:
-      address: '0x5327cf8b4127e81013d706330043e8bf5673f50d'
-      abi: ArtistEditionControlsV2
-      startBlock: 7271760
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Transfer
-      abis:
-        - name: ArtistEditionControlsV2
-          file: ./abis/kodav2/ArtistEditionControlsV2.json
-      eventHandlers:
-        - event: PriceChanged(indexed uint256,indexed address,uint256)
-          handler: handlePriceChangedEvent
-      file: ./src/mappings/v2/artist-edition-controls-v2-mapping.ts
 
   # only include the below in V3
   ## KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KnownOriginV3
-    network: mainnet
+    network: goerli
     source:
-      address: '0xABB3738f04Dc2Ec20f4AE4462c3d069d02AE045B'
+      address: '0x05f5eC654fD95646609964C6c8a0e5b3156CDa08'
       abi: KnownOriginV3
-      startBlock: 13080871
+      startBlock: 7704132
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -402,11 +169,11 @@ dataSources:
   ## KOAccessControls for KODA V3 (V3 NFT)
   - kind: ethereum/contract
     name: KOAccessControls
-    network: mainnet
+    network: goerli
     source:
-      address: '0x9028b16494a9363F3EAaf381a6Fde67296abc68C'
+      address: '0x891afBaE7613103d6408817FF73d1DF97b575fd2'
       abi: KOAccessControls
-      startBlock: 13080815
+      startBlock: 7703835
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -429,52 +196,15 @@ dataSources:
           handler: handleAdminUpdateArtistAccessMerkleRootIpfsHash
       file: ./src/mappings/v3/platform-config-mapping.ts
 
-  ## MintingFactory V1 for KODA V3
-  - kind: ethereum/contract
-    name: MintingFactoryV1
-    network: mainnet
-    source:
-      address: '0x36CF31019816E9490959F75Ba9164eDd304De01D'
-      abi: MintingFactory
-      startBlock: 13081038
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - EditionMintedAndListed
-        - MintingFactoryCreated
-        - AdminMintingPeriodChanged
-        - AdminMaxMintsInPeriodChanged
-        - AdminFrequencyOverrideChanged
-      abis:
-        - name: MintingFactory
-          file: ./abis/kodav3/MintingFactory.json
-        - name: KnownOriginV3
-          file: ./abis/kodav3/KnownOriginV3.json
-        - name: KnownOriginV2
-          file: ./abis/kodav2/KnownOriginV2.json
-      eventHandlers:
-        - event: EditionMintedAndListed(indexed uint256,uint8)
-          handler: handleEditionMintedAndListed
-        - event: MintingFactoryCreated()
-          handler: handleMintingFactoryCreated
-        - event: AdminMintingPeriodChanged(uint256)
-          handler: handleAdminMintingPeriodChanged
-        - event: AdminMaxMintsInPeriodChanged(uint256)
-          handler: handleAdminMaxMintsInPeriodChanged
-        - event: AdminFrequencyOverrideChanged(address,bool)
-          handler: handleAdminFrequencyOverrideChanged
-      file: ./src/mappings/v3/minting-factory-v1-mapping.ts
 
   ## MintingFactory V2 for KODA V3
   - kind: ethereum/contract
     name: MintingFactoryV2
-    network: mainnet
+    network: goerli
     source:
-      address: '0xcEcF098DC0F513C68a0003b540CBDAE130dD0014'
+      address: '0x65c7593dE25f2d56bD6088Fc1865E3b2fC85167c'
       abi: MintingFactory
-      startBlock: 14583177
+      startBlock: 7704658
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -510,11 +240,11 @@ dataSources:
   # Token Primary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
     name: KODAV3PrimaryMarketplace
-    network: mainnet
+    network: goerli
     source:
-      address: '0xf11ED77fD65840b64602526DDC38311E9923c81B'
+      address: '0x6234802e9f3A550A61ee3a736fA452B19A577645'
       abi: KODAV3PrimaryMarketplace
-      startBlock: 13080907
+      startBlock: 7704547
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -598,11 +328,11 @@ dataSources:
   # Token Secondary Marketplace V3 (V3 NFT)
   - kind: ethereum/contract
     name: KODAV3SecondaryMarketplace
-    network: mainnet
+    network: goerli
     source:
-      address: '0x0Eb65B4c3d3dE340e1b15384f8F211784247a37A'
+      address: '0x61151462B02C237E9D2a7Ca849Af6633683b9CEd'
       abi: KODAV3SecondaryMarketplace
-      startBlock: 13080962
+      startBlock: 7704557
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -685,11 +415,11 @@ dataSources:
   # Collab registry
   - kind: ethereum/contract
     name: KODAV3CollabRegistry
-    network: mainnet
+    network: goerli
     source:
-      address: '0xe28e054d596576841682e8c993E415B3ccB2EBeB'
+      address: '0xed7f97eDDD34b33bB49b420Af939cD4375cA0fB0'
       abi: KODAV3CollabRegistry
-      startBlock: 13080981
+      startBlock: 7704566
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -723,11 +453,11 @@ dataSources:
   # koda-v3-gated-marketplace registry
   - kind: ethereum/contract
     name: KODAV3UpgradableGatedMarketplace
-    network: mainnet
+    network: goerli
     source:
-      address: '0x8fC72C856EB661F072F0f7322449f3fcCF088f42'
+      address: '0x04994ebf4bfc6366c1624366d8f25e2d382fe3d0'
       abi: KODAV3UpgradableGatedMarketplace
-      startBlock: 14583128
+      startBlock: 7704632
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -767,11 +497,11 @@ dataSources:
   ## KODA V4 Platform Settings contract
   - kind: ethereum/contract
     name: KODASettings
-    network: mainnet
+    network: goerli
     source:
-      address: '0x3abC8C65A9516D5B487A9F7423aE2C4c6a3Adf51'
+      address: '0x89afAfb0f3C025b53CE863d02f91FaF63D71C1bA'
       abi: KODASettings
-      startBlock: 16390455
+      startBlock: 8267421
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -794,11 +524,11 @@ dataSources:
   ## KODA V4 (Creator Contract)
   - kind: ethereum/contract
     name: KnownOriginV4Factory
-    network: mainnet
+    network: goerli
     source:
-      address: '0x4B7A8Ce7d004C5c68207F355F6A838C941FF6B96'
+      address: '0x9F01f6cB996A4cA47841dD9392335296933c7a9F'
       abi: KnownOriginV4Factory
-      startBlock: 16390497
+      startBlock: 8284430
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -833,7 +563,7 @@ dataSources:
 templates:
   - name: CreatorContract
     kind: ethereum/contract
-    network: mainnet
+    network: goerli
     source:
       abi: ERC721KODACreatorWithBuyItNow
     mapping:
