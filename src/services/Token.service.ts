@@ -161,7 +161,6 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
 
 function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, contract: ERC721CreatorContract, block: ethereum.Block): Token {
     tokenEntity.salesType = edition.salesType
-    tokenEntity.transferCount = ONE
     tokenEntity.editionNumber = edition.editionNmber
     tokenEntity.edition = edition.id
     tokenEntity.tokenURI = edition.tokenURI

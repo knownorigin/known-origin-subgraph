@@ -63,8 +63,9 @@ import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
-import {DEAD_ADDRESS, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
+import * as tokenService from "../../services/Token.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -203,9 +204,12 @@ export function handleTransfer(event: Transfer): void {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
         tokenEntity.currentOwner = event.params.to.toString()
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-        tokenEntity.save()
 
-        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, event.transaction.value);
+        // Update counters and timestamps
+        tokenEntity.lastTransferTimestamp = event.block.timestamp
+        tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+        tokenEntity.save()
 
         /////////////////
         // Collectors //
@@ -281,7 +285,35 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers.plus(ONE);
 
         // Token Events
-        tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, event.params.from, event.params.to);
+        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, event.params.from, event.params.to);
+        tokenTransferEvent.save();
+
+        let transferValue = event.transaction.value;
+
+        // If we see a msg.value record it as a sale
+        if (event.transaction.value.gt(ZERO)) {
+            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+            tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
+            tokenEntity.save();
+        } else {
+            // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+            const eventLogs = event.receipt!.logs;
+            for (let index = 0; index < eventLogs.length; index++) {
+                const eventLog = eventLogs[index];
+                const eventAddress = eventLog.address.toHexString();
+                if (isWETHAddress(eventAddress)) {
+                    let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                    transferValue = wethTradeValue;
+
+                    let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                    tokenEntity.save();
+                    break;
+                }
+            }
+        }
+
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, transferValue);
     }
 
     /////////////////////////////////////////////////////

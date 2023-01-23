@@ -171,7 +171,7 @@ export function handleTransfer(event: Transfer): void {
         offerService.updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
-    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to, event.params._from, event.transaction.value);
+    let transferValue = event.transaction.value;
 
     // If we see a msg.value record it as a sale
     if (event.transaction.value.gt(ZERO)) {
@@ -187,6 +187,8 @@ export function handleTransfer(event: Transfer): void {
 
             if (isWETHAddress(eventAddress)) {
                 let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                transferValue = wethTradeValue;
+
                 let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
                 tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
                 tokenEntity.save();
@@ -194,6 +196,8 @@ export function handleTransfer(event: Transfer): void {
             }
         }
     }
+
+    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to, event.params._from, transferValue);
 
     ///////////////
     // Transfers //
@@ -220,7 +224,6 @@ export function handlePurchase(event: Purchase): void {
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
-    let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
     artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber.toString(), event.params._tokenId, event.transaction.value, true)
 

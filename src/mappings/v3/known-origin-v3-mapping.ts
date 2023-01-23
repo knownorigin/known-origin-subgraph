@@ -1,4 +1,4 @@
-import {BigInt} from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {
     AdminArtistAccountReported,
@@ -18,7 +18,7 @@ import {
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Composable, ComposableItem, ListedToken, Token, Edition} from "../../../generated/schema";
 
-import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { DEAD_ADDRESS, isWETHAddress, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 import {
     PRIMARY_SALE_MAINNET,
     PRIMARY_SALE_RINKEBY,
@@ -299,14 +299,32 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle transfer //
         /////////////////////
 
-        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to, from, event.transaction.value);
+        let transferValue = event.transaction.value;
 
         // If we see a msg.value record it as a sale
         if (event.transaction.value.gt(ZERO)) {
-            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(2));
+            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
             tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
             tokenEntity.save();
+        } else {
+            // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+            const eventLogs = event.receipt!.logs;
+            for (let index = 0; index < eventLogs.length; index++) {
+                const eventLog = eventLogs[index];
+                const eventAddress = eventLog.address.toHexString();
+                if (isWETHAddress(eventAddress)) {
+                    let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                    transferValue = wethTradeValue;
+
+                    let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                    tokenEntity.save();
+                    break;
+                }
+            }
         }
+
+        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to, from, transferValue);
 
         //////////////////////////////////////////////////////////////////////////////////
         // Everytime a transfer is made we work out burns, mints, available, unsold etc //
