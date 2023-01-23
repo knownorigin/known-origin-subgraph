@@ -66,6 +66,10 @@ import {toEther} from "../../utils/utils";
 import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
+import {
+    recordCCBuyNowPriceChanged,
+    recordCCDefaultRoyaltyPercentageUpdated
+} from "../../services/ActivityEvent.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -433,7 +437,7 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 
     activityEventService.recordPriceChanged(event, edition, event.params._price);
 
-    activityEventService.recordCCBuyNowDeListed(
+    activityEventService.recordCCBuyNowPriceChanged(
         event.address.toHexString(),
         edition.id,
         event,
@@ -517,7 +521,7 @@ export function handleSecondaryRoyaltyUpdated(event: DefaultRoyaltyPercentageUpd
     creatorContractEntity.secondaryRoyaltyPercentage = event.params._percentage
     creatorContractEntity.save()
 
-    activityEventService.recordCCOwnershipTransferred(
+    activityEventService.recordCCDefaultRoyaltyPercentageUpdated(
         event.address.toHexString(),
         event.address.toHexString(),
         event
