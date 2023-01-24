@@ -12,10 +12,7 @@ import { PurchasedWithEther } from "../../../generated/KnownOriginV1/KnownOrigin
 import { handlePurchase } from "../../../src/mappings/v1/known-origin-v1-mapping";
 import { ZERO } from "../../../src/utils/constants";
 import { createDayId } from "../../../src/services/Day.service";
-
-let ARTIST_ENTITY_TYPE = "Artist";
-let DAY_ENTITY_TYPE = "Day";
-let COLLECTOR_ENTITY_TYPE = "Collector";
+import { ARTIST_ENTITY_TYPE, COLLECTOR_ENTITY_TYPE, DAY_ENTITY_TYPE } from "../entities";
 
 describe("KODA V1 tests", () => {
 

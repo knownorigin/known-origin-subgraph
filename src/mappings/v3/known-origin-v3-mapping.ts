@@ -281,8 +281,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.openOffer = null
             tokenEntity.currentTopBidder = null
 
-            // Clear price listing
-            store.remove("ListedToken", tokenId.toString());
+            let listedToken = store.get("ListedToken", tokenId.toString());
+            if(listedToken) {
+                // Clear price listing
+                store.remove("ListedToken", tokenId.toString());
+            }
         }
 
         // Persist
@@ -312,10 +315,10 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
             let receipt = event.receipt;
             if(receipt && receipt.logs.length > 0) {
-                const eventLogs = receipt.logs;
+                let eventLogs = receipt.logs;
                 for (let index = 0; index < eventLogs.length; index++) {
-                    const eventLog = eventLogs[index];
-                    const eventAddress = eventLog.address.toHexString();
+                    let eventLog = eventLogs[index];
+                    let eventAddress = eventLog.address.toHexString();
                     if (isWETHAddress(eventAddress)) {
                         let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
                         transferValue = wethTradeValue;
@@ -336,18 +339,20 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         //////////////////////////////////////////////////////////////////////////////////
 
         // work out how many have been burnt vs issued
-        // @ts-ignore
-        let totalBurnt: i32 = 0;
-        // @ts-ignore
-        for (let i: i32 = 0; i < tokenIds.length; i++) {
-            let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+        let totalBurnt = 0;
+        for (let i = 0; i < tokenIds.length; i++) {
+            let tokenId = tokenIds[i as i32];
+            let token = Token.load(tokenId.toString());
             if (token) {
-                const tokenOwner = Address.fromString(token.currentOwner as string);
+                const currentOwner = token.currentOwner;
+                if(currentOwner) {
+                    const tokenOwner = Address.fromString(currentOwner);
 
-                // Either zero address or dead address we classify  as burns
-                if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
-                    // record total burnt tokens
-                    totalBurnt = totalBurnt + 1
+                    // Either zero address or dead address we classify  as burns
+                    if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
+                        // record total burnt tokens
+                        totalBurnt = totalBurnt + 1
+                    }
                 }
             }
         }

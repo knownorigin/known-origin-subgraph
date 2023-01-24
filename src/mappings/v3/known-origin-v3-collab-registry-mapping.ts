@@ -57,7 +57,6 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
     let recipients: Array<Bytes> = collective.recipients;
     let collaborators: Array<Bytes> = editionEntity.collaborators
     for (let i: number = 0; i < recipients.length; i++) {
-        // @ts-ignore
         let recipient: Bytes = recipients[i as i32];
         collaborators.push(recipient)
     }
