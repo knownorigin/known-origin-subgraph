@@ -34,5 +34,14 @@ jobs:
       - name: Install deps
         run: yarn install
 
+      - name: Install Graph CLI
+        run: yarn global add @graphprotocol/graph-cli
+
+      - name: Graph CodeGen
+        run: yarn codegen
+
+      - name: Graph Build
+        run: yarn build
+
       - name: Test
         run: yarn test
