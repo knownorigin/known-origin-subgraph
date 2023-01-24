@@ -65,6 +65,7 @@ import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
 import {DEAD_ADDRESS, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "../../utils/KODAV4"
+import {OPEN_EDITION_BUY_NOW} from "../../utils/SaleTypes";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -131,7 +132,7 @@ export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [
         event.address.toHexString(),
         event.params.tokenId.toString()
-   ]);
+    ]);
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString())
@@ -341,28 +342,37 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
-   log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
+    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
 
-   let contractEntity = CreatorContract.load(event.address.toHexString());
-   let edition = loadOrCreateV4Edition(
-     event.params._editionId,
-     event.block,
-     event.address,
-     contractEntity.isHidden
-   );
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    let contractEntity = CreatorContract.load(event.address.toHexString());
+    let edition = loadOrCreateV4Edition(
+        event.params._editionId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    );
 
-   edition.startDate = event.params._startDate;
-   edition.priceInWei = event.params._price;
-   edition.salesType = SaleTypes.BUY_NOW;
+    // Check whether we're looking at an open edition
+    edition.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(edition.editionNmber));
 
-   edition.save();
+    edition.startDate = event.params._startDate;
 
-   activityEventService.recordCCListedEditionForBuyNow(
-     event.address.toHexString(),
-     edition.id,
-     event,
-     edition
-   );
+    const editionListing = creatorContractInstance.editionListing(BigInt.fromString(edition.editionNmber))
+    edition.endDate = editionListing.value2
+
+    edition.priceInWei = event.params._price;
+
+    edition.salesType = edition.isOpenEdition ? SaleTypes.OPEN_EDITION_BUY_NOW : SaleTypes.BUY_NOW;
+
+    edition.save();
+
+    activityEventService.recordCCListedEditionForBuyNow(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    );
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
