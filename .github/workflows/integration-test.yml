@@ -31,11 +31,11 @@ jobs:
           node-version: 16.x
           cache: yarn
 
-      - name: Install deps
-        run: yarn install
-
       - name: Install Graph CLI
         run: yarn global add @graphprotocol/graph-cli
+
+      - name: Install deps
+        run: yarn install
 
       - name: Graph CodeGen
         run: yarn codegen
