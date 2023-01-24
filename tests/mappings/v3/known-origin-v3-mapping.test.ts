@@ -27,7 +27,6 @@ describe("KODA V3 tests", () => {
     const to = "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7";
 
     const event = createTransferEvent(to, from, tokenId);
-
     event.transaction.value = BigInt.fromString("500000000000000000"); // 0.5 ETH
 
     const KODAV3 = Address.fromString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A");
@@ -39,7 +38,8 @@ describe("KODA V3 tests", () => {
     const editionId = ethereum.Value.fromUnsignedBigInt(rawEditionId);
     const uri = ethereum.Value.fromString("ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
 
-    // Mock contract call
+    // Mock contract calls
+
     createMockedFunction(KODAV3, "getEditionDetails", "getEditionDetails(uint256):(address,address,uint16,uint256,string)")
       .withArgs([ethereum.Value.fromUnsignedBigInt(tokenId)])
       .returns([

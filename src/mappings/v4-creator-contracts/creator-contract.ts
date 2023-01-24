@@ -32,7 +32,8 @@ import {
     CreatorContract,
     Edition,
     Collective,
-    CreatorContractSetting, Token,
+    CreatorContractSetting,
+    Token,
 } from "../../../generated/schema"
 
 import {
@@ -330,7 +331,7 @@ export function handleTransfer(event: Transfer): void {
     let totalBurnt: i32 = 0;
     // @ts-ignore
     for (let i: i32 = 0; i < tokenIds.length; i++) {
-        let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+        let token = Token.load(tokenIds[i].toString())
         if (token) {
             const tokenOwner = Address.fromString(token.currentOwner as string);
             // Either zero address or dead address we classify  as burns
