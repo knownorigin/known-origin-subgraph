@@ -520,7 +520,16 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
     let editionFundsHandler = event.params._handler.toHexString();
 
+    log.error("event.address", [
+        event.address.toHexString()
+    ]);
+
+    log.error("editionFundsHandler", [
+        editionFundsHandler
+    ]);
+
     let collective = Collective.load(editionFundsHandler);
+
     if (collective == null) {
         collective = new Collective(editionFundsHandler);
         collective.baseHandler = event.params._handler;
@@ -540,11 +549,19 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let maybeFundsHandlerContract = FundsHandler.bind(event.params._handler)
     let maybeTotalRecipientsResult = maybeFundsHandlerContract.try_totalRecipients()
 
+    log.error("maybeTotalRecipientsResult.reverted", [
+        maybeTotalRecipientsResult.reverted as string
+    ]);
+
     let defaultFundsRecipients = new Array<Bytes>()
     let defaultFundsShares = new Array<BigInt>()
 
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
+
+        log.error("Inside if block", [
+            'here'
+        ]);
 
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
@@ -552,6 +569,11 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
             defaultFundsShares.push(share.value1)
         }
     } else {
+
+        log.error("Inside else block", [
+            'here'
+        ]);
+
         defaultFundsRecipients.push(event.params._handler)
         defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
     }
@@ -562,6 +584,11 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     collective.save()
 
     edition.collective = collective.id.toString()
+
+    log.error("edition.collective", [
+        edition.collective as string
+    ]);
+
     edition.save()
 
     activityEventService.recordCCEditionFundsHandlerUpdated(
