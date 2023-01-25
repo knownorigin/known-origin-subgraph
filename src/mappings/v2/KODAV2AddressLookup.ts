@@ -1,4 +1,4 @@
-import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
+import {KnownOriginV2} from "../../../generated/KnownOriginV2/KnownOriginV2";
 import {Address} from "@graphprotocol/graph-ts/index";
 
 export const KODA_MAINNET = "0xFBeef911Dc5821886e1dda71586d90eD28174B7d";

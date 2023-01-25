@@ -1,4 +1,4 @@
-import {BigInt} from "@graphprotocol/graph-ts";
+import { BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {
     AdminArtistAccountReported,
@@ -18,13 +18,13 @@ import {
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
 import {Composable, ComposableItem, ListedToken, Token, Edition} from "../../../generated/schema";
 
-import {DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { DEAD_ADDRESS, isWETHAddress, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 import {
     PRIMARY_SALE_MAINNET,
     PRIMARY_SALE_RINKEBY,
     SECONDARY_SALE_MAINNET,
     SECONDARY_SALE_RINKEBY
-} from "../../utils/KODAV3";
+} from "./KODAV3";
 
 import * as platformConfig from "../../services/PlatformConfig.factory";
 import * as offerService from "../../services/Offers.service";
@@ -85,7 +85,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            let maybeEdition = Edition.load(artist.firstEdition);
+            let maybeEdition = Edition.load(artist.firstEdition as string);
             editionEntity.isGenesisEdition = maybeEdition != null
               ? BigInt.fromString(editionEntity.editionNmber).equals(BigInt.fromString(maybeEdition.editionNmber))
               : false
@@ -245,26 +245,28 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             //     tokenEntity.isListed ? 'TRUE' : 'FALSE'
             // ]);
 
-            let listing = store.get("ListedToken", tokenEntity.listing) as ListedToken;
+            if(tokenEntity.listing) {
+                let listing = store.get("ListedToken", tokenEntity.listing as string) as ListedToken;
 
-            // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
-            if (listing !== null) {
+                // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
+                if (listing !== null) {
 
-                // Disable listing
-                tokenEntity.isListed = false;
+                    // Disable listing
+                    tokenEntity.isListed = false;
 
-                // Set flag to signify force withdrawal possible
-                listing.reserveAuctionCanEmergencyExit = true
-                listing.save()
+                    // Set flag to signify force withdrawal possible
+                    listing.reserveAuctionCanEmergencyExit = true
+                    listing.save()
 
-                triggerredForceWithdrawalFrom = true;
+                    triggerredForceWithdrawalFrom = true;
 
-                log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
-                    tokenId.toString(),
-                    listing.reserveAuctionBidder.toHexString(),
-                    from.toHexString(),
-                    to.toHexString(),
-                ]);
+                    log.warning("Force withdrawal triggerred for token {} | bidder {} | seller {} | new owner {}", [
+                        tokenId.toString(),
+                        listing.reserveAuctionBidder.toHexString(),
+                        from.toHexString(),
+                        to.toHexString(),
+                    ]);
+                }
             }
         }
 
@@ -279,8 +281,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.openOffer = null
             tokenEntity.currentTopBidder = null
 
-            // Clear price listing
-            store.remove("ListedToken", tokenId.toString());
+            let listedToken = store.get("ListedToken", tokenId.toString());
+            if(listedToken) {
+                // Clear price listing
+                store.remove("ListedToken", tokenId.toString());
+            }
         }
 
         // Persist
@@ -299,32 +304,55 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         // Handle transfer //
         /////////////////////
 
-        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to, from, event.transaction.value);
+        let transferValue = event.transaction.value;
 
         // If we see a msg.value record it as a sale
         if (event.transaction.value.gt(ZERO)) {
-            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(2));
+            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
             tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
             tokenEntity.save();
+        } else {
+            // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+            let receipt = event.receipt;
+            if(receipt && receipt.logs.length > 0) {
+                let eventLogs = receipt.logs;
+                for (let index = 0; index < eventLogs.length; index++) {
+                    let eventLog = eventLogs[index];
+                    let eventAddress = eventLog.address.toHexString();
+                    if (isWETHAddress(eventAddress)) {
+                        let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                        transferValue = wethTradeValue;
+
+                        let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                        tokenEntity.save();
+                        break;
+                    }
+                }
+            }
         }
+
+        activityEventService.recordTransfer(event, tokenEntity, editionEntity, to, from, transferValue);
 
         //////////////////////////////////////////////////////////////////////////////////
         // Everytime a transfer is made we work out burns, mints, available, unsold etc //
         //////////////////////////////////////////////////////////////////////////////////
 
         // work out how many have been burnt vs issued
-        // @ts-ignore
-        let totalBurnt: i32 = 0;
-        // @ts-ignore
-        for (let i: i32 = 0; i < tokenIds.length; i++) {
-            let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+        let totalBurnt = 0;
+        for (let i = 0; i < tokenIds.length; i++) {
+            let tokenId = tokenIds[i as i32];
+            let token = Token.load(tokenId.toString());
             if (token) {
-                const tokenOwner = Address.fromString(token.currentOwner);
+                const currentOwner = token.currentOwner;
+                if(currentOwner) {
+                    const tokenOwner = Address.fromString(currentOwner);
 
-                // Either zero address or dead address we classify  as burns
-                if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
-                    // record total burnt tokens
-                    totalBurnt = totalBurnt + 1
+                    // Either zero address or dead address we classify  as burns
+                    if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
+                        // record total burnt tokens
+                        totalBurnt = totalBurnt + 1
+                    }
                 }
             }
         }
@@ -501,6 +529,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
+    if(!items) items = new Array<string>();
     items.push(item.id.toString());
     composable.items = items;
     composable.save()
@@ -595,6 +624,7 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
+    if(!items) items = new Array<string>();
     items.push(item.id.toString());
     composable.items = items;
     composable.save()

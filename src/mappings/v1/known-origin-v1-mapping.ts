@@ -2,17 +2,16 @@ import {
     Transfer,
     KnownOriginV1,
     PurchasedWithEther,
-} from "../../generated/KnownOriginV1/KnownOriginV1"
+} from "../../../generated/KnownOriginV1/KnownOriginV1"
 
 import {
     recordDayTransfer, recordDayValue,
-} from "../services/Day.service";
-import {addPrimarySaleToCollector} from "../services/Collector.service";
+} from "../../services/Day.service";
+import {addPrimarySaleToCollector} from "../../services/Collector.service";
 import {log} from "@graphprotocol/graph-ts/index";
-import {recordArtistValue} from "../services/Artist.service";
-import {getArtistAddress} from "../services/AddressMapping.service";
+import {recordArtistValue} from "../../services/Artist.service";
+import {getArtistAddress} from "../../services/AddressMapping.service";
 
-// FIXME KODA v1 needs full integration
 export function handlePurchase(event: PurchasedWithEther): void {
     log.info("KO V1 handlePurchase() called for event address {}", [event.address.toHexString()]);
 

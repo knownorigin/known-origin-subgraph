@@ -5,27 +5,27 @@ import {
     BidWithdrawn,
     AuctionDisabled,
     AuctionEnabled
-} from "../../generated/TokenMarketplace/TokenMarketplace";
+} from "../../../generated/TokenMarketplace/TokenMarketplace";
 
 import { Address, BigInt } from "@graphprotocol/graph-ts/index";
 
-import {TokenOffer} from "../../generated/schema";
+import {TokenOffer} from "../../../generated/schema";
 
-import * as KodaVersions from "../utils/KodaVersions";
+import * as KodaVersions from "../../utils/KodaVersions";
 
-import {ONE} from "../utils/constants";
-import {toEther} from "../utils/utils";
+import {ONE} from "../../utils/constants";
+import {toEther} from "../../utils/utils";
 
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
 
-import * as editionService from "../services/Edition.service";
-import * as tokenService from "../services/Token.service";
-import * as tokenEventFactory from "../services/TokenEvent.factory";
-import * as collectorService from "../services/Collector.service";
-import * as dayService from "../services/Day.service";
-import * as offerService from "../services/Offers.service";
-import * as activityEventService from "../services/ActivityEvent.service";
-import * as artistService from "../services/Artist.service";
+import * as editionService from "../../services/Edition.service";
+import * as tokenService from "../../services/Token.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as collectorService from "../../services/Collector.service";
+import * as dayService from "../../services/Day.service";
+import * as offerService from "../../services/Offers.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as artistService from "../../services/Artist.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
