@@ -47,4 +47,4 @@ jobs:
         run: yarn build
 
       - name: Test
-        run: yarn test-docker
+        run: yarn test
