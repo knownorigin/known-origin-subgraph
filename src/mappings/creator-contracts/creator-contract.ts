@@ -561,7 +561,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     collective.save()
 
-    edition.collective = editionFundsHandler
+    edition.collective = collective.id.toString()
     edition.save()
 
     activityEventService.recordCCEditionFundsHandlerUpdated(
