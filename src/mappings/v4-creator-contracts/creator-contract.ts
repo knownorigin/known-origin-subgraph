@@ -598,12 +598,12 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
     }
 
-    collective.recipients = creatorContractEntity.defaultFundsRecipients
-    collective.splits = creatorContractEntity.defaultFundsShares
+    collective.recipients = defaultFundsRecipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
+    collective.splits = defaultFundsShares
 
     collective.save()
 
-    edition.collective = editionFundsHandler
+    edition.collective = collective.id.toString()
     edition.save()
 
     activityEventService.recordCCEditionFundsHandlerUpdated(
