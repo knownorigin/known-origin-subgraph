@@ -548,10 +548,6 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         let totalRecipients = maybeTotalRecipientsResult.value
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
-            log.error("share 1 [{}], share 3 [{}]", [
-                share.value0.toHexString(),
-                share.value1.toHexString(),
-            ]);
             defaultFundsRecipients.push(share.value0)
             defaultFundsShares.push(share.value1)
         }
