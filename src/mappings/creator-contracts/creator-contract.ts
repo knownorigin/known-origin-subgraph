@@ -520,14 +520,6 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let creatorContractEntity = CreatorContract.load(event.address.toHexString())
     let editionFundsHandler = event.params._handler.toHexString();
 
-    log.error("event.address", [
-        event.address.toHexString()
-    ]);
-
-    log.error("editionFundsHandler", [
-        editionFundsHandler
-    ]);
-
     let collective = Collective.load(editionFundsHandler);
 
     if (collective == null) {
@@ -549,44 +541,34 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let maybeFundsHandlerContract = FundsHandler.bind(event.params._handler)
     let maybeTotalRecipientsResult = maybeFundsHandlerContract.try_totalRecipients()
 
-    log.error("maybeTotalRecipientsResult.reverted", [
-        maybeTotalRecipientsResult.reverted as string
-    ]);
-
     let defaultFundsRecipients = new Array<Bytes>()
     let defaultFundsShares = new Array<BigInt>()
 
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
-
-        log.error("Inside if block", [
-            'here'
-        ]);
-
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
+            log.error("share 1 [{}], share 3 [{}]", [
+                share.value0.toHexString(),
+                share.value1.toHexString(),
+            ]);
             defaultFundsRecipients.push(share.value0)
             defaultFundsShares.push(share.value1)
         }
     } else {
-
-        log.error("Inside else block", [
-            'here'
-        ]);
-
         defaultFundsRecipients.push(event.params._handler)
         defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
     }
 
-    collective.recipients = creatorContractEntity.defaultFundsRecipients
-    collective.splits = creatorContractEntity.defaultFundsShares
+    collective.recipients = defaultFundsRecipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
+    collective.splits = defaultFundsShares
 
     collective.save()
 
     edition.collective = collective.id.toString()
 
-    log.error("edition.collective", [
-        edition.collective as string
+    log.error("edition.collective [{}]", [
+        edition.collective.toString()
     ]);
 
     edition.save()
