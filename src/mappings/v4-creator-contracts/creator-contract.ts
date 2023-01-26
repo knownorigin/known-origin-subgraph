@@ -64,7 +64,7 @@ import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
-import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
@@ -133,7 +133,7 @@ export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [
         event.address.toHexString(),
         event.params.tokenId.toString()
-   ]);
+    ]);
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
@@ -299,7 +299,7 @@ export function handleTransfer(event: Transfer): void {
         } else {
             // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
             let receipt = event.receipt;
-            if(receipt && receipt.logs.length > 0) {
+            if (receipt && receipt.logs.length > 0) {
                 let eventLogs = receipt.logs;
                 for (let index = 0; index < eventLogs.length; index++) {
                     let eventLog = eventLogs[index];
@@ -377,28 +377,34 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
-   log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
+    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
 
-   let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
-   let edition = loadOrCreateV4Edition(
-     event.params._editionId,
-     event.block,
-     event.address,
-     contractEntity.isHidden
-   );
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract;
+    let edition = loadOrCreateV4Edition(
+        event.params._editionId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    );
 
-   edition.startDate = event.params._startDate;
-   edition.priceInWei = event.params._price;
-   edition.salesType = SaleTypes.BUY_NOW;
+    const editionListing = creatorContractInstance.editionListing(BigInt.fromString(edition.editionNmber))
 
-   edition.save();
+    // Check whether we're looking at an open edition
+    edition.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(edition.editionNmber));
+    edition.startDate = event.params._startDate;
+    edition.endDate = editionListing.value2
+    edition.priceInWei = event.params._price;
+    edition.salesType = edition.isOpenEdition ? SaleTypes.OPEN_EDITION_BUY_NOW : SaleTypes.BUY_NOW;
 
-   activityEventService.recordCCListedEditionForBuyNow(
-     event.address.toHexString(),
-     edition.id,
-     event,
-     edition
-   );
+    edition.save();
+
+    activityEventService.recordCCListedEditionForBuyNow(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    );
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
@@ -681,7 +687,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
 }
 
 export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())  as CreatorContract
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
