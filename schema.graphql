@@ -86,6 +86,7 @@ type ActivityEvent @entity {
     buyer: Bytes                # (nullable) the buyer
     seller: Bytes               # (nullable) the seller
     stakeholderAddresses: [Bytes!]!     # the addresses that interacted during the event
+    contractAddress: Bytes      # the address of the contract
 
     # technicals
     eventValueInWei: BigInt     # (nullable) the WEI value
@@ -340,7 +341,7 @@ type Edition @entity {
     editionType: BigInt! # legacy field from KODA V2
     editionData: Bytes # bytes32 - legacy field from KODA V2 - some additional data about the edition
     creatorContract: CreatorContract # address of creator contract that minted the edition if version 4
-    
+
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 

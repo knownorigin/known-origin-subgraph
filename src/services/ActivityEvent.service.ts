@@ -527,20 +527,6 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
         event.stakeholderAddresses = [event.eventTxFrom]
         event.triggeredBy = event.eventTxFrom
     }
-    else if (event.eventType === "OwnershipTransferred") {
-        event.version = BigInt.fromString("4")
-        event.type = CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
-        event.eventType = type
-        event.edition = null
-        event.seller = ZERO_ADDRESS
-        event.creator = ZERO_ADDRESS
-        event.creatorCommission = ZERO
-        event.collaborator = ZERO_ADDRESS
-        event.collaboratorCommission = ZERO;
-        event.stakeholderAddresses = [ZERO_ADDRESS]
-        event.triggeredBy = event.eventTxFrom
-
-    }
     else {
         event.version = edition ? edition.version : BigInt.fromString("4")
         event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
