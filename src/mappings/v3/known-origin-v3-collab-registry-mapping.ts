@@ -19,12 +19,20 @@ export function handleRoyaltyRecipientCreated(event: RoyaltyRecipientCreated): v
         event.params.deployedHandler.toHexString()
     ]);
     let collective = loadCollective(event.params.deployedHandler.toHexString())
+    log.info("COLLECTIVE SET UP  {}", [collective.id.toString()])
     collective.baseHandler = event.params.handler;
     collective.creator = event.params.creator;
+    log.info("CREATOR SET UP  {}", [collective.creator.toHexString()])
+    log.info("RECIPIENTS PARAMS  {}  {}", [collective.recipients[0].toHexString(), collective.recipients[1].toHexString()])
+
     collective.recipients = event.params.recipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
+    log.info("RECIPIENTS SET UP  {}", [collective.recipients[0].toString()])
+
     collective.splits = event.params.splits;
     collective.createdTimestamp = event.block.timestamp
     collective.transactionHash = event.transaction.hash
+    log.info("TRANSACTION HASH SET UP  {}", [collective.transactionHash.toString()])
+
     collective.isDeployed = true
     collective.save()
 }
