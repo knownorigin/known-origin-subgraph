@@ -25,8 +25,8 @@ export function loadOrCreateListedToken(tokenId: string, edition: Edition): List
         listedToken.metadataArtist = edition.metadataArtist;
         listedToken.metadataArtistAccount = edition.metadataArtistAccount;
         listedToken.metadataTagString = edition.metadataTagString;
-        listedToken.primaryAssetShortType = edition.primaryAssetShortType || "";
-        listedToken.primaryAssetActualType = edition.primaryAssetActualType || "";
+        listedToken.primaryAssetShortType = edition.primaryAssetShortType ? edition.primaryAssetShortType as string : "";
+        listedToken.primaryAssetActualType = edition.primaryAssetActualType ? edition.primaryAssetActualType as string : "";
 
         // Reserve auction fields
         listedToken.reserveAuctionSeller = ZERO_ADDRESS

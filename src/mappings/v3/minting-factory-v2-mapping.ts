@@ -48,7 +48,7 @@ function editionMinted(event: ethereum.Event, editionId: BigInt): void {
     let mintingConfig = mintingFactory.currentMintConfig(artistAccount);
 
     // update the current known minting rules state
-    let config = ArtistMintingConfig.load(artistEntity.mintingConfig)
+    let config = ArtistMintingConfig.load(artistEntity.mintingConfig) as ArtistMintingConfig
     config.mints = mintingConfig.value0;
     config.firstMintInPeriod = mintingConfig.value1;
     config.save()
@@ -84,7 +84,7 @@ export function handleAdminFrequencyOverrideChanged(event: AdminFrequencyOverrid
     let artistEntity = artistService.loadOrCreateArtist(event.params._account);
     artistEntity.save()
 
-    const config = ArtistMintingConfig.load(artistEntity.mintingConfig)
+    const config = ArtistMintingConfig.load(artistEntity.mintingConfig) as ArtistMintingConfig
     config.frequencyOverride = event.params._override;
     config.save()
 }

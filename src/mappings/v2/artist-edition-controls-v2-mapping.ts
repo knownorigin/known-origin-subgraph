@@ -1,16 +1,16 @@
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
 
-import {MAX_UINT_256} from "../utils/constants";
+import {MAX_UINT_256} from "../../utils/constants";
 import {BigInt, log, ethereum} from "@graphprotocol/graph-ts/index";
-import {PriceChanged, EditionGifted} from "../../generated/ArtistEditionControlsV2/ArtistEditionControlsV2";
-import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
+import {PriceChanged, EditionGifted} from "../../../generated/ArtistEditionControlsV2/ArtistEditionControlsV2";
+import {KnownOriginV2} from "../../../generated/KnownOriginV2/KnownOriginV2";
 
-import * as activityEventService from "../services/ActivityEvent.service";
-import * as tokenService from "../services/Token.service";
-import * as editionService from "../services/Edition.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as tokenService from "../../services/Token.service";
+import * as editionService from "../../services/Edition.service";
 
-import {Edition} from "../../generated/schema";
-import * as SaleTypes from "../utils/SaleTypes";
+import {Edition} from "../../../generated/schema";
+import * as SaleTypes from "../../utils/SaleTypes";
 
 export function handlePriceChangedEvent(event: PriceChanged): void {
     log.info("handlePriceChangedEvent() for edition [{}]", [event.params._editionNumber.toString()]);

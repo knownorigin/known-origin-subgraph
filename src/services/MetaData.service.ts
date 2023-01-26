@@ -1,6 +1,7 @@
 import {Bytes, ipfs, json, JSONValue, JSONValueKind} from "@graphprotocol/graph-ts";
 import {MetaData} from "../../generated/schema";
 import {BigInt, log, Result} from "@graphprotocol/graph-ts/index";
+import { TypedMap } from "@graphprotocol/graph-ts/common/collections";
 
 
 // Static list of manual overrides
@@ -29,29 +30,31 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
             // Do something with the JSON value
             let jsonData = result.value;
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('name')) {
+            const jsonObject = jsonData.toObject();
+
+            if (isObject(jsonData) && jsonObject.isSet('name')) {
                 // @ts-ignore
-                metaData.name = jsonData.toObject().get('name').toString()
+                metaData.name = jsonObject.mustGet('name').toString()
             } else {
                 metaData.name = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('description')) {
+            if (isObject(jsonData) && jsonObject.isSet('description')) {
                 // @ts-ignore
-                metaData.description = jsonData.toObject().get('description').toString()
+                metaData.description = jsonObject.mustGet('description').toString()
             } else {
                 metaData.description = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('image')) {
+            if (isObject(jsonData) && jsonObject.isSet('image')) {
                 // @ts-ignore
-                metaData.image = jsonData.toObject().get('image').toString()
+                metaData.image = jsonObject.mustGet('image').toString()
             } else {
                 metaData.image = ""
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('animation_url')) {
-                let animation_url: JSONValue | null = jsonData.toObject().get('animation_url');
+            if (isObject(jsonData) && jsonObject.isSet('animation_url')) {
+                let animation_url: JSONValue | null = jsonObject.get('animation_url');
                 if (animation_url) {
                     let isNull: boolean = (animation_url as JSONValue).isNull();
                     if (!isNull) {
@@ -61,8 +64,8 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('image_sphere')) {
-                let image_sphere: JSONValue | null = jsonData.toObject().get('image_sphere');
+            if (isObject(jsonData) && jsonObject.isSet('image_sphere')) {
+                let image_sphere: JSONValue | null = jsonObject.get('image_sphere');
                 if (image_sphere) {
                     let isNull: boolean = (image_sphere as JSONValue).isNull();
                     if (!isNull) {
@@ -72,8 +75,8 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 }
             }
 
-            if (isObject(jsonData) && jsonData.toObject().isSet('attributes')) {
-                let attributes: JSONValue = jsonData.toObject().get('attributes') as JSONValue;
+            if (isObject(jsonData) && jsonObject.isSet('attributes')) {
+                let attributes: JSONValue = jsonObject.get('attributes') as JSONValue;
 
                 ///////////////////////////////
                 // Artist, scarcity and tags //
@@ -81,18 +84,18 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
 
                 if (isObject(attributes) && attributes.toObject().isSet('scarcity')) {
                     // @ts-ignore
-                    metaData.scarcity = attributes.toObject().get('scarcity').toString()
+                    metaData.scarcity = attributes.toObject().mustGet('scarcity').toString()
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet('artist')) {
                     // @ts-ignore
-                    metaData.artist = attributes.toObject().get('artist').toString()
+                    metaData.artist = attributes.toObject().mustGet('artist').toString()
                 }
 
                 if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
                     let rawProductionYear: JSONValue | null = attributes.toObject().get('production_year');
                     let isNull: boolean = (rawProductionYear as JSONValue).isNull();
-                    if (!isNull) {
+                    if (rawProductionYear && !isNull) {
                         // @ts-ignore
                         metaData.production_year = rawProductionYear.toString()
                     }
@@ -101,7 +104,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (isObject(attributes) && attributes.toObject().isSet('format')) {
                     let rawFormat: JSONValue | null = attributes.toObject().get('format');
                     let isNull: boolean = (rawFormat as JSONValue).isNull();
-                    if (!isNull) {
+                    if (rawFormat && !isNull) {
                         // @ts-ignore
                         metaData.format = rawFormat.toString()
                     }
@@ -110,7 +113,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (isObject(attributes) && attributes.toObject().isSet('theme')) {
                     let rawTheme: JSONValue | null = attributes.toObject().get('theme');
                     let isNull: boolean = (rawTheme as JSONValue).isNull();
-                    if (!isNull) {
+                    if (rawTheme && !isNull) {
                         // @ts-ignore
                         metaData.theme = rawTheme.toString()
                     }
@@ -119,7 +122,7 @@ function loadIpfsData(tokenURI: string, ipfsHash: string): MetaData | null {
                 if (isObject(attributes) && attributes.toObject().isSet('nsfw')) {
                     let rawNsfw: JSONValue | null = attributes.toObject().get('nsfw');
                     let isNull: boolean = (rawNsfw as JSONValue).isNull();
-                    if (!isNull) {
+                    if (rawNsfw && !isNull) {
                         // @ts-ignore
                         metaData.nsfw = rawNsfw.toBool()
                     }
@@ -239,7 +242,7 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         if (metaData) {
 
             if (metaData.artist) {
-                metaData.artist = artistOverrides(editionNumber, metaData.artist);
+                metaData.artist = artistOverrides(editionNumber, metaData.artist as string);
             }
 
             return metaData as MetaData;

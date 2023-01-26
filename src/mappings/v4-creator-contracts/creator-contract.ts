@@ -32,7 +32,8 @@ import {
     CreatorContract,
     Edition,
     Collective,
-    CreatorContractSetting, Token,
+    CreatorContractSetting,
+    Token,
 } from "../../../generated/schema"
 
 import {
@@ -63,11 +64,12 @@ import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
 import {toEther} from "../../utils/utils";
-import {DEAD_ADDRESS, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
-import {createV4Id} from "../../utils/KODAV4"
+import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import {createV4Id} from "./KODAV4"
+import * as tokenService from "../../services/Token.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
     editionEntity.active = event.params._disabled;
     editionEntity.save()
@@ -81,7 +83,7 @@ export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpd
 }
 
 export function handleEditionURIUpdated(event: EditionURIUpdated): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
 
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
@@ -102,7 +104,7 @@ export function handleEditionURIUpdated(event: EditionURIUpdated): void {
 }
 
 export function handlePaused(event: Paused): void {
-    let entity = CreatorContract.load(event.address.toHexString());
+    let entity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     entity.paused = true;
     entity.save();
 
@@ -115,7 +117,7 @@ export function handlePaused(event: Paused): void {
 }
 
 export function handleUnpaused(event: Unpaused): void {
-    let entity = CreatorContract.load(event.address.toHexString());
+    let entity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     entity.paused = false;
     entity.save();
 
@@ -134,7 +136,7 @@ export function handleTransfer(event: Transfer): void {
    ]);
 
     // Extract params for processing
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let editionId = creatorContractInstance.tokenEditionId(event.params.tokenId)
     let isNewEdition = Edition.load(createV4Id(event.address.toHexString(), editionId.toString())) == null
@@ -203,9 +205,12 @@ export function handleTransfer(event: Transfer): void {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
         tokenEntity.currentOwner = event.params.to.toString()
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
-        tokenEntity.save()
 
-        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, event.transaction.value);
+        // Update counters and timestamps
+        tokenEntity.lastTransferTimestamp = event.block.timestamp
+        tokenEntity.transferCount = tokenEntity.transferCount.plus(ONE)
+
+        tokenEntity.save()
 
         /////////////////
         // Collectors //
@@ -281,7 +286,38 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.totalNumOfTransfers = contractEntity.totalNumOfTransfers.plus(ONE);
 
         // Token Events
-        tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, event.params.from, event.params.to);
+        let tokenTransferEvent = tokenEventFactory.createTokenTransferEvent(event, tokenEntity.id, event.params.from, event.params.to);
+        tokenTransferEvent.save();
+
+        let transferValue = event.transaction.value;
+
+        // If we see a msg.value record it as a sale
+        if (event.transaction.value.gt(ZERO)) {
+            const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+            tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
+            tokenEntity.save();
+        } else {
+            // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+            let receipt = event.receipt;
+            if(receipt && receipt.logs.length > 0) {
+                let eventLogs = receipt.logs;
+                for (let index = 0; index < eventLogs.length; index++) {
+                    let eventLog = eventLogs[index];
+                    let eventAddress = eventLog.address.toHexString();
+                    if (isWETHAddress(eventAddress)) {
+                        let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
+                        transferValue = wethTradeValue;
+
+                        let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
+                        tokenEntity.save();
+                        break;
+                    }
+                }
+            }
+        }
+
+        activityEventService.recordTransfer(event, tokenEntity, edition, event.params.from, event.params.to, transferValue);
     }
 
     /////////////////////////////////////////////////////
@@ -295,9 +331,9 @@ export function handleTransfer(event: Transfer): void {
     let totalBurnt: i32 = 0;
     // @ts-ignore
     for (let i: i32 = 0; i < tokenIds.length; i++) {
-        let token = store.get("Token", tokenIds[i].toString()) as Token | null;
+        let token = Token.load(tokenIds[i].toString())
         if (token) {
-            const tokenOwner = Address.fromString(token.currentOwner);
+            const tokenOwner = Address.fromString(token.currentOwner as string);
             // Either zero address or dead address we classify  as burns
             if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
                 // record total burnt tokens
@@ -343,7 +379,7 @@ export function handleTransfer(event: Transfer): void {
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
 
-   let contractEntity = CreatorContract.load(event.address.toHexString());
+   let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
    let edition = loadOrCreateV4Edition(
      event.params._editionId,
      event.block,
@@ -366,7 +402,7 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._editionId,
         event.block,
@@ -389,7 +425,7 @@ export function handleBuyNowDeListed(event: BuyNowDeListed): void {
 }
 
 export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._editionId,
         event.block,
@@ -401,7 +437,7 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 
     activityEventService.recordPriceChanged(event, edition, event.params._price);
 
-    activityEventService.recordCCBuyNowDeListed(
+    activityEventService.recordCCBuyNowPriceChanged(
         event.address.toHexString(),
         edition.id,
         event,
@@ -411,7 +447,7 @@ export function handleBuyNowPriceChanged(event: BuyNowPriceChanged): void {
 
 export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     // Update creator contract stats
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold.plus(ONE)
     contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH))
     contractEntity.save()
@@ -459,7 +495,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
     recordDayIssued(event, event.params._tokenId);
 
     // Update artist stats
-    let kodaSettings = CreatorContractSetting.load('settings')
+    let kodaSettings = CreatorContractSetting.load('settings') as CreatorContractSetting
     let platformProceedsOfSale = (event.params._price.times(kodaSettings.platformPrimaryCommission)).div(kodaSettings.MODULO)
     let artistShareOfETHInWei = event.params._price.minus(platformProceedsOfSale)
     recordArtistValue(creator, tokenEntity.id, event.params._price, artistShareOfETHInWei, true);
@@ -469,7 +505,7 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
-    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     creatorContractEntity.owner = event.params.newOwner
     creatorContractEntity.save()
 
@@ -481,11 +517,11 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
 }
 
 export function handleSecondaryRoyaltyUpdated(event: DefaultRoyaltyPercentageUpdated): void {
-    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     creatorContractEntity.secondaryRoyaltyPercentage = event.params._percentage
     creatorContractEntity.save()
 
-    activityEventService.recordCCOwnershipTransferred(
+    activityEventService.recordCCDefaultRoyaltyPercentageUpdated(
         event.address.toHexString(),
         event.address.toHexString(),
         event
@@ -509,7 +545,7 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
 }
 
 export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpdated): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._editionId,
         event.block,
@@ -517,7 +553,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         contractEntity.isHidden
     )
 
-    let creatorContractEntity = CreatorContract.load(event.address.toHexString())
+    let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let editionFundsHandler = event.params._handler.toHexString();
 
     let collective = Collective.load(editionFundsHandler);
@@ -576,7 +612,7 @@ export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
     let entityId = event.params._tokenId.toString() + '-' + event.address.toHexString();
 
     // Create listed token
-    let contractEntity = CreatorContract.load(event.address.toHexString());
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
         event.block,
@@ -616,7 +652,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
     let entityId = event.params._tokenId.toString() + '-' + event.address.toHexString();
     store.remove("ListedToken", entityId);
 
-    let contractEntity = CreatorContract.load(event.address.toHexString());
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
 
     let edition = loadOrCreateV4EditionFromTokenId(
@@ -645,7 +681,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
 }
 
 export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString());
+    let contractEntity = CreatorContract.load(event.address.toHexString())  as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,
@@ -677,7 +713,7 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     store.remove("ListedToken", entityId);
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
 
-    let contractEntity = CreatorContract.load(event.address.toHexString());
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract;
     contractEntity.totalNumOfTokensSold = contractEntity.totalNumOfTokensSold.plus(ONE)
     contractEntity.totalEthValueOfSales = contractEntity.totalEthValueOfSales.plus(BigDecimal.fromString(event.params._price.toString()).div(ONE_ETH))
     contractEntity.save()
@@ -708,10 +744,10 @@ export function handleBuyNowTokenPurchased(event: BuyNowTokenPurchased): void {
     recordDayIssued(event, event.params._tokenId);
 
     // Update artist stats
-    let kodaSettings = CreatorContractSetting.load('settings')
+    let kodaSettings = CreatorContractSetting.load('settings') as CreatorContractSetting
     let platformProceedsOfSale = (event.params._price.times(kodaSettings.platformSecondaryCommission)).div(kodaSettings.MODULO)
     let artistShareOfETHInWei = event.params._price.minus(platformProceedsOfSale)
-    recordArtistValue(tokenEntity.artistAccount as Address, entityId, event.params._price, artistShareOfETHInWei, false);
+    recordArtistValue(tokenEntity.artistAccount, entityId, event.params._price, artistShareOfETHInWei, false);
 
     // Update token events
     tokenEventFactory.createTokenSecondaryPurchaseEvent(

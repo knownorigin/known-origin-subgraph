@@ -1,12 +1,12 @@
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
-import {EditionDeactivated, EditionSupplyReduced} from "../../generated/ArtistEditionBurner/ArtistEditionBurner";
-import {ONE, ZERO} from "../utils/constants";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
+import {EditionDeactivated, EditionSupplyReduced} from "../../../generated/ArtistEditionBurner/ArtistEditionBurner";
+import {ONE, ZERO} from "../../utils/constants";
 import {Address, log} from "@graphprotocol/graph-ts/index";
 
-import {isEditionBurnt} from "../services/burnt-editions";
+import {isEditionBurnt} from "../../services/burnt-editions";
 
-import * as editionService from "../services/Edition.service";
-import * as artistService from "../services/Artist.service";
+import * as editionService from "../../services/Edition.service";
+import * as artistService from "../../services/Artist.service";
 
 export function handleEditionDeactivatedEvent(event: EditionDeactivated): void {
     log.info("handleEditionDeactivatedEvent() for edition [{}] with address [{}]", [

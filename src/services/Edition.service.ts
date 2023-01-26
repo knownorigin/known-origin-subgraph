@@ -3,7 +3,7 @@ import {KnownOriginV2, KnownOriginV2__detailsOfEditionResult} from "../../genera
 import {ERC721KODACreatorWithBuyItNow} from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {Edition} from "../../generated/schema";
 import {MAX_UINT_256, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createV4Id} from "../utils/KODAV4"
+import {createV4Id} from "../mappings/v4-creator-contracts/KODAV4"
 import {constructMetaData} from "./MetaData.service";
 import {getArtistAddress} from "./AddressMapping.service";
 import {isEditionBurnt} from "./burnt-editions";
@@ -96,17 +96,19 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
                 metaData.save()
                 editionEntity.metadata = metaData.id
 
-                editionEntity.metadataName = metaData.name ? metaData.name : ''
-                editionEntity.metadataArtist = metaData.artist ? metaData.artist : ''
+                editionEntity.metadataName = metaData.name ? metaData.name as string : ''
+                editionEntity.metadataArtist = metaData.artist ? metaData.artist as string : ''
                 editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
                 if (metaData.image_type) {
-                    let types = splitMimeType(metaData.image_type)
+                    let types = splitMimeType(metaData.image_type as string)
                     editionEntity.primaryAssetShortType = types.primaryAssetShortType
                     editionEntity.primaryAssetActualType = types.primaryAssetActualType
                 }
                 editionEntity.hasCoverImage = metaData.cover_image !== null;
-                if (metaData.tags != null && metaData.tags.length > 0) {
-                    editionEntity.metadataTagString = metaData.tags.toString()
+                if (metaData.tags) {
+                    if ((metaData.tags as Array<string>).length > 0) {
+                        editionEntity.metadataTagString = (metaData.tags as Array<string>).toString();
+                    }
                 }
             }
         } else {
@@ -251,17 +253,17 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
             editionEntity.metadata = metaData.id
             editionEntity.metadataFormat = metaData.format
             editionEntity.metadataTheme = metaData.theme
-            editionEntity.metadataName = metaData.name ? metaData.name : ""
-            editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+            editionEntity.metadataName = metaData.name ? metaData.name as string : ""
+            editionEntity.metadataArtist = metaData.artist ? metaData.artist as string : ""
             editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
             if (metaData.image_type) {
-                let types = splitMimeType(metaData.image_type)
+                let types = splitMimeType(metaData.image_type as string)
                 editionEntity.primaryAssetShortType = types.primaryAssetShortType
                 editionEntity.primaryAssetActualType = types.primaryAssetActualType
             }
             editionEntity.hasCoverImage = metaData.cover_image !== null;
-            if (metaData.tags != null && metaData.tags.length > 0) {
-                editionEntity.metadataTagString = metaData.tags.toString()
+            if (metaData.tags != null && (metaData.tags as Array<string>).length > 0) {
+                editionEntity.metadataTagString = (metaData.tags as Array<string>).toString()
             }
 
 
@@ -326,17 +328,17 @@ export function populateEditionMetadata(editionEntity: Edition, _editionId: stri
         editionEntity.metadata = metaData.id
         editionEntity.metadataFormat = metaData.format
         editionEntity.metadataTheme = metaData.theme
-        editionEntity.metadataName = metaData.name ? metaData.name : ""
-        editionEntity.metadataArtist = metaData.artist ? metaData.artist : ""
+        editionEntity.metadataName = metaData.name ? metaData.name as string : ""
+        editionEntity.metadataArtist = metaData.artist ? metaData.artist as string : ""
         editionEntity.metadataArtistAccount = editionEntity.artistAccount.toHexString()
         if (metaData.image_type) {
-            let types = splitMimeType(metaData.image_type)
+            let types = splitMimeType(metaData.image_type as string)
             editionEntity.primaryAssetShortType = types.primaryAssetShortType
             editionEntity.primaryAssetActualType = types.primaryAssetActualType
         }
         editionEntity.hasCoverImage = metaData.cover_image !== null;
-        if (metaData.tags != null && metaData.tags.length > 0) {
-            editionEntity.metadataTagString = metaData.tags.toString()
+        if (metaData.tags != null && (metaData.tags as Array<string>).length > 0) {
+            editionEntity.metadataTagString = (metaData.tags as Array<string>).toString()
         }
     }
 }

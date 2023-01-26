@@ -27,3 +27,7 @@ generated
 generated/*
 build
 build/*
+/tests/.bin/
+/tests/.latest.json
+/path/
+tests/.docker/

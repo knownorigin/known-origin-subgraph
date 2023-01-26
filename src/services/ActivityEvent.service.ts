@@ -421,7 +421,7 @@ function createGatedId(type: string, saleId: string, phaseId: string, editionId:
         .concat(event.logIndex.toString());
 }
 
-function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): ActivityEvent {
+function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
     event.version = edition.version

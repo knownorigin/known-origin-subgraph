@@ -105,7 +105,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
         event.params._id.toString(),
         biggestTokenId.toString(),
-        listedToken.seriesNumber.toString(),
+        (listedToken.seriesNumber as BigInt).toString(),
         edition.totalAvailable.toString(),
         edition.totalSupply.toString()
     ]);
@@ -139,7 +139,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
         let edition = Edition.load(token.edition) as Edition
-        activityEventService.recordSecondaryTokenDeListed(event, token, Address.fromString(token.currentOwner), edition)
+        activityEventService.recordSecondaryTokenDeListed(event, token, Address.fromString(token.currentOwner as string), edition)
     }
 
     token.save()
@@ -345,7 +345,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
 
     // Ensure approval is checked during listing
-    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner as string), event.address)
 
     let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
     let listingSeller = reserveAuction.value0
@@ -583,7 +583,7 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     listedToken.listPrice = toEther(event.params._listingPrice)
 
     // Ensure approval is checked
-    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner), event.address)
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner as string), event.address)
 
     _clearReserveAuctionFields(listedToken)
     listedToken.save()
