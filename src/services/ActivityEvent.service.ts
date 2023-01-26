@@ -513,17 +513,33 @@ function createCreatorContractEventId(address: string, id: string, event: ethere
 function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereum.Event, edition: Edition | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
-    event.version = edition ? edition.version : BigInt.fromString("4")
-    event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
-    event.eventType = type
-    event.edition = edition ? edition.id : null
-    event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
-    event.creator = edition ? edition.artistAccount : ZERO_ADDRESS
-    event.creatorCommission = ZERO
-    event.collaborator = ZERO_ADDRESS
-    event.collaboratorCommission = edition ? edition.optionalCommissionRate : ZERO;
-    event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS]
-    event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS
+    // check for deployment here if the right eventType
+    if (event.eventType === "CreatorContractDeployed") {
+        event.version = BigInt.fromString("4")
+        event.type = CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.eventType = type
+        event.edition = null
+        event.seller = event.eventTxFrom
+        event.creator = event.eventTxFrom
+        event.creatorCommission = ZERO
+        event.collaborator = ZERO_ADDRESS
+        event.collaboratorCommission = ZERO;
+        event.stakeholderAddresses = [event.eventTxFrom]
+        event.triggeredBy = event.eventTxFrom
+    }
+    else {
+        event.version = edition ? edition.version : BigInt.fromString("4")
+        event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.eventType = type
+        event.edition = edition ? edition.id : null
+        event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
+        event.creator = edition ? edition.artistAccount : ZERO_ADDRESS // eventTxFrom can be used here
+        event.creatorCommission = ZERO
+        event.collaborator = ZERO_ADDRESS
+        event.collaboratorCommission = edition ? edition.optionalCommissionRate : ZERO;
+        event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS] //eventTxFrom can be used here
+        event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS // eventTxFrom can be used here
+    }
 
     event.eventValueInWei = ZERO
 
