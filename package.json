@@ -16,7 +16,8 @@
     "create-local": "graph create --node http://localhost:8020/ knownorigin/known-origin",
     "remove-local": "graph remove --node http://localhost:8020/ knownorigin/known-origin",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 knownorigin/known-origin",
-    "test": "graph test"
+    "test": "graph test",
+    "test-docker": "graph test --docker"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.30.4",

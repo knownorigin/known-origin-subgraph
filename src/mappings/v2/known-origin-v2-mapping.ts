@@ -36,7 +36,6 @@ import {
 } from "./KODAV2AddressLookup";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as approvalService from "../../services/Approval.service";
-import { WETH } from "../../../generated/KnownOriginV2/WETH";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
