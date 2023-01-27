@@ -514,13 +514,13 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     let event: ActivityEvent = new ActivityEvent(ID);
 
     // check for deployment here if the right eventType
-    if (event.eventType === "CreatorContractDeployed") {
+    if (type === "CreatorContractDeployed") {
         event.version = BigInt.fromString("4")
         event.type = CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
         event.eventType = type
         event.edition = null
-        event.seller = event.eventTxFrom
-        event.creator = event.eventTxFrom
+        event.seller = rawEvent.transaction.from
+        event.creator = rawEvent.transaction.from
         event.creatorCommission = ZERO
         event.collaborator = ZERO_ADDRESS
         event.collaboratorCommission = ZERO;

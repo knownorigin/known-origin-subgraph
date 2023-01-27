@@ -1,4 +1,5 @@
 import { afterEach, clearStore, describe, newMockEvent, test } from "matchstick-as/assembly/index";
+import { log } from "matchstick-as/assembly/log";
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Transfer } from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import { handleTransfer } from "../../../src/mappings/v4-creator-contracts/creator-contract";
@@ -16,6 +17,7 @@ import {
 } from "../entities";
 import * as SaleTypes from "../../../src/utils/SaleTypes";
 import { createV4Id } from "../../../src/mappings/v4-creator-contracts/KODAV4";
+import {ActivityEvent} from "../../../generated/schema";
 
 describe("KODA V4 tests", () => {
 
@@ -183,6 +185,37 @@ describe("KODA V4 tests", () => {
     assert.entityCount(DAY_ENTITY_TYPE, 1);
     assert.entityCount(ACTIVITY_ENTITY_TYPE, 2);
   });
+  test('Contract Deployment ActivityEvent correctly produced',() =>{
+    const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+    const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+    const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
+    const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+    const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+
+    const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
+    const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+    ssEvent.address = KODAV4_FACTORY;
+
+    let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
+
+    createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
+        .returns([
+          defaultPercentage
+        ]);
+
+    createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
+        .reverts();
+    // return this mocked value
+    let mockedActivityEventId = ethereum.Value.fromString("CreatorContract-0x03c839988b379b1c87ea26f72dd37499aa6d947f-DEPLOYMENT-0xe49401d534aa54a06f698f083205e7d9298726d32992fc6f73adcbcb5df41200-322");
+
+    createMockedFunction(KODAV4_FACTORY, "createCreatorContractEventId", "createCreatorContractEventId():(string)")
+        // .withArgs([ethereum.Value.fromString("0x03c839988b379b1c87ea26f72dd37499aa6d947f"), ethereum.Value.fromString("DEPLOYMENT"), ethereum.("DEPLOYMENT")])
+        .returns([mockedActivityEventId]);
+    handleSelfSovereignERC721Deployed(ssEvent);
+
+    assert.fieldEquals(ACTIVITY_ENTITY_TYPE, mockedActivityEventId.toString(), "eventType", 'CreatorContractDeployed')
+    assert.entityCount(ACTIVITY_ENTITY_TYPE, 1)
+  })
 });
 
 export function createTransferEvent(to: string, from: string, tokenId: BigInt): Transfer {
