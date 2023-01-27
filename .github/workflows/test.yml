@@ -1,6 +1,8 @@
 name: Run Matchstick tests
 
-on: [push, pull_request]
+on:
+  workflow_call:
+  pull_request:
 
 env:
   NODE_VERSION: "12.x"
@@ -41,5 +43,5 @@ jobs:
       - name: Run matchstick tests
         run: yarn test
 
-#      - name: Generate code coverage report
-#        run: yarn coverage
+      - name: Generate code coverage report
+        run: yarn coverage
