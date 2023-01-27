@@ -246,7 +246,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             // ]);
 
             if(tokenEntity.listing) {
-                let listing = store.get("ListedToken", tokenEntity.listing as string) as ListedToken;
+                let listing = ListedToken.load(tokenEntity.listing as string);
 
                 // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
                 if (listing !== null) {
@@ -281,7 +281,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.openOffer = null
             tokenEntity.currentTopBidder = null
 
-            let listedToken = store.get("ListedToken", tokenId.toString());
+            let listedToken = ListedToken.load(tokenId.toString());
             if(listedToken) {
                 // Clear price listing
                 store.remove("ListedToken", tokenId.toString());
