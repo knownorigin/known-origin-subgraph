@@ -48,6 +48,8 @@ graph init --from-contract <address> knownorigin/known-origin graph-known-origin
 
 ### Dev cycle
 
+**Requires Node 16 !**
+
 Install
 
 ```bash
@@ -76,7 +78,7 @@ yarn deploy
 
 See: https://thegraph.com/docs/en/developing/unit-testing-framework/
 
-#### Postgres installation required
+#### Postgres' installation required
 
 ```
 brew install postgresql

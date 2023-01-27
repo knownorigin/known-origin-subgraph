@@ -306,7 +306,7 @@ export function handleTokenListed(event: TokenListed): void {
     log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
         event.params._tokenId.toString(),
         biggestTokenId.toString(),
-        listedToken.seriesNumber.toString(),
+        (listedToken.seriesNumber as BigInt).toString(),
         editionEntity.totalAvailable.toString(),
         editionEntity.totalSupply.toString()
     ]);
@@ -345,7 +345,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
         let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
-        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner as string), editionEntity)
     }
 
     tokenEntity.save()
