@@ -26,6 +26,7 @@ import {
 import * as SaleTypes from "../../../src/utils/SaleTypes";
 import {createV4Id} from "../../../src/mappings/v4-creator-contracts/KODAV4";
 import {handleRoyaltyRecipientCreated} from "../../../src/mappings/v3/known-origin-v3-collab-registry-mapping";
+import { FundsHandler__shareAtIndexResult } from "../../../generated/KnownOriginV4Factory/FundsHandler";
 
 describe("KODA V4 tests", () => {
 
@@ -207,43 +208,52 @@ describe("KODA V4 tests", () => {
         assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "creator", fundsHandler);
         assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "baseHandler", collabRegistry);
 
-        // ///////////////////////////
-        // // Setup Contract Object //
-        // ///////////////////////////
-        //
-        // const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
-        // const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
-        // const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
-        //
-        // const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
-        // const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
-        // ssEvent.address = KODAV4_FACTORY;
-        //
-        // let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
-        //
-        // createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
-        //     .returns([
-        //         defaultPercentage
-        //     ]);
-        //
-        // // createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
-        // //     .returns([
-        // //       2
-        // //     ]);
-        //
-        // handleSelfSovereignERC721Deployed(ssEvent);
-        //
-        // ///////////////////////
-        // // Setup Mint Event //
-        // /////////////////////
-        //
-        // // const editionId = BigInt.fromString("100000");
-        // //
-        // // const event = createMintWithCollabEvent(editionId, handler);
-        // // event.address = Address.fromString(selfSovereignNFT);
-        // //
-        // // handleEditionLevelFundSplitterSet(event)
+        ///////////////////////////
+        // Setup Contract Object //
+        ///////////////////////////
 
+        const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+        const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
+        const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+
+        const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+
+        let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
+            .returns([
+                defaultPercentage
+            ]);
+
+        createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
+            .returns([
+              ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(2))
+            ]);
+
+        createMockedFunction(Address.fromString(fundsHandler), "shareAtIndex", "shareAtIndex(uint256):(address,uint256)")
+            .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(0))])
+            .returns([
+                ethereum.Value.fromAddress(Address.fromString(recipients[0])),
+                ethereum.Value.fromUnsignedBigInt(splits[0])
+            ]);
+
+        createMockedFunction(Address.fromString(fundsHandler), "shareAtIndex", "shareAtIndex(uint256):(address,uint256)")
+            .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(1))])
+            .returns([
+                ethereum.Value.fromAddress(Address.fromString(recipients[1])),
+                ethereum.Value.fromUnsignedBigInt(splits[1])
+            ]);
+
+        handleSelfSovereignERC721Deployed(ssEvent);
+
+        assert.entityCount(CREATOR_CONTRACT_ENTITY_TYPE, 1);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "implementation", implementation);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "deployer", deployer);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "creator", artist);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "owner", artist);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "minter", artist);
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "defaultFundsRecipients", "[0x681a7040477be268a4b9a02c5e8263fd9febf0a9, 0xeeb2bc6f52deda185181fc2c310222837440cacd]");
+        assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "defaultFundsShares", "[500000, 500000]");
     })
 });
 

@@ -63,7 +63,6 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
     // Capture the contract global properties so the list of creator contracts can be fetched
     let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
-    let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
     creatorContractEntity.blockNumber = event.block.number;
     creatorContractEntity.timestamp = event.block.timestamp;
     creatorContractEntity.transactionHash = event.transaction.hash;
@@ -85,6 +84,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.totalNumOfTransfers = ZERO
     creatorContractEntity.editions = new Array<string>()
 
+    let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
     // ERC165 interface lookup
@@ -118,7 +118,6 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
     creatorContractEntity.defaultFundsRecipients = defaultFundsRecipients
     creatorContractEntity.defaultFundsShares = defaultFundsShares
-
     creatorContractEntity.save()
 
     // Update the artist
