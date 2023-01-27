@@ -135,11 +135,15 @@ export function handleTransfer(event: Transfer): void {
         event.params.tokenId.toString()
     ]);
 
+    log.info('TO {} FROM {}', [event.params.to.toHexString(), event.params.from.toHexString()])
+
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let editionId = creatorContractInstance.tokenEditionId(event.params.tokenId)
     let isNewEdition = Edition.load(createV4Id(event.address.toHexString(), editionId.toString())) == null
+    log.info('IS NEW EDITION {}', [isNewEdition.toString()])
+
 
     // If the edition has never been seen before, it will be created
     let edition = loadOrCreateV4EditionFromTokenId(
@@ -151,6 +155,7 @@ export function handleTransfer(event: Transfer): void {
 
     // Check whether we're looking at an open edition
     edition.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(edition.editionNmber));
+    log.info('IS OPEN EDITION {}', [edition.isOpenEdition.toString()])
 
     // Determine if default contract owner is the creator or if a creator override has been set
     let owner = creatorContractInstance.owner()
@@ -187,6 +192,7 @@ export function handleTransfer(event: Transfer): void {
     // When we have an open edition from zero address i.e. a primary mint/purchase
     if (event.params.from.equals(ZERO_ADDRESS) && edition.isOpenEdition) {
         edition.totalSupply = edition.totalSupply.plus(ONE);
+        log.info('TOTAL SUPPLY IF HIT {}', [edition.totalSupply.toString()])
     }
 
     // Handle the rest of the non burn specific logic
@@ -199,6 +205,7 @@ export function handleTransfer(event: Transfer): void {
     // const isBurntZeroAddress = event.params.to.equals(ZERO_ADDRESS);
     // const isGiftedToCreator = event.params.to.equals(creator);
     const isBirthToken = event.params.from.equals(ZERO_ADDRESS);
+    log.info('TIS BIRTH TOKEN {} {}', [event.params.from.toHexString(), isBirthToken.toString()])
 
     // If the token is being sold/gifted outside of marketplace (it is not being minted from zero to the edition creator)
     if (!isBirthToken) {
@@ -325,6 +332,8 @@ export function handleTransfer(event: Transfer): void {
     /////////////////////////////////////////////////////
 
     let tokenIds = edition.tokenIds
+    log.info('TOKEN ID LENGTH {}', [edition.tokenIds.length.toString()])
+
 
     // work out how many have been burnt vs issued
     // @ts-ignore
@@ -334,6 +343,8 @@ export function handleTransfer(event: Transfer): void {
         let token = Token.load(tokenIds[i].toString())
         if (token) {
             const tokenOwner = Address.fromString(token.currentOwner as string);
+            log.info('TOKEN OWNER {}', [tokenOwner.toHexString()])
+
             // Either zero address or dead address we classify  as burns
             if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
                 // record total burnt tokens
@@ -344,15 +355,19 @@ export function handleTransfer(event: Transfer): void {
 
     // total supply is the total tokens issued minus the burns
     edition.totalSupply = BigInt.fromI32(edition.tokenIds.length).minus(BigInt.fromI32(totalBurnt))
+    log.info('TOTAL SUPPLY {}', [edition.totalSupply.toString()])
 
     // track the total burns on the edition
     edition.totalBurnt = BigInt.fromI32(totalBurnt)
+    log.info('TOTAL BURNT {}', [edition.totalBurnt.toString()])
 
     // keep these in sync = total supply = edition size & total available = edition size
     edition.totalAvailable = edition.originalEditionSize.minus(BigInt.fromI32(totalBurnt))
+    log.info('TOTAL AVAILABLE {}', [edition.totalAvailable.toString()])
 
     // update the remaining supply based on original size minus issued supply
     edition.remainingSupply = edition.totalAvailable.minus(edition.totalSupply)
+    log.info('TOTAL REMAINING SUPPLY {}', [edition.remainingSupply.toString()])
 
     ///////////
     // Burns //
