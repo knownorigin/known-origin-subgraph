@@ -1,7 +1,15 @@
 import {afterEach, clearStore, describe, newMockEvent, test} from "matchstick-as/assembly/index";
-import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts";
-import {ListedEditionForBuyNow, Transfer} from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
-import {handleListedForBuyItNow, handleTransfer} from "../../../src/mappings/v4-creator-contracts/creator-contract";
+import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts";
+import {
+    ListedEditionForBuyNow,
+    Transfer,
+    BuyNowPurchased
+} from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
+import {
+    handleBuyNowPurchased,
+    handleListedForBuyItNow,
+    handleTransfer
+} from "../../../src/mappings/v4-creator-contracts/creator-contract";
 import {handleSelfSovereignERC721Deployed} from "../../../src/mappings/v4-creator-contracts/factory";
 import {assert, createMockedFunction, mockIpfsFile} from "matchstick-as";
 import {SelfSovereignERC721Deployed} from "../../../generated/KnownOriginV4Factory/KnownOriginV4Factory";
@@ -17,6 +25,8 @@ import {
 import * as SaleTypes from "../../../src/utils/SaleTypes";
 import {createV4Id} from "../../../src/mappings/v4-creator-contracts/KODAV4";
 import {ZERO_ADDRESS} from "../../../src/utils/constants";
+import {PlatformPrimaryCommissionUpdated} from "../../../generated/KODASettings/KODASettings";
+import {CreatorContractSetting} from "../../../generated/schema";
 
 describe("KODA V4 tests", () => {
 
@@ -344,6 +354,16 @@ describe("KODA V4 tests", () => {
 
             handleSelfSovereignERC721Deployed(ssEvent);
 
+            // Create the ContractSettings object
+            let contractSettings = new CreatorContractSetting("settings")
+            contractSettings.platformPrimaryCommission = BigInt.fromI32(100000)
+            contractSettings.platformSecondaryCommission = BigInt.fromI32(25000)
+            contractSettings.MODULO = BigInt.fromI32(100000)
+            contractSettings.factoryContract = Address.fromString(selfSovereignNFT)
+            contractSettings.kodaSalesSettingsContract = Address.fromString("0x89afafb0f3c025b53ce863d02f91faf63d71c1ba")
+            contractSettings.platform = Address.fromString("0xde9e5ee9e7cd43399969cfb1c0e5596778c6464f")
+            contractSettings.save()
+
             ////////////////////////
             // Mint open edition ///
             ////////////////////////
@@ -368,7 +388,6 @@ describe("KODA V4 tests", () => {
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSold", "0");
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSupply", "0");
 
-
             //////////////////////////
             // Setup First Transfer //
             //////////////////////////
@@ -377,9 +396,9 @@ describe("KODA V4 tests", () => {
             const from = ZERO_ADDRESS.toHexString()
             const to = "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7";
 
-            const event = createTransferEvent(to, from, tokenId);
-            event.address = Address.fromString(selfSovereignNFT);
-            event.transaction.value = BigInt.fromString("500000000000000000"); // 0.5 ETH
+            const transferEvent = createTransferEvent(to, from, tokenId);
+            transferEvent.address = Address.fromString(selfSovereignNFT);
+            transferEvent.transaction.value = listingPrice;
 
             const originalCreator = ethereum.Value.fromAddress(Address.fromString(artist));
 
@@ -410,28 +429,48 @@ describe("KODA V4 tests", () => {
                 ]);
 
             // Handle the transfer event
-            handleTransfer(event);
+            handleTransfer(transferEvent);
 
             // Assert entities created
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", "10000");
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "remainingSupply", "9999");
+            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSupply", "1");
+
+            assert.entityCount(COLLECTOR_ENTITY_TYPE, 2);
+            assert.fieldEquals(COLLECTOR_ENTITY_TYPE, from, "address", from);
+            assert.fieldEquals(COLLECTOR_ENTITY_TYPE, to, "address", to);
+
+            const generatedTokenId = createV4Id(selfSovereignNFT, tokenId.toString());
+            assert.entityCount(TOKEN_ENTITY_TYPE, 1);
+            assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "editionNumber", '200000');
+            assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "version", "4");
+            assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "salesType", SaleTypes.OFFERS_ONLY.toString());
+            assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "transferCount", "1");
+
+            assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
+            assert.entityCount(DAY_ENTITY_TYPE, 1);
+            assert.entityCount(ACTIVITY_ENTITY_TYPE, 3);
+
+            ///////////////////
+            // Setup Buy Now //
+            ///////////////////
+
+            const buyNowEvent = createBuyNowPurchasedEvent(tokenId, to, artist, listingPrice);
+            buyNowEvent.address = Address.fromString(selfSovereignNFT);
+            buyNowEvent.transaction.value = listingPrice;
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "tokenEditionCreator", "tokenEditionCreator(uint256):(address)")
+                .withArgs([ethereum.Value.fromUnsignedBigInt(editionId)])
+                .returns([
+                    originalCreator
+                ]);
+
+            handleBuyNowPurchased(buyNowEvent)
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSold", "1");
-            // assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSupply", "1");
-            //
-            // assert.entityCount(COLLECTOR_ENTITY_TYPE, 2);
-            // assert.fieldEquals(COLLECTOR_ENTITY_TYPE, from, "address", from);
-            // assert.fieldEquals(COLLECTOR_ENTITY_TYPE, to, "address", to);
-            //
-            // const generatedTokenId = createV4Id(selfSovereignNFT, tokenId.toString());
-            // assert.entityCount(TOKEN_ENTITY_TYPE, 1);
-            // assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "editionNumber", '200000');
-            // assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "version", "4");
-            // assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "salesType", SaleTypes.OFFERS_ONLY.toString());
-            // assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "transferCount", "1");
-            //
-            // assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
-            // assert.entityCount(DAY_ENTITY_TYPE, 1);
-            // assert.entityCount(ACTIVITY_ENTITY_TYPE, 2);
+
+            assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
+            assert.entityCount(DAY_ENTITY_TYPE, 1);
+            assert.entityCount(ACTIVITY_ENTITY_TYPE, 4);
         })
     })
 });
@@ -439,10 +478,20 @@ describe("KODA V4 tests", () => {
 export function createTransferEvent(to: string, from: string, tokenId: BigInt): Transfer {
     let transferEvent = changetype<Transfer>(newMockEvent());
     transferEvent.parameters = new Array();
-    transferEvent.parameters.push(new ethereum.EventParam("to", ethereum.Value.fromAddress(Address.fromString(to))));
     transferEvent.parameters.push(new ethereum.EventParam("from", ethereum.Value.fromAddress(Address.fromString(from))));
+    transferEvent.parameters.push(new ethereum.EventParam("to", ethereum.Value.fromAddress(Address.fromString(to))));
     transferEvent.parameters.push(new ethereum.EventParam("tokenId", ethereum.Value.fromUnsignedBigInt(tokenId)));
     return transferEvent;
+}
+
+export function createBuyNowPurchasedEvent(tokenId: BigInt, buyer: string, currentOwner: string, price: BigInt): BuyNowPurchased {
+    let event = changetype<BuyNowPurchased>(newMockEvent());
+    event.parameters = new Array();
+    event.parameters.push(new ethereum.EventParam("tokenId", ethereum.Value.fromUnsignedBigInt(tokenId)));
+    event.parameters.push(new ethereum.EventParam("buyer", ethereum.Value.fromAddress(Address.fromString(buyer))));
+    event.parameters.push(new ethereum.EventParam("currentOwner", ethereum.Value.fromAddress(Address.fromString(currentOwner))));
+    event.parameters.push(new ethereum.EventParam("price", ethereum.Value.fromUnsignedBigInt(price)));
+    return event
 }
 
 export function createSelfSovereignERC721DeployedEvent(
@@ -470,5 +519,4 @@ export function createListedEditionForBuyNowEvent(editionId: BigInt, listingPric
     event.parameters.push(new ethereum.EventParam("startDate", ethereum.Value.fromUnsignedBigInt(startDate)));
 
     return event
-
 }
