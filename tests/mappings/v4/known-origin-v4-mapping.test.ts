@@ -15,6 +15,7 @@ import {assert, createMockedFunction, mockIpfsFile} from "matchstick-as";
 import {SelfSovereignERC721Deployed} from "../../../generated/KnownOriginV4Factory/KnownOriginV4Factory";
 import {
     ACTIVITY_ENTITY_TYPE,
+    COLLECTIVE_ENTITY_TYPE,
     COLLECTOR_ENTITY_TYPE,
     CREATOR_CONTRACT_ENTITY_TYPE,
     DAY_ENTITY_TYPE,
@@ -32,11 +33,7 @@ describe("KODA V4 tests", () => {
         clearStore();
     });
 
-    test("Can handle Transfer event for KODA V4", () => {
-
-        // const tokenId = BigInt.fromString("29039001");
-        const from = "0x3f8c962eb167ad2f80c72b5f933511ccdf0719d4";
-        // const to = "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7";
+    test("Can setup a newly deployed self sovereign contract", () => {
 
         const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
         const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
@@ -48,13 +45,6 @@ describe("KODA V4 tests", () => {
 
         const event = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
         event.address = KODAV4_FACTORY;
-
-        const originalCreator = ethereum.Value.fromAddress(Address.fromString("0xD79C064fd1fBe2227B972de83E9fBB27dE8265bF"));
-        const owner = ethereum.Value.fromAddress(Address.fromString(from));
-        const size = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(20));
-        const rawEditionId = BigInt.fromI32(29039000);
-        const editionId = ethereum.Value.fromUnsignedBigInt(rawEditionId);
-        const uri = ethereum.Value.fromString("ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
 
         let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
 
@@ -76,7 +66,7 @@ describe("KODA V4 tests", () => {
         assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "minter", artist);
     });
 
-    test("Can handle Transfer event for KODA V4", () => {
+    test("Can handle Transfer event for KODA V4 creator contract", () => {
 
         ///////////////////////////
         // Setup Contract Object //
@@ -193,7 +183,6 @@ describe("KODA V4 tests", () => {
         assert.entityCount(ACTIVITY_ENTITY_TYPE, 2);
     });
 
-
     test('Can handle a V4 for mint with collabs', () => {
 
         ///////////////////////////
@@ -207,47 +196,53 @@ describe("KODA V4 tests", () => {
         const recipients = ["0x681A7040477Be268A4b9A02c5e8263fd9fEbf0a9", "0xeeb2bc6f52deda185181fc2c310222837440cacd"]
         const splits = [BigInt.fromI32(500000), BigInt.fromI32(500000)]
 
-        const collabEvent = createCollabEvent(deployer, collabRegistry, fundsHandler, recipients, splits)
+        const collabEvent = createRoyaltyRecipientCreatedEvent(deployer, collabRegistry, fundsHandler, recipients, splits)
         collabEvent.address = Address.fromString(deployer);
 
         handleRoyaltyRecipientCreated(collabEvent)
 
-        ///////////////////////////
-        // Setup Contract Object //
-        ///////////////////////////
+        assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "isDeployed", "true");
+        assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "recipients", "[0x681a7040477be268a4b9a02c5e8263fd9febf0a9, 0xeeb2bc6f52deda185181fc2c310222837440cacd]");
+        assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "splits", "[500000, 500000]");
+        assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "creator", fundsHandler);
+        assert.fieldEquals(COLLECTIVE_ENTITY_TYPE, collabEvent.address.toHexString(), "baseHandler", collabRegistry);
 
-        const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
-        const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
-        const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
-
-        const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
-        const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
-        ssEvent.address = KODAV4_FACTORY;
-
-        let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
-
-        createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
-            .returns([
-                defaultPercentage
-            ]);
-
-        // createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
+        // ///////////////////////////
+        // // Setup Contract Object //
+        // ///////////////////////////
+        //
+        // const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+        // const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
+        // const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+        //
+        // const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
+        // const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+        // ssEvent.address = KODAV4_FACTORY;
+        //
+        // let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
+        //
+        // createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
         //     .returns([
-        //       2
+        //         defaultPercentage
         //     ]);
-
-        handleSelfSovereignERC721Deployed(ssEvent);
-
-        ///////////////////////
-        // Setup Mint Event //
-        /////////////////////
-
-        // const editionId = BigInt.fromString("100000");
         //
-        // const event = createMintWithCollabEvent(editionId, handler);
-        // event.address = Address.fromString(selfSovereignNFT);
+        // // createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
+        // //     .returns([
+        // //       2
+        // //     ]);
         //
-        // handleEditionLevelFundSplitterSet(event)
+        // handleSelfSovereignERC721Deployed(ssEvent);
+        //
+        // ///////////////////////
+        // // Setup Mint Event //
+        // /////////////////////
+        //
+        // // const editionId = BigInt.fromString("100000");
+        // //
+        // // const event = createMintWithCollabEvent(editionId, handler);
+        // // event.address = Address.fromString(selfSovereignNFT);
+        // //
+        // // handleEditionLevelFundSplitterSet(event)
 
     })
 });
@@ -269,27 +264,18 @@ export function createMintWithCollabEvent(editionId: BigInt, handler: string): E
     return event
 }
 
-export function createCollabEvent(creator: string, handler: string, deployedHandler: string, recipients: string[], splits: BigInt[]): RoyaltyRecipientCreated {
+export function createRoyaltyRecipientCreatedEvent(creator: string, handler: string, deployedHandler: string, recipients: string[], splits: BigInt[]): RoyaltyRecipientCreated {
     let event = changetype<RoyaltyRecipientCreated>(newMockEvent())
     event.parameters = new Array();
-
     event.parameters.push(new ethereum.EventParam("creator", ethereum.Value.fromAddress(Address.fromString(creator))))
     event.parameters.push(new ethereum.EventParam("handler", ethereum.Value.fromAddress(Address.fromString(handler))))
     event.parameters.push(new ethereum.EventParam("deployedHandler", ethereum.Value.fromAddress(Address.fromString(deployedHandler))))
 
-
-    event.parameters.push(new ethereum.EventParam("recipients", ethereum.Value.fromStringArray([recipients[0], recipients[1]])))
-
-    // event.parameters.push(
-    //     new ethereum.EventParam("recipients", ethereum.Value.fromStringArray(recipients.map<string>((recipient: string): string => {
-    //         return recipient
-    //     }))))
-
-    event.parameters.push(
-        new ethereum.EventParam("splits", ethereum.Value.fromUnsignedBigIntArray(splits.map<BigInt>((split: BigInt): BigInt => {
-            return split
-        }))))
-
+    const values:Address[] = recipients.map<Address>((recipient: string): Address => {
+        return Address.fromString(recipient)
+    });
+    event.parameters.push(new ethereum.EventParam("recipients", ethereum.Value.fromAddressArray(values)))
+    event.parameters.push(new ethereum.EventParam("splits", ethereum.Value.fromUnsignedBigIntArray(splits)))
     return event
 }
 

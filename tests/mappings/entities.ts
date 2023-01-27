@@ -6,3 +6,4 @@ export const DAY_ENTITY_TYPE = "Day";
 export const ACTIVITY_ENTITY_TYPE = "ActivityEvent";
 export const ARTIST_ENTITY_TYPE = "Artist";
 export const CREATOR_CONTRACT_ENTITY_TYPE = "CreatorContract";
+export const COLLECTIVE_ENTITY_TYPE = "Collective";
