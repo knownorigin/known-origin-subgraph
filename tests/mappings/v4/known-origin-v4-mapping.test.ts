@@ -209,7 +209,6 @@ describe("KODA V4 tests", () => {
     let mockedActivityEventId = ethereum.Value.fromString("CreatorContract-0x03c839988b379b1c87ea26f72dd37499aa6d947f-DEPLOYMENT-0xe49401d534aa54a06f698f083205e7d9298726d32992fc6f73adcbcb5df41200-322");
 
     createMockedFunction(KODAV4_FACTORY, "createCreatorContractEventId", "createCreatorContractEventId():(string)")
-        // .withArgs([ethereum.Value.fromString("0x03c839988b379b1c87ea26f72dd37499aa6d947f"), ethereum.Value.fromString("DEPLOYMENT"), ethereum.("DEPLOYMENT")])
         .returns([mockedActivityEventId]);
     handleSelfSovereignERC721Deployed(ssEvent);
 

@@ -524,8 +524,8 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
         event.creatorCommission = ZERO
         event.collaborator = ZERO_ADDRESS
         event.collaboratorCommission = ZERO;
-        event.stakeholderAddresses = [event.eventTxFrom]
-        event.triggeredBy = event.eventTxFrom
+        event.stakeholderAddresses = [rawEvent.transaction.from];
+        event.triggeredBy = rawEvent.transaction.from;
     }
     else {
         event.version = edition ? edition.version : BigInt.fromString("4")
