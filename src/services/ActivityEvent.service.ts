@@ -354,7 +354,7 @@ export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edit
     let event = ActivityEvent.load(id)
     if (event == null) {
         // @ts-ignore
-        event = createTokenEvent(id, EVENT_TYPES.EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event = createTokenEvent(id, EVENT_TYPES.EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner as string), null)
         event.save()
     }
 }
