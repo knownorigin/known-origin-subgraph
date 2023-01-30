@@ -200,8 +200,14 @@ export function handleTransfer(event: Transfer): void {
     // const isGiftedToCreator = event.params.to.equals(creator);
     const isBirthToken = event.params.from.equals(ZERO_ADDRESS);
 
+    // Check if we're dealing with an open edition token (doesn't already exist) and if it's a first transfer
+    let isNewOpenEditionToken = false;
+    if (edition.isOpenEdition) {
+        isNewOpenEditionToken = Token.load(createV4Id(event.address.toHexString(), event.params.tokenId.toString())) == null
+    }
+
     // If the token is being sold/gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (!isBirthToken) {
+    if (!isBirthToken || isNewOpenEditionToken) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
         tokenEntity.currentOwner = event.params.to.toString()
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
