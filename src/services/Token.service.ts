@@ -1,7 +1,7 @@
 import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
-import {createV4Id} from "../utils/KODAV4"
+import {createV4Id} from "../mappings/v4-creator-contracts/KODAV4"
 import {
     KnownOriginV2,
     KnownOriginV2__detailsOfEditionResult,
@@ -58,7 +58,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
     log.info("Calling attemptToLoadV2TokenData() call for {} ", [tokenId.toString()])
 
     let _tokenDataResult: ethereum.CallResult<KnownOriginV2__tokenDataResult> = contract.try_tokenData(tokenId)
-    if (!_tokenDataResult.reverted) {
+    if (tokenEntity && !_tokenDataResult.reverted) {
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
         tokenEntity.editionNumber = _tokenData.value0.toString()
@@ -100,7 +100,9 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 
         // Populate it
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
-        tokenEntity.save();
+        if(tokenEntity) {
+            tokenEntity.save();
+        }
     }
     return tokenEntity as Token;
 }
@@ -161,7 +163,6 @@ export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, bl
 
 function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, contract: ERC721CreatorContract, block: ethereum.Block): Token {
     tokenEntity.salesType = edition.salesType
-    tokenEntity.transferCount = ONE
     tokenEntity.editionNumber = edition.editionNmber
     tokenEntity.edition = edition.id
     tokenEntity.tokenURI = edition.tokenURI

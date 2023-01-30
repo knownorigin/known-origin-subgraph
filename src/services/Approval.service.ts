@@ -5,7 +5,7 @@ import * as activityEventService from "../services/ActivityEvent.service";
 
 export function handleSingleApproval(tokenId: BigInt, owner: Address, approved: Address, version: BigInt): void {
     let token: Token | null = Token.load(tokenId.toString())
-    if (token != null && token.version.equals(version) && owner.equals(Address.fromString(token.currentOwner))) {
+    if (token != null && token.version.equals(version) && owner.equals(Address.fromString(token.currentOwner as string))) {
         token.revokedApproval = ZERO_ADDRESS.equals(approved);
         token.save()
 

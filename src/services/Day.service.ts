@@ -1,8 +1,8 @@
-import {Day} from "../../generated/schema";
-import {ONE, ZERO} from "../utils/constants";
-import {BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
-import {toEther} from "../utils/utils";
-import {dayMonthYearFromEventTimestamp} from "../utils/DateConverter";
+import { Day } from "../../generated/schema";
+import { ONE, ZERO } from "../utils/constants";
+import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts/index";
+import { toEther } from "../utils/utils";
+import { dayMonthYearFromEventTimestamp } from "../utils/DateConverter";
 
 export function loadOrCreateDay(date: string): Day {
     let dayEntity = Day.load(date)
@@ -31,16 +31,17 @@ export function loadOrCreateDay(date: string): Day {
     return dayEntity as Day;
 }
 
-export function loadDayFromEvent(event: ethereum.Event): Day {
-    let dayMonthYear = dayMonthYearFromEventTimestamp(event)
-
+export function createDayId(event: ethereum.Event):string {
+    let dayMonthYear = dayMonthYearFromEventTimestamp(event);
     let month = dayMonthYear.month.toString();
     let day = dayMonthYear.day.toString();
     let paddedMonth = month.length === 1 ? "0".concat(month) : month;
     let paddedDay = day.length === 1 ? "0".concat(day) : day;
+    return dayMonthYear.year.toString().concat("-").concat(paddedMonth).concat("-").concat(paddedDay);
+}
 
-    let dayId = dayMonthYear.year.toString().concat("-").concat(paddedMonth).concat("-").concat(paddedDay);
-
+export function loadDayFromEvent(event: ethereum.Event): Day {
+    let dayId = createDayId(event);
     return loadOrCreateDay(dayId)
 }
 

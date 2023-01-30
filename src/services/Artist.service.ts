@@ -4,6 +4,7 @@ import {ONE, ZERO} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
+import { Bytes } from "@graphprotocol/graph-ts/common/collections";
 
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
@@ -67,7 +68,7 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
 export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: BigInt, tokenSalePriceInWei: BigInt, collectiveId: String | null, isPrimarySale: boolean): void {
     if (collectiveId) {
         let collective = Collective.load(collectiveId.toString()) as Collective
-        recordArtistCollaborationValue(collective.recipients as Array<Address>, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
+        recordArtistCollaborationValue(collective.recipients, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
     } else {
         recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
     }
@@ -84,7 +85,7 @@ export function handleKodaV2CommissionSplit(
     let _optionalCommission = contract.try_editionOptionalCommission(BigInt.fromString(editionNumber))
     if (!_optionalCommission.reverted && _optionalCommission.value.value0 > ZERO) {
 
-        let collaborators = new Array<Address>();
+        let collaborators = new Array<Bytes>();
         collaborators.push(artistCommission.value0)
         collaborators.push(_optionalCommission.value.value1)
 
@@ -99,7 +100,7 @@ export function handleKodaV2CommissionSplit(
 }
 
 export function recordArtistCollaborationValue(
-    artistAddresses: Array<Address>,
+    artistAddresses: Array<Bytes>,
     commissions: Array<BigInt>,
     tokenId: BigInt,
     tokenSalePriceInWei: BigInt,
@@ -125,13 +126,13 @@ export function recordArtistCollaborationValue(
 }
 
 export function recordArtistValue(
-    artistAddress: Address,
+    artistAddress: Bytes,
     tokenId: string,
     tokenSalePriceInWei: BigInt,
     artistProportionOfSaleInWei: BigInt,
     isPrimarySale: boolean
 ): void {
-    let artist = loadOrCreateArtist(artistAddress)
+    let artist = loadOrCreateArtist(Address.fromBytes(artistAddress))
 
     artist.totalValueInEth = artist.totalValueInEth.plus(toEther(tokenSalePriceInWei))
 

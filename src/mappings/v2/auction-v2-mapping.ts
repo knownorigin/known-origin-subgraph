@@ -7,26 +7,26 @@ import {
     BidIncreased,
     BidderRefunded,
     AuctionCancelled,
-} from "../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
+} from "../../../generated/ArtistAcceptingBidsV2/ArtistAcceptingBidsV2";
 
-import {MAX_UINT_256, ONE} from "../utils/constants";
+import {MAX_UINT_256, ONE} from "../../utils/constants";
 
-import {toEther} from "../utils/utils";
-import {getArtistAddress} from "../services/AddressMapping.service";
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
+import {toEther} from "../../utils/utils";
+import {getArtistAddress} from "../../services/AddressMapping.service";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
 
-import * as EVENT_TYPES from "../utils/EventTypes";
-import * as SaleTypes from "../utils/SaleTypes";
+import * as EVENT_TYPES from "../../utils/EventTypes";
+import * as SaleTypes from "../../utils/SaleTypes";
 
-import * as editionService from "../services/Edition.service";
-import * as artistService from "../services/Artist.service";
-import * as dayService from "../services/Day.service";
-import * as auctionEventFactory from "../services/AuctionEvent.factory";
-import * as auctionEventService from "../services/AuctionEvent.service";
-import * as collectorService from "../services/Collector.service";
-import * as offerService from "../services/Offers.service";
-import * as tokenService from "../services/Token.service";
-import * as activityEventService from "../services/ActivityEvent.service";
+import * as editionService from "../../services/Edition.service";
+import * as artistService from "../../services/Artist.service";
+import * as dayService from "../../services/Day.service";
+import * as auctionEventFactory from "../../services/AuctionEvent.factory";
+import * as auctionEventService from "../../services/AuctionEvent.service";
+import * as collectorService from "../../services/Collector.service";
+import * as offerService from "../../services/Offers.service";
+import * as tokenService from "../../services/Token.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = getKnownOriginV2ForAddress(event.address)

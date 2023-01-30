@@ -8,29 +8,29 @@ import {
     BidPlaced,
     BidRejected,
     BidWithdrawn
-} from "../../generated/TokenMarketplace/TokenMarketplace";
+} from "../../../generated/TokenMarketplace/TokenMarketplace";
 
-import {TokenOffer} from "../../generated/schema";
+import {TokenOffer} from "../../../generated/schema";
 
-import {toEther} from "../utils/utils";
+import {toEther} from "../../utils/utils";
 
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
 
-import {TokenDeListed, TokenListed, TokenPurchased} from "../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
-import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
+import {TokenDeListed, TokenListed, TokenPurchased} from "../../../generated/TokenMarketplaceV2/TokenMarketplaceV2";
+import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../../utils/constants";
 
-import * as KodaVersions from "../utils/KodaVersions";
-import * as SaleTypes from "../utils/SaleTypes";
+import * as KodaVersions from "../../utils/KodaVersions";
+import * as SaleTypes from "../../utils/SaleTypes";
 
-import * as editionService from "../services/Edition.service";
-import * as tokenEventFactory from "../services/TokenEvent.factory";
-import * as collectorService from "../services/Collector.service";
-import * as listedTokenService from "../services/ListedToken.service";
-import * as tokenService from "../services/Token.service";
-import * as dayService from "../services/Day.service";
-import * as offerService from "../services/Offers.service";
-import * as activityEventService from "../services/ActivityEvent.service";
-import * as artistService from "../services/Artist.service";
+import * as editionService from "../../services/Edition.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as collectorService from "../../services/Collector.service";
+import * as listedTokenService from "../../services/ListedToken.service";
+import * as tokenService from "../../services/Token.service";
+import * as dayService from "../../services/Day.service";
+import * as offerService from "../../services/Offers.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as artistService from "../../services/Artist.service";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -306,7 +306,7 @@ export function handleTokenListed(event: TokenListed): void {
     log.info("Token ID={} | biggestTokenId={} | seriesNumber={} | editionSize={} | totalIssued={} ", [
         event.params._tokenId.toString(),
         biggestTokenId.toString(),
-        listedToken.seriesNumber.toString(),
+        (listedToken.seriesNumber as BigInt).toString(),
         editionEntity.totalAvailable.toString(),
         editionEntity.totalSupply.toString()
     ]);
@@ -345,7 +345,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
         let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
-        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner), editionEntity)
+        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner as string), editionEntity)
     }
 
     tokenEntity.save()
