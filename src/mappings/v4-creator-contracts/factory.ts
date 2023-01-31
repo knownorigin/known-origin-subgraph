@@ -28,7 +28,7 @@ import {
 } from '../../../generated/templates';
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
-import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS } from "../../utils/constants";
+import {ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
 import {recordCCBanned, recordCCDeployed} from "../../services/ActivityEvent.service";
 
@@ -57,7 +57,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     ]);
 
     // Ignore all zero address implementations - pre-launch deployment before we set the registry address properly
-    if(event.params.implementation.equals(ZERO_ADDRESS)) {
+    if (event.params.implementation.equals(ZERO_ADDRESS)) {
         return;
     }
 
@@ -86,6 +86,10 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.editions = new Array<string>()
 
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
+
+    creatorContractEntity.name = sovereignContractInstance.name()
+    creatorContractEntity.symbol = sovereignContractInstance.symbol()
+    creatorContractEntity.filterRegistry = sovereignContractInstance.operatorFilterRegistry()
 
     // ERC165 interface lookup
     creatorContractEntity.isBatchBuyItNow = true
@@ -124,7 +128,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     // Update the artist
     let artistEntity = loadOrCreateArtist(event.params.artist)
     let creatorContracts = artistEntity.creatorContracts
-    if(!creatorContracts) creatorContracts = new Array<string>()
+    if (!creatorContracts) creatorContracts = new Array<string>()
     creatorContracts.push(event.params.selfSovereignNFT.toHexString())
     artistEntity.creatorContracts = creatorContracts
     artistEntity.save()
@@ -135,7 +139,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
-    if(!creatorContractEntity) {
+    if (!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
         creatorContractEntity = new CreatorContract(event.params._contract.toHexString());
         creatorContractEntity.blockNumber = event.block.number;
