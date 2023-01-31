@@ -498,7 +498,7 @@ export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale
     event.save()
 }
 
-function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
+export function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
     return CREATOR_CONTRACT
         .concat("-")
         .concat(address)

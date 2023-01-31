@@ -1,5 +1,4 @@
 import { afterEach, clearStore, describe, newMockEvent, test } from "matchstick-as/assembly/index";
-import { log } from "matchstick-as/assembly/log";
 import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import { Transfer } from "../../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import { handleTransfer } from "../../../src/mappings/v4-creator-contracts/creator-contract";
@@ -17,7 +16,7 @@ import {
 } from "../entities";
 import * as SaleTypes from "../../../src/utils/SaleTypes";
 import { createV4Id } from "../../../src/mappings/v4-creator-contracts/KODAV4";
-import {ActivityEvent} from "../../../generated/schema";
+import { createCreatorContractEventId } from "../../../src/services/ActivityEvent.service";
 
 describe("KODA V4 tests", () => {
 
@@ -173,6 +172,7 @@ describe("KODA V4 tests", () => {
     assert.entityCount(DAY_ENTITY_TYPE, 1);
     assert.entityCount(ACTIVITY_ENTITY_TYPE, 2);
   });
+
   test('Contract Deployment ActivityEvent correctly produced',() =>{
     const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
     const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
@@ -193,26 +193,13 @@ describe("KODA V4 tests", () => {
 
     createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
         .reverts();
-    /**
-     *
-     * Think the issue is here, we're not sure what to mock the return from the activityEventId as, so we found a deployment event from subgraph
-     * data and have been testing with that
-     */
-    // return this mocked value
-    let mockedActivityEventId = ethereum.Value.fromString("CreatorContract-0x03c839988b379b1c87ea26f72dd37499aa6d947f-DEPLOYMENT-0xe49401d534aa54a06f698f083205e7d9298726d32992fc6f73adcbcb5df41200-322");
 
-    /**
-     * A guide on how to log data out correctly in subgraph tests would be appreciated, flying in the hard here at the moment
-     */
-    createMockedFunction(KODAV4_FACTORY, "createCreatorContractEventId", "createCreatorContractEventId():(string)")
-        .returns([mockedActivityEventId]);
+    let ID = createCreatorContractEventId(selfSovereignNFT, "DEPLOYMENT", ssEvent);
+
     handleSelfSovereignERC721Deployed(ssEvent);
-    /**
-     * again were not sure what the second param in fieldEquals needs to be as it requires an address of some sort, the logic were taking here
-     * is that if were returning  the mock activityEvent then that would be the Id? Weve tried a few different values here...
-     */
-    assert.fieldEquals(ACTIVITY_ENTITY_TYPE, mockedActivityEventId.toString(), "eventType", 'CreatorContractDeployed')
+
     assert.entityCount(ACTIVITY_ENTITY_TYPE, 1)
+    assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "eventType", 'CreatorContractDeployed')
   })
 });
 
