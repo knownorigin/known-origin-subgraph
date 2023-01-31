@@ -23,12 +23,7 @@ describe("KODA V4 tests", () => {
     clearStore();
   });
 
-  test("Can handle Transfer event for KODA V4", () => {
-
-    // const tokenId = BigInt.fromString("29039001");
-    const from = "0x3f8c962eb167ad2f80c72b5f933511ccdf0719d4";
-    // const to = "0x89205a3a3b2a69de6dbf7f01ed13b2108b2c43e7";
-
+  test("Can handle Contract Creation event for KODA V4", () => {
     const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
     const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
     const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
@@ -39,13 +34,6 @@ describe("KODA V4 tests", () => {
 
     const event = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
     event.address = KODAV4_FACTORY;
-
-    const originalCreator = ethereum.Value.fromAddress(Address.fromString("0xD79C064fd1fBe2227B972de83E9fBB27dE8265bF"));
-    const owner = ethereum.Value.fromAddress(Address.fromString(from));
-    const size = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(20));
-    const rawEditionId = BigInt.fromI32(29039000);
-    const editionId = ethereum.Value.fromUnsignedBigInt(rawEditionId);
-    const uri = ethereum.Value.fromString("ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
 
     let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
 

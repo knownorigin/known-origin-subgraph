@@ -1,5 +1,7 @@
 import {BigDecimal, BigInt, Bytes} from "@graphprotocol/graph-ts/index";
-import {ONE_ETH} from "./constants";
+import { isWETHAddress, ONE_ETH, ZERO } from "./constants";
+import * as tokenService from "../services/Token.service";
+import { ethereum } from "@graphprotocol/graph-ts";
 
 export function toEther(value: BigInt): BigDecimal {
     // @ts-ignore
@@ -53,6 +55,18 @@ export function toLowerCase(input: String): string {
     return lowerString
 }
 
-export function convertByteStringToHexAddress(byteString: Bytes): string {
-    return "0x" + byteString.toHexString().slice(-40);
+// Finds and counts WETH trades as part of a transactions event logs
+export function findWETHTradeValue(event: ethereum.Event): BigInt {
+    let wethValueFound = ZERO;
+    let receipt = event.receipt;
+    if (receipt && receipt.logs.length > 0) {
+        let eventLogs = receipt.logs;
+        for (let index = 0; index < eventLogs.length; index++) {
+            let eventLog = eventLogs[index];
+            if (isWETHAddress(eventLog.address)) {
+                wethValueFound = wethValueFound.plus(BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data)));
+            }
+        }
+    }
+    return wethValueFound;
 }
