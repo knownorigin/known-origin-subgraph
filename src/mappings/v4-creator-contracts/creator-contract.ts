@@ -63,8 +63,8 @@ import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
-import {toEther} from "../../utils/utils";
-import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
+import { findWETHTradeValue, toEther } from "../../utils/utils";
+import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
@@ -304,22 +304,11 @@ export function handleTransfer(event: Transfer): void {
             tokenEntity.save();
         } else {
             // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
-            let receipt = event.receipt;
-            if (receipt && receipt.logs.length > 0) {
-                let eventLogs = receipt.logs;
-                for (let index = 0; index < eventLogs.length; index++) {
-                    let eventLog = eventLogs[index];
-                    let eventAddress = eventLog.address.toHexString();
-                    if (isWETHAddress(eventAddress)) {
-                        let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
-                        transferValue = wethTradeValue;
-
-                        let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
-                        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
-                        tokenEntity.save();
-                        break;
-                    }
-                }
+            transferValue = findWETHTradeValue(event);
+            if (transferValue) {
+                let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, transferValue, primarySale);
+                tokenEntity.save();
             }
         }
 
