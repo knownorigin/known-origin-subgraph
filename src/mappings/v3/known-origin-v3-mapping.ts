@@ -1,5 +1,5 @@
-import { BigInt, Bytes } from "@graphprotocol/graph-ts";
-import {Address, ethereum, log, store} from "@graphprotocol/graph-ts/index";
+import { BigInt } from "@graphprotocol/graph-ts";
+import { Address, ethereum, log, store } from "@graphprotocol/graph-ts/index";
 import {
     AdminArtistAccountReported,
     AdminEditionReported,
@@ -16,15 +16,10 @@ import {
     TransferChild,
     TransferERC20
 } from "../../../generated/KnownOriginV3/KnownOriginV3";
-import {Composable, ComposableItem, ListedToken, Token, Edition} from "../../../generated/schema";
+import { Composable, ComposableItem, Edition, ListedToken, Token } from "../../../generated/schema";
 
-import { DEAD_ADDRESS, isWETHAddress, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
-import {
-    PRIMARY_SALE_MAINNET,
-    PRIMARY_SALE_RINKEBY,
-    SECONDARY_SALE_MAINNET,
-    SECONDARY_SALE_RINKEBY
-} from "./KODAV3";
+import { DEAD_ADDRESS, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import { PRIMARY_SALE_MAINNET, PRIMARY_SALE_RINKEBY, SECONDARY_SALE_MAINNET, SECONDARY_SALE_RINKEBY } from "./KODAV3";
 
 import * as platformConfig from "../../services/PlatformConfig.factory";
 import * as offerService from "../../services/Offers.service";
@@ -40,6 +35,7 @@ import * as editionService from "../../services/Edition.service";
 import * as composableService from "../../services/Composables.service";
 import * as KodaVersions from "../../utils/KodaVersions";
 import * as SaleTypes from "../../utils/SaleTypes";
+import { findWETHTradeValue } from "../../utils/utils";
 
 export function handleTransfer(event: Transfer): void {
     log.info("KO V3 handleTransfer() called for token {}", [event.params.tokenId.toString()]);
@@ -311,24 +307,17 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
             tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
             tokenEntity.save();
-        } else {
-            // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
-            let receipt = event.receipt;
-            if(receipt && receipt.logs.length > 0) {
-                let eventLogs = receipt.logs;
-                for (let index = 0; index < eventLogs.length; index++) {
-                    let eventLog = eventLogs[index];
-                    let eventAddress = eventLog.address.toHexString();
-                    if (isWETHAddress(eventAddress)) {
-                        let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
-                        transferValue = wethTradeValue;
-
-                        let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
-                        tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
-                        tokenEntity.save();
-                        break;
-                    }
-                }
+        }
+        else {
+            transferValue = findWETHTradeValue(event);
+            if (transferValue) {
+                log.debug("Found WETH value [{}] for event transaction hash [{}]", [
+                    transferValue.toString(),
+                    event.transaction.hash.toHexString()
+                ])
+                let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+                tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, transferValue, primarySale);
+                tokenEntity.save();
             }
         }
 

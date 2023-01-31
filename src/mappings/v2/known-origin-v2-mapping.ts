@@ -9,16 +9,15 @@ import {
     Transfer
 } from "../../../generated/KnownOriginV2/KnownOriginV2"
 
-import { Address, BigInt, Bytes, ethereum, log, store } from "@graphprotocol/graph-ts/index";
-import { isWETHAddress, ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {  ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 
-import {toEther} from "../../utils/utils";
+import { findWETHTradeValue, toEther } from "../../utils/utils";
 
 import {getArtistAddress} from "../../services/AddressMapping.service";
 
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import * as SaleTypes from "../../utils/SaleTypes";
-import {convertByteStringToHexAddress} from "../../utils/utils";
 
 import * as editionService from "../../services/Edition.service";
 import * as dayService from "../../services/Day.service";
@@ -179,22 +178,11 @@ export function handleTransfer(event: Transfer): void {
         tokenEntity.save();
     } else {
         // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
-        let receipt = event.receipt;
-        if(receipt && receipt.logs.length > 0) {
-            let eventLogs = receipt.logs;
-            for (let index = 0; index < eventLogs.length; index++) {
-                let eventLog = eventLogs[index];
-                let eventAddress = eventLog.address.toHexString();
-                if (isWETHAddress(eventAddress)) {
-                    let wethTradeValue = BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse()));
-                    transferValue = wethTradeValue;
-
-                    let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
-                    tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, wethTradeValue, primarySale);
-                    tokenEntity.save();
-                    break;
-                }
-            }
+        transferValue = findWETHTradeValue(event);
+        if (transferValue) {
+            let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+            tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, transferValue, primarySale);
+            tokenEntity.save();
         }
     }
 
