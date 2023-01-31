@@ -138,6 +138,10 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
+    if (event.params._contract === ZERO_ADDRESS || event.params._contract === DEAD_ADDRESS) {
+        return
+    }
+
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
     if (!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
