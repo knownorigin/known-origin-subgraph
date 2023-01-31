@@ -28,7 +28,7 @@ import {ZERO_ADDRESS} from "../../../src/utils/constants";
 import {PlatformPrimaryCommissionUpdated} from "../../../generated/KODASettings/KODASettings";
 import {CreatorContractSetting} from "../../../generated/schema";
 
-describe("KODA V4 tests", () => {
+describe("KODA V4 Creator Contract tests", () => {
 
     afterEach(() => {
         clearStore();
@@ -51,6 +51,21 @@ describe("KODA V4 tests", () => {
         createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
             .returns([
                 defaultPercentage
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "name", "name():(string)")
+            .returns([
+                ethereum.Value.fromString("test contract")
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "symbol", "symbol():(string)")
+            .returns([
+                ethereum.Value.fromString("TEST")
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "operatorFilterRegistry", "operatorFilterRegistry():(address)")
+            .returns([
+                ethereum.Value.fromAddress(Address.fromString("0xf436269D6b7B9E8A76e6FB80C0a49681d4278747"))
             ]);
 
         createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
@@ -87,6 +102,21 @@ describe("KODA V4 tests", () => {
         createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
             .returns([
                 defaultPercentage
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "name", "name():(string)")
+            .returns([
+                ethereum.Value.fromString("test contract")
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "symbol", "symbol():(string)")
+            .returns([
+                ethereum.Value.fromString("TEST")
+            ]);
+
+        createMockedFunction(Address.fromString(selfSovereignNFT), "operatorFilterRegistry", "operatorFilterRegistry():(address)")
+            .returns([
+                ethereum.Value.fromAddress(Address.fromString("0xf436269D6b7B9E8A76e6FB80C0a49681d4278747"))
             ]);
 
         createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
@@ -208,6 +238,21 @@ describe("KODA V4 tests", () => {
                     defaultPercentage
                 ]);
 
+            createMockedFunction(Address.fromString(selfSovereignNFT), "name", "name():(string)")
+                .returns([
+                    ethereum.Value.fromString("test contract")
+                ]);
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "symbol", "symbol():(string)")
+                .returns([
+                    ethereum.Value.fromString("TEST")
+                ]);
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "operatorFilterRegistry", "operatorFilterRegistry():(address)")
+                .returns([
+                    ethereum.Value.fromAddress(Address.fromString("0xf436269D6b7B9E8A76e6FB80C0a49681d4278747"))
+                ]);
+
             createMockedFunction(Address.fromString(selfSovereignNFT), "isHidden", "isHidden():(bool)")
                 .returns([
                     ethereum.Value.fromBoolean(false)
@@ -264,6 +309,10 @@ describe("KODA V4 tests", () => {
 
             // Assert entities created
             const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
+
+            assert.entityCount(CREATOR_CONTRACT_ENTITY_TYPE, 1);
+            assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "editions", `[${generatedEditionId}]`)
+
             assert.entityCount(EDITION_ENTITY_TYPE, 1);
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "version", "4");
             assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "salesType", "6");
@@ -299,6 +348,21 @@ describe("KODA V4 tests", () => {
             createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
                 .returns([
                     defaultPercentage
+                ]);
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "name", "name():(string)")
+                .returns([
+                    ethereum.Value.fromString("test contract")
+                ]);
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "symbol", "symbol():(string)")
+                .returns([
+                    ethereum.Value.fromString("TEST")
+                ]);
+
+            createMockedFunction(Address.fromString(selfSovereignNFT), "operatorFilterRegistry", "operatorFilterRegistry():(address)")
+                .returns([
+                    ethereum.Value.fromAddress(Address.fromString("0xf436269D6b7B9E8A76e6FB80C0a49681d4278747"))
                 ]);
 
             createMockedFunction(Address.fromString(selfSovereignNFT), "isHidden", "isHidden():(bool)")

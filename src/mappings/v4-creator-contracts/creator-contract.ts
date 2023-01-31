@@ -394,6 +394,14 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
 
     edition.save();
 
+    // If we're on an open edition we need to add to the contractEntity here as won't have transfer event
+    if (edition.isOpenEdition) {
+        let editions = contractEntity.editions
+        editions.push(edition.id)
+        contractEntity.editions = editions
+        contractEntity.save()
+    }
+
     activityEventService.recordCCListedEditionForBuyNow(
         event.address.toHexString(),
         edition.id,
