@@ -89,7 +89,11 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 
     creatorContractEntity.name = sovereignContractInstance.name()
     creatorContractEntity.symbol = sovereignContractInstance.symbol()
-    creatorContractEntity.filterRegistry = sovereignContractInstance.operatorFilterRegistry()
+
+    const filterRegistry = sovereignContractInstance.try_operatorFilterRegistry()
+    if (filterRegistry.reverted === false) {
+        creatorContractEntity.filterRegistry = filterRegistry.value
+    }
 
     // ERC165 interface lookup
     creatorContractEntity.isBatchBuyItNow = true
@@ -138,7 +142,9 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
-    if (event.params._contract === ZERO_ADDRESS || event.params._contract === DEAD_ADDRESS) {
+    log.info("Calling handleCreatorContractBanned() call for contract {} which is banned {} ", [event.params._contract.toHexString(), event.params._banned.toString()]);
+
+    if (event.params._contract.equals(ZERO_ADDRESS) || event.params._contract.equals(DEAD_ADDRESS)) {
         return
     }
 
