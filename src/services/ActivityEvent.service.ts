@@ -354,7 +354,7 @@ export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edit
     let event = ActivityEvent.load(id)
     if (event == null) {
         // @ts-ignore
-        event = createTokenEvent(id, EVENT_TYPES.EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner), null)
+        event = createTokenEvent(id, EVENT_TYPES.EDITION_GIFTED, rawEvent, edition, token, null, Address.fromString(token.currentOwner as string), null)
         event.save()
     }
 }
@@ -421,7 +421,7 @@ function createGatedId(type: string, saleId: string, phaseId: string, editionId:
         .concat(event.logIndex.toString());
 }
 
-function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase): ActivityEvent {
+function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
     event.version = edition.version

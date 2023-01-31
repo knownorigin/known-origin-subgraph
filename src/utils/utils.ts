@@ -1,5 +1,7 @@
-import {BigDecimal, BigInt,} from "@graphprotocol/graph-ts/index";
-import {ONE_ETH} from "./constants";
+import {BigDecimal, BigInt, Bytes} from "@graphprotocol/graph-ts/index";
+import { isWETHAddress, ONE_ETH, ZERO } from "./constants";
+import * as tokenService from "../services/Token.service";
+import { ethereum } from "@graphprotocol/graph-ts";
 
 export function toEther(value: BigInt): BigDecimal {
     // @ts-ignore
@@ -7,10 +9,12 @@ export function toEther(value: BigInt): BigDecimal {
 }
 
 export class ImageType {
-    // @ts-ignore
-    primaryAssetShortType: string;
-    // @ts-ignore
-    primaryAssetActualType: string;
+    primaryAssetShortType: string | null;
+    primaryAssetActualType: string | null;
+    constructor() {
+        this.primaryAssetShortType = null;
+        this.primaryAssetShortType = null;
+    }
 }
 
 export function splitMimeType(image_type: String): ImageType {
@@ -49,4 +53,20 @@ export function toLowerCase(input: String): string {
     }
 
     return lowerString
+}
+
+// Finds and counts WETH trades as part of a transactions event logs
+export function findWETHTradeValue(event: ethereum.Event): BigInt {
+    let wethValueFound = ZERO;
+    let receipt = event.receipt;
+    if (receipt && receipt.logs.length > 0) {
+        let eventLogs = receipt.logs;
+        for (let index = 0; index < eventLogs.length; index++) {
+            let eventLog = eventLogs[index];
+            if (isWETHAddress(eventLog.address)) {
+                wethValueFound = wethValueFound.plus(BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data)));
+            }
+        }
+    }
+    return wethValueFound;
 }

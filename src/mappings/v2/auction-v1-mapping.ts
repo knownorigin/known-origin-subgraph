@@ -5,22 +5,22 @@ import {
     BidIncreased,
     BidPlaced,
     BidWithdrawn
-} from "../../generated/ArtistAcceptingBidsV1/ArtistAcceptingBidsV1";
+} from "../../../generated/ArtistAcceptingBidsV1/ArtistAcceptingBidsV1";
 
-import {ONE} from "../utils/constants";
-import {toEther} from "../utils/utils";
-import {getArtistAddress} from "../services/AddressMapping.service";
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
-import * as EVENT_TYPES from "../utils/EventTypes";
+import {ONE} from "../../utils/constants";
+import {toEther} from "../../utils/utils";
+import {getArtistAddress} from "../../services/AddressMapping.service";
+import {getKnownOriginV2ForAddress} from "./KODAV2AddressLookup";
+import * as EVENT_TYPES from "../../utils/EventTypes";
 
-import * as artistService from "../services/Artist.service";
-import * as editionService from "../services/Edition.service";
-import * as dayService from "../services/Day.service";
-import * as auctionEventFactory from "../services/AuctionEvent.factory";
-import * as collectorService from "../services/Collector.service";
-import * as tokenService from "../services/Token.service";
-import * as activityEventService from "../services/ActivityEvent.service";
-import * as auctionEventService from "../services/AuctionEvent.service";
+import * as artistService from "../../services/Artist.service";
+import * as editionService from "../../services/Edition.service";
+import * as dayService from "../../services/Day.service";
+import * as auctionEventFactory from "../../services/AuctionEvent.factory";
+import * as collectorService from "../../services/Collector.service";
+import * as tokenService from "../../services/Token.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
+import * as auctionEventService from "../../services/AuctionEvent.service";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginV2ForAddress(event.address)

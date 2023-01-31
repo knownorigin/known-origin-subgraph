@@ -4,7 +4,7 @@ import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {toEther} from "../utils/utils";
 import {loadNonNullableEdition, loadNonNullableEditionById} from "./Edition.service";
 import {loadNonNullableToken} from "./Token.service";
-import {getKnownOriginV2ForAddress} from "../utils/KODAV2AddressLookup";
+import {getKnownOriginV2ForAddress} from "../mappings/v2/KODAV2AddressLookup";
 import {getArtistAddress} from "./AddressMapping.service";
 import {loadOrCreateCollector} from "./Collector.service";
 import {BigInt, log} from "@graphprotocol/graph-ts";

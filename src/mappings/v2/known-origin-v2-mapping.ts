@@ -7,34 +7,34 @@ import {
     Minted,
     Purchase,
     Transfer
-} from "../../generated/KnownOriginV2/KnownOriginV2"
+} from "../../../generated/KnownOriginV2/KnownOriginV2"
 
-import {Address, BigInt, ethereum, log, store} from "@graphprotocol/graph-ts/index";
-import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
+import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {  ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 
-import {toEther} from "../utils/utils";
+import { findWETHTradeValue, toEther } from "../../utils/utils";
 
-import {getArtistAddress} from "../services/AddressMapping.service";
+import {getArtistAddress} from "../../services/AddressMapping.service";
 
-import * as EVENT_TYPES from "../utils/EventTypes";
-import * as SaleTypes from "../utils/SaleTypes";
+import * as EVENT_TYPES from "../../utils/EventTypes";
+import * as SaleTypes from "../../utils/SaleTypes";
 
-import * as editionService from "../services/Edition.service";
-import * as dayService from "../services/Day.service";
-import * as tokenService from "../services/Token.service";
-import * as transferEventFactory from "../services/TransferEvent.factory";
-import * as artistService from "../services/Artist.service";
-import * as collectorService from "../services/Collector.service";
-import * as tokenEventFactory from "../services/TokenEvent.factory";
-import * as offerService from "../services/Offers.service";
-import * as activityEventService from "../services/ActivityEvent.service";
+import * as editionService from "../../services/Edition.service";
+import * as dayService from "../../services/Day.service";
+import * as tokenService from "../../services/Token.service";
+import * as transferEventFactory from "../../services/TransferEvent.factory";
+import * as artistService from "../../services/Artist.service";
+import * as collectorService from "../../services/Collector.service";
+import * as tokenEventFactory from "../../services/TokenEvent.factory";
+import * as offerService from "../../services/Offers.service";
+import * as activityEventService from "../../services/ActivityEvent.service";
 
 import {
     KODA_V2_MAINNET_SECONDARY_MARKETPLACE,
     KODA_V2_RINKEBY_SECONDARY_MARKETPLACE
-} from "../utils/KODAV2AddressLookup";
-import * as KodaVersions from "../utils/KodaVersions";
-import * as approvalService from "../services/Approval.service";
+} from "./KODAV2AddressLookup";
+import * as KodaVersions from "../../utils/KodaVersions";
+import * as approvalService from "../../services/Approval.service";
 
 export function handleEditionCreated(event: EditionCreated): void {
     let contract = KnownOriginV2.bind(event.address)
@@ -169,14 +169,24 @@ export function handleTransfer(event: Transfer): void {
         offerService.updateTokenOfferOwner(event.block, event.params._tokenId, event.params._to)
     }
 
-    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to, event.params._from, event.transaction.value);
+    let transferValue = event.transaction.value;
 
     // If we see a msg.value record it as a sale
     if (event.transaction.value.gt(ZERO)) {
         const primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
         tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, event.transaction.value, primarySale);
         tokenEntity.save();
+    } else {
+        // Attempt to handle WETH trades found during the trade (Note: this is not handle bundled transfers)
+        transferValue = findWETHTradeValue(event);
+        if (transferValue) {
+            let primarySale = tokenEntity.transferCount.equals(BigInt.fromI32(1));
+            tokenEntity = tokenService.recordTokenSaleMetrics(tokenEntity, transferValue, primarySale);
+            tokenEntity.save();
+        }
     }
+
+    activityEventService.recordTransfer(event, tokenEntity, editionEntity, event.params._to, event.params._from, transferValue);
 
     ///////////////
     // Transfers //
@@ -203,7 +213,6 @@ export function handlePurchase(event: Purchase): void {
 
     // Record Artist Data
     let editionNumber = event.params._editionNumber
-    let artistAddress = getArtistAddress(contract.artistCommission(editionNumber).value0)
 
     artistService.handleKodaV2CommissionSplit(contract, event.params._editionNumber.toString(), event.params._tokenId, event.transaction.value, true)
 
