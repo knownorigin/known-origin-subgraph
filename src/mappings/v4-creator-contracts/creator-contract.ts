@@ -558,6 +558,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let editionFundsHandler = event.params._handler.toHexString();
 
     let collective = Collective.load(editionFundsHandler);
+
     if (collective == null) {
         collective = new Collective(editionFundsHandler);
         collective.baseHandler = event.params._handler;
@@ -582,7 +583,6 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
-
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
             defaultFundsRecipients.push(share.value0)
