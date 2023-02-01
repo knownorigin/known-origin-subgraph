@@ -34,19 +34,19 @@ describe("KODA V4 Creator Contract tests", () => {
         clearStore();
     });
 
-  test("Can handle Contract Creation event for KODA V4", () => {
-    const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
-    const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
-    const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
-    const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
-    const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+    test("Can handle Contract Creation event for KODA V4", () => {
+        const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+        const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+        const selfSovereignNFT = "0x5c6868b127b870e9f3d894150a51ff86c625f0f8";
+        const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+        const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
 
         const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
 
         const event = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
         event.address = KODAV4_FACTORY;
 
-    let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
+        let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
 
         createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
             .returns([

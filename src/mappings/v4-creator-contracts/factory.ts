@@ -20,7 +20,7 @@ import {
 
 import {
     CreatorContract,
-    CreatorContractSetting
+    CreatorContractSetting, Edition, Token
 } from "../../../generated/schema"
 
 import {
@@ -30,7 +30,7 @@ import {
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
 import {ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
-import {recordCCBanned, recordCCDeployed} from "../../services/ActivityEvent.service";
+import {recordCCBanned, recordCCDeployed, recordV4EditionDisabledUpdated} from "../../services/ActivityEvent.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
 export function handleContractDeployed(event: ContractDeployed): void {
@@ -144,10 +144,6 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
     log.info("Calling handleCreatorContractBanned() call for contract {} which is banned {} ", [event.params._contract.toHexString(), event.params._banned.toString()]);
 
-    if (event.params._contract.equals(ZERO_ADDRESS) || event.params._contract.equals(DEAD_ADDRESS)) {
-        return
-    }
-
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
     if (!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
@@ -183,4 +179,16 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
     creatorContractEntity.save()
 
     recordCCBanned(event.params._contract.toHexString(), event);
+
+    let editions = creatorContractEntity.editions
+
+    for (let i: number = 0; i < editions.length; i++) {
+        let edition = Edition.load(editions[i].toString())
+        if (edition) {
+            edition.active = !event.params._banned
+            edition.save()
+
+            recordV4EditionDisabledUpdated(event.params._contract.toHexString(), edition.id.toString(), event, edition)
+        }
+    }
 }

@@ -63,8 +63,8 @@ import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
-import { findWETHTradeValue, toEther } from "../../utils/utils";
-import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import {findWETHTradeValue, toEther} from "../../utils/utils";
+import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
@@ -400,6 +400,9 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
         editions.push(edition.id)
         contractEntity.editions = editions
         contractEntity.save()
+
+        // Activity events
+        activityEventService.recordEditionCreated(event, edition);
     }
 
     activityEventService.recordCCListedEditionForBuyNow(
