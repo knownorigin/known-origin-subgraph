@@ -584,9 +584,9 @@ type CreatorContract @entity {
     editions: [Edition!]!
 
     # Contract metadata
-    name: String!
-    symbol: String!
-    filterRegistry: Bytes!
+    name: String
+    symbol: String
+    filterRegistry: Bytes
 }
 
 type CreatorContractSetting @entity {
