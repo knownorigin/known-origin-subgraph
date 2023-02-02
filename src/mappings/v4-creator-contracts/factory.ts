@@ -184,6 +184,7 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
 
     for (let i: number = 0; i < editions.length; i++) {
         let edition = Edition.load(editions[i as i32].toString())
+
         if (edition) {
             edition.active = !event.params._banned
             edition.save()
