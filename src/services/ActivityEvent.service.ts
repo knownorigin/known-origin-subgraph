@@ -534,9 +534,9 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
         event.edition = edition ? edition.id : null
         event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
         event.creator = edition ? edition.artistAccount : ZERO_ADDRESS
-        event.creatorCommission = ZERO
+        event.creatorCommission = edition ? edition.artistCommission : ZERO
         event.collaborator = ZERO_ADDRESS
-        event.collaboratorCommission = edition ? edition.optionalCommissionRate : ZERO;
+        event.collaboratorCommission = ZERO;
         event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS]
         event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS
     }
