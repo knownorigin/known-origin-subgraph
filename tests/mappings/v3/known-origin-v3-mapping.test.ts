@@ -145,9 +145,9 @@ describe("KODA V3 tests", () => {
     const event = createTransferEvent(to, from, tokenId);
     event.transaction.value = BigInt.fromString("0");
     (event.receipt as ethereum.TransactionReceipt).logs[0].address = WETH_ADDRESS_MAINNET;
-    (event.receipt as ethereum.TransactionReceipt).logs[0].data = Bytes.fromUint8Array(BigInt.fromString("500000000000000000")); // 0.5 WETH
-
     const KODAV3 = Address.fromString("0xA16081F360e3847006dB660bae1c6d1b2e17eC2A");
+
+    (event.receipt as ethereum.TransactionReceipt).logs[0].data = Bytes.fromHexString("0x000000000000000000000000000000000000000000000000067c01663f4d2000");
 
     const originalCreator = ethereum.Value.fromAddress(Address.fromString("0xD79C064fd1fBe2227B972de83E9fBB27dE8265bF"));
     const owner = ethereum.Value.fromAddress(Address.fromString(from));
@@ -233,9 +233,9 @@ describe("KODA V3 tests", () => {
     assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "salesType", SaleTypes.OFFERS_ONLY.toString());
     assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "transferCount", "1");
     assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "totalPurchaseCount", "1");
-    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "totalPurchaseValue", "0.5");
-    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "primaryValueInEth", "0.5");
-    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "largestSalePriceEth", "0.5");
+    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "totalPurchaseValue", "0.46725");
+    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "primaryValueInEth", "0.46725");
+    assert.fieldEquals(TOKEN_ENTITY_TYPE, tokenId.toString(), "largestSalePriceEth", "0.46725");
 
   });
 });

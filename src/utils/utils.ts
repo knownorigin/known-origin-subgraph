@@ -64,7 +64,7 @@ export function findWETHTradeValue(event: ethereum.Event): BigInt {
         for (let index = 0; index < eventLogs.length; index++) {
             let eventLog = eventLogs[index];
             if (isWETHAddress(eventLog.address)) {
-                wethValueFound = wethValueFound.plus(BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data)));
+                wethValueFound = wethValueFound.plus(BigInt.fromUnsignedBytes(Bytes.fromUint8Array(eventLog.data.reverse())));
             }
         }
     }
