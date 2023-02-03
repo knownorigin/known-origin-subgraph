@@ -583,6 +583,11 @@ type CreatorContract @entity {
 
     # Editions created by contract
     editions: [Edition!]!
+
+    # Contract metadata
+    name: String
+    symbol: String
+    filterRegistry: Bytes
 }
 
 type CreatorContractSetting @entity {

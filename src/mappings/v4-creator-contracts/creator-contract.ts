@@ -63,8 +63,8 @@ import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
-import { findWETHTradeValue, toEther } from "../../utils/utils";
-import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import {findWETHTradeValue, toEther} from "../../utils/utils";
+import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
@@ -394,6 +394,17 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
 
     edition.save();
 
+    // If we're on an open edition we need to add to the contractEntity here as won't have transfer event
+    if (edition.isOpenEdition) {
+        let editions = contractEntity.editions
+        editions.push(edition.id)
+        contractEntity.editions = editions
+        contractEntity.save()
+
+        // Activity events
+        activityEventService.recordEditionCreated(event, edition);
+    }
+
     activityEventService.recordCCListedEditionForBuyNow(
         event.address.toHexString(),
         edition.id,
@@ -558,6 +569,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let editionFundsHandler = event.params._handler.toHexString();
 
     let collective = Collective.load(editionFundsHandler);
+
     if (collective == null) {
         collective = new Collective(editionFundsHandler);
         collective.baseHandler = event.params._handler;
@@ -582,7 +594,6 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
-
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
             defaultFundsRecipients.push(share.value0)
