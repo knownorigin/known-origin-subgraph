@@ -15,3 +15,6 @@ export const STEPPED_SALE = BigInt.fromI32(4);
 
 // V3 only
 export const RESERVE_COUNTDOWN_AUCTION = BigInt.fromI32(5);
+
+// V4 only
+export const OPEN_EDITION_BUY_NOW = BigInt.fromI32(6);

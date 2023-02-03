@@ -340,7 +340,6 @@ type Edition @entity {
     editionType: BigInt! # legacy field from KODA V2
     editionData: Bytes # bytes32 - legacy field from KODA V2 - some additional data about the edition
     creatorContract: CreatorContract # address of creator contract that minted the edition if version 4
-    
     salesType: BigInt! # The current sales mechanic being used on this edition
     revokedApproval: Boolean! # set to true once if the seller has revoked approved the marketplace
 
@@ -583,6 +582,11 @@ type CreatorContract @entity {
 
     # Editions created by contract
     editions: [Edition!]!
+
+    # Contract metadata
+    name: String
+    symbol: String
+    filterRegistry: Bytes
 }
 
 type CreatorContractSetting @entity {

@@ -63,8 +63,8 @@ import {loadOrCreateV4Token} from "../../services/Token.service";
 import * as EVENT_TYPES from "../../utils/EventTypes";
 import {addEditionToArtist, recordArtistValue, loadOrCreateArtist} from "../../services/Artist.service";
 import {loadOrCreateListedToken} from "../../services/ListedToken.service";
-import { findWETHTradeValue, toEther } from "../../utils/utils";
-import { DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
+import {findWETHTradeValue, toEther} from "../../utils/utils";
+import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
@@ -133,7 +133,7 @@ export function handleTransfer(event: Transfer): void {
     log.info("Calling handleTransfer() call for V4 contract address: [{}] id: [{}] ", [
         event.address.toHexString(),
         event.params.tokenId.toString()
-   ]);
+    ]);
 
     // Extract params for processing
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
@@ -200,8 +200,14 @@ export function handleTransfer(event: Transfer): void {
     // const isGiftedToCreator = event.params.to.equals(creator);
     const isBirthToken = event.params.from.equals(ZERO_ADDRESS);
 
+    // Check if we're dealing with an open edition token (doesn't already exist) and if it's a first transfer
+    let isNewOpenEditionToken = false;
+    if (edition.isOpenEdition) {
+        isNewOpenEditionToken = Token.load(createV4Id(event.address.toHexString(), event.params.tokenId.toString())) == null
+    }
+
     // If the token is being sold/gifted outside of marketplace (it is not being minted from zero to the edition creator)
-    if (!isBirthToken) {
+    if (!isBirthToken || isNewOpenEditionToken) {
         let tokenEntity = loadOrCreateV4Token(event.params.tokenId, event.address, creatorContractInstance, edition, event.block);
         tokenEntity.currentOwner = event.params.to.toString()
         tokenEntity.salesType = SaleTypes.OFFERS_ONLY
@@ -366,28 +372,45 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
-   log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
+    log.info("Calling handleListedForBuyItNow() call for contract {} ", [event.address.toHexString()]);
 
-   let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
-   let edition = loadOrCreateV4Edition(
-     event.params._editionId,
-     event.block,
-     event.address,
-     contractEntity.isHidden
-   );
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract;
+    let edition = loadOrCreateV4Edition(
+        event.params._editionId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    );
 
-   edition.startDate = event.params._startDate;
-   edition.priceInWei = event.params._price;
-   edition.salesType = SaleTypes.BUY_NOW;
+    const editionListing = creatorContractInstance.editionListing(BigInt.fromString(edition.editionNmber))
 
-   edition.save();
+    // Check whether we're looking at an open edition
+    edition.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(edition.editionNmber));
+    edition.startDate = event.params._startDate;
+    edition.endDate = editionListing.value2
+    edition.priceInWei = event.params._price;
+    edition.salesType = edition.isOpenEdition ? SaleTypes.OPEN_EDITION_BUY_NOW : SaleTypes.BUY_NOW;
 
-   activityEventService.recordCCListedEditionForBuyNow(
-     event.address.toHexString(),
-     edition.id,
-     event,
-     edition
-   );
+    edition.save();
+
+    // If we're on an open edition we need to add to the contractEntity here as won't have transfer event
+    if (edition.isOpenEdition) {
+        let editions = contractEntity.editions
+        editions.push(edition.id)
+        contractEntity.editions = editions
+        contractEntity.save()
+
+        // Activity events
+        activityEventService.recordEditionCreated(event, edition);
+    }
+
+    activityEventService.recordCCListedEditionForBuyNow(
+        event.address.toHexString(),
+        edition.id,
+        event,
+        edition
+    );
 }
 
 export function handleBuyNowDeListed(event: BuyNowDeListed): void {
@@ -546,6 +569,7 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
     let editionFundsHandler = event.params._handler.toHexString();
 
     let collective = Collective.load(editionFundsHandler);
+
     if (collective == null) {
         collective = new Collective(editionFundsHandler);
         collective.baseHandler = event.params._handler;
@@ -570,7 +594,6 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
 
     if (maybeTotalRecipientsResult.reverted == false) {
         let totalRecipients = maybeTotalRecipientsResult.value
-
         for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
             let share = maybeFundsHandlerContract.shareAtIndex(i)
             defaultFundsRecipients.push(share.value0)
@@ -581,12 +604,12 @@ export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpda
         defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
     }
 
-    collective.recipients = creatorContractEntity.defaultFundsRecipients
-    collective.splits = creatorContractEntity.defaultFundsShares
+    collective.recipients = defaultFundsRecipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
+    collective.splits = defaultFundsShares
 
     collective.save()
 
-    edition.collective = editionFundsHandler
+    edition.collective = collective.id.toString()
     edition.save()
 
     activityEventService.recordCCEditionFundsHandlerUpdated(
@@ -670,7 +693,7 @@ export function handleBuyNowTokenDeListed(event: BuyNowTokenDeListed): void {
 }
 
 export function handleBuyNowTokenPriceChanged(event: BuyNowTokenPriceChanged): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString())  as CreatorContract
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let edition = loadOrCreateV4EditionFromTokenId(
         event.params._tokenId,

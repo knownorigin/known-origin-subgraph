@@ -20,7 +20,7 @@ import {
 
 import {
     CreatorContract,
-    CreatorContractSetting
+    CreatorContractSetting, Edition, Token
 } from "../../../generated/schema"
 
 import {
@@ -28,9 +28,9 @@ import {
 } from '../../../generated/templates';
 
 import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
-import { ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS } from "../../utils/constants";
+import {ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
-import {recordCCBanned, recordCCDeployed} from "../../services/ActivityEvent.service";
+import {recordCCBanned, recordCCDeployed, recordV4EditionDisabledUpdated} from "../../services/ActivityEvent.service";
 
 // Index the deployment of the factory in order to capture the global V4 params
 export function handleContractDeployed(event: ContractDeployed): void {
@@ -57,7 +57,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     ]);
 
     // Ignore all zero address implementations - pre-launch deployment before we set the registry address properly
-    if(event.params.implementation.equals(ZERO_ADDRESS)) {
+    if (event.params.implementation.equals(ZERO_ADDRESS)) {
         return;
     }
 
@@ -86,6 +86,14 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.editions = new Array<string>()
 
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
+
+    creatorContractEntity.name = sovereignContractInstance.name()
+    creatorContractEntity.symbol = sovereignContractInstance.symbol()
+
+    const filterRegistry = sovereignContractInstance.try_operatorFilterRegistry()
+    if (filterRegistry.reverted === false) {
+        creatorContractEntity.filterRegistry = filterRegistry.value
+    }
 
     // ERC165 interface lookup
     creatorContractEntity.isBatchBuyItNow = true
@@ -124,7 +132,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     // Update the artist
     let artistEntity = loadOrCreateArtist(event.params.artist)
     let creatorContracts = artistEntity.creatorContracts
-    if(!creatorContracts) creatorContracts = new Array<string>()
+    if (!creatorContracts) creatorContracts = new Array<string>()
     creatorContracts.push(event.params.selfSovereignNFT.toHexString())
     artistEntity.creatorContracts = creatorContracts
     artistEntity.save()
@@ -134,8 +142,10 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
+    log.info("Calling handleCreatorContractBanned() call for contract {} which is banned {} ", [event.params._contract.toHexString(), event.params._banned.toString()]);
+
     let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
-    if(!creatorContractEntity) {
+    if (!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
         creatorContractEntity = new CreatorContract(event.params._contract.toHexString());
         creatorContractEntity.blockNumber = event.block.number;
@@ -169,4 +179,17 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
     creatorContractEntity.save()
 
     recordCCBanned(event.params._contract.toHexString(), event);
+
+    let editions = creatorContractEntity.editions
+
+    for (let i: number = 0; i < editions.length; i++) {
+        let edition = Edition.load(editions[i as i32].toString())
+
+        if (edition) {
+            edition.active = !event.params._banned
+            edition.save()
+
+            recordV4EditionDisabledUpdated(event.params._contract.toHexString(), edition.id.toString(), event, edition)
+        }
+    }
 }
