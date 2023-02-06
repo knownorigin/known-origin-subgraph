@@ -498,7 +498,7 @@ export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale
     event.save()
 }
 
-function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
+export function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
     return CREATOR_CONTRACT
         .concat("-")
         .concat(address)
@@ -513,19 +513,37 @@ function createCreatorContractEventId(address: string, id: string, event: ethere
 function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereum.Event, edition: Edition | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
-    event.version = edition ? edition.version : BigInt.fromString("4")
-    event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
-    event.eventType = type
-    event.edition = edition ? edition.id : null
-    event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
-    event.creator = edition ? edition.artistAccount : ZERO_ADDRESS
-    event.creatorCommission = ZERO
-    event.collaborator = ZERO_ADDRESS
-    event.collaboratorCommission = edition ? edition.optionalCommissionRate : ZERO;
-    event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS]
-    event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS
+    // check for deployment here if the right eventType
+    if (type === "CreatorContractDeployed") {
+        event.version = BigInt.fromString("4")
+        event.type = CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.eventType = type
+        event.edition = null
+        event.seller = rawEvent.transaction.from
+        event.creator = rawEvent.transaction.from
+        event.creatorCommission = ZERO
+        event.collaborator = ZERO_ADDRESS
+        event.collaboratorCommission = ZERO;
+        event.stakeholderAddresses = [rawEvent.transaction.from];
+        event.triggeredBy = rawEvent.transaction.from;
+    }
+    else {
+        event.version = edition ? edition.version : BigInt.fromString("4")
+        event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.eventType = type
+        event.edition = edition ? edition.id : null
+        event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
+        event.creator = edition ? edition.artistAccount : ZERO_ADDRESS
+        event.creatorCommission = edition ? edition.artistCommission : ZERO
+        event.collaborator = ZERO_ADDRESS
+        event.collaboratorCommission = ZERO;
+        event.stakeholderAddresses = [edition ? edition.artistAccount : ZERO_ADDRESS]
+        event.triggeredBy = edition ? edition.artistAccount : ZERO_ADDRESS
+    }
 
     event.eventValueInWei = ZERO
+
+
 
     // `${transactionHash}-${logIndex}` is unique to each log
     event.timestamp = rawEvent.block.timestamp;
