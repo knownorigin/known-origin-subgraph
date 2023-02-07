@@ -825,7 +825,9 @@ describe("KODA V4 Creator Contract tests", () => {
 
       handleEditionSalesDisabledUpdated(toggleEvent)
 
-      assert.fieldEquals(EDITION_ENTITY_TYPE, editionId, "active", "true");
+      const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
+
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
 
     })
   });
