@@ -3,7 +3,8 @@ import { Address, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   handleBuyNowPurchased,
   handleListedForBuyItNow,
-  handleTransfer
+  handleTransfer,
+  handleEditionSalesDisabledUpdated
 } from "../../../src/mappings/v4-creator-contracts/creator-contract";
 import { handleSelfSovereignERC721Deployed } from "../../../src/mappings/v4-creator-contracts/factory";
 import { assert, createMockedFunction, mockIpfsFile } from "matchstick-as";
@@ -23,7 +24,8 @@ import {
   createBuyNowPurchasedEvent,
   createListedEditionForBuyNowEvent,
   createSelfSovereignERC721DeployedEvent,
-  createTransferEvent
+  createTransferEvent,
+  createEditionSalesDisabledUpdated
 } from "../mockingFunctions";
 import { createV4Id } from "../../../src/mappings/v4-creator-contracts/KODAV4";
 import { createCreatorContractEventId } from "../../../src/services/ActivityEvent.service";
@@ -738,5 +740,93 @@ describe("KODA V4 Creator Contract tests", () => {
       assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
       assert.entityCount(DAY_ENTITY_TYPE, 1);
     });
+  
+    test("Can end an open edition sale", () => {
+      ///////////////////////////
+      // Setup Contract Object //
+      ///////////////////////////
+
+      const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const selfSovereignNFT = "0x9f01f6cb996a4ca47841dd9392335296933c7a9f";
+      const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+      const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+
+      const editionId = BigInt.fromI32(200000);
+
+      const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
+      const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+      ssEvent.address = KODAV4_FACTORY;
+
+      let defaultPercentage = ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(100000));
+      const uri = ethereum.Value.fromString("ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "defaultRoyaltyPercentage", "defaultRoyaltyPercentage():(uint256)")
+        .returns([
+          defaultPercentage
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "name", "name():(string)")
+        .returns([
+          ethereum.Value.fromString("test contract")
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "symbol", "symbol():(string)")
+        .returns([
+          ethereum.Value.fromString("TEST")
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "operatorFilterRegistry", "operatorFilterRegistry():(address)")
+        .returns([
+          ethereum.Value.fromAddress(Address.fromString("0xf436269D6b7B9E8A76e6FB80C0a49681d4278747"))
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "isHidden", "isHidden():(bool)")
+        .returns([
+          ethereum.Value.fromBoolean(false)
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "editionSize", "editionSize(uint256):(uint256)")
+        .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(200000))])
+        .returns([
+          ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(10000))
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "editionURI", "editionURI(uint256):(string)")
+        .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(200000))])
+        .returns([
+          uri
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "isOpenEdition", "isOpenEdition(uint256):(bool)")
+        .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(200000))])
+        .returns([
+          ethereum.Value.fromBoolean(true)
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "editionCreator", "editionCreator(uint256):(address)")
+        .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(200000))])
+        .returns([
+          ethereum.Value.fromAddress(Address.fromString(deployer))
+        ]);
+
+      createMockedFunction(Address.fromString(selfSovereignNFT), "editionListing", "editionListing(uint256):(uint128,uint128,uint128)")
+        .withArgs([ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(200000))])
+        .returns([
+          ethereum.Value.fromUnsignedBigInt(BigInt.fromString("100000000000000000")), ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1674732534")), ethereum.Value.fromUnsignedBigInt(BigInt.fromString("1684732534"))
+        ]);
+
+      createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
+        .reverts();
+
+      handleSelfSovereignERC721Deployed(ssEvent);
+
+      const toggleEvent = createEditionSalesDisabledUpdated(editionId)
+
+      handleEditionSalesDisabledUpdated(toggleEvent)
+
+      assert.fieldEquals(EDITION_ENTITY_TYPE, editionId, "active", "true");
+
+    })
   });
 });
