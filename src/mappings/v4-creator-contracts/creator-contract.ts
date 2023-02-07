@@ -71,7 +71,11 @@ import * as tokenService from "../../services/Token.service";
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
-    editionEntity.active = event.params._disabled;
+    if (editionEntity.isOpenEdition) {
+        editionEntity.endDate = event.block.timestamp;
+    } else {
+        editionEntity.active = event.params._disabled;
+    }
     editionEntity.save()
 
     activityEventService.recordCCEditionSalesDisabledUpdated(
