@@ -564,8 +564,12 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
 
 export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
-    const entityId = createV4Id(event.address.toHexString(), event.params._editionId.toString())
-    const edition = Edition.load(entityId)
+    const edition = loadOrCreateV4Edition(
+        event.params._editionId,
+        event.block,
+        event.address,
+        contractEntity.isHidden
+    )
 
     if (edition != null) {
 
