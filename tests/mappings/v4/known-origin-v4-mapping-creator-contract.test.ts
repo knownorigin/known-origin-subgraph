@@ -821,13 +821,27 @@ describe("KODA V4 Creator Contract tests", () => {
 
       handleSelfSovereignERC721Deployed(ssEvent);
 
-      const toggleEvent = createEditionSalesDisabledUpdated(editionId)
+      const toggleEvent = createEditionSalesDisabledUpdated(editionId, true)
+      toggleEvent.address = KODAV4_FACTORY
+      toggleEvent.block.timestamp = BigInt.fromI32(200000)
 
       handleEditionSalesDisabledUpdated(toggleEvent)
 
       const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
 
       assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "endDate", BigInt.fromI32(200000).toString())
+
+      const toggleEvent2 = createEditionSalesDisabledUpdated(editionId, false)
+      toggleEvent2.address = KODAV4_FACTORY
+      toggleEvent2.block.timestamp = BigInt.fromI32(300)
+
+      handleEditionSalesDisabledUpdated(toggleEvent2)
+
+      const generatedEditionId2 = createV4Id(selfSovereignNFT, editionId.toString());
+
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "endDate", BigInt.fromI32(300).toString())
 
     })
   });

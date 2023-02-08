@@ -2,7 +2,7 @@ import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts";
 import {
     BuyNowPurchased,
     ListedEditionForBuyNow,
-    toggleEditionSalesDisabled,
+    EditionSalesDisabledUpdated,
     Transfer
 } from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {newMockEvent} from "matchstick-as";
@@ -67,11 +67,12 @@ export function createCreatorContractBannedEvent(contract: string, banned: boole
     return event
 }
 
-export function createEditionSalesDisabledUpdated(editionId: BigInt): toggleEditionSalesDisabled {
-    let event = changetype<toggleEditionSalesDisabled>(newMockEvent());
+export function createEditionSalesDisabledUpdated(editionId: BigInt, disabled: boolean): EditionSalesDisabledUpdated {
+    let event = changetype<EditionSalesDisabledUpdated>(newMockEvent());
     event.parameters = new Array();
 
     event.parameters.push(new ethereum.EventParam("editionId", ethereum.Value.fromUnsignedBigInt(editionId)));
+    event.parameters.push(new ethereum.EventParam("disabled", ethereum.Value.fromBoolean(disabled)));
 
     return event
 }
