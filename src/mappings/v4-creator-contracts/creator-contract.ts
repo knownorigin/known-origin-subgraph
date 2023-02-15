@@ -70,8 +70,14 @@ import * as tokenService from "../../services/Token.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
+    let creatorContractInstance = ERC721CreatorContract.bind(event.address)
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
-    editionEntity.active = event.params._disabled;
+    editionEntity.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(editionEntity.editionNmber));
+    if (editionEntity.isOpenEdition) {
+        editionEntity.endDate = event.block.timestamp;
+    } else {
+        editionEntity.active = event.params._disabled;
+    }
     editionEntity.save()
 
     activityEventService.recordCCEditionSalesDisabledUpdated(
@@ -558,66 +564,69 @@ export function handleSecondaryEditionRoyaltyUpdated(event: EditionRoyaltyPercen
 
 export function handleEditionLevelFundSplitterSet(event: EditionFundsHandlerUpdated): void {
     let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
-    let edition = loadOrCreateV4EditionFromTokenId(
+    const edition = loadOrCreateV4Edition(
         event.params._editionId,
         event.block,
         event.address,
         contractEntity.isHidden
     )
 
-    let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
-    let editionFundsHandler = event.params._handler.toHexString();
+    if (edition != null) {
 
-    let collective = Collective.load(editionFundsHandler);
+        let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
+        let editionFundsHandler = event.params._handler.toHexString();
 
-    if (collective == null) {
-        collective = new Collective(editionFundsHandler);
-        collective.baseHandler = event.params._handler;
-        collective.creator = creatorContractEntity.owner; // only owner can trigger this action so capture it
-        collective.recipients = new Array<Bytes>(); // set the fund handler as only recipient if it is not possible to query any recipients
-        collective.splits = new Array<BigInt>(); // set to 100% if recipients array is length 1
-        collective.createdTimestamp = event.block.timestamp;
-        collective.transactionHash = event.transaction.hash;
-        collective.editions = new Array<string>();
-        collective.isDeployed = true;
-    }
+        let collective = Collective.load(editionFundsHandler);
 
-    let editions = collective.editions
-    editions.push(edition.id)
-    collective.editions = editions
-
-    let maybeFundsHandlerContract = FundsHandler.bind(event.params._handler)
-    let maybeTotalRecipientsResult = maybeFundsHandlerContract.try_totalRecipients()
-
-    let defaultFundsRecipients = new Array<Bytes>()
-    let defaultFundsShares = new Array<BigInt>()
-
-    if (maybeTotalRecipientsResult.reverted == false) {
-        let totalRecipients = maybeTotalRecipientsResult.value
-        for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
-            let share = maybeFundsHandlerContract.shareAtIndex(i)
-            defaultFundsRecipients.push(share.value0)
-            defaultFundsShares.push(share.value1)
+        if (collective == null) {
+            collective = new Collective(editionFundsHandler);
+            collective.baseHandler = event.params._handler;
+            collective.creator = creatorContractEntity.owner; // only owner can trigger this action so capture it
+            collective.recipients = new Array<Bytes>(); // set the fund handler as only recipient if it is not possible to query any recipients
+            collective.splits = new Array<BigInt>(); // set to 100% if recipients array is length 1
+            collective.createdTimestamp = event.block.timestamp;
+            collective.transactionHash = event.transaction.hash;
+            collective.editions = new Array<string>();
+            collective.isDeployed = true;
         }
-    } else {
-        defaultFundsRecipients.push(event.params._handler)
-        defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
+
+        let editions = collective.editions
+        editions.push(edition.id)
+        collective.editions = editions
+
+        let maybeFundsHandlerContract = FundsHandler.bind(event.params._handler)
+        let maybeTotalRecipientsResult = maybeFundsHandlerContract.try_totalRecipients()
+
+        let defaultFundsRecipients = new Array<Bytes>()
+        let defaultFundsShares = new Array<BigInt>()
+
+        if (maybeTotalRecipientsResult.reverted == false) {
+            let totalRecipients = maybeTotalRecipientsResult.value
+            for (let i = ZERO; i.lt(totalRecipients); i = i.plus(ONE)) {
+                let share = maybeFundsHandlerContract.shareAtIndex(i)
+                defaultFundsRecipients.push(share.value0)
+                defaultFundsShares.push(share.value1)
+            }
+        } else {
+            defaultFundsRecipients.push(event.params._handler)
+            defaultFundsShares.push(BigInt.fromString("10000000")) // TODO this should use EIP2981 lookup and not assume the %
+        }
+
+        collective.recipients = defaultFundsRecipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
+        collective.splits = defaultFundsShares
+
+        collective.save()
+
+        edition.collective = collective.id.toString()
+        edition.save()
+
+        activityEventService.recordCCEditionFundsHandlerUpdated(
+            event.address.toHexString(),
+            edition.id,
+            event,
+            edition
+        );
     }
-
-    collective.recipients = defaultFundsRecipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
-    collective.splits = defaultFundsShares
-
-    collective.save()
-
-    edition.collective = collective.id.toString()
-    edition.save()
-
-    activityEventService.recordCCEditionFundsHandlerUpdated(
-        event.address.toHexString(),
-        edition.id,
-        event,
-        edition
-    );
 }
 
 export function handleListedTokenForBuyNow(event: ListedTokenForBuyNow): void {
