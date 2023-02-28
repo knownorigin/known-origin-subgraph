@@ -1,6 +1,6 @@
-import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {ActivityEvent, Edition, GatedSale, Phase, Token} from "../../generated/schema";
-import {CREATOR_CONTRACT, ZERO, ZERO_ADDRESS} from "../utils/constants";
+import {ZERO, ZERO_ADDRESS} from "../utils/constants";
 import * as EVENT_TYPES from "../utils/EventTypes";
 import {
     BuyNowDeListed,
@@ -15,6 +15,7 @@ import {
 
 let TYPE_EDITION = "EDITION";
 let TYPE_TOKEN = "TOKEN";
+let TYPE_CREATOR_CONTRACT = "CreatorContract";
 
 //////////////////////////////
 // Primary sales - editions //
@@ -86,6 +87,9 @@ function createEditionEvent(
     event.eventValueInWei = value;
     event.stakeholderAddresses = getStakeholderAddressesPrimary(edition, buyer)
     event.triggeredBy = rawEvent.transaction.from;
+    if(edition && edition.creatorContract) {
+        event.contractAddress = Address.fromString(edition.creatorContract as string)
+    }
 
     if (buyer) {
         event.buyer = buyer as Address
@@ -499,7 +503,7 @@ export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale
 }
 
 export function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
-    return CREATOR_CONTRACT
+    return TYPE_CREATOR_CONTRACT
         .concat("-")
         .concat(address)
         .concat("-")
@@ -514,9 +518,9 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     let event: ActivityEvent = new ActivityEvent(ID);
 
     // check for deployment here if the right eventType
-    if (type === "CreatorContractDeployed") {
+    if (edition === null) {
         event.version = BigInt.fromString("4")
-        event.type = CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.type = TYPE_CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
         event.eventType = type
         event.edition = null
         event.seller = rawEvent.transaction.from
@@ -529,7 +533,7 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     }
     else {
         event.version = edition ? edition.version : BigInt.fromString("4")
-        event.type = edition ? TYPE_EDITION : CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
+        event.type = edition ? TYPE_EDITION : TYPE_CREATOR_CONTRACT // For V4, we're either dealing with an edition or something at the global contract level
         event.eventType = type
         event.edition = edition ? edition.id : null
         event.seller = edition ? edition.artistAccount : ZERO_ADDRESS
@@ -543,7 +547,9 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
 
     event.eventValueInWei = ZERO
 
-
+    if (edition && edition.creatorContract) {
+        event.contractAddress = Address.fromString(edition.creatorContract as string);
+    }
 
     // `${transactionHash}-${logIndex}` is unique to each log
     event.timestamp = rawEvent.block.timestamp;
@@ -564,79 +570,105 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
 
 export function recordCCEditionSalesDisabledUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [CCEditionSalesDisabledUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "CCEditionSalesDisabledUpdated", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCEditionURIUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [EditionURIUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "EditionURIUpdated", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCContractPauseToggle(address: string, id: string, event: ethereum.Event, enabled: boolean): void {
     let ID = createCreatorContractEventId(address, id, event);
     let type = "CreatorContractPauseToggled" + (enabled ? "True" : "False")
+    log.debug("Saving activity event [{}] for ID [{}]", [type, ID])
     let ccEvent = createdCreatorContractEvent(ID, type, event, null);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCListedEditionForBuyNow(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [ListedEditionForBuyNow] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "ListedEditionForBuyNow", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCBuyNowDeListed(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [BuyNowDeListed] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "BuyNowDeListed", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCBuyNowPriceChanged(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [BuyNowPriceChanged] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "BuyNowPriceChanged", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCOwnershipTransferred(address: string, id: string, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [OwnershipTransferred] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "OwnershipTransferred", event, null);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCDefaultRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [DefaultRoyaltyPercentageUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "DefaultRoyaltyPercentageUpdated", event, null);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCEditionRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [EditionRoyaltyPercentageUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "EditionRoyaltyPercentageUpdated", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCEditionFundsHandlerUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [EditionFundsHandlerUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "EditionFundsHandlerUpdated", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCDeployed(address: string, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, "DEPLOYMENT", event);
+    log.debug("Saving activity event [CreatorContractDeployed] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "CreatorContractDeployed", event, null);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordCCBanned(address: string, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, "BAN", event);
+    log.debug("Saving activity event [CreatorContractBanned] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "CreatorContractBanned", event, null);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }
 
 export function recordV4EditionDisabledUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
+    log.debug("Saving activity event [CCEditionDisabledUpdated] for ID [{}]", [ID])
     let ccEvent = createdCreatorContractEvent(ID, "CCEditionDisabledUpdated", event, edition);
+    ccEvent.contractAddress = Bytes.fromHexString(address);
     ccEvent.save();
 }

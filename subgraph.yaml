@@ -2,8 +2,8 @@ specVersion: 0.0.5
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
 #graft:
-#  base: QmfPwBECUPJkDS94NSEFDkA4sGsRCE7TmD9p2XCksvcPKN # Subgraph ID of base subgraph
-#  block: 13146600 # Block number
+#  base: QmSkFP9UgFefXew1NfFuWJo2c136mmBzs9yEStWis4NXZe # Subgraph ID of base subgraph
+#  block: 16662000 # Block number
 features:
   - fullTextSearch
   - grafting
