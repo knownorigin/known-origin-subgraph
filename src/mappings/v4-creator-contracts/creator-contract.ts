@@ -69,9 +69,9 @@ import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
-    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
 
+    let contractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     let editionEntity = loadOrCreateV4Edition(event.params._editionId, event.block, event.address, contractEntity.isHidden);
     editionEntity.isOpenEdition = creatorContractInstance.isOpenEdition(BigInt.fromString(editionEntity.editionNmber));
 
@@ -80,7 +80,7 @@ export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpd
     }
 
     // Disable edition if no sales/transfers have happened
-    if(editionEntity.totalAvailable === ZERO) {
+    if(event.params._disabled && editionEntity.totalAvailable.equals(ZERO)) {
         editionEntity.active = false;
     }
     editionEntity.save()
