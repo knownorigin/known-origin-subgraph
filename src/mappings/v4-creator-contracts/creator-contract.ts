@@ -192,7 +192,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.editions = editions;
 
         // Artist
-        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp, '4')
     }
 
     // When we have an open edition from zero address i.e. a primary mint/purchase
@@ -370,7 +370,7 @@ export function handleTransfer(event: Transfer): void {
         // reduce supply of artist if edition is completely removed
         let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
         artist.supply = artist.supply.minus(edition.totalBurnt);
-        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.ccEditionsCount = artist.ccEditionsCount.minus(ONE);
         artist.save()
 
         // Set edition as disable as the entity has been removed

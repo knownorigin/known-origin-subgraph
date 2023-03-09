@@ -622,6 +622,7 @@ type Artist @entity {
     name: String
 
     editionsCount: BigInt!
+    ccEditionsCount: BigInt!
 
     supply: BigInt!
 

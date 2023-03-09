@@ -15,6 +15,7 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist = new Artist(artistAddress.toHexString())
         artist.address = artistAddress
         artist.editionsCount = ZERO
+        artist.ccEditionsCount = ZERO
         artist.issuedCount = ZERO
         artist.salesCount = ZERO
         artist.supply = ZERO
@@ -43,9 +44,14 @@ export function loadOrCreateArtist(address: Address): Artist {
     return artist as Artist;
 }
 
-export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): Artist {
+export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt, version: string): Artist {
     let artist = loadOrCreateArtist(artistAddress)
-    artist.editionsCount = artist.editionsCount.plus(ONE)
+    
+    if (version === '4') {
+        artist.ccEditionsCount = artist.ccEditionsCount.plus(ONE)
+    } else {
+        artist.editionsCount = artist.editionsCount.plus(ONE)
+    }
     artist.supply = artist.supply.plus(totalAvailable)
 
     if (artist.firstEdition === null) {
