@@ -371,6 +371,7 @@ export function handleTransfer(event: Transfer): void {
         // reduce supply of artist if edition is completely removed
         let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
         artist.supply = artist.supply.minus(edition.totalBurnt);
+        artist.editionsCount = artist.editionsCount.minus(ONE);
         artist.ccEditionsCount = artist.ccEditionsCount.minus(ONE);
         artist.save()
 

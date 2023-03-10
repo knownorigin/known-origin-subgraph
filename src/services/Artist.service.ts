@@ -50,9 +50,8 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     
     if (version === KodaVersions.KODA_V4) {
         artist.ccEditionsCount = artist.ccEditionsCount.plus(ONE)
-    } else {
-        artist.editionsCount = artist.editionsCount.plus(ONE)
-    }
+    }   
+    artist.editionsCount = artist.editionsCount.plus(ONE)
     artist.supply = artist.supply.plus(totalAvailable)
 
     if (artist.firstEdition === null) {
