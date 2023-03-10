@@ -67,6 +67,7 @@ import {findWETHTradeValue, toEther} from "../../utils/utils";
 import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
+import { KODA_V4 } from "../../utils/KodaVersions";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
@@ -192,7 +193,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.editions = editions;
 
         // Artist
-        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp, '4')
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp, KODA_V4)
     }
 
     // When we have an open edition from zero address i.e. a primary mint/purchase

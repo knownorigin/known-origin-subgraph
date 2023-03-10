@@ -48,7 +48,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
     if (!_editionDataResult.reverted) {
         let _editionData = _editionDataResult.value;
-        artistService.addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp, '2')
+        artistService.addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp, KodaVersions.KODA_V2)
     } else {
         log.error("Handled unknown reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
     }

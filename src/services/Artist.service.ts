@@ -5,6 +5,7 @@ import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import { Bytes } from "@graphprotocol/graph-ts/common/collections";
+import * as KodaVersions from "../utils/KodaVersions";
 
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
@@ -44,10 +45,10 @@ export function loadOrCreateArtist(address: Address): Artist {
     return artist as Artist;
 }
 
-export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt, version: string): Artist {
+export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt, version: BigInt): Artist {
     let artist = loadOrCreateArtist(artistAddress)
     
-    if (version === '4') {
+    if (version === KodaVersions.KODA_V4) {
         artist.ccEditionsCount = artist.ccEditionsCount.plus(ONE)
     } else {
         artist.editionsCount = artist.editionsCount.plus(ONE)
