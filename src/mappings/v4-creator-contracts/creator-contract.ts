@@ -78,10 +78,12 @@ export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpd
 
     if (editionEntity.isOpenEdition) {
         editionEntity.endDate = event.block.timestamp;
+        editionEntity.totalAvailable = editionEntity.totalSupply;
+        editionEntity.remainingSupply = ZERO;
     }
 
     // Disable edition if no sales/transfers have happened
-    if(event.params._disabled && editionEntity.totalAvailable.equals(ZERO)) {
+    if(event.params._disabled && editionEntity.totalSupply.equals(ZERO)) {
         editionEntity.active = false;
     }
     editionEntity.save()

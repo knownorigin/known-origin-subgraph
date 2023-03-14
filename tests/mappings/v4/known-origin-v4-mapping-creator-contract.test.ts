@@ -18,7 +18,7 @@ import {
   TRANSFER_ENTITY_TYPE
 } from "../entities";
 import * as SaleTypes from "../../../src/utils/SaleTypes";
-import { ZERO_ADDRESS } from "../../../src/utils/constants";
+import { ZERO, ZERO_ADDRESS } from "../../../src/utils/constants";
 import { CreatorContractSetting } from "../../../generated/schema";
 import {
   createBuyNowPurchasedEvent,
@@ -829,8 +829,10 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
 
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
       assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "endDate", BigInt.fromI32(200000).toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", ZERO.toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "remainingSupply", ZERO.toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "false");
 
       const toggleEvent2 = createEditionSalesDisabledUpdated(editionId, false)
       toggleEvent2.address = KODAV4_FACTORY
@@ -840,7 +842,7 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedEditionId2 = createV4Id(selfSovereignNFT, editionId.toString());
 
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "active", "false");
       assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "endDate", BigInt.fromI32(300).toString())
 
     })
