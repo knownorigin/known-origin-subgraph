@@ -85,6 +85,9 @@ export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpd
     // Disable edition if no sales/transfers have happened
     if(event.params._disabled && editionEntity.totalSupply.equals(ZERO)) {
         editionEntity.active = false;
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.ccEditionsCount = artist.ccEditionsCount.minus(ONE);
     }
     editionEntity.save()
 
