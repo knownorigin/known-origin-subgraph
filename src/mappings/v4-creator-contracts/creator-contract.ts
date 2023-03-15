@@ -420,11 +420,8 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
         activityEventService.recordEditionCreated(event, edition);
 
         // Add Open Edition to Artist
-        let isNewEdition = Edition.load(createV4Id(event.address.toHexString(), edition.id.toString())) == null
-        if(isNewEdition) {
-            let artist = Address.fromString(edition.artistAccount.toHexString());
-            addEditionToArtist(artist, edition.id, edition.totalAvailable, event.block.timestamp, KODA_V4)
-        }
+        let artist = Address.fromString(edition.artistAccount.toHexString());
+        addEditionToArtist(artist, edition.id, edition.totalAvailable, event.block.timestamp, KODA_V4)
     }
 
     activityEventService.recordCCListedEditionForBuyNow(
