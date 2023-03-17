@@ -5,6 +5,7 @@ import {toEther} from "../utils/utils";
 import {getArtistAddress} from "./AddressMapping.service";
 import {KnownOriginV2} from "../../generated/KnownOriginV2/KnownOriginV2";
 import { Bytes } from "@graphprotocol/graph-ts/common/collections";
+import * as KodaVersions from "../utils/KodaVersions";
 
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
@@ -15,6 +16,7 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist = new Artist(artistAddress.toHexString())
         artist.address = artistAddress
         artist.editionsCount = ZERO
+        artist.ccEditionsCount = ZERO
         artist.issuedCount = ZERO
         artist.salesCount = ZERO
         artist.supply = ZERO
@@ -43,8 +45,12 @@ export function loadOrCreateArtist(address: Address): Artist {
     return artist as Artist;
 }
 
-export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt): Artist {
+export function addEditionToArtist(artistAddress: Address, editionNumber: string, totalAvailable: BigInt, created: BigInt, version: BigInt): Artist {
     let artist = loadOrCreateArtist(artistAddress)
+    
+    if (version === KodaVersions.KODA_V4) {
+        artist.ccEditionsCount = artist.ccEditionsCount.plus(ONE)
+    }   
     artist.editionsCount = artist.editionsCount.plus(ONE)
     artist.supply = artist.supply.plus(totalAvailable)
 

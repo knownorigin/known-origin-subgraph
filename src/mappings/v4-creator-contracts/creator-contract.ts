@@ -67,6 +67,7 @@ import {findWETHTradeValue, toEther} from "../../utils/utils";
 import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../../utils/constants";
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
+import { KODA_V4 } from "../../utils/KodaVersions";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
@@ -84,6 +85,9 @@ export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpd
     // Disable edition if no sales/transfers have happened
     if(event.params._disabled && editionEntity.totalSupply.equals(ZERO)) {
         editionEntity.active = false;
+        let artist = loadOrCreateArtist(Address.fromString(editionEntity.artistAccount.toHexString()));
+        artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.ccEditionsCount = artist.ccEditionsCount.minus(ONE);
     }
     editionEntity.save()
 
@@ -194,7 +198,7 @@ export function handleTransfer(event: Transfer): void {
         contractEntity.editions = editions;
 
         // Artist
-        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp)
+        addEditionToArtist(creator, edition.id, edition.totalAvailable, event.block.timestamp, KODA_V4)
     }
 
     // When we have an open edition from zero address i.e. a primary mint/purchase
@@ -373,6 +377,7 @@ export function handleTransfer(event: Transfer): void {
         let artist = loadOrCreateArtist(Address.fromString(edition.artistAccount.toHexString()));
         artist.supply = artist.supply.minus(edition.totalBurnt);
         artist.editionsCount = artist.editionsCount.minus(ONE);
+        artist.ccEditionsCount = artist.ccEditionsCount.minus(ONE);
         artist.save()
 
         // Set edition as disable as the entity has been removed
@@ -416,6 +421,10 @@ export function handleListedForBuyItNow(event: ListedEditionForBuyNow): void {
 
         // Activity events
         activityEventService.recordEditionCreated(event, edition);
+
+        // Add Open Edition to Artist
+        let artist = Address.fromString(edition.artistAccount.toHexString());
+        addEditionToArtist(artist, edition.id, edition.totalAvailable, event.block.timestamp, KODA_V4)
     }
 
     activityEventService.recordCCListedEditionForBuyNow(
