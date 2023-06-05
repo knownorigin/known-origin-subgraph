@@ -871,14 +871,12 @@ describe("KODA V4 Creator Contract tests", () => {
       ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(ownershipTransferEvent)
 
-      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "hasBeenTransferred", 'true');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '3');
 
       const renounceOwnershipTransferEvent = createOwnershipTransferEvent(deployer, ZERO_ADDRESS.toHexString())
       renounceOwnershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(renounceOwnershipTransferEvent)
 
-      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "hasBeenTransferred", 'true');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '1');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "owner", ZERO_ADDRESS.toHexString());
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "deployer", deployer);
@@ -905,7 +903,6 @@ describe("KODA V4 Creator Contract tests", () => {
       ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(ownershipTransferEvent)
 
-      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "hasBeenTransferred", 'true');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '3');
 
       let contractEntity = CreatorContract.load(selfSovereignNFT) as CreatorContract;
@@ -916,7 +913,6 @@ describe("KODA V4 Creator Contract tests", () => {
       renounceOwnershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(renounceOwnershipTransferEvent)
 
-      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "hasBeenTransferred", 'true');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '2');
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "owner", DEAD_ADDRESS.toHexString());
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "deployer", deployer);

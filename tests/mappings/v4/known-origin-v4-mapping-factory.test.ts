@@ -75,7 +75,6 @@ describe("KODA V4 Factory tests", () => {
             assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "symbol", 'TEST')
             assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "filterRegistry", '0xf436269d6b7b9e8a76e6fb80c0a49681d4278747')
 
-            assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "hasBeenTransferred", 'false');
             assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '0');
 
             assert.entityCount(ACTIVITY_ENTITY_TYPE, 1);
