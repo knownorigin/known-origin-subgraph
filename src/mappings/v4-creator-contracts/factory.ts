@@ -90,6 +90,9 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.name = sovereignContractInstance.name()
     creatorContractEntity.symbol = sovereignContractInstance.symbol()
 
+    creatorContractEntity.transferState = ZERO;
+    creatorContractEntity.hasBeenTransferred = false;
+
     const filterRegistry = sovereignContractInstance.try_operatorFilterRegistry()
     if (filterRegistry.reverted === false) {
         creatorContractEntity.filterRegistry = filterRegistry.value
