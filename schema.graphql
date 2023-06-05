@@ -575,6 +575,10 @@ type CreatorContract @entity {
     # banned - flagged by the creator contract factory
     isHidden: Boolean!
 
+    #Transfer details
+    transferState: BigInt!
+    hasBeenTransferred: Boolean!
+
     # Global stats
     totalNumOfEditions: BigInt!
     totalNumOfTokensSold: BigInt!
