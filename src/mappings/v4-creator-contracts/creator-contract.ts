@@ -542,7 +542,6 @@ export function handleBuyNowPurchased(event: BuyNowPurchased): void {
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     let creatorContractEntity = CreatorContract.load(event.address.toHexString()) as CreatorContract
     creatorContractEntity.owner = event.params.newOwner
-    creatorContractEntity.hasBeenTransferred = true;
     if (event.params.newOwner.equals(DEAD_ADDRESS) || event.params.newOwner.equals(ZERO_ADDRESS)) {
         if (creatorContractEntity.totalNumOfEditions > ZERO) {
             creatorContractEntity.transferState = RENOUNCED_WITH_ARTWORKS;
