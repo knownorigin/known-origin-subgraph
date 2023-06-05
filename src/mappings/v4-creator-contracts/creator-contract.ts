@@ -68,6 +68,7 @@ import {DEAD_ADDRESS, isWETHAddress, ONE, ONE_ETH, ZERO, ZERO_ADDRESS, ZERO_BIG_
 import {createV4Id} from "./KODAV4"
 import * as tokenService from "../../services/Token.service";
 import { KODA_V4 } from "../../utils/KodaVersions";
+import { RENOUNCED_WITHOUT_ARTWORKS, RENOUNCED_WITH_ARTWORKS, TRANSFERRED_TO_ACTIVE_ADDRESS } from "../../utils/transferStates";
 
 export function handleEditionSalesDisabledUpdated(event: EditionSalesDisabledUpdated): void {
     let creatorContractInstance = ERC721CreatorContract.bind(event.address)
@@ -544,12 +545,12 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
     creatorContractEntity.hasBeenTransferred = true;
     if (event.params.newOwner.equals(DEAD_ADDRESS) || event.params.newOwner.equals(ZERO_ADDRESS)) {
         if (creatorContractEntity.totalNumOfEditions > ZERO) {
-            creatorContractEntity.transferState = BigInt.fromI32(2);
+            creatorContractEntity.transferState = RENOUNCED_WITH_ARTWORKS;
         } else {
-            creatorContractEntity.transferState = BigInt.fromI32(1);
+            creatorContractEntity.transferState = RENOUNCED_WITHOUT_ARTWORKS;
         }
     } else {
-        creatorContractEntity.transferState = BigInt.fromI32(3);
+        creatorContractEntity.transferState = TRANSFERRED_TO_ACTIVE_ADDRESS;
     }
     creatorContractEntity.save()
 

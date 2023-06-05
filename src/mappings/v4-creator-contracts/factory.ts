@@ -31,6 +31,7 @@ import {Bytes, BigInt} from "@graphprotocol/graph-ts/index";
 import {ZERO, ONE, ZERO_BIG_DECIMAL, DEAD_ADDRESS, ZERO_ADDRESS} from "../../utils/constants";
 import {loadOrCreateArtist} from "../../services/Artist.service";
 import {recordCCBanned, recordCCDeployed, recordV4EditionDisabledUpdated} from "../../services/ActivityEvent.service";
+import { NOT_TRANSFERRED } from "../../utils/transferStates";
 
 // Index the deployment of the factory in order to capture the global V4 params
 export function handleContractDeployed(event: ContractDeployed): void {
@@ -90,8 +91,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.name = sovereignContractInstance.name()
     creatorContractEntity.symbol = sovereignContractInstance.symbol()
 
-    creatorContractEntity.transferState = ZERO;
-    creatorContractEntity.hasBeenTransferred = false;
+    creatorContractEntity.transferState = NOT_TRANSFERRED;
 
     const filterRegistry = sovereignContractInstance.try_operatorFilterRegistry()
     if (filterRegistry.reverted === false) {

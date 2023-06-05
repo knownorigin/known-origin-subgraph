@@ -575,13 +575,8 @@ type CreatorContract @entity {
     # banned - flagged by the creator contract factory
     isHidden: Boolean!
 
-    #Transfer details
-    # 0: not transferred
-    # 1: transferred to dead address with no artworks minted
-    # 2: transferred to dead address with artworks minted
-    # 3: transferred to another active address
+    #Transfer details - see transferStates.ts
     transferState: BigInt!
-    hasBeenTransferred: Boolean!
 
     # Global stats
     totalNumOfEditions: BigInt!
