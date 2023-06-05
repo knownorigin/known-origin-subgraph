@@ -576,6 +576,10 @@ type CreatorContract @entity {
     isHidden: Boolean!
 
     #Transfer details
+    # 0: not transferred
+    # 1: transferred to dead address with no artworks minted
+    # 2: transferred to dead address with artworks minted
+    # 3: transferred to another active address
     transferState: BigInt!
     hasBeenTransferred: Boolean!
 
