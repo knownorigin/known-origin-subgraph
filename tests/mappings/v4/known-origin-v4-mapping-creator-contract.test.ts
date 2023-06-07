@@ -857,6 +857,7 @@ describe("KODA V4 Creator Contract tests", () => {
       ///////////////////////////
       const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
       const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const receiver = "0x7B953D086BA10043Be46D351B3f4114152f7B896"
       const selfSovereignNFT = "0x9f01f6cb996a4ca47841dd9392335296933c7a9f";
       const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
       const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
@@ -867,7 +868,7 @@ describe("KODA V4 Creator Contract tests", () => {
 
       handleSelfSovereignERC721Deployed(ssEvent);
 
-      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, deployer)
+      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, receiver)
       ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(ownershipTransferEvent)
 
@@ -889,6 +890,7 @@ describe("KODA V4 Creator Contract tests", () => {
       ///////////////////////////
       const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
       const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const receiver = "0x7B953D086BA10043Be46D351B3f4114152f7B896"
       const selfSovereignNFT = "0x9f01f6cb996a4ca47841dd9392335296933c7a9f";
       const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
       const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
@@ -899,7 +901,7 @@ describe("KODA V4 Creator Contract tests", () => {
 
       handleSelfSovereignERC721Deployed(ssEvent);
 
-      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, deployer)
+      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, receiver)
       ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
       handleOwnershipTransferred(ownershipTransferEvent)
 
