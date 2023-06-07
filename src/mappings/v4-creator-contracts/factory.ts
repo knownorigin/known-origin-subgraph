@@ -176,6 +176,7 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
         creatorContractEntity.secondaryRoyaltyPercentage = ZERO;
         creatorContractEntity.defaultFundsRecipients = new Array<Bytes>();
         creatorContractEntity.defaultFundsShares = new Array<BigInt>();
+        creatorContractEntity.transferState = NOT_TRANSFERRED;
         creatorContractEntity.save()
     }
     creatorContractEntity.isHidden = event.params._banned
