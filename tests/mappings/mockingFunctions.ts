@@ -3,7 +3,8 @@ import {
     BuyNowPurchased,
     ListedEditionForBuyNow,
     EditionSalesDisabledUpdated,
-    Transfer
+    Transfer,
+    OwnershipTransferred
 } from "../../generated/KnownOriginV4Factory/ERC721KODACreatorWithBuyItNow";
 import {newMockEvent} from "matchstick-as";
 import {
@@ -73,6 +74,16 @@ export function createEditionSalesDisabledUpdated(editionId: BigInt, disabled: b
 
     event.parameters.push(new ethereum.EventParam("editionId", ethereum.Value.fromUnsignedBigInt(editionId)));
     event.parameters.push(new ethereum.EventParam("disabled", ethereum.Value.fromBoolean(disabled)));
+
+    return event
+}
+
+export function createOwnershipTransferEvent(previousOwner: string, newOwner: string): OwnershipTransferred {
+    let event = changetype<OwnershipTransferred>(newMockEvent());
+    event.parameters = new Array();
+
+    event.parameters.push(new ethereum.EventParam("previousOwner", ethereum.Value.fromAddress(Address.fromString(previousOwner))));
+    event.parameters.push(new ethereum.EventParam("newOwner", ethereum.Value.fromAddress(Address.fromString(newOwner))));
 
     return event
 }

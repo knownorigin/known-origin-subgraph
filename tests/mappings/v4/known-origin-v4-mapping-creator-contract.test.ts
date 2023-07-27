@@ -4,7 +4,8 @@ import {
   handleBuyNowPurchased,
   handleListedForBuyItNow,
   handleTransfer,
-  handleEditionSalesDisabledUpdated
+  handleEditionSalesDisabledUpdated,
+  handleOwnershipTransferred
 } from "../../../src/mappings/v4-creator-contracts/creator-contract";
 import { handleSelfSovereignERC721Deployed } from "../../../src/mappings/v4-creator-contracts/factory";
 import { assert, createMockedFunction, mockIpfsFile } from "matchstick-as";
@@ -18,14 +19,15 @@ import {
   TRANSFER_ENTITY_TYPE
 } from "../entities";
 import * as SaleTypes from "../../../src/utils/SaleTypes";
-import { ZERO, ZERO_ADDRESS } from "../../../src/utils/constants";
-import { CreatorContractSetting } from "../../../generated/schema";
+import { DEAD_ADDRESS, ZERO, ZERO_ADDRESS } from "../../../src/utils/constants";
+import { CreatorContractSetting, CreatorContract } from "../../../generated/schema";
 import {
   createBuyNowPurchasedEvent,
   createListedEditionForBuyNowEvent,
   createSelfSovereignERC721DeployedEvent,
   createTransferEvent,
-  createEditionSalesDisabledUpdated
+  createEditionSalesDisabledUpdated,
+  createOwnershipTransferEvent
 } from "../mockingFunctions";
 import { createV4Id } from "../../../src/mappings/v4-creator-contracts/KODAV4";
 import { createCreatorContractEventId } from "../../../src/services/ActivityEvent.service";
@@ -847,4 +849,76 @@ describe("KODA V4 Creator Contract tests", () => {
 
     })
   });
+
+  describe('Contract transfer tests', () => {
+    test('Can successfully transfer a contract with no NFTs minted', () => {
+      ///////////////////////////
+      // Setup Contract Object //
+      ///////////////////////////
+      const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const receiver = "0x7B953D086BA10043Be46D351B3f4114152f7B896"
+      const selfSovereignNFT = "0x9f01f6cb996a4ca47841dd9392335296933c7a9f";
+      const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+      const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+
+      const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
+      const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+      ssEvent.address = KODAV4_FACTORY;
+
+      handleSelfSovereignERC721Deployed(ssEvent);
+
+      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, receiver)
+      ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
+      handleOwnershipTransferred(ownershipTransferEvent)
+
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '3');
+
+      const renounceOwnershipTransferEvent = createOwnershipTransferEvent(deployer, ZERO_ADDRESS.toHexString())
+      renounceOwnershipTransferEvent.address = Address.fromString(selfSovereignNFT);
+      handleOwnershipTransferred(renounceOwnershipTransferEvent)
+
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '1');
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "owner", ZERO_ADDRESS.toHexString());
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "deployer", deployer);
+
+    })
+
+    test('Can successfully transfer a contract with NFTs minted', () => {
+      ///////////////////////////
+      // Setup Contract Object //
+      ///////////////////////////
+      const deployer = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const artist = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+      const receiver = "0x7B953D086BA10043Be46D351B3f4114152f7B896"
+      const selfSovereignNFT = "0x9f01f6cb996a4ca47841dd9392335296933c7a9f";
+      const implementation = "0x34775b52d205d83f9ed3dfa115be51f84e24c3f7";
+      const fundsHandler = "0xcda7fc32898873e1f5a12d23d4532efbcb078901";
+
+      const KODAV4_FACTORY = Address.fromString("0x9f01f6cb996a4ca47841dd9392335296933c7a9f");
+      const ssEvent = createSelfSovereignERC721DeployedEvent(deployer, artist, selfSovereignNFT, implementation, fundsHandler);
+      ssEvent.address = KODAV4_FACTORY;
+
+      handleSelfSovereignERC721Deployed(ssEvent);
+
+      const ownershipTransferEvent = createOwnershipTransferEvent(deployer, receiver)
+      ownershipTransferEvent.address = Address.fromString(selfSovereignNFT);
+      handleOwnershipTransferred(ownershipTransferEvent)
+
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '3');
+
+      let contractEntity = CreatorContract.load(selfSovereignNFT) as CreatorContract;
+      contractEntity.totalNumOfEditions = BigInt.fromI32(1);
+      contractEntity.save()
+
+      const renounceOwnershipTransferEvent = createOwnershipTransferEvent(deployer, DEAD_ADDRESS.toHexString())
+      renounceOwnershipTransferEvent.address = Address.fromString(selfSovereignNFT);
+      handleOwnershipTransferred(renounceOwnershipTransferEvent)
+
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '2');
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "owner", DEAD_ADDRESS.toHexString());
+      assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "deployer", deployer);
+
+    })
+  })
 });
