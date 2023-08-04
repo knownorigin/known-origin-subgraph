@@ -228,7 +228,7 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
             return metaData as MetaData;
         }
 
-        log.error("FAILED IPFS token URI load {}", [tokenURI]);
+        log.warning("FAILED IPFS token URI load {}", [tokenURI]);
         return new MetaData(tokenIpfsHash); // try and construct a object even if empty?
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
