@@ -19,7 +19,7 @@ function artistOverrides(editionId:string, originalName:string) : string {
     return originalName;
 }
 
-function handleMetaData(content: Bytes): void {
+export function handleMetaData(content: Bytes): void {
     const ipfsHash = dataSource.stringParam()
     log.info('Handling Metadata for IPFS hash', [ipfsHash])
     let metaData = new MetaData(ipfsHash)
