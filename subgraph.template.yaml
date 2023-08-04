@@ -933,3 +933,5 @@ templates:
             file: ./abis/kodav2/KnownOriginV2.json
           - name: KnownOriginV3
             file: ./abis/kodav3/KnownOriginV3.json
+          - name: MintingFactory
+            file: ./abis/kodav3/MintingFactoryV2.json
