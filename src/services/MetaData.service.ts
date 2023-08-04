@@ -21,6 +21,7 @@ function artistOverrides(editionId:string, originalName:string) : string {
 
 function handleMetaData(content: Bytes): void {
     const ipfsHash = dataSource.stringParam()
+    log.info('Handling Metadata for IPFS hash', [ipfsHash])
     let metaData = new MetaData(ipfsHash)
     const jsonObject = json.fromBytes(content).toObject()
 
@@ -214,7 +215,9 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
             log.error("Skipping invalid IPFS hash lookup", [(ipfsHash || "N/A")]);
             return new MetaData("invalid-ipfs-hash-" + (ipfsHash || "N/A"));
         }
+        log.info('tokenUri', [tokenURI])
         const tokenIpfsHash = ipfsHash + '/' + tokenURI + '.json'
+        log.info('tokenIpfsHash', [tokenIpfsHash])
         MetaDataTemplate.create(tokenIpfsHash);
 
         const metaData = MetaData.load(tokenIpfsHash)
