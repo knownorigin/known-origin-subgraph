@@ -7,7 +7,6 @@ graft:
 features:
   - fullTextSearch
   - grafting
-  - ipfsOnEthereumContracts
   - nonFatalErrors
 schema:
   file: ./schema.graphql
