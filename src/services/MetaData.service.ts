@@ -218,9 +218,9 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         log.info('tokenUri', [tokenURI])
         const tokenIpfsHash = ipfsHash + '/' + tokenURI + '.json'
         log.info('tokenIpfsHash', [tokenIpfsHash])
-        MetaDataTemplate.create(tokenIpfsHash);
+        MetaDataTemplate.create(ipfsHash);
 
-        const metaData = MetaData.load(tokenIpfsHash)
+        const metaData = MetaData.load(ipfsHash)
 
         if (metaData) {
 
@@ -232,7 +232,7 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         }
 
         log.warning("FAILED IPFS token URI load {}", [tokenURI]);
-        return new MetaData(tokenIpfsHash); // try and construct a object even if empty?
+        return new MetaData(ipfsHash); // try and construct a object even if empty?
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
