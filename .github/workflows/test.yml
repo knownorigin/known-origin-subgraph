@@ -35,13 +35,13 @@ jobs:
           node-version: v16.13.1
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Build subgraph.yaml for mainnet
-        run: yarn prep:mainnet
+        run: npm prep:mainnet
 
       - name: Run matchstick tests
-        run: yarn test
+        run: npm test
 
 #      - name: Generate code coverage report
 #        run: yarn coverage
