@@ -83,7 +83,7 @@ export function handleMetaData(content: Bytes): void {
 
             if (isObject(attributes) && attributes.toObject().isSet('artist')) {
                 // @ts-ignore
-                metaData.artist = attributes.toObject().mustGet('artist').toU64().toString()
+                metaData.artist = attributes.toObject().mustGet('artist').toString()
             }
 
             if (isObject(attributes) && attributes.toObject().isSet('production_year')) {
