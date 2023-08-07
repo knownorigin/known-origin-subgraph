@@ -35,7 +35,7 @@ jobs:
           node-version: v16.13.1
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn Install
 
       - name: Build subgraph.yaml for mainnet
         run: yarn prep:mainnet
