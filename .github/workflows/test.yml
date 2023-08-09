@@ -38,10 +38,10 @@ jobs:
         run: npm install
 
       - name: Build subgraph.yaml for mainnet
-        run: npm prep:mainnet
+        run: npm run prep:mainnet
 
       - name: Run matchstick tests
-        run: npm test
+        run: npm run test
 
 #      - name: Generate code coverage report
 #        run: yarn coverage
