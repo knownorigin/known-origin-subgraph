@@ -1,7 +1,6 @@
-import {Bytes, dataSource, ipfs, json, JSONValue, JSONValueKind} from "@graphprotocol/graph-ts";
+import {Bytes, dataSource, json, JSONValue, JSONValueKind} from "@graphprotocol/graph-ts";
 import {MetaData} from "../../generated/schema";
-import {BigInt, log, Result} from "@graphprotocol/graph-ts/index";
-import { TypedMap } from "@graphprotocol/graph-ts/common/collections";
+import {log} from "@graphprotocol/graph-ts/index";
 import { MetaData as MetaDataTemplate } from "../../generated/templates";
 
 
@@ -220,18 +219,10 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         log.info('tokenIpfsHash', [tokenIpfsHash])
         MetaDataTemplate.create(ipfsHash);
 
-        const metaData = MetaData.load(ipfsHash)
+        MetaData.load(ipfsHash)
 
-        if (metaData) {
 
-            if (metaData.artist) {
-                metaData.artist = artistOverrides(editionNumber, metaData.artist as string);
-            }
 
-            return metaData as MetaData;
-        }
-
-        log.warning("FAILED IPFS token URI load {}", [tokenURI]);
         return new MetaData(ipfsHash); // try and construct a object even if empty?
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);

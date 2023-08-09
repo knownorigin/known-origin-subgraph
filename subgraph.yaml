@@ -7,7 +7,6 @@ repository: https://github.com/knownorigin/graph-known-origin
 features:
   - fullTextSearch
   - grafting
-  - nonFatalErrors
 schema:
   file: ./schema.graphql
 dataSources:
