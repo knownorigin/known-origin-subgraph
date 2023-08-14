@@ -1,4 +1,65 @@
-# KnownOrigin.io Subgraph
+# KnownOrigin.io Indexed Subgraph V2
+
+### URIs
+
+| Chain               | URL                                                                                 |
+|-----------------------|-------------------------------------------------------------------------------------|
+| Mainnet  | N/A                     ||
+| Goerli    | N/A              ||
+
+### Installing the Graph CLI
+
+```bash
+npm install -g @graphprotocol/graph-cli
+```
+
+### Authing with the CLI
+
+To deploy any changes to a subgraph you must be authed with the specific deploy_key for that subgraph, ask a code owner for these keys before attempting to deploy.
+
+```bash
+graph auth --studio DEPLOY_KEY
+```
+
+### Dev cycle
+
+**Requires Node 16 !**
+```bash
+nvm use
+```
+
+Install
+
+```bash
+npm install
+```
+
+Prepare subgraph.yaml for selected chain
+
+```bash
+npm run prep:mainnet || npm run prep:goerli
+```
+
+Codegen
+
+```bash
+npm run codegen
+```
+
+Build Subgraph
+
+```bash
+npm run build
+```
+
+Deploy the Subgraph
+
+```bash
+npm run deploy:mainnet || npm run deploy:goerli
+```
+
+
+# KnownOrigin.io Hosted Subgraph (Deprecated)
 
 ### Graph UI
 
@@ -25,7 +86,6 @@ https://thegraph.com/hosted-service/subgraph/knownorigin/known-origin-goerli
 | Production (mainnet)  | https://thegraph.com/explorer/subgraph/knownorigin/known-origin                     ||
 | Staging (mainnet)     | https://thegraph.com/explorer/subgraph/knownorigin/known-origin-staging             ||
 | Development (goerli)  | https://thegraph.com/hosted-service/subgraph/knownorigin/known-origin-goerli        ||
-| Development (rinkeby) | ~~https://thegraph.com/explorer/subgraph/knownorigin/knownoriginrinkeby~~ Deprecated ||
 | Alpha Studio (mainnet) | https://thegraph.com/studio/subgraph/known-origin                                   ||
 
 ### Built via
