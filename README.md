@@ -1,11 +1,13 @@
-# KnownOrigin.io Indexed Subgraph V2
+# KnownOrigin.io Indexed Subgraph V2 (Graph Network)
+
+See: https://thegraph.com/docs/en/deploying/subgraph-studio/#publish-your-subgraphs
 
 ### URIs
 
-| Chain               | URL                                                                                 |
-|-----------------------|-------------------------------------------------------------------------------------|
-| Mainnet  | N/A                     ||
-| Goerli    | N/A              ||
+| Chain               | Studio Link (requires auth)                               | Public URL|
+|-----------------------|-----------------------------------------------------------|----|
+| Mainnet  | https://thegraph.com/studio/subgraph/known-origin/        | - ||
+| Goerli    | https://thegraph.com/studio/subgraph/known-origin-goerli/ | https://gateway.testnet.thegraph.com/api/[api-key]/subgraphs/id/CGZ1hQkiQXTyGLrAFH1yk3H8xPjBy6avbTB8rCLw9sJL ||
 
 ### Installing the Graph CLI
 
@@ -57,6 +59,10 @@ Deploy the Subgraph
 ```bash
 npm run deploy:mainnet || npm run deploy:goerli
 ```
+
+Goerli Faucet for test GRT tokens
+
+* https://discord.com/channels/438038660412342282/1001942596958048440
 
 
 # KnownOrigin.io Hosted Subgraph (Deprecated)
