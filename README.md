@@ -6,7 +6,7 @@ See: https://thegraph.com/docs/en/deploying/subgraph-studio/#publish-your-subgra
 
 | Chain               | Studio Link (requires auth)                               | Public URL|
 |-----------------------|-----------------------------------------------------------|----|
-| Mainnet  | https://thegraph.com/studio/subgraph/known-origin/        | - ||
+| Mainnet  | https://thegraph.com/studio/subgraph/known-origin/        | https://gateway.thegraph.com/api/[api-key]/subgraphs/id/CGZ1hQkiQXTyGLrAFH1yk3H8xPjBy6avbTB8rCLw9sJL ||
 | Goerli    | https://thegraph.com/studio/subgraph/known-origin-goerli/ | https://gateway.testnet.thegraph.com/api/[api-key]/subgraphs/id/CGZ1hQkiQXTyGLrAFH1yk3H8xPjBy6avbTB8rCLw9sJL ||
 
 ### Installing the Graph CLI
