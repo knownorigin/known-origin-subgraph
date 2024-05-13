@@ -305,7 +305,7 @@ type Composable @entity {
 }
 
 # ComposableItem represents one token attached to a composable
-type ComposableItem @entity(immutable: true)  {
+type ComposableItem @entity  {
     id: ID! # ID made up of combined tokenID/composing contract/composing IDs
     address: String! # Address of the ERC20/ERC721 token
     tokenID: String! # ID of the token
