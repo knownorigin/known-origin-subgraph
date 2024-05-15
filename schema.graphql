@@ -152,7 +152,7 @@ type _Schema_
 ####################################################################################
 
 # Rolled up counts for a given day
-type Day @entity(immutable: true) {
+type Day @entity {
     id: ID!
     date: String!
     transferCount: BigInt!
@@ -618,7 +618,7 @@ type ArtistMintingConfig @entity(immutable: true) {
 }
 
 # An artists who has created editions/tokens
-type Artist @entity(immutable: true) {
+type Artist @entity {
     id: ID!
 
     address: Bytes! # address
