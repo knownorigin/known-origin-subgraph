@@ -91,6 +91,7 @@ dataSources:
       address: '{{auction-v1-address}}'
       abi: ArtistAcceptingBidsV1
       startBlock: {{auction-v1-startBlock}}
+      endBlock: {{auction-v1-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -179,6 +180,7 @@ dataSources:
       address: '{{token-marketplace-v1-address}}'
       abi: TokenMarketplace
       startBlock: {{token-marketplace-v1-startBlock}}
+      endBlock: {{token-marketplace-v1-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -450,6 +452,7 @@ dataSources:
       address: '{{koda-v3-minting-factory-address}}'
       abi: MintingFactory
       startBlock: {{koda-v3-minting-factory-startBlock}}
+      endBlock: {{koda-v3-minting-factory-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

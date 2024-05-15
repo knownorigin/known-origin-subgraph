@@ -90,6 +90,7 @@ dataSources:
       address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
       abi: ArtistAcceptingBidsV1
       startBlock: 6568535
+      endBlock: 11250551
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -174,6 +175,7 @@ dataSources:
       address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
       abi: TokenMarketplace
       startBlock: 9927235
+      endBlock: 12477754
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -437,6 +439,7 @@ dataSources:
       address: '0x36CF31019816E9490959F75Ba9164eDd304De01D'
       abi: MintingFactory
       startBlock: 13081038
+      endBlock: 16483508
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

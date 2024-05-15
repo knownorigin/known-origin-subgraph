@@ -152,7 +152,7 @@ type _Schema_
 ####################################################################################
 
 # Rolled up counts for a given day
-type Day @entity {
+type Day @entity(immutable: true) {
     id: ID!
     date: String!
     transferCount: BigInt!
@@ -183,7 +183,7 @@ type Day @entity {
 }
 
 # N.B: Only for V3 atm
-type PlatformConfig @entity {
+type PlatformConfig @entity(immutable: true) {
     id: ID!
 
     # NFT
@@ -207,7 +207,7 @@ type PlatformConfig @entity {
 }
 
 # A token and its details
-type Token @entity {
+type Token @entity(immutable: true) {
     id: ID!
     version: BigInt! # KODA 2, 3 or 4
     salesType: BigInt! # The current sales mechanic being used on this edition
@@ -299,7 +299,7 @@ type ListedToken @entity {
 }
 
 # A composable is a combination of a V3 NFT and a set number of tokens
-type Composable @entity {
+type Composable @entity(immutable: true) {
     id: ID! # toString for address
     items: [ComposableItem!]  # An array of composable items
 }
@@ -321,7 +321,7 @@ type CollectiveHandlers @entity(immutable: true) {
     lastUpdatedTransactionHash: Bytes!
 }
 
-type Collective @entity {
+type Collective @entity(immutable: true) {
     id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
@@ -334,7 +334,7 @@ type Collective @entity {
 }
 
 # A token/editions and its meta data
-type Edition @entity {
+type Edition @entity(immutable: true) {
     id: ID! # Composite ID from edition ID and optional contract address for CC
     version: BigInt! # KODA 2 or 3 or 4
     editionNmber: String! # edition no. not composite key
@@ -474,7 +474,7 @@ type MetaData @entity(immutable: true) {
 }
 
 # Single high level entity capturing the top offer on the secondary marketplace
-type TokenOffer @entity {
+type TokenOffer @entity(immutable: true) {
     id: ID!
     version: BigInt! # KODA 2 or 3
     token: Token!
@@ -486,7 +486,7 @@ type TokenOffer @entity {
 }
 
 # Encapsulates all offers either on editions or tokens
-type Offer @entity {
+type Offer @entity(immutable: true) {
     id: ID!                         # edition ID or token ID
     version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
@@ -504,7 +504,7 @@ type Offer @entity {
 }
 
 # Store the total mints per user, per sale & phase
-type PhaseMintCount @entity {
+type PhaseMintCount @entity(immutable: true) {
     id: ID!                  # composite key (sale, edition, phase, minter) - unique per user and sale/phase
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
@@ -530,7 +530,7 @@ type Phase @entity {
 }
 
 # A gate sale configuration - one per edition
-type GatedSale @entity {
+type GatedSale @entity(immutable: true) {
     id: ID!                 # The ID of the sale
     editionId: String!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
@@ -541,7 +541,7 @@ type GatedSale @entity {
 }
 
 # Any KODA V4 Contract Deployed from the V4 factory
-type CreatorContract @entity {
+type CreatorContract @entity(immutable: true) {
     id: ID!
 
     # Deployment information
@@ -593,7 +593,7 @@ type CreatorContract @entity {
     filterRegistry: Bytes
 }
 
-type CreatorContractSetting @entity {
+type CreatorContractSetting @entity(immutable: true) {
     id: ID!
 
     factoryContract: Bytes!             # Creator contract factory
@@ -610,7 +610,7 @@ type CreatorContractSetting @entity {
 ## Accountable entities ##
 ##########################
 
-type ArtistMintingConfig @entity {
+type ArtistMintingConfig @entity(immutable: true) {
     id: ID!
     mints: BigInt!
     firstMintInPeriod: BigInt!
@@ -618,7 +618,7 @@ type ArtistMintingConfig @entity {
 }
 
 # An artists who has created editions/tokens
-type Artist @entity {
+type Artist @entity(immutable: true) {
     id: ID!
 
     address: Bytes! # address
@@ -659,7 +659,7 @@ type Artist @entity {
 }
 
 # A single collector who has at sometime held a KO asset
-type Collector @entity {
+type Collector @entity(immutable: true) {
     id: ID! # toString for address
     address: Bytes! # address
 
