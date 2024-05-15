@@ -659,7 +659,7 @@ type Artist @entity {
 }
 
 # A single collector who has at sometime held a KO asset
-type Collector @entity(immutable: true) {
+type Collector @entity {
     id: ID! # toString for address
     address: Bytes! # address
 
