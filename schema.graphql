@@ -183,7 +183,7 @@ type Day @entity {
 }
 
 # N.B: Only for V3 atm
-type PlatformConfig @entity(immutable: true) {
+type PlatformConfig @entity {
     id: ID!
 
     # NFT
@@ -207,7 +207,7 @@ type PlatformConfig @entity(immutable: true) {
 }
 
 # A token and its details
-type Token @entity(immutable: true) {
+type Token @entity {
     id: ID!
     version: BigInt! # KODA 2, 3 or 4
     salesType: BigInt! # The current sales mechanic being used on this edition
@@ -321,7 +321,7 @@ type CollectiveHandlers @entity(immutable: true) {
     lastUpdatedTransactionHash: Bytes!
 }
 
-type Collective @entity(immutable: true) {
+type Collective @entity {
     id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
@@ -334,7 +334,7 @@ type Collective @entity(immutable: true) {
 }
 
 # A token/editions and its meta data
-type Edition @entity(immutable: true) {
+type Edition @entity {
     id: ID! # Composite ID from edition ID and optional contract address for CC
     version: BigInt! # KODA 2 or 3 or 4
     editionNmber: String! # edition no. not composite key
@@ -486,7 +486,7 @@ type TokenOffer @entity(immutable: true) {
 }
 
 # Encapsulates all offers either on editions or tokens
-type Offer @entity(immutable: true) {
+type Offer @entity {
     id: ID!                         # edition ID or token ID
     version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
@@ -504,7 +504,7 @@ type Offer @entity(immutable: true) {
 }
 
 # Store the total mints per user, per sale & phase
-type PhaseMintCount @entity(immutable: true) {
+type PhaseMintCount @entity {
     id: ID!                  # composite key (sale, edition, phase, minter) - unique per user and sale/phase
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
@@ -514,7 +514,7 @@ type PhaseMintCount @entity(immutable: true) {
 }
 
 # A gate sale phase configuration
-type Phase @entity {
+type Phase @entity(immutable: true) {
     id: ID!
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
@@ -541,7 +541,7 @@ type GatedSale @entity(immutable: true) {
 }
 
 # Any KODA V4 Contract Deployed from the V4 factory
-type CreatorContract @entity(immutable: true) {
+type CreatorContract @entity {
     id: ID!
 
     # Deployment information
@@ -593,7 +593,7 @@ type CreatorContract @entity(immutable: true) {
     filterRegistry: Bytes
 }
 
-type CreatorContractSetting @entity(immutable: true) {
+type CreatorContractSetting @entity {
     id: ID!
 
     factoryContract: Bytes!             # Creator contract factory
@@ -610,7 +610,7 @@ type CreatorContractSetting @entity(immutable: true) {
 ## Accountable entities ##
 ##########################
 
-type ArtistMintingConfig @entity(immutable: true) {
+type ArtistMintingConfig @entity {
     id: ID!
     mints: BigInt!
     firstMintInPeriod: BigInt!
