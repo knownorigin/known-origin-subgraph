@@ -299,7 +299,7 @@ type ListedToken @entity {
 }
 
 # A composable is a combination of a V3 NFT and a set number of tokens
-type Composable @entity(immutable: true) {
+type Composable @entity {
     id: ID! # toString for address
     items: [ComposableItem!]  # An array of composable items
 }
@@ -314,7 +314,7 @@ type ComposableItem @entity  {
 }
 
 # Maintain an list of approved collective handlers i.e. contracts which are cloned and used
-type CollectiveHandlers @entity(immutable: true) {
+type CollectiveHandlers @entity {
     id: ID! # base address
     active: Boolean!
     lastUpdatedTimestamp: BigInt!
