@@ -530,7 +530,7 @@ type Phase @entity(immutable: true) {
 }
 
 # A gate sale configuration - one per edition
-type GatedSale @entity(immutable: true) {
+type GatedSale @entity {
     id: Bytes!                 # The ID of the sale
     editionId: String!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
