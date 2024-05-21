@@ -6,7 +6,7 @@
 # Generic activity stream events for history of actions including primary and secondary sales actions & triggers
 # Used for listing out token history on the token pages
 type TokenEvent @entity(immutable: true) {
-    id: Bytes!                     # Composite key made form multiple items
+    id: ID!                     # Composite key made form multiple items
     version: BigInt!            # KODA 2 or 3
     name: String!
     token: Token!
@@ -29,7 +29,7 @@ type TokenEvent @entity(immutable: true) {
 
 # Token events for transfers
 type TransferEvent @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     version: BigInt! # KODA 2 or 3
     from: Bytes! # address
     to: Bytes! # address
@@ -49,7 +49,7 @@ type TransferEvent @entity(immutable: true) {
 
 # Edition primary sale auction events
 type AuctionEvent @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     version: BigInt! # KODA 2 or 3
     edition: Edition!
     name: String!
@@ -71,7 +71,7 @@ type AuctionEvent @entity(immutable: true) {
 
 # Common unified event stream spanning KODA versions and various types
 type ActivityEvent @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     type: String!               # Token, Edition or Creator Contract
     version: BigInt!            # KODA 2 or 3
     eventType: String!          # Event types e.g. ['EditionCreated', 'Purchase', 'BidPlaced', 'BidAccepted', 'BidIncreased', 'BidRejected', 'BidWithdrawn']
@@ -153,7 +153,7 @@ type _Schema_
 
 # Rolled up counts for a given day
 type Day @entity {
-    id: Bytes!
+    id: ID!
     date: String!
     transferCount: BigInt!
     editionsCount: BigInt!
@@ -184,7 +184,7 @@ type Day @entity {
 
 # N.B: Only for V3 atm
 type PlatformConfig @entity {
-    id: Bytes!
+    id: ID!
 
     # NFT
     royaltiesRegistry: Bytes # address
@@ -208,7 +208,7 @@ type PlatformConfig @entity {
 
 # A token and its details
 type Token @entity {
-    id: Bytes!
+    id: ID!
     version: BigInt! # KODA 2, 3 or 4
     salesType: BigInt! # The current sales mechanic being used on this edition
     tokenId: BigInt!
@@ -250,7 +250,7 @@ type Token @entity {
 
 # For Token Secondary market (KODA V2/3 only)
 type ListedToken @entity {
-    id: Bytes!
+    id: ID!
     version: BigInt! # KODA 2 or 3
 
     editionNumber: String!
@@ -300,13 +300,13 @@ type ListedToken @entity {
 
 # A composable is a combination of a V3 NFT and a set number of tokens
 type Composable @entity {
-    id: Bytes! # toString for address
+    id: ID! # toString for address
     items: [ComposableItem!]  # An array of composable items
 }
 
 # ComposableItem represents one token attached to a composable
 type ComposableItem @entity  {
-    id: Bytes! # ID made up of combined tokenID/composing contract/composing IDs
+    id: ID! # ID made up of combined tokenID/composing contract/composing IDs
     address: String! # Address of the ERC20/ERC721 token
     tokenID: String! # ID of the token
     type: String! # Type of token, ERC20, ERC721 etc
@@ -315,14 +315,14 @@ type ComposableItem @entity  {
 
 # Maintain an list of approved collective handlers i.e. contracts which are cloned and used
 type CollectiveHandlers @entity {
-    id: Bytes! # base address
+    id: ID! # base address
     active: Boolean!
     lastUpdatedTimestamp: BigInt!
     lastUpdatedTransactionHash: Bytes!
 }
 
 type Collective @entity {
-    id: Bytes! # deployed address
+    id: ID! # deployed address
     baseHandler: Bytes! # clone which this is based on
     creator: Bytes! # who deployed it
     recipients: [Bytes!]! # recipients for the deployed collab
@@ -335,7 +335,7 @@ type Collective @entity {
 
 # A token/editions and its meta data
 type Edition @entity {
-    id: Bytes! # Composite ID from edition ID and optional contract address for CC
+    id: ID! # Composite ID from edition ID and optional contract address for CC
     version: BigInt! # KODA 2 or 3 or 4
     editionNmber: String! # edition no. not composite key
     editionType: BigInt! # legacy field from KODA V2
@@ -444,7 +444,7 @@ type Edition @entity {
 
 # A token/editions and its meta data
 type MetaData @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     name: String
     description: String
 
@@ -475,7 +475,7 @@ type MetaData @entity(immutable: true) {
 
 # Single high level entity capturing the top offer on the secondary marketplace
 type TokenOffer @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     version: BigInt! # KODA 2 or 3
     token: Token!
     edition: Edition!
@@ -487,7 +487,7 @@ type TokenOffer @entity(immutable: true) {
 
 # Encapsulates all offers either on editions or tokens
 type Offer @entity {
-    id: Bytes!                         # edition ID or token ID
+    id: ID!                         # edition ID or token ID
     version: BigInt!                # KODA 2 or 3
     type: String!                   # either Token or Edition
     salesType: BigInt!              # The current sales mechnic being used on this offer
@@ -505,7 +505,7 @@ type Offer @entity {
 
 # Store the total mints per user, per sale & phase
 type PhaseMintCount @entity {
-    id: Bytes!                  # composite key (sale, edition, phase, minter) - unique per user and sale/phase
+    id: ID!                  # composite key (sale, edition, phase, minter) - unique per user and sale/phase
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
     phaseId: String!         # The actual phase number
@@ -515,7 +515,7 @@ type PhaseMintCount @entity {
 
 # A gate sale phase configuration
 type Phase @entity(immutable: true) {
-    id: Bytes!
+    id: ID!
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
     phaseId: String!         # The actual phase number
@@ -531,7 +531,7 @@ type Phase @entity(immutable: true) {
 
 # A gate sale configuration - one per edition
 type GatedSale @entity {
-    id: Bytes!                 # The ID of the sale
+    id: ID!                 # The ID of the sale
     editionId: String!      # The ID of the edition the sale will mint
     paused: Boolean!        # Whether the sale is currently paused
     primarySaleCommission: BigInt! # overridden sales commission for KO
@@ -542,7 +542,7 @@ type GatedSale @entity {
 
 # Any KODA V4 Contract Deployed from the V4 factory
 type CreatorContract @entity {
-    id: Bytes!
+    id: ID!
 
     # Deployment information
     blockNumber: BigInt!
@@ -594,7 +594,7 @@ type CreatorContract @entity {
 }
 
 type CreatorContractSetting @entity {
-    id: Bytes!
+    id: ID!
 
     factoryContract: Bytes!             # Creator contract factory
     kodaSalesSettingsContract: Bytes!   # Things like current primary sales settings
@@ -611,7 +611,7 @@ type CreatorContractSetting @entity {
 ##########################
 
 type ArtistMintingConfig @entity {
-    id: Bytes!
+    id: ID!
     mints: BigInt!
     firstMintInPeriod: BigInt!
     frequencyOverride: Boolean! # set to true if the user can mint as much as possible
@@ -619,7 +619,7 @@ type ArtistMintingConfig @entity {
 
 # An artists who has created editions/tokens
 type Artist @entity {
-    id: Bytes!
+    id: ID!
 
     address: Bytes! # address
     name: String
@@ -660,7 +660,7 @@ type Artist @entity {
 
 # A single collector who has at sometime held a KO asset
 type Collector @entity {
-    id: Bytes! # toString for address
+    id: ID! # toString for address
     address: Bytes! # address
 
     firstSeen: BigInt!
