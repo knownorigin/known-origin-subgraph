@@ -1,5 +1,5 @@
 import {Address} from "@graphprotocol/graph-ts";
-import {BigInt, log, store} from "@graphprotocol/graph-ts/index";
+import {BigInt, Bytes, log, store} from "@graphprotocol/graph-ts/index";
 
 import {
     AuctionDisabled,
@@ -77,7 +77,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
-    let id = timestamp.toString().concat(event.params._tokenId.toHexString())
+    let id = Bytes.fromI32(timestamp.toString().concat(event.params._tokenId.toHexString()))
 
     let tokenOffer = new TokenOffer(id);
     tokenOffer.version = KodaVersions.KODA_V2
@@ -313,7 +313,7 @@ export function handleTokenListed(event: TokenListed): void {
     listedToken.save();
 
     // Set the listing on the token
-    tokenEntity.listing = listedToken.id.toString()
+    tokenEntity.listing = listedToken.id
     tokenEntity.save()
 
     // Save the lister
@@ -345,7 +345,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
         let editionEntity = editionService.loadOrCreateV2Edition(BigInt.fromString(tokenEntity.editionNumber), event.block, contract)
-        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner as string), editionEntity)
+        activityEventService.recordSecondaryTokenDeListed(event, tokenEntity, Address.fromString(tokenEntity.currentOwner.toString()), editionEntity)
     }
 
     tokenEntity.save()

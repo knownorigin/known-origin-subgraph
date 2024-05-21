@@ -1,4 +1,4 @@
-import {Address, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {Token, TokenEvent} from "../../generated/schema";
 import {ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {toEther} from "../utils/utils";
@@ -11,16 +11,16 @@ import {BigInt, log} from "@graphprotocol/graph-ts";
 
 import * as EVENT_TYPES from "../utils/EventTypes";
 
-function generateTokenEventId(name: String, tokenEntity: Token, from: Address, timestamp: BigInt): string {
-    return name
+function generateTokenEventId(name: String, tokenEntity: Token, from: Address, timestamp: BigInt): Bytes {
+    return Bytes.fromUTF8(name
         .concat("-")
-        .concat(tokenEntity.id)
+        .concat(tokenEntity.id.toString())
         .concat("-")
         .concat(tokenEntity.version.toString())
         .concat("-")
         .concat(from.toHexString())
         .concat("-")
-        .concat(timestamp.toString());
+        .concat(timestamp.toString()));
 }
 
 function populateEventData(event: ethereum.Event, tokenEntity: Token, from: Address, to: Address): TokenEvent {
@@ -84,7 +84,7 @@ export function createTokenPrimaryPurchaseEvent(event: ethereum.Event, tokenId: 
     tokenEntity.tokenEvents = tokenEvents;
     tokenEntity.save()
 
-    let editionEntity = loadNonNullableEditionById(tokenEntity.edition);
+    let editionEntity = loadNonNullableEditionById(tokenEntity.edition.toString());
     editionEntity.save();
 
     tokenEvent.name = EVENT_TYPES.PURCHASE;

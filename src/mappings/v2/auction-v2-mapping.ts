@@ -27,6 +27,7 @@ import * as collectorService from "../../services/Collector.service";
 import * as offerService from "../../services/Offers.service";
 import * as tokenService from "../../services/Token.service";
 import * as activityEventService from "../../services/ActivityEvent.service";
+import {Bytes} from "@graphprotocol/graph-ts/index";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     let contract = getKnownOriginV2ForAddress(event.address)
@@ -80,7 +81,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -120,13 +121,13 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // Record sale against the edition
     let sales = editionEntity.sales
-    sales.push(event.params._tokenId.toString())
+    sales.push(Bytes.fromI32(event.params._tokenId.toString()))
     editionEntity.sales = sales
     editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
 
     // Maintain bidding history list
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
 
     // Tally up primary sale owners
@@ -180,7 +181,7 @@ export function handleBidRejected(event: BidRejected): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -208,7 +209,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -235,7 +236,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 

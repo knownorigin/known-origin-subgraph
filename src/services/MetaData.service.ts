@@ -21,7 +21,7 @@ function artistOverrides(editionId:string, originalName:string) : string {
 export function handleMetaData(content: Bytes): void {
     const ipfsHash = dataSource.stringParam()
     log.info('Handling Metadata for IPFS hash', [ipfsHash])
-    let metaData = new MetaData(ipfsHash)
+    let metaData = new MetaData(Bytes.fromUTF8(ipfsHash))
     const jsonObject = json.fromBytes(content).toObject()
 
     if (jsonObject) {
@@ -212,22 +212,26 @@ export function constructMetaData(editionNumber: string, tokenURI: string): Meta
         // Check IPFS length is valid, some rinkeby IPFS hashes are bust so we need to handle this special case atm
         if (!ipfsHash || ipfsHash.length < 46) {
             log.error("Skipping invalid IPFS hash lookup", [(ipfsHash || "N/A")]);
-            return new MetaData("invalid-ipfs-hash-" + (ipfsHash || "N/A"));
+            return new MetaData(Bytes.fromUTF8("invalid-ipfs-hash-" + (ipfsHash || "N/A")));
         }
         log.info('tokenUri', [tokenURI])
         const tokenIpfsHash = ipfsHash + '/' + tokenURI + '.json'
         log.info('tokenIpfsHash', [tokenIpfsHash])
         MetaDataTemplate.create(ipfsHash);
 
-        MetaData.load(ipfsHash)
+        const metaData = MetaData.load(Bytes.fromUTF8(ipfsHash))
+        if (metaData) {
+            if (metaData.artist) {
+                metaData.artist = artistOverrides(editionNumber, metaData.artist as string);
+            }
+            return metaData as MetaData;
+        }
 
-
-
-        return new MetaData(ipfsHash); // try and construct a object even if empty?
+        return new MetaData(Bytes.fromUTF8(ipfsHash)); // try and construct a object even if empty?
     } else {
         log.error("Unknown IPFS hash found for token URI {}", [tokenURI]);
     }
-    return new MetaData("failed-ipfs-hash");
+    return new MetaData(Bytes.fromUTF8("failed-ipfs-hash"));
 }
 
 function isObject(jsonData: JSONValue): boolean {

@@ -1,4 +1,4 @@
-import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Offer} from "../../generated/schema";
 import {loadNonNullableEdition} from "./Edition.service";
 import {loadOrCreateCollector} from "./Collector.service";
@@ -38,9 +38,7 @@ export function recordEditionOffer(block: ethereum.Block,
 
 export function clearEditionOffer(block: ethereum.Block, editionNumber: BigInt): void {
 
-    let offerId: string = toLowerCase(EDITION_TYPE)
-        .concat("-")
-        .concat(editionNumber.toString());
+    let offerId: Bytes = createOfferId(EDITION_TYPE, editionNumber);
 
     let offer: Offer | null = Offer.load(offerId);
     if (offer !== null && offer.isActive) {
@@ -81,9 +79,7 @@ export function recordTokenOffer(block: ethereum.Block,
 export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
     log.info("Clearing token offer for token {}", [tokenId.toString()]);
 
-    let offerId: string = toLowerCase(TOKEN_TYPE)
-        .concat("-")
-        .concat(tokenId.toString());
+    let offerId: Bytes = createOfferId(TOKEN_TYPE, tokenId);
 
     let offer: Offer | null = Offer.load(offerId);
     if (offer !== null && offer.isActive) {
@@ -94,9 +90,7 @@ export function clearTokenOffer(block: ethereum.Block, tokenId: BigInt): void {
 
 export function updateTokenOfferOwner(block: ethereum.Block, tokenId: BigInt, newOwner: Address): void {
 
-    let offerId: string = toLowerCase(TOKEN_TYPE)
-        .concat("-")
-        .concat(tokenId.toString());
+    let offerId: Bytes = createOfferId(TOKEN_TYPE, tokenId);
 
     let offer: Offer | null = Offer.load(offerId);
 
@@ -111,9 +105,7 @@ export function updateTokenOfferOwner(block: ethereum.Block, tokenId: BigInt, ne
 function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
 
     // Offers now need to include type as in V3 ID for edition and Token clash for the first token e.g Token-1234
-    let offerId: string = toLowerCase(type)
-        .concat("-")
-        .concat(id.toString());
+    let offerId: Bytes = createOfferId(type, id);
 
     let offer: Offer | null = Offer.load(offerId);
     if (offer == null) {
@@ -137,4 +129,10 @@ function initOffer(block: ethereum.Block, type: String, id: BigInt): Offer {
     }
 
     return offer as Offer
+}
+
+function createOfferId(type: String, id: BigInt):Bytes {
+    return Bytes.fromUTF8(toLowerCase(type)
+        .concat("-")
+        .concat(id.toString()));
 }

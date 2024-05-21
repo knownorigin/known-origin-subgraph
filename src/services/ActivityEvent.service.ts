@@ -25,7 +25,7 @@ let TYPE_CREATOR_CONTRACT = "CreatorContract";
 
 export function recordEditionCreated(rawEvent: ethereum.Event, edition: Edition): void {
 
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -36,7 +36,7 @@ export function recordEditionCreated(rawEvent: ethereum.Event, edition: Edition)
 
 export function recordEditionDisabled(rawEvent: ethereum.Event, edition: Edition): void {
 
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -54,7 +54,7 @@ export function recordPrimarySaleEvent(
     buyer: Address | null
 ): void {
 
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -68,14 +68,14 @@ export function recordPrimarySaleEvent(
 }
 
 function createEditionEvent(
-    id: string,
+    id: Bytes,
     eventType: string,
     rawEvent: ethereum.Event,
     edition: Edition,
     value: BigInt | null,
     buyer: Address | null
 ): ActivityEvent {
-    let event: ActivityEvent = new ActivityEvent(id.toString());
+    let event: ActivityEvent = new ActivityEvent(id);
     event.type = TYPE_EDITION
     event.version = edition.version
     event.eventType = eventType
@@ -88,7 +88,7 @@ function createEditionEvent(
     event.stakeholderAddresses = getStakeholderAddressesPrimary(edition, buyer)
     event.triggeredBy = rawEvent.transaction.from;
     if(edition && edition.creatorContract) {
-        event.contractAddress = Address.fromString(edition.creatorContract as string)
+        event.contractAddress = Address.fromBytes(edition.creatorContract as Bytes)
     }
 
     if (buyer) {
@@ -112,14 +112,14 @@ function createEditionEvent(
     return event
 }
 
-function editionActivityId(edition: Edition, rawEvent: ethereum.Event): string {
-    return "edition"
+function editionActivityId(edition: Edition, rawEvent: ethereum.Event): Bytes {
+    return Bytes.fromUTF8("edition"
         .concat("-")
-        .concat(edition.id)
+        .concat(edition.id.toString())
         .concat("-")
         .concat(rawEvent.transaction.hash.toHexString())
         .concat("-")
-        .concat(rawEvent.logIndex.toString());
+        .concat(rawEvent.logIndex.toString()));
 }
 
 function getStakeholderAddressesPrimary(edition: Edition, buyer: Address | null): Bytes[] {
@@ -140,7 +140,7 @@ function getStakeholderAddressesPrimary(edition: Edition, buyer: Address | null)
 
 export function recordSecondarySale(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -151,7 +151,7 @@ export function recordSecondarySale(rawEvent: ethereum.Event, token: Token, edit
 
 export function recordSecondaryBidRejected(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -162,7 +162,7 @@ export function recordSecondaryBidRejected(rawEvent: ethereum.Event, token: Toke
 
 export function recordSecondaryBidPlaced(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -173,7 +173,7 @@ export function recordSecondaryBidPlaced(rawEvent: ethereum.Event, token: Token,
 
 export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -184,7 +184,7 @@ export function recordSecondaryBidAccepted(rawEvent: ethereum.Event, token: Toke
 
 export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -195,7 +195,7 @@ export function recordSecondaryTokenListed(rawEvent: ethereum.Event, token: Toke
 
 export function recordSecondaryTokenReserveAuctionListed(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -206,7 +206,7 @@ export function recordSecondaryTokenReserveAuctionListed(rawEvent: ethereum.Even
 
 export function recordSecondaryTokenReserveAuctionCountdownStarted(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -217,7 +217,7 @@ export function recordSecondaryTokenReserveAuctionCountdownStarted(rawEvent: eth
 
 export function recordSecondaryTokenReserveAuctionExtended(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -229,7 +229,7 @@ export function recordSecondaryTokenReserveAuctionExtended(rawEvent: ethereum.Ev
 
 export function recordSecondaryTokenReserveAuctionBidPlaced(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, buyer: Address, seller: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -240,7 +240,7 @@ export function recordSecondaryTokenReserveAuctionBidPlaced(rawEvent: ethereum.E
 
 export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -251,7 +251,7 @@ export function recordSecondaryTokenListingPriceChange(rawEvent: ethereum.Event,
 
 export function recordSecondaryTokenReserveListingPriceChange(rawEvent: ethereum.Event, token: Token, edition: Edition, value: BigInt, owner: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -262,7 +262,7 @@ export function recordSecondaryTokenReserveListingPriceChange(rawEvent: ethereum
 
 export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: Token, owner: Address, edition: Edition): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -273,7 +273,7 @@ export function recordSecondaryTokenDeListed(rawEvent: ethereum.Event, token: To
 
 export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Token, edition: Edition, buyer: Address): void {
 
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
 
     let event = ActivityEvent.load(id)
     if (event == null) {
@@ -283,7 +283,7 @@ export function recordSecondaryBidWithdrawn(rawEvent: ethereum.Event, token: Tok
 }
 
 function createTokenEvent(
-    id: string,
+    id: Bytes,
     eventType: string,
     rawEvent: ethereum.Event,
     edition: Edition,
@@ -292,7 +292,7 @@ function createTokenEvent(
     buyer: Address | null,
     seller: Address | null,
 ): ActivityEvent {
-    let event: ActivityEvent = new ActivityEvent(id.toString());
+    let event: ActivityEvent = new ActivityEvent(id);
     event.version = edition.version
     event.type = TYPE_TOKEN
     event.eventType = eventType
@@ -328,14 +328,14 @@ function createTokenEvent(
     return event
 }
 
-function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
-    return "token"
+function tokenActivityId(token: Token, rawEvent: ethereum.Event): Bytes {
+    return Bytes.fromUTF8("token"
         .concat("-")
-        .concat(token.id)
+        .concat(token.id.toString())
         .concat("-")
         .concat(rawEvent.transaction.hash.toHexString())
         .concat("-")
-        .concat(rawEvent.logIndex.toString());
+        .concat(rawEvent.logIndex.toString()));
 }
 
 ////////////////////////////////////////
@@ -345,7 +345,7 @@ function tokenActivityId(token: Token, rawEvent: ethereum.Event): string {
 // ['Transfer'', 'EditionGifted', 'PriceChanged']
 
 export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: Edition, to: Address, from: Address, value: BigInt | null): void {
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createTokenEvent(id, EVENT_TYPES.TRANSFER, rawEvent, edition, token, value, to, from)
@@ -354,7 +354,7 @@ export function recordTransfer(rawEvent: ethereum.Event, token: Token, edition: 
 }
 
 export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edition: Edition): void {
-    let id: string = tokenActivityId(token, rawEvent);
+    let id: Bytes = tokenActivityId(token, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         // @ts-ignore
@@ -364,7 +364,7 @@ export function recordEditionGifted(rawEvent: ethereum.Event, token: Token, edit
 }
 
 export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, value: BigInt): void {
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.PRICE_CHANGED, rawEvent, edition, value, null)
@@ -373,7 +373,7 @@ export function recordPriceChanged(rawEvent: ethereum.Event, edition: Edition, v
 }
 
 export function recordComposableAdded(rawEvent: ethereum.Event, edition: Edition): void {
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.COMPOSABLE_ADDED, rawEvent, edition, null, null)
@@ -382,7 +382,7 @@ export function recordComposableAdded(rawEvent: ethereum.Event, edition: Edition
 }
 
 export function recordComposableClaimed(rawEvent: ethereum.Event, edition: Edition): void {
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.COMPOSABLE_CLAIMED, rawEvent, edition, null, null)
@@ -391,7 +391,7 @@ export function recordComposableClaimed(rawEvent: ethereum.Event, edition: Editi
 }
 
 export function recordSalesTypeChange(rawEvent: ethereum.Event, edition: Edition): void {
-    let id: string = editionActivityId(edition, rawEvent);
+    let id: Bytes = editionActivityId(edition, rawEvent);
     let event = ActivityEvent.load(id)
     if (event == null) {
         event = createEditionEvent(id, EVENT_TYPES.SALES_TYPE_CHANGED, rawEvent, edition, null, null)
@@ -411,21 +411,21 @@ function getStakeholderAddressesSecondary(creator: Bytes, seller: Address | null
     return arr
 }
 
-function createGatedId(type: string, saleId: string, phaseId: string, editionId: string, event: ethereum.Event): string {
-    return type
+function createGatedId(type: string, saleId: Bytes, phaseId: Bytes, editionId: Bytes, event: ethereum.Event): Bytes {
+    return Bytes.fromUTF8(type
         .concat("-")
-        .concat(saleId)
+        .concat(saleId.toString())
         .concat("-")
-        .concat(phaseId)
+        .concat(phaseId.toString())
         .concat("-")
-        .concat(editionId)
+        .concat(editionId.toString())
         .concat("-")
         .concat(event.transaction.hash.toHexString())
         .concat("-")
-        .concat(event.logIndex.toString());
+        .concat(event.logIndex.toString()));
 }
 
-function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase | null): ActivityEvent {
+function createdGatedEvent(ID: Bytes, type: string, rawEvent: ethereum.Event, sale: GatedSale, edition: Edition, phase: Phase | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
     event.version = edition.version
@@ -463,7 +463,7 @@ function createdGatedEvent(ID: string, type: string, rawEvent: ethereum.Event, s
 }
 
 export function recordGatedSaleCreated(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, Bytes.fromI32(0), edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_CREATED, rawEvent, sale, edition, null)
 
@@ -487,7 +487,7 @@ export function recordGatedPhaseRemoved(rawEvent: ethereum.Event, sale: GatedSal
 }
 
 export function recordGatedSalePaused(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, Bytes.fromI32(0), edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_PAUSED, rawEvent, sale, edition, null)
 
@@ -495,26 +495,26 @@ export function recordGatedSalePaused(rawEvent: ethereum.Event, sale: GatedSale,
 }
 
 export function recordGatedSaleResumed(rawEvent: ethereum.Event, sale: GatedSale, edition: Edition): void {
-    let ID = createGatedId("gatedSale", sale.id, "0", edition.id, rawEvent)
+    let ID = createGatedId("gatedSale", sale.id, Bytes.fromI32(0), edition.id, rawEvent)
 
     let event = createdGatedEvent(ID, EVENT_TYPES.GATED_SALE_RESUMED, rawEvent, sale, edition, null)
 
     event.save()
 }
 
-export function createCreatorContractEventId(address: string, id: string, event: ethereum.Event): string {
-    return TYPE_CREATOR_CONTRACT
+export function createCreatorContractEventId(address: Bytes, id: Bytes, event: ethereum.Event): Bytes {
+    return Bytes.fromUTF8(TYPE_CREATOR_CONTRACT
         .concat("-")
-        .concat(address)
+        .concat(address.toString())
         .concat("-")
-        .concat(id)
+        .concat(id.toString())
         .concat("-")
         .concat(event.transaction.hash.toHexString())
         .concat("-")
-        .concat(event.logIndex.toString());
+        .concat(event.logIndex.toString()));
 }
 
-function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereum.Event, edition: Edition | null): ActivityEvent {
+function createdCreatorContractEvent(ID: Bytes, type: string, rawEvent: ethereum.Event, edition: Edition | null): ActivityEvent {
     let event: ActivityEvent = new ActivityEvent(ID);
 
     // check for deployment here if the right eventType
@@ -548,7 +548,7 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     event.eventValueInWei = ZERO
 
     if (edition && edition.creatorContract) {
-        event.contractAddress = Address.fromString(edition.creatorContract as string);
+        event.contractAddress = Address.fromBytes(edition.creatorContract as Bytes);
     }
 
     // `${transactionHash}-${logIndex}` is unique to each log
@@ -568,107 +568,107 @@ function createdCreatorContractEvent(ID: string, type: string, rawEvent: ethereu
     return event
 }
 
-export function recordCCEditionSalesDisabledUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCEditionSalesDisabledUpdated(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [CCEditionSalesDisabledUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [CCEditionSalesDisabledUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "CCEditionSalesDisabledUpdated", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCEditionURIUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCEditionURIUpdated(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [EditionURIUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [EditionURIUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "EditionURIUpdated", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCContractPauseToggle(address: string, id: string, event: ethereum.Event, enabled: boolean): void {
+export function recordCCContractPauseToggle(address: Bytes, id: Bytes, event: ethereum.Event, enabled: boolean): void {
     let ID = createCreatorContractEventId(address, id, event);
     let type = "CreatorContractPauseToggled" + (enabled ? "True" : "False")
-    log.debug("Saving activity event [{}] for ID [{}]", [type, ID])
+    log.debug("Saving activity event [{}] for ID [{}]", [type, ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, type, event, null);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCListedEditionForBuyNow(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCListedEditionForBuyNow(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [ListedEditionForBuyNow] for ID [{}]", [ID])
+    log.debug("Saving activity event [ListedEditionForBuyNow] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "ListedEditionForBuyNow", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCBuyNowDeListed(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCBuyNowDeListed(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [BuyNowDeListed] for ID [{}]", [ID])
+    log.debug("Saving activity event [BuyNowDeListed] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "BuyNowDeListed", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCBuyNowPriceChanged(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCBuyNowPriceChanged(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [BuyNowPriceChanged] for ID [{}]", [ID])
+    log.debug("Saving activity event [BuyNowPriceChanged] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "BuyNowPriceChanged", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCOwnershipTransferred(address: string, id: string, event: ethereum.Event): void {
+export function recordCCOwnershipTransferred(address: Bytes, id: Bytes, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [OwnershipTransferred] for ID [{}]", [ID])
+    log.debug("Saving activity event [OwnershipTransferred] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "OwnershipTransferred", event, null);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCDefaultRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event): void {
+export function recordCCDefaultRoyaltyPercentageUpdated(address: Bytes, id: Bytes, event: ethereum.Event): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [DefaultRoyaltyPercentageUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [DefaultRoyaltyPercentageUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "DefaultRoyaltyPercentageUpdated", event, null);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCEditionRoyaltyPercentageUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCEditionRoyaltyPercentageUpdated(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [EditionRoyaltyPercentageUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [EditionRoyaltyPercentageUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "EditionRoyaltyPercentageUpdated", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCEditionFundsHandlerUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordCCEditionFundsHandlerUpdated(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [EditionFundsHandlerUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [EditionFundsHandlerUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "EditionFundsHandlerUpdated", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCDeployed(address: string, event: ethereum.Event): void {
-    let ID = createCreatorContractEventId(address, "DEPLOYMENT", event);
-    log.debug("Saving activity event [CreatorContractDeployed] for ID [{}]", [ID])
+export function recordCCDeployed(address: Bytes, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, Bytes.fromUTF8("DEPLOYMENT"), event);
+    log.debug("Saving activity event [CreatorContractDeployed] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "CreatorContractDeployed", event, null);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordCCBanned(address: string, event: ethereum.Event): void {
-    let ID = createCreatorContractEventId(address, "BAN", event);
-    log.debug("Saving activity event [CreatorContractBanned] for ID [{}]", [ID])
+export function recordCCBanned(address: Bytes, event: ethereum.Event): void {
+    let ID = createCreatorContractEventId(address, Bytes.fromUTF8("BAN"), event);
+    log.debug("Saving activity event [CreatorContractBanned] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "CreatorContractBanned", event, null);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }
 
-export function recordV4EditionDisabledUpdated(address: string, id: string, event: ethereum.Event, edition: Edition): void {
+export function recordV4EditionDisabledUpdated(address: Bytes, id: Bytes, event: ethereum.Event, edition: Edition): void {
     let ID = createCreatorContractEventId(address, id, event);
-    log.debug("Saving activity event [CCEditionDisabledUpdated] for ID [{}]", [ID])
+    log.debug("Saving activity event [CCEditionDisabledUpdated] for ID [{}]", [ID.toString()])
     let ccEvent = createdCreatorContractEvent(ID, "CCEditionDisabledUpdated", event, edition);
-    ccEvent.contractAddress = Bytes.fromHexString(address);
+    ccEvent.contractAddress = address;
     ccEvent.save();
 }

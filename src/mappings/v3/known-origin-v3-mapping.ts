@@ -1,5 +1,5 @@
 import { BigInt } from "@graphprotocol/graph-ts";
-import { Address, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {Address, Bytes, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {
     AdminArtistAccountReported,
     AdminEditionReported,
@@ -81,7 +81,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             activityEventService.recordEditionCreated(event, editionEntity)
 
             // Only the first edition is classed as a Genesis edition
-            let maybeEdition = Edition.load(artist.firstEdition as string);
+            let maybeEdition = Edition.load(artist.firstEdition as Bytes);
             editionEntity.isGenesisEdition = maybeEdition != null
               ? BigInt.fromString(editionEntity.editionNmber).equals(BigInt.fromString(maybeEdition.editionNmber))
               : false
@@ -242,7 +242,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             // ]);
 
             if(tokenEntity.listing) {
-                let listing = ListedToken.load(tokenEntity.listing as string);
+                let listing = ListedToken.load(tokenEntity.listing as Bytes);
 
                 // Is the list still exists this means the bid was not action but the seller transfer the token before completion of the action
                 if (listing !== null) {
@@ -277,7 +277,7 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
             tokenEntity.openOffer = null
             tokenEntity.currentTopBidder = null
 
-            let listedToken = ListedToken.load(tokenId.toString());
+            let listedToken = ListedToken.load(Bytes.fromBigInt(tokenId) as Bytes);
             if(listedToken) {
                 // Clear price listing
                 store.remove("ListedToken", tokenId.toString());
@@ -331,11 +331,11 @@ function _handlerTransfer(event: ethereum.Event, from: Address, to: Address, tok
         let totalBurnt = 0;
         for (let i = 0; i < tokenIds.length; i++) {
             let tokenId = tokenIds[i as i32];
-            let token = Token.load(tokenId.toString());
+            let token = Token.load(Bytes.fromUTF8(tokenId));
             if (token) {
                 const currentOwner = token.currentOwner;
                 if(currentOwner) {
-                    const tokenOwner = Address.fromString(currentOwner);
+                    const tokenOwner = Address.fromBytes(currentOwner);
 
                     // Either zero address or dead address we classify  as burns
                     if (tokenOwner.equals(DEAD_ADDRESS) || tokenOwner.equals(ZERO_ADDRESS)) {
@@ -481,7 +481,7 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     ]);
 
     // Strip off the composableID
-    const compID: string = event.params._tokenId.toString()
+    const compID: Bytes = Bytes.fromI32(event.params._tokenId)
 
     // Try and load the composable
     let composable: Composable | null = Composable.load(compID)
@@ -489,14 +489,14 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
     // If composable doesn't exist then create it and its items array
     if (!composable) {
         composable = new Composable(compID)
-        composable.items = new Array<string>()
+        composable.items = new Array<Bytes>()
     }
 
     // Save the composable
     composable.save()
 
     // Construct the itemID by combining the tokenId and contract address
-    let itemID: string = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
+    let itemID: Bytes = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
 
     // Try and load the composable item
     let item: ComposableItem | null = ComposableItem.load(itemID)
@@ -518,8 +518,8 @@ export function handleReceivedERC20(event: ReceivedERC20): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
-    if(!items) items = new Array<string>();
-    items.push(item.id.toString());
+    if(!items) items = new Array<Bytes>();
+    items.push(item.id);
     composable.items = items;
     composable.save()
 
@@ -543,12 +543,12 @@ export function handleTransferERC20(event: TransferERC20): void {
     ]);
 
     // Construct the itemID by combining the tokenId and contract address
-    let itemID: string = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
+    let itemID: Bytes = _erc20ComposableItemId(event.params._tokenId, event.params._erc20Contract)
 
     // Try and load the composable item, throwing an error if it doesn't exist
     let item: ComposableItem | null = ComposableItem.load(itemID)
     if (!item) {
-        log.error("Unable to find composable item under id {}", [itemID])
+        log.error("Unable to find composable item under id {}", [itemID.toString()])
         return
     }
 
@@ -557,7 +557,7 @@ export function handleTransferERC20(event: TransferERC20): void {
 
     // If the value is 0 then delete the item, otherwise just save it
     if (item.value.isZero()) {
-        store.remove('ComposableItem', itemID)
+        store.remove('ComposableItem', itemID.toString())
     } else {
         item.save()
     }
@@ -581,7 +581,7 @@ export function handleReceivedERC721(event: ReceivedChild): void {
     ]);
 
     // Strip off the composableID
-    const compID: string = event.params._tokenId.toString()
+    const compID: Bytes = Bytes.fromI32(event.params._tokenId)
 
     // Try and load the composable
     let composable: Composable | null = Composable.load(compID)
@@ -589,14 +589,14 @@ export function handleReceivedERC721(event: ReceivedChild): void {
     // If composable doesn't exist then create it and its items array
     if (!composable) {
         composable = new Composable(compID)
-        composable.items = new Array<string>()
+        composable.items = new Array<Bytes>()
     }
 
     // Save the composable
     composable.save()
 
     // Construct the itemID by combining the tokenId, contract and child tokenId
-    let itemID: string = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId)
+    let itemID: Bytes = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId)
 
     // Try and load the composable item
     let item: ComposableItem | null = ComposableItem.load(itemID)
@@ -613,8 +613,8 @@ export function handleReceivedERC721(event: ReceivedChild): void {
 
     // Strip off the items from the composable, push the new item to it and re-assign
     let items = composable.items;
-    if(!items) items = new Array<string>();
-    items.push(item.id.toString());
+    if(!items) items = new Array<Bytes>();
+    items.push(item.id);
     composable.items = items;
     composable.save()
 
@@ -637,16 +637,16 @@ export function handleTransferERC721(event: TransferChild): void {
     ]);
 
     // Construct the itemID by combining the tokenId and contract address
-    let itemID: string = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId);
+    let itemID: Bytes = _erc721ComposableItemId(event.params._tokenId, event.params._childContract, event.params._childTokenId);
 
     // Try and load the composable item, throwing an error if it doesn't exist
     let item: ComposableItem | null = ComposableItem.load(itemID)
     if (!item) {
-        log.error("Unable to find composable  item under id {}", [itemID])
+        log.error("Unable to find composable  item under id {}", [itemID.toString()])
         return
     }
 
-    store.remove('ComposableItem', itemID)
+    store.remove('ComposableItem', itemID.toString())
 
     // flag edition as enhanced
     let koda = KnownOriginV3.bind(event.address);
@@ -658,18 +658,18 @@ export function handleTransferERC721(event: TransferChild): void {
     activityEventService.recordComposableClaimed(event, edition)
 }
 
-function _erc20ComposableItemId(_tokenId: BigInt, _erc20Contract: Address): string {
+function _erc20ComposableItemId(_tokenId: BigInt, _erc20Contract: Address): Bytes {
     // Construct the itemID by combining the tokenId and contract address
-    return _tokenId.toString()
+    return Bytes.fromI32(_tokenId.toString()
         .concat("/")
-        .concat(_erc20Contract.toHexString())
+        .concat(_erc20Contract.toHexString()))
 }
 
-function _erc721ComposableItemId(_tokenId: BigInt, _childContract: Address, _childTokenId: BigInt): string {
+function _erc721ComposableItemId(_tokenId: BigInt, _childContract: Address, _childTokenId: BigInt): Bytes {
     // Construct the itemID by combining the tokenId, contract and child tokenId
-    return _tokenId.toString()
+    return Bytes.fromI32(_tokenId.toString()
         .concat("/")
         .concat(_childContract.toHexString())
         .concat("/")
-        .concat(_childTokenId.toHexString())
+        .concat(_childTokenId.toHexString()))
 }

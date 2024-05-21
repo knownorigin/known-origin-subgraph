@@ -1,15 +1,16 @@
 import {Edition, TransferEvent} from "../../generated/schema";
 
 import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts";
+import {Bytes} from "@graphprotocol/graph-ts/index";
 
 export function createTransferEvent(event: ethereum.Event, tokenId: BigInt, from: Address, to: Address, edition: Edition): TransferEvent {
-    let transferEventId = tokenId.toString()
+    let transferEventId = Bytes.fromUTF8(tokenId.toString()
         .concat("-")
         .concat(edition.version.toHexString())
         .concat("-")
         .concat(event.transaction.hash.toHexString())
         .concat("-")
-        .concat(event.transaction.index.toString());
+        .concat(event.transaction.index.toString()));
 
     let transferEvent = new TransferEvent(transferEventId);
     transferEvent.version = edition.version

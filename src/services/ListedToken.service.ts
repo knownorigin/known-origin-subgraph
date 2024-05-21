@@ -2,22 +2,23 @@ import {
     Edition,
     ListedToken
 } from "../../generated/schema";
-import {BigInt, log} from "@graphprotocol/graph-ts/index";
+import {BigInt, Bytes, log} from "@graphprotocol/graph-ts/index";
 import {ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 export function loadOrCreateListedToken(tokenId: string, edition: Edition): ListedToken {
     log.info("loadOrCreateListedToken() called  for token ID {}", [tokenId])
 
-    let listedToken = ListedToken.load(tokenId);
+    let tokenIdAsBytes = Bytes.fromUTF8(tokenId);
+    let listedToken = ListedToken.load(tokenIdAsBytes);
 
     if (listedToken == null) {
-        listedToken = new ListedToken(tokenId);
+        listedToken = new ListedToken(tokenIdAsBytes);
         listedToken.version = edition.version;
         listedToken.editionNumber = ZERO.toString();
 
-        listedToken.fullToken = tokenId;
+        listedToken.fullToken = tokenIdAsBytes;
         listedToken.listPrice = ZERO_BIG_DECIMAL;
-        listedToken.lister = ZERO_ADDRESS.toHexString();
+        listedToken.lister = ZERO_ADDRESS;
         listedToken.listingTimestamp = ZERO;
         listedToken.revokedApproval = false;
 

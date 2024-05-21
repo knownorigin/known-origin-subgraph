@@ -1,14 +1,14 @@
 import { Day } from "../../generated/schema";
 import { ONE, ZERO } from "../utils/constants";
-import { BigDecimal, BigInt, ethereum } from "@graphprotocol/graph-ts/index";
+import {BigDecimal, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import { toEther } from "../utils/utils";
 import { dayMonthYearFromEventTimestamp } from "../utils/DateConverter";
 
 export function loadOrCreateDay(date: string): Day {
-    let dayEntity = Day.load(date)
+    let dayEntity = Day.load(Bytes.fromUTF8(date))
 
     if (dayEntity === null) {
-        dayEntity = new Day(date)
+        dayEntity = new Day(Bytes.fromUTF8(date))
         dayEntity.date = date
         dayEntity.transferCount = ZERO
         dayEntity.issuedCount = ZERO
@@ -24,8 +24,8 @@ export function loadOrCreateDay(date: string): Day {
         dayEntity.totalValueInEth = new BigDecimal(ZERO)
         dayEntity.highestValueInEth = new BigDecimal(ZERO)
         dayEntity.secondarySalesValue = new BigDecimal(ZERO)
-        dayEntity.issued = new Array<string>()
-        dayEntity.editions = new Array<string>()
+        dayEntity.issued = new Array<Bytes>()
+        dayEntity.editions = new Array<Bytes>()
     }
 
     return dayEntity as Day;
@@ -45,7 +45,7 @@ export function loadDayFromEvent(event: ethereum.Event): Day {
     return loadOrCreateDay(dayId)
 }
 
-export function addEditionToDay(editionCreated: ethereum.Event, editionEntityId: string): void {
+export function addEditionToDay(editionCreated: ethereum.Event, editionEntityId: Bytes): void {
     let dayEntity = loadDayFromEvent(editionCreated)
 
     dayEntity.editionsCount = dayEntity.editionsCount.plus(ONE)
@@ -127,7 +127,7 @@ export function recordDayValue(event: ethereum.Event, tokenId: BigInt, value: Bi
     dayEntity.totalValueInEth = dayEntity.totalValueInEth.plus(toEther(value))
 
     if (toEther(value) > dayEntity.highestValueInEth) {
-        dayEntity.highestValueToken = tokenId.toString()
+        dayEntity.highestValueToken = Bytes.fromBigInt(tokenId) as Bytes
         dayEntity.highestValueInEth = toEther(value)
     }
 
@@ -150,7 +150,7 @@ export function recordDayIssued(event: ethereum.Event, tokenId: BigInt): void {
 
     // add all purchase with eth, gifts, bid accepted
     let issued = dayEntity.issued
-    issued.push(tokenId.toString())
+    issued.push(Bytes.fromBigInt(tokenId) as Bytes)
     dayEntity.issued = issued
 
     dayEntity.save()

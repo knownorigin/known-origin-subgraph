@@ -31,6 +31,7 @@ import {
 } from "../mockingFunctions";
 import { createV4Id } from "../../../src/mappings/v4-creator-contracts/KODAV4";
 import { createCreatorContractEventId } from "../../../src/services/ActivityEvent.service";
+import {Bytes} from "@graphprotocol/graph-ts/index";
 
 describe("KODA V4 Creator Contract tests", () => {
 
@@ -155,10 +156,10 @@ describe("KODA V4 Creator Contract tests", () => {
       // Assert entities created
       const generatedEditionId = createV4Id(selfSovereignNFT, rawEditionId.toString());
       assert.entityCount(EDITION_ENTITY_TYPE, 1);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "version", "4");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "artistAccount", "0xd79c064fd1fbe2227b972de83e9fbb27de8265bf");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "version", "4");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "artistAccount", "0xd79c064fd1fbe2227b972de83e9fbb27de8265bf");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "true");
 
       assert.entityCount(COLLECTOR_ENTITY_TYPE, 2);
       assert.fieldEquals(COLLECTOR_ENTITY_TYPE, from, "address", from);
@@ -166,10 +167,10 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedTokenId = createV4Id(selfSovereignNFT, tokenId.toString());
       assert.entityCount(TOKEN_ENTITY_TYPE, 1);
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "editionNumber", rawEditionId.toString());
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "version", "4");
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "salesType", SaleTypes.OFFERS_ONLY.toString());
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "transferCount", "1");
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "editionNumber", rawEditionId.toString());
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "version", "4");
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "salesType", SaleTypes.OFFERS_ONLY.toString());
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "transferCount", "1");
 
       assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
       assert.entityCount(DAY_ENTITY_TYPE, 1);
@@ -198,17 +199,17 @@ describe("KODA V4 Creator Contract tests", () => {
       createMockedFunction(Address.fromString(fundsHandler), "totalRecipients", "totalRecipients():(uint256)")
         .reverts();
 
-      let ID = createCreatorContractEventId(selfSovereignNFT, "DEPLOYMENT", ssEvent);
+      let ID = createCreatorContractEventId(Bytes.fromHexString(selfSovereignNFT), Bytes.fromUTF8("DEPLOYMENT"), ssEvent);
 
       handleSelfSovereignERC721Deployed(ssEvent);
 
       assert.entityCount(ACTIVITY_ENTITY_TYPE, 1);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "eventType", "CreatorContractDeployed");
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "version", "4");
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "seller", artist);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "creator", artist);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "stakeholderAddresses", `[${artist}]`);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "triggeredBy", artist);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "eventType", "CreatorContractDeployed");
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "version", "4");
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "seller", artist);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "creator", artist);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "stakeholderAddresses", `[${artist}]`);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "triggeredBy", artist);
     });
 
     test("Listed Edition For BuyNow ActivityEvent correctly produced", () => {
@@ -306,15 +307,15 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
 
-      let ID = createCreatorContractEventId(selfSovereignNFT, generatedEditionId, ssEvent);
+      let ID = createCreatorContractEventId(Bytes.fromHexString(selfSovereignNFT), generatedEditionId, ssEvent);
 
       assert.entityCount(ACTIVITY_ENTITY_TYPE, 3);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "version", "4");
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "eventType", "ListedEditionForBuyNow");
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "seller", deployer);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "creator", deployer);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "edition", generatedEditionId);
-      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID, "triggeredBy", deployer);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "version", "4");
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "eventType", "ListedEditionForBuyNow");
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "seller", deployer);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "creator", deployer);
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "edition", generatedEditionId.toString());
+      assert.fieldEquals(ACTIVITY_ENTITY_TYPE, ID.toString(), "triggeredBy", deployer);
     });
   });
 
@@ -421,16 +422,16 @@ describe("KODA V4 Creator Contract tests", () => {
       assert.entityCount(CREATOR_CONTRACT_ENTITY_TYPE, 1);
 
       assert.entityCount(EDITION_ENTITY_TYPE, 1);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "version", "4");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "salesType", "1");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", "50");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "artistAccount", artist);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "isOpenEdition", "false");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "priceInWei", "100000000000000000");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "startDate", "1674732534");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "endDate", "1684732534");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "version", "4");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "salesType", "1");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalAvailable", "50");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "artistAccount", artist);
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "isOpenEdition", "false");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "priceInWei", "100000000000000000");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "startDate", "1674732534");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "endDate", "1684732534");
 
       assert.entityCount(ACTIVITY_ENTITY_TYPE, 2);
     });
@@ -535,15 +536,15 @@ describe("KODA V4 Creator Contract tests", () => {
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "editions", `[${generatedEditionId}]`);
 
       assert.entityCount(EDITION_ENTITY_TYPE, 1);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "version", "4");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "salesType", "6");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "artistAccount", artist);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "isOpenEdition", "true");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "priceInWei", "100000000000000000");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "startDate", "1674732534");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "endDate", "1684732534");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "version", "4");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "salesType", "6");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "artistAccount", artist);
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "tokenURI", "ipfs://ipfs/QmbBrcWV53c7Jcr9z9RBczJm3kKUMRxyjqcCPUKzSYg1Pm");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "isOpenEdition", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "priceInWei", "100000000000000000");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "startDate", "1674732534");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "endDate", "1684732534");
 
       assert.entityCount(ACTIVITY_ENTITY_TYPE, 3);
     });
@@ -627,7 +628,7 @@ describe("KODA V4 Creator Contract tests", () => {
       handleSelfSovereignERC721Deployed(ssEvent);
 
       // Create the ContractSettings object
-      let contractSettings = new CreatorContractSetting("settings");
+      let contractSettings = new CreatorContractSetting(Bytes.fromUTF8("settings"));
       contractSettings.platformPrimaryCommission = BigInt.fromI32(100000);
       contractSettings.platformSecondaryCommission = BigInt.fromI32(25000);
       contractSettings.MODULO = BigInt.fromI32(100000);
@@ -653,12 +654,12 @@ describe("KODA V4 Creator Contract tests", () => {
       const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
       assert.entityCount(EDITION_ENTITY_TYPE, 1);
       assert.entityCount(ACTIVITY_ENTITY_TYPE, 3);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "salesType", "6");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "isOpenEdition", "true");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", "10000");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "remainingSupply", "10000");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSold", "0");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSupply", "0");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "salesType", "6");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "isOpenEdition", "true");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalAvailable", "10000");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "remainingSupply", "10000");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalSold", "0");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalSupply", "0");
 
       //////////////////////////
       // Setup First Transfer //
@@ -703,9 +704,9 @@ describe("KODA V4 Creator Contract tests", () => {
       handleTransfer(transferEvent);
 
       // Assert entities created
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", "10000");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "remainingSupply", "9999");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSupply", "1");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalAvailable", "10000");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "remainingSupply", "9999");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalSupply", "1");
 
       assert.entityCount(COLLECTOR_ENTITY_TYPE, 2);
       assert.fieldEquals(COLLECTOR_ENTITY_TYPE, from, "address", from);
@@ -713,10 +714,10 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedTokenId = createV4Id(selfSovereignNFT, tokenId.toString());
       assert.entityCount(TOKEN_ENTITY_TYPE, 1);
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "editionNumber", "200000");
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "version", "4");
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "salesType", SaleTypes.OFFERS_ONLY.toString());
-      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId, "transferCount", "1");
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "editionNumber", "200000");
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "version", "4");
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "salesType", SaleTypes.OFFERS_ONLY.toString());
+      assert.fieldEquals(TOKEN_ENTITY_TYPE, generatedTokenId.toString(), "transferCount", "1");
 
       assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
       assert.entityCount(DAY_ENTITY_TYPE, 1);
@@ -737,7 +738,7 @@ describe("KODA V4 Creator Contract tests", () => {
         ]);
 
       handleBuyNowPurchased(buyNowEvent);
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalSold", "1");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalSold", "1");
 
       assert.entityCount(TRANSFER_ENTITY_TYPE, 1);
       assert.entityCount(DAY_ENTITY_TYPE, 1);
@@ -831,10 +832,10 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedEditionId = createV4Id(selfSovereignNFT, editionId.toString());
 
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "endDate", BigInt.fromI32(200000).toString())
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "totalAvailable", ZERO.toString())
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "remainingSupply", ZERO.toString())
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "false");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "endDate", BigInt.fromI32(200000).toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "totalAvailable", ZERO.toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "remainingSupply", ZERO.toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "false");
 
       const toggleEvent2 = createEditionSalesDisabledUpdated(editionId, false)
       toggleEvent2.address = KODAV4_FACTORY
@@ -844,8 +845,8 @@ describe("KODA V4 Creator Contract tests", () => {
 
       const generatedEditionId2 = createV4Id(selfSovereignNFT, editionId.toString());
 
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "active", "false");
-      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2, "endDate", BigInt.fromI32(300).toString())
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2.toString(), "active", "false");
+      assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId2.toString(), "endDate", BigInt.fromI32(300).toString())
 
     })
   });
@@ -907,7 +908,7 @@ describe("KODA V4 Creator Contract tests", () => {
 
       assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "transferState", '3');
 
-      let contractEntity = CreatorContract.load(selfSovereignNFT) as CreatorContract;
+      let contractEntity = CreatorContract.load(Bytes.fromHexString(selfSovereignNFT)) as CreatorContract;
       contractEntity.totalNumOfEditions = BigInt.fromI32(1);
       contractEntity.save()
 

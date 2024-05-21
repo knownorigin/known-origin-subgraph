@@ -1,4 +1,4 @@
-import {Address, BigDecimal, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigDecimal, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {AuctionEvent, Edition} from "../../generated/schema";
 import {toEther} from "../utils/utils";
 import * as EVENT_TYPES from "../utils/EventTypes";
@@ -10,12 +10,12 @@ export function createBidPlacedEvent(
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = event.block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber)
+    let auctionEventId = Bytes.fromUTF8(timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber))
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = EVENT_TYPES.BID_PLACED
     auctionEvent.version = edition.version
-    auctionEvent.edition = edition.editionNmber;
+    auctionEvent.edition = Bytes.fromI32(edition.editionNmber);
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -33,12 +33,12 @@ export function createBidAccepted(
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = event.block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber)
+    let auctionEventId = Bytes.fromUTF8(timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber))
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = EVENT_TYPES.BID_ACCEPTED
     auctionEvent.version = edition.version
-    auctionEvent.edition = edition.editionNmber;
+    auctionEvent.edition = Bytes.fromI32(edition.editionNmber);
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -56,12 +56,12 @@ export function createBidRejected(
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = event.block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber)
+    let auctionEventId = Bytes.fromUTF8(timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber))
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = EVENT_TYPES.BID_REJECTED
     auctionEvent.version = edition.version
-    auctionEvent.edition = edition.editionNmber;
+    auctionEvent.edition = Bytes.fromI32(edition.editionNmber);
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)
@@ -78,12 +78,12 @@ export function createBidWithdrawn(
     bidder: Address
 ): AuctionEvent {
     let timestamp = event.block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber)
+    let auctionEventId = Bytes.fromUTF8(timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber))
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = EVENT_TYPES.BID_WITHDRAWN
     auctionEvent.version = edition.version
-    auctionEvent.edition = edition.editionNmber;
+    auctionEvent.edition = Bytes.fromI32(edition.editionNmber);
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = BigDecimal.fromString('0.0')
@@ -101,12 +101,12 @@ export function createBidIncreased(
     ethValue: BigInt
 ): AuctionEvent {
     let timestamp = event.block.timestamp
-    let auctionEventId = timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber)
+    let auctionEventId = Bytes.fromUTF8(timestamp.toString().concat(bidder.toHexString()).concat(edition.editionNmber))
     let auctionEvent = new AuctionEvent(auctionEventId);
 
     auctionEvent.name = EVENT_TYPES.BID_INCREASED
     auctionEvent.version = edition.version
-    auctionEvent.edition = edition.editionNmber;
+    auctionEvent.edition = Bytes.fromI32(edition.editionNmber);
     auctionEvent.bidder = bidder
     auctionEvent.timestamp = timestamp
     auctionEvent.ethValue = toEther(ethValue)

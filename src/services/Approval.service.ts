@@ -1,19 +1,18 @@
-import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Artist, Collector, Edition, ListedToken, Token} from "../../generated/schema";
 import {ZERO_ADDRESS} from "../utils/constants";
-import * as activityEventService from "../services/ActivityEvent.service";
 
 export function handleSingleApproval(tokenId: BigInt, owner: Address, approved: Address, version: BigInt): void {
-    let token: Token | null = Token.load(tokenId.toString())
-    if (token != null && token.version.equals(version) && owner.equals(Address.fromString(token.currentOwner as string))) {
+    let token: Token | null = Token.load(Bytes.fromI32(tokenId))
+    if (token != null && token.version.equals(version) && owner.equals(Address.fromString(token.currentOwner.toHexString()))) {
         token.revokedApproval = ZERO_ADDRESS.equals(approved);
         token.save()
 
         // TODO fire approval changed
     }
 
-    let listedToken: ListedToken | null = ListedToken.load(tokenId.toString())
-    if (listedToken != null && listedToken.version.equals(version) && owner.equals(Address.fromString(listedToken.lister))) {
+    let listedToken: ListedToken | null = ListedToken.load(Bytes.fromI32(tokenId))
+    if (listedToken != null && listedToken.version.equals(version) && owner.equals(Address.fromString(listedToken.lister.toHexString()))) {
         listedToken.revokedApproval = ZERO_ADDRESS.equals(approved);
         listedToken.save()
     }
@@ -25,7 +24,7 @@ export function handleArtistEditionsApprovalChanged(block: ethereum.Block, artis
         approved ? "TRUE" : "FALSE",
     ]);
 
-    let artist: Artist | null = Artist.load(artistAddress.toHexString())
+    let artist: Artist | null = Artist.load(artistAddress)
     if (artist != null && artist.isSet('editionIds')) {
         let editionIds = artist.editionIds
         for (let i = 0; i < editionIds.length; i++) {
@@ -46,7 +45,7 @@ export function handleArtistEditionsApprovalChanged(block: ethereum.Block, artis
 }
 
 export function handleCollectorTokensApprovalChanged(block: ethereum.Block, collectorAddress: Address, approved: boolean, version: BigInt): void {
-    let collector: Collector | null = Collector.load(collectorAddress.toHexString())
+    let collector: Collector | null = Collector.load(collectorAddress)
 
     if (collector != null && collector.isSet('tokenIds')) {
         let tokensIds = collector.tokenIds

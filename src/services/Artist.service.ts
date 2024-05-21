@@ -10,10 +10,10 @@ import * as KodaVersions from "../utils/KodaVersions";
 export function loadOrCreateArtist(address: Address): Artist {
     let artistAddress = getArtistAddress(address);
 
-    let artist = Artist.load(artistAddress.toHexString())
+    let artist = Artist.load(artistAddress)
 
     if (artist === null) {
-        artist = new Artist(artistAddress.toHexString())
+        artist = new Artist(artistAddress)
         artist.address = artistAddress
         artist.editionsCount = ZERO
         artist.ccEditionsCount = ZERO
@@ -28,10 +28,10 @@ export function loadOrCreateArtist(address: Address): Artist {
         artist.totalSecondarySalesInEth = new BigDecimal(ZERO)
         artist.firstEditionTimestamp = ZERO
         artist.lastEditionTimestamp = ZERO
-        artist.editionIds = new Array<string>()
-        artist.creatorContracts = new Array<string>()
+        artist.editionIds = new Array<Bytes>()
+        artist.creatorContracts = new Array<Bytes>()
 
-        let mintConfig = new ArtistMintingConfig(artistAddress.toHexString())
+        let mintConfig = new ArtistMintingConfig(artistAddress)
         mintConfig.mints = ZERO;
         mintConfig.firstMintInPeriod = ZERO;
         mintConfig.frequencyOverride = false;
@@ -39,7 +39,7 @@ export function loadOrCreateArtist(address: Address): Artist {
 
         artist.mintingConfig = mintConfig.id
 
-        artist.creatorContracts = new Array<string>()
+        artist.creatorContracts = new Array<Bytes>()
     }
 
     return artist as Artist;
@@ -54,16 +54,17 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     artist.editionsCount = artist.editionsCount.plus(ONE)
     artist.supply = artist.supply.plus(totalAvailable)
 
+    let editionAsBytes = Bytes.fromUTF8(editionNumber);
     if (artist.firstEdition === null) {
-        artist.firstEdition = editionNumber
+        artist.firstEdition = editionAsBytes
         artist.firstEditionTimestamp = created
     }
 
-    artist.lastEdition = editionNumber
+    artist.lastEdition = editionAsBytes
     artist.lastEditionTimestamp = created
 
     let editions = artist.editionIds;
-    editions.push(editionNumber);
+    editions.push(editionAsBytes);
     artist.editionIds = editions;
 
     artist.save()
@@ -71,9 +72,9 @@ export function addEditionToArtist(artistAddress: Address, editionNumber: string
     return artist
 }
 
-export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: BigInt, tokenSalePriceInWei: BigInt, collectiveId: String | null, isPrimarySale: boolean): void {
+export function handleKodaV3CommissionSplit(artistAddress: Address, tokenId: BigInt, tokenSalePriceInWei: BigInt, collectiveId: Bytes | null, isPrimarySale: boolean): void {
     if (collectiveId) {
-        let collective = Collective.load(collectiveId.toString()) as Collective
+        let collective = Collective.load(collectiveId) as Collective
         recordArtistCollaborationValue(collective.recipients, collective.splits, tokenId, tokenSalePriceInWei, isPrimarySale);
     } else {
         recordArtistValue(artistAddress, tokenId.toString(), tokenSalePriceInWei, tokenSalePriceInWei, isPrimarySale)
@@ -144,7 +145,7 @@ export function recordArtistValue(
 
     // record highest sale for the full token value
     if (toEther(tokenSalePriceInWei) > artist.highestSaleValueInEth) {
-        artist.highestSaleToken = tokenId.toString()
+        artist.highestSaleToken = Bytes.fromUTF8(tokenId)
         artist.highestSaleValueInEth = toEther(tokenSalePriceInWei)
     }
 

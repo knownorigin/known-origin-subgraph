@@ -1,4 +1,4 @@
-import {Address, BigInt, log, store} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, log, store} from "@graphprotocol/graph-ts/index";
 
 import {Edition, ListedToken, TokenOffer} from "../../../generated/schema";
 
@@ -111,7 +111,7 @@ export function handleTokenListed(event: ListedForBuyNow): void {
     ]);
     listedToken.save();
 
-    token.listing = listedToken.id.toString()
+    token.listing = listedToken.id
     token.save()
 
     // Save the lister
@@ -139,7 +139,7 @@ export function handleTokenDeListed(event: TokenDeListed): void {
     // if value is found this means a buy has happened so we dont want to include an extra event in the histories
     if (event.transaction.value === ZERO) {
         let edition = Edition.load(token.edition) as Edition
-        activityEventService.recordSecondaryTokenDeListed(event, token, Address.fromString(token.currentOwner as string), edition)
+        activityEventService.recordSecondaryTokenDeListed(event, token, Address.fromBytes(token.currentOwner), edition)
     }
 
     token.save()
@@ -204,7 +204,7 @@ export function handleTokenBidPlaced(event: TokenBidPlaced): void {
     tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
-    let id = timestamp.toString().concat(event.params._tokenId.toHexString())
+    let id = Bytes.fromI32(timestamp.toString().concat(event.params._tokenId.toHexString()))
 
     let token = tokenService.loadNonNullableToken(event.params._tokenId.toString())
     token.currentTopBidder = event.params._bidder
@@ -326,7 +326,7 @@ export function handleBuyNowTokenPriceChanged(event: BuyNowPriceChanged): void {
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition);
     listedToken.listPrice = toEther(event.params._price)
 
-    activityEventService.recordSecondaryTokenListingPriceChange(event, token, edition, event.params._price, Address.fromString(listedToken.lister));
+    activityEventService.recordSecondaryTokenListingPriceChange(event, token, edition, event.params._price, Address.fromBytes(listedToken.lister));
     listedToken.save()
 }
 
@@ -345,7 +345,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
     let listedToken = listedTokenService.loadOrCreateListedToken(event.params._id.toString(), edition)
 
     // Ensure approval is checked during listing
-    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner as string), event.address)
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromBytes(token.currentOwner), event.address)
 
     let reserveAuction = marketplace.editionOrTokenWithReserveAuctions(event.params._id)
     let listingSeller = reserveAuction.value0
@@ -370,7 +370,7 @@ export function handleTokenListedForReserveAuction(event: ListedForReserveAuctio
 
     activityEventService.recordSecondaryTokenReserveAuctionListed(event, token, edition, event.params._reservePrice, listingSeller)
 
-    token.listing = listedToken.id.toString()
+    token.listing = listedToken.id
     token.save()
 }
 
@@ -424,7 +424,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
 
     listedToken.save()
 
-    let id = event.block.timestamp.toString().concat(event.params._id.toHexString())
+    let id = Bytes.fromI32(event.block.timestamp.toString().concat(event.params._id.toHexString()))
 
     let tokenOffer = new TokenOffer(id);
     tokenOffer.version = KodaVersions.KODA_V3
@@ -538,7 +538,7 @@ export function handleReservePriceUpdated(event: ReservePriceUpdated): void {
         listedToken.reserveAuctionEndTimestamp = bidEnd
     }
 
-    activityEventService.recordSecondaryTokenReserveListingPriceChange(event, token,edition, event.params._reservePrice, Address.fromString(listedToken.lister))
+    activityEventService.recordSecondaryTokenReserveListingPriceChange(event, token,edition, event.params._reservePrice, Address.fromBytes(listedToken.lister))
 
     listedToken.save()
     token.save()
@@ -583,12 +583,12 @@ export function handleReserveAuctionConvertedToBuyItNow(event: ReserveAuctionCon
     listedToken.listPrice = toEther(event.params._listingPrice)
 
     // Ensure approval is checked
-    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromString(token.currentOwner as string), event.address)
+    listedToken.revokedApproval = !koda.isApprovedForAll(Address.fromBytes(token.currentOwner), event.address)
 
     _clearReserveAuctionFields(listedToken)
     listedToken.save()
 
-    token.listing = listedToken.id.toString()
+    token.listing = listedToken.id
     token.save()
 }
 

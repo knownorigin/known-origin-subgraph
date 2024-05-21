@@ -38,7 +38,7 @@ export function handleContractDeployed(event: ContractDeployed): void {
     log.info("KO V4 handleContractDeployed() found {}", [event.address.toHexString()]);
     let factoryContractInstance = KnownOriginV4Factory.bind(event.address)
 
-    let settings = new CreatorContractSetting('settings');
+    let settings = new CreatorContractSetting(Bytes.fromUTF8('settings'));
     settings.factoryContract = event.address
     settings.kodaSalesSettingsContract = factoryContractInstance.platformSettings()
 
@@ -63,7 +63,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     }
 
     // Capture the contract global properties so the list of creator contracts can be fetched
-    let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT.toHexString())
+    let creatorContractEntity = new CreatorContract(event.params.selfSovereignNFT)
     let sovereignContractInstance = ERC721KODACreatorWithBuyItNow.bind(event.params.selfSovereignNFT)
     creatorContractEntity.blockNumber = event.block.number;
     creatorContractEntity.timestamp = event.block.timestamp;
@@ -84,7 +84,7 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     creatorContractEntity.totalNumOfTokensSold = ZERO
     creatorContractEntity.totalEthValueOfSales = ZERO_BIG_DECIMAL
     creatorContractEntity.totalNumOfTransfers = ZERO
-    creatorContractEntity.editions = new Array<string>()
+    creatorContractEntity.editions = new Array<Bytes>()
 
     creatorContractEntity.secondaryRoyaltyPercentage = sovereignContractInstance.defaultRoyaltyPercentage()
 
@@ -135,22 +135,22 @@ export function handleSelfSovereignERC721Deployed(event: SelfSovereignERC721Depl
     // Update the artist
     let artistEntity = loadOrCreateArtist(event.params.artist)
     let creatorContracts = artistEntity.creatorContracts
-    if (!creatorContracts) creatorContracts = new Array<string>()
-    creatorContracts.push(event.params.selfSovereignNFT.toHexString())
+    if (!creatorContracts) creatorContracts = new Array<Bytes>()
+    creatorContracts.push(event.params.selfSovereignNFT)
     artistEntity.creatorContracts = creatorContracts
     artistEntity.save()
 
     // Activity Event
-    recordCCDeployed(event.params.selfSovereignNFT.toHexString(), event);
+    recordCCDeployed(event.params.selfSovereignNFT, event);
 }
 
 export function handleCreatorContractBanned(event: CreatorContractBanned): void {
     log.info("Calling handleCreatorContractBanned() call for contract {} which is banned {} ", [event.params._contract.toHexString(), event.params._banned.toString()]);
 
-    let creatorContractEntity = CreatorContract.load(event.params._contract.toHexString())
+    let creatorContractEntity = CreatorContract.load(event.params._contract)
     if (!creatorContractEntity) {
         // This could be called without a contract - handle it gracefully
-        creatorContractEntity = new CreatorContract(event.params._contract.toHexString());
+        creatorContractEntity = new CreatorContract(event.params._contract);
         creatorContractEntity.blockNumber = event.block.number;
         creatorContractEntity.timestamp = event.block.timestamp;
         creatorContractEntity.transactionHash = event.transaction.hash;
@@ -172,7 +172,7 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
         creatorContractEntity.totalNumOfTokensSold = ZERO;
         creatorContractEntity.totalEthValueOfSales = ZERO_BIG_DECIMAL;
         creatorContractEntity.totalNumOfTransfers = ZERO;
-        creatorContractEntity.editions = new Array<string>();
+        creatorContractEntity.editions = new Array<Bytes>();
         creatorContractEntity.secondaryRoyaltyPercentage = ZERO;
         creatorContractEntity.defaultFundsRecipients = new Array<Bytes>();
         creatorContractEntity.defaultFundsShares = new Array<BigInt>();
@@ -182,18 +182,18 @@ export function handleCreatorContractBanned(event: CreatorContractBanned): void 
     creatorContractEntity.isHidden = event.params._banned
     creatorContractEntity.save()
 
-    recordCCBanned(event.params._contract.toHexString(), event);
+    recordCCBanned(event.params._contract, event);
 
     let editions = creatorContractEntity.editions
 
     for (let i: number = 0; i < editions.length; i++) {
-        let edition = Edition.load(editions[i as i32].toString())
+        let edition = Edition.load(editions[i as i32])
 
         if (edition) {
             edition.active = !event.params._banned
             edition.save()
 
-            recordV4EditionDisabledUpdated(event.params._contract.toHexString(), edition.id.toString(), event, edition)
+            recordV4EditionDisabledUpdated(event.params._contract, edition.id, event, edition)
         }
     }
 }

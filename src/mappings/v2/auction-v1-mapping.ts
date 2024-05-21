@@ -21,6 +21,7 @@ import * as collectorService from "../../services/Collector.service";
 import * as tokenService from "../../services/Token.service";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as auctionEventService from "../../services/AuctionEvent.service";
+import {Bytes} from "@graphprotocol/graph-ts/index";
 
 export function handleBidPlaced(event: BidPlaced): void {
     let contract = getKnownOriginV2ForAddress(event.address)
@@ -30,7 +31,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -53,13 +54,13 @@ export function handleBidAccepted(event: BidAccepted): void {
 
     // Record sale against the edition
     let sales = editionEntity.sales
-    sales.push(event.params._tokenId.toString())
+    sales.push(Bytes.fromI32(event.params._tokenId.toString()))
     editionEntity.sales = sales
     editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
 
     // Maintain bidding history list
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(Bytes.fromI32(auctionEvent.id.toString()))
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -94,7 +95,7 @@ export function handleBidWithdrawn(event: BidWithdrawn): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -113,7 +114,7 @@ export function handleBidIncreased(event: BidIncreased): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 

@@ -258,8 +258,8 @@ describe("KODA V4 Factory tests", () => {
             assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "isHidden", 'false');
 
             assert.entityCount(EDITION_ENTITY_TYPE, 1);
-            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "version", "4");
-            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "true");
+            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "version", "4");
+            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "true");
 
             assert.entityCount(ACTIVITY_ENTITY_TYPE, 3);
 
@@ -267,7 +267,7 @@ describe("KODA V4 Factory tests", () => {
             handleCreatorContractBanned(bannedEventTrue)
 
             assert.fieldEquals(CREATOR_CONTRACT_ENTITY_TYPE, selfSovereignNFT, "isHidden", 'true');
-            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId, "active", "false");
+            assert.fieldEquals(EDITION_ENTITY_TYPE, generatedEditionId.toString(), "active", "false");
         })
     })
 

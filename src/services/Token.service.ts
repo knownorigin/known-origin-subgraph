@@ -1,4 +1,4 @@
-import {Address, BigInt, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {Edition, Token} from "../../generated/schema";
 import {ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL} from "../utils/constants";
 import {createV4Id} from "../mappings/v4-creator-contracts/KODAV4"
@@ -18,15 +18,15 @@ import {
 import * as SaleTypes from "../utils/SaleTypes";
 import {toEther} from "../utils/utils";
 
-function newTokenEntity(tokenId: BigInt, version: BigInt, entityId: string): Token {
-    log.info("Calling newTokenEntity() call for {} ", [entityId])
+function newTokenEntity(tokenId: BigInt, version: BigInt, entityId: Bytes): Token {
+    log.info("Calling newTokenEntity() call for {} ", [entityId.toString()])
 
     let tokenEntity = new Token(entityId)
     tokenEntity.version = version
-    tokenEntity.transfers = new Array<string>()
-    tokenEntity.allOwners = new Array<string>()
+    tokenEntity.transfers = new Array<Bytes>()
+    tokenEntity.allOwners = new Array<Bytes>()
     tokenEntity.openOffer = null
-    tokenEntity.tokenEvents = new Array<string>()
+    tokenEntity.tokenEvents = new Array<Bytes>()
     tokenEntity.salesType = SaleTypes.OFFERS_ONLY
 
     // Entity fields can be set using simple assignments
@@ -62,7 +62,7 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
         let _tokenData = _tokenDataResult.value;
         tokenEntity.version = KodaVersions.KODA_V2
         tokenEntity.editionNumber = _tokenData.value0.toString()
-        tokenEntity.edition = _tokenData.value0.toString()
+        tokenEntity.edition = Bytes.fromI32(_tokenData.value0)
         tokenEntity.tokenURI = _tokenData.value3
 
         let collector = loadOrCreateCollector(_tokenData.value4, block);
@@ -91,11 +91,11 @@ function attemptToLoadV2TokenData(contract: KnownOriginV2, block: ethereum.Block
 export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, block: ethereum.Block): Token {
     log.info("Calling loadOrCreateV2Token() call for {} ", [tokenId.toString()])
 
-    let tokenEntity = Token.load(tokenId.toString())
+    let tokenEntity = Token.load(Bytes.fromBigInt(tokenId) as Bytes)
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2, tokenId.toString())
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V2, Bytes.fromI32(tokenId))
 
         // Populate it
         tokenEntity = attemptToLoadV2TokenData(contract, block, tokenId, tokenEntity);
@@ -108,7 +108,7 @@ export function loadOrCreateV2Token(tokenId: BigInt, contract: KnownOriginV2, bl
 
 export function loadNonNullableToken(tokenId: string): Token {
     log.info("Calling loadNonNullableToken() call for {} ", [tokenId.toString()])
-    return Token.load(tokenId.toString()) as Token;
+    return Token.load(Bytes.fromUTF8(tokenId)) as Token;
 }
 
 ///////////////
@@ -126,7 +126,7 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
 
     tokenEntity.version = KodaVersions.KODA_V3
     tokenEntity.editionNumber = editionNumber.toString()
-    tokenEntity.edition = editionNumber.toString()
+    tokenEntity.edition = Bytes.fromBigInt(editionNumber) as Bytes
     tokenEntity.tokenURI = tokenURI
 
     let collector = loadOrCreateCollector(ownerOf, block);
@@ -145,11 +145,11 @@ function attemptToLoadV3TokenData(contract: KnownOriginV3, block: ethereum.Block
 export function loadOrCreateV3Token(tokenId: BigInt, contract: KnownOriginV3, block: ethereum.Block): Token {
     log.info("Calling loadOrCreateV3Token() call for {} ", [tokenId.toString()])
 
-    let tokenEntity = Token.load(tokenId.toString())
+    let tokenEntity = Token.load(Bytes.fromBigInt(tokenId) as Bytes)
 
     if (tokenEntity == null) {
         // Create new instance
-        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3, tokenId.toString())
+        tokenEntity = newTokenEntity(tokenId, KodaVersions.KODA_V3, Bytes.fromBigInt(tokenId) as Bytes)
 
         // Populate it
         tokenEntity = attemptToLoadV3TokenData(contract, block, tokenId, tokenEntity as Token);
@@ -179,7 +179,7 @@ function attemptToLoadV4TokenData(tokenEntity: Token, edition: Edition, contract
 export function loadOrCreateV4Token(tokenId: BigInt, contractAddress: Address, contract: ERC721CreatorContract, edition: Edition, block: ethereum.Block): Token {
     let entityId = createV4Id(contractAddress.toHexString(), tokenId.toString())
 
-    log.info("Calling loadOrCreateV4Token() call for {} ", [entityId])
+    log.info("Calling loadOrCreateV4Token() call for {} ", [entityId.toString()])
 
     let tokenEntity = Token.load(entityId);
 

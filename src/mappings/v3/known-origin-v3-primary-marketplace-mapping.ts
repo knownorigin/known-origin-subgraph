@@ -1,6 +1,6 @@
 import {ONE, ZERO, ZERO_ADDRESS} from "../../utils/constants";
 import {KnownOriginV3} from "../../../generated/KnownOriginV3/KnownOriginV3";
-import {Address, ethereum, log} from "@graphprotocol/graph-ts/index";
+import {Address, Bytes, ethereum, log} from "@graphprotocol/graph-ts/index";
 import {BigInt} from "@graphprotocol/graph-ts";
 
 import {Collector, Edition, Token} from "../../../generated/schema";
@@ -188,7 +188,7 @@ export function handleEditionBidPlaced(event: EditionBidPlaced): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -217,7 +217,7 @@ export function handleEditionBidWithdrawn(event: EditionBidWithdrawn): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -246,7 +246,7 @@ export function handleEditionBidAccepted(event: EditionBidAccepted): void {
 
     // Maintain bidding history list
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     _handleEditionPrimarySale(editionEntity, collector, event.params._tokenId, event.params._amount)
     editionEntity.save();
@@ -278,7 +278,7 @@ export function handleEditionBidRejected(event: EditionBidRejected): void {
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -433,7 +433,7 @@ export function handleBidPlacedOnReserveAuction(event: BidPlacedOnReserveAuction
     auctionEvent.save()
 
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
     editionEntity.save()
 
@@ -463,7 +463,7 @@ export function handleReserveAuctionResulted(event: ReserveAuctionResulted): voi
 
     // Maintain bidding history list
     let biddingHistory = editionEntity.biddingHistory
-    biddingHistory.push(auctionEvent.id.toString())
+    biddingHistory.push(auctionEvent.id)
     editionEntity.biddingHistory = biddingHistory
 
     _handleEditionPrimarySale(editionEntity, collector, event.params._id, event.params._finalPrice)
@@ -668,7 +668,7 @@ export function _handleEditionPrimarySale(editionEntity: Edition, collector: Col
 
     // Record sale against the edition
     let sales = editionEntity.sales
-    sales.push(tokenId.toString())
+    sales.push(Bytes.fromI32(tokenId))
     editionEntity.sales = sales
 }
 

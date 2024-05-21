@@ -9,7 +9,7 @@ import {
     Transfer
 } from "../../../generated/KnownOriginV2/KnownOriginV2"
 
-import { Address, BigInt, ethereum, log, store } from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum, log, store} from "@graphprotocol/graph-ts/index";
 import {  ONE, ZERO, ZERO_ADDRESS, ZERO_BIG_DECIMAL } from "../../utils/constants";
 
 import { findWETHTradeValue, toEther } from "../../utils/utils";
@@ -48,7 +48,7 @@ export function handleEditionCreated(event: EditionCreated): void {
     let _editionDataResult: ethereum.CallResult<KnownOriginV2__detailsOfEditionResult> = contract.try_detailsOfEdition(event.params._editionNumber)
     if (!_editionDataResult.reverted) {
         let _editionData = _editionDataResult.value;
-        artistService.addEditionToArtist(_editionData.value4, event.params._editionNumber.toString(), _editionData.value9, event.block.timestamp, KodaVersions.KODA_V2)
+        artistService.addEditionToArtist(_editionData.value4, event.params._editionNumber, _editionData.value9, event.block.timestamp, KodaVersions.KODA_V2)
     } else {
         log.error("Handled unknown reverted detailsOfEdition() call for {}", [event.params._editionNumber.toString()]);
     }
@@ -227,7 +227,7 @@ export function handlePurchase(event: Purchase): void {
     if (event.transaction.value > ZERO) {
         // Record sale against the edition
         let sales = editionEntity.sales
-        sales.push(event.params._tokenId.toString())
+        sales.push(Bytes.fromI32(event.params._tokenId.toString()))
         editionEntity.sales = sales
         editionEntity.totalSold = editionEntity.totalSold.plus(ONE)
 

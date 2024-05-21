@@ -1,16 +1,16 @@
 import {GatedSale, Phase, PhaseMintCount} from "../../generated/schema";
-import {BigInt} from "@graphprotocol/graph-ts/index";
+import {BigInt, Bytes} from "@graphprotocol/graph-ts/index";
 import {KODAV3UpgradableGatedMarketplace} from "../../generated/KODAV3UpgradableGatedMarketplace/KODAV3UpgradableGatedMarketplace";
 import * as editionService from "./Edition.service";
 import {ONE, ZERO} from "../utils/constants";
 
 export function loadOrCreateGatedSale(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt): GatedSale {
-    let gatedSale = GatedSale.load(saleId.toString());
+    let gatedSale = GatedSale.load(Bytes.fromI32(saleId));
 
     if (gatedSale == null) {
-        gatedSale = new GatedSale(saleId.toString());
+        gatedSale = new GatedSale(Bytes.fromI32(saleId));
         gatedSale.editionId = editionId.toString();
-        gatedSale.phases = new Array<string>();
+        gatedSale.phases = new Array<Bytes>();
         gatedSale.paused = false;
         gatedSale.mintCount = ZERO;
 
@@ -64,34 +64,34 @@ export function recordAddressMintCount(saleId: BigInt, editionId: BigInt, phaseI
 }
 
 export function loadNonNullableGatedSale(saleId: BigInt): GatedSale {
-    return GatedSale.load(saleId.toString()) as GatedSale;
+    return GatedSale.load(Bytes.fromI32(saleId)) as GatedSale;
 }
 
-export function loadNonNullableGatedPhase(phaseId: string): Phase {
+export function loadNonNullableGatedPhase(phaseId: Bytes): Phase {
     return Phase.load(phaseId) as Phase;
 }
 
-export function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt): string {
-    return saleId.toString()
+export function createPhaseId(saleId: BigInt, editionId: BigInt, phaseId: BigInt): Bytes {
+    return Bytes.fromUTF8(saleId.toString()
         .concat("-")
         .concat(editionId.toString())
         .concat("-")
-        .concat(phaseId.toString());
+        .concat(phaseId.toString()));
 }
 
-export function createPhaseMintCountId(saleId: BigInt, editionId: BigInt, phaseId: BigInt, minter: string): string {
-    return saleId.toString()
+export function createPhaseMintCountId(saleId: BigInt, editionId: BigInt, phaseId: BigInt, minter: string): Bytes {
+    return Bytes.fromUTF8(saleId.toString()
         .concat("-")
         .concat(editionId.toString())
         .concat("-")
         .concat(phaseId.toString())
         .concat("-")
-        .concat(minter.toString());
+        .concat(minter.toString()));
 }
 
 export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGatedMarketplace, saleId: BigInt, editionId: BigInt, phaseId: BigInt): Phase {
     let ID = createPhaseId(saleId, editionId, phaseId)
-    let phase = Phase.load(ID.toString());
+    let phase = Phase.load(ID);
 
     if (phase == null) {
         let phaseDetails = gatedMarketplace.try_phases(saleId, phaseId)
@@ -121,14 +121,14 @@ export function loadOrCreateGatedSalePhase(gatedMarketplace: KODAV3UpgradableGat
 
 export function removePhaseFromSale(saleId: BigInt, editionId: BigInt, phaseId: BigInt): void {
     let sale = loadNonNullableGatedSale(saleId);
-    let salePhases = new Array<string>()
+    let salePhases = new Array<Bytes>()
     let existingPhases = sale.phases;
 
     let expectedPhaseId = createPhaseId(saleId, editionId, phaseId)
 
     for (let i = 0; i < existingPhases.length; i++) {
         let currentPhaseId = existingPhases[i];
-        if (currentPhaseId.toString() !== expectedPhaseId) {
+        if (currentPhaseId.notEqual(expectedPhaseId)) {
             salePhases.push(currentPhaseId)
         }
     }

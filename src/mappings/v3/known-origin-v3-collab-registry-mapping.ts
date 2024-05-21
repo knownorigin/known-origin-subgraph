@@ -18,7 +18,7 @@ export function handleRoyaltyRecipientCreated(event: RoyaltyRecipientCreated): v
         event.params.handler.toHexString(),
         event.params.deployedHandler.toHexString()
     ]);
-    let collective = loadCollective(event.params.deployedHandler.toHexString())
+    let collective = loadCollective(event.params.deployedHandler)
     collective.baseHandler = event.params.handler;
     collective.creator = event.params.creator;
     collective.recipients = event.params.recipients.map<Bytes>(a => (Bytes.fromHexString(a.toHexString()) as Bytes))
@@ -35,10 +35,10 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
         event.params.deployedHandler.toHexString()
     ]);
 
-    let collective = loadCollective(event.params.deployedHandler.toHexString())
+    let collective = loadCollective(event.params.deployedHandler)
 
     let editions = collective.editions;
-    editions.push(event.params.editionId.toString());
+    editions.push(Bytes.fromI32(event.params.editionId.toString()));
     collective.editions = editions;
     collective.isDeployed = true
     collective.save()
@@ -61,7 +61,7 @@ export function handleRoyaltiesHandlerSetup(event: RoyaltiesHandlerSetup): void 
         collaborators.push(recipient)
     }
     editionEntity.collaborators = collaborators
-    editionEntity.collective = collective.id.toString()
+    editionEntity.collective = collective.id
     editionEntity.save()
 }
 
@@ -70,10 +70,10 @@ export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerS
         event.params.editionId.toString(),
         event.params.deployedHandler.toHexString()
     ]);
-    let collective = loadCollective(event.params.deployedHandler.toHexString())
+    let collective = loadCollective(event.params.deployedHandler)
 
     let editions = collective.editions;
-    editions.push(event.params.editionId.toString());
+    editions.push(Bytes.fromI32(event.params.editionId.toString()));
     collective.editions = editions;
     collective.isDeployed = false
     collective.save()
@@ -83,7 +83,7 @@ export function handleFutureRoyaltiesHandlerSetup(event: FutureRoyaltiesHandlerS
     );
 
     let editionEntity = editionService.loadOrCreateV3Edition(event.params.editionId, event.block, kodaV3Contract);
-    editionEntity.collective = collective.id.toString()
+    editionEntity.collective = collective.id
     editionEntity.save()
 }
 
@@ -91,7 +91,7 @@ export function handleHandlerAdded(event: HandlerAdded): void {
     log.info("handleHandlerAdded() clone address [{}]", [
         event.params.handler.toHexString()
     ]);
-    let collectiveHandler = loadCollectiveHandler(event.params.handler.toHexString());
+    let collectiveHandler = loadCollectiveHandler(event.params.handler);
     collectiveHandler.active = true
     collectiveHandler.lastUpdatedTimestamp = event.block.timestamp
     collectiveHandler.lastUpdatedTransactionHash = event.transaction.hash
@@ -102,24 +102,24 @@ export function handleHandlerRemoved(event: HandlerRemoved): void {
     log.info("handleHandlerRemoved() clone address [{}]", [
         event.params.handler.toHexString()
     ]);
-    let collectiveHandler = loadCollectiveHandler(event.params.handler.toHexString());
+    let collectiveHandler = loadCollectiveHandler(event.params.handler);
     collectiveHandler.active = false
     collectiveHandler.lastUpdatedTimestamp = event.block.timestamp
     collectiveHandler.lastUpdatedTransactionHash = event.transaction.hash
     collectiveHandler.save()
 }
 
-function loadCollective(id: string): Collective {
+function loadCollective(id: Bytes): Collective {
     let collective = Collective.load(id)
     if (collective == null) {
         collective = new Collective(id);
-        collective.editions = new Array<string>()
+        collective.editions = new Array<Bytes>()
         collective.recipients = new Array<Bytes>()
     }
     return collective as Collective;
 }
 
-function loadCollectiveHandler(id: string): CollectiveHandlers {
+function loadCollectiveHandler(id: Bytes): CollectiveHandlers {
     let handler = CollectiveHandlers.load(id)
     if (handler == null) {
         handler = new CollectiveHandlers(id);

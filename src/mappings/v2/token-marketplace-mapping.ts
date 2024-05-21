@@ -26,6 +26,7 @@ import * as dayService from "../../services/Day.service";
 import * as offerService from "../../services/Offers.service";
 import * as activityEventService from "../../services/ActivityEvent.service";
 import * as artistService from "../../services/Artist.service";
+import {Bytes} from "@graphprotocol/graph-ts/common/collections";
 
 export function handleAuctionEnabled(event: AuctionEnabled): void {
     /*
@@ -71,7 +72,7 @@ export function handleBidPlaced(event: BidPlaced): void {
     tokenEventFactory.createBidPlacedEvent(event, event.params._tokenId.toString(), event.params._currentOwner, event.params._bidder, event.params._amount)
 
     let timestamp = event.block.timestamp
-    let id = timestamp.toString().concat(event.params._tokenId.toHexString())
+    let id = Bytes.fromI32(timestamp.toString().concat(event.params._tokenId.toHexString()))
 
     let tokenOffer = new TokenOffer(id);
     tokenOffer.version = KodaVersions.KODA_V2

@@ -1,13 +1,13 @@
 import {Collector} from "../../generated/schema";
 import {toEther} from "../utils/utils";
 
-import {Address, BigInt, ethereum} from "@graphprotocol/graph-ts/index";
+import {Address, BigInt, Bytes, ethereum} from "@graphprotocol/graph-ts/index";
 import {ONE, ZERO, ZERO_BIG_DECIMAL} from "../utils/constants";
 
 export function loadOrCreateCollector(address: Address, block: ethereum.Block): Collector {
-    let collectorEntity = Collector.load(address.toHexString());
+    let collectorEntity = Collector.load(address);
     if (collectorEntity == null) {
-        collectorEntity = new Collector(address.toHexString());
+        collectorEntity = new Collector(address);
         collectorEntity.address = address;
         collectorEntity.firstSeen = block.timestamp;
         collectorEntity.firstPurchaseTimeStamp = ZERO;
@@ -23,13 +23,13 @@ export function loadOrCreateCollector(address: Address, block: ethereum.Block): 
 
         collectorEntity.totalPurchaseCount = ZERO;
         collectorEntity.totalPurchaseEthSpent = ZERO_BIG_DECIMAL;
-        collectorEntity.tokenIds = new Array<string>();
+        collectorEntity.tokenIds = new Array<Bytes>();
     }
     collectorEntity.save()
     return collectorEntity as Collector;
 }
 
-export function collectorInList(collector: Collector | null, owners: string[]): boolean {
+export function collectorInList(collector: Collector | null, owners: Bytes[]): boolean {
     if (collector == null) {
         return false;
     }
@@ -45,7 +45,7 @@ export function collectorInList(collector: Collector | null, owners: string[]): 
 export function addTokenToCollector(address: Address, block: ethereum.Block, tokenId: string): Collector {
     let collector = loadOrCreateCollector(address, block);
     let collectorToTokens = collector.tokenIds;
-    collectorToTokens.push(tokenId.toString());
+    collectorToTokens.push(Bytes.fromUTF8(tokenId));
     collector.tokenIds = collectorToTokens;
     collector.save();
     return collector
@@ -53,7 +53,7 @@ export function addTokenToCollector(address: Address, block: ethereum.Block, tok
 
 export function removeTokenFromCollector(address: Address, block: ethereum.Block, tokenId: string): Collector {
     let collector = loadOrCreateCollector(address, block);
-    let collectorTokens = new Array<string>()
+    let collectorTokens = new Array<Bytes>()
     let existingTokens = collector.tokenIds;
     for (let i = 0; i < existingTokens.length; i++) {
         let currentTokenId = existingTokens[i];

@@ -24,6 +24,6 @@
     "mustache": "4.2.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.5.2"
+    "matchstick-as": "0.6.0"
   }
 }
