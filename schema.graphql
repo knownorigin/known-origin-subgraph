@@ -514,7 +514,7 @@ type PhaseMintCount @entity {
 }
 
 # A gate sale phase configuration
-type Phase @entity(immutable: true) {
+type Phase @entity {
     id: ID!
     saleId: String!          # The sale this phase relates to
     editionId: String!       # The edition this phase relates to
