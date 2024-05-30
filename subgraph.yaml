@@ -1,4 +1,4 @@
-specVersion: 0.0.5
+specVersion: 0.0.9
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
 # graft:
@@ -7,7 +7,6 @@ repository: https://github.com/knownorigin/graph-known-origin
 features:
   - fullTextSearch
   - grafting
-  - ipfsOnEthereumContracts
   - nonFatalErrors
 schema:
   file: ./schema.graphql
@@ -91,6 +90,7 @@ dataSources:
       address: '0x921ade9018Eec4a01e41e80a7eeBa982B61724Ec'
       abi: ArtistAcceptingBidsV1
       startBlock: 6568535
+      endBlock: 11250551
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -175,6 +175,7 @@ dataSources:
       address: '0xc1697d340807324200e26e4617Ce9c0070488E23'
       abi: TokenMarketplace
       startBlock: 9927235
+      endBlock: 12477754
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -438,6 +439,7 @@ dataSources:
       address: '0x36CF31019816E9490959F75Ba9164eDd304De01D'
       abi: MintingFactory
       startBlock: 13081038
+      endBlock: 16483508
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -902,3 +904,21 @@ templates:
         - event: EditionFundsHandlerUpdated(indexed uint256,indexed address)
           handler: handleEditionLevelFundSplitterSet
           ## TODO approval events not captured
+  - name: MetaData
+    kind: file/ipfs
+    mapping:
+        apiVersion: 0.0.7
+        language: wasm/assemblyscript
+        file: ./src/services/MetaData.service.ts
+        handler: handleMetaData
+        entities:
+            - MetaData
+        abis:
+          - name: ERC721KODACreatorWithBuyItNow
+            file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+          - name: KnownOriginV2
+            file: ./abis/kodav2/KnownOriginV2.json
+          - name: KnownOriginV3
+            file: ./abis/kodav3/KnownOriginV3.json
+          - name: MintingFactory
+            file: ./abis/kodav3/MintingFactoryV2.json

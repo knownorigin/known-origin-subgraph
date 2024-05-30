@@ -93,7 +93,6 @@ export function loadOrCreateV2Edition(editionNumber: BigInt, block: ethereum.Blo
             let metaData = constructMetaData(editionNumber.toString(), _editionData.value7)
 
             if (metaData != null) {
-                metaData.save()
                 editionEntity.metadata = metaData.id
 
                 editionEntity.metadataName = metaData.name ? metaData.name as string : ''
@@ -249,7 +248,6 @@ function buildEdition(_editionId: BigInt, _originalCreator: Address, _size: BigI
 
         let metaData = constructMetaData(_editionId.toString(), _uri)
         if (metaData != null) {
-            metaData.save()
             editionEntity.metadata = metaData.id
             editionEntity.metadataFormat = metaData.format
             editionEntity.metadataTheme = metaData.theme
@@ -324,7 +322,6 @@ function buildV4Edition(_editionId: BigInt, _originalCreator: Address, _size: Bi
 export function populateEditionMetadata(editionEntity: Edition, _editionId: string, _uri: string): void {
     let metaData = constructMetaData(_editionId, _uri)
     if (metaData != null) {
-        metaData.save()
         editionEntity.metadata = metaData.id
         editionEntity.metadataFormat = metaData.format
         editionEntity.metadataTheme = metaData.theme

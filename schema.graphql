@@ -5,7 +5,7 @@
 
 # Generic activity stream events for history of actions including primary and secondary sales actions & triggers
 # Used for listing out token history on the token pages
-type TokenEvent @entity {
+type TokenEvent @entity(immutable: true) {
     id: ID!                     # Composite key made form multiple items
     version: BigInt!            # KODA 2 or 3
     name: String!
@@ -28,7 +28,7 @@ type TokenEvent @entity {
 }
 
 # Token events for transfers
-type TransferEvent @entity {
+type TransferEvent @entity(immutable: true) {
     id: ID!
     version: BigInt! # KODA 2 or 3
     from: Bytes! # address
@@ -48,7 +48,7 @@ type TransferEvent @entity {
 }
 
 # Edition primary sale auction events
-type AuctionEvent @entity {
+type AuctionEvent @entity(immutable: true) {
     id: ID!
     version: BigInt! # KODA 2 or 3
     edition: Edition!
@@ -70,7 +70,7 @@ type AuctionEvent @entity {
 }
 
 # Common unified event stream spanning KODA versions and various types
-type ActivityEvent @entity {
+type ActivityEvent @entity(immutable: true) {
     id: ID!
     type: String!               # Token, Edition or Creator Contract
     version: BigInt!            # KODA 2 or 3
@@ -305,7 +305,7 @@ type Composable @entity {
 }
 
 # ComposableItem represents one token attached to a composable
-type ComposableItem @entity {
+type ComposableItem @entity  {
     id: ID! # ID made up of combined tokenID/composing contract/composing IDs
     address: String! # Address of the ERC20/ERC721 token
     tokenID: String! # ID of the token
@@ -443,7 +443,7 @@ type Edition @entity {
 }
 
 # A token/editions and its meta data
-type MetaData @entity {
+type MetaData @entity(immutable: true) {
     id: ID!
     name: String
     description: String
@@ -474,7 +474,7 @@ type MetaData @entity {
 }
 
 # Single high level entity capturing the top offer on the secondary marketplace
-type TokenOffer @entity {
+type TokenOffer @entity(immutable: true) {
     id: ID!
     version: BigInt! # KODA 2 or 3
     token: Token!

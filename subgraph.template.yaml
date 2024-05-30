@@ -1,13 +1,12 @@
-specVersion: 0.0.5
+specVersion: 0.0.9
 description: KnownOrigin.io subgraph
 repository: https://github.com/knownorigin/graph-known-origin
-graft:
- base: QmQqcFAGMCfj4mVv7USHj733VRb9zCCZPAQkP1exM5xL3L # Subgraph ID of base subgraph
- block: 16896100 # Block number
+# graft:
+#  base: QmQqcFAGMCfj4mVv7USHj733VRb9zCCZPAQkP1exM5xL3L # Subgraph ID of base subgraph
+#  block: 16896100 # Block number
 features:
   - fullTextSearch
   - grafting
-  - ipfsOnEthereumContracts
   - nonFatalErrors
 schema:
   file: ./schema.graphql
@@ -92,6 +91,7 @@ dataSources:
       address: '{{auction-v1-address}}'
       abi: ArtistAcceptingBidsV1
       startBlock: {{auction-v1-startBlock}}
+      endBlock: {{auction-v1-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -180,6 +180,7 @@ dataSources:
       address: '{{token-marketplace-v1-address}}'
       abi: TokenMarketplace
       startBlock: {{token-marketplace-v1-startBlock}}
+      endBlock: {{token-marketplace-v1-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -451,6 +452,7 @@ dataSources:
       address: '{{koda-v3-minting-factory-address}}'
       abi: MintingFactory
       startBlock: {{koda-v3-minting-factory-startBlock}}
+      endBlock: {{koda-v3-minting-factory-endBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -918,3 +920,21 @@ templates:
           handler: handleEditionLevelFundSplitterSet
           ## TODO approval events not captured
   {{/cc-factory-address}}
+  - name: MetaData
+    kind: file/ipfs
+    mapping:
+        apiVersion: 0.0.7
+        language: wasm/assemblyscript
+        file: ./src/services/MetaData.service.ts
+        handler: handleMetaData
+        entities:
+            - MetaData
+        abis:
+          - name: ERC721KODACreatorWithBuyItNow
+            file: ./abis/kodav4/ERC721KODACreatorWithBuyItNow.json
+          - name: KnownOriginV2
+            file: ./abis/kodav2/KnownOriginV2.json
+          - name: KnownOriginV3
+            file: ./abis/kodav3/KnownOriginV3.json
+          - name: MintingFactory
+            file: ./abis/kodav3/MintingFactoryV2.json

@@ -4,15 +4,14 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "prep:mainnet": "mustache templates/mainnet.json subgraph.template.yaml > subgraph.yaml && yarn codegen;",
-    "deploy:mainnet": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin",
-    "deploy:prod2": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/knownoriginprod2",
-    "deploy:staging": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin-staging",
-    "prep:rinkeby": "mustache templates/rinkeby.json subgraph.template.yaml > subgraph.yaml && yarn codegen;",
-    "deploy:rinkeby": "yarn run prep:rinkeby; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/knownoriginrinkeby",
-    "prep:goerli": "mustache templates/goerli.json subgraph.template.yaml > subgraph.yaml && yarn codegen;",
-    "deploy:goerli": "yarn run prep:goerli; graph deploy --product hosted-service knownorigin/known-origin-goerli",
-    "deploy:mainnet-studio": "yarn run prep:mainnet; graph deploy --studio known-origin",
+    "prep:mainnet": "mustache templates/mainnet.json subgraph.template.yaml > subgraph.yaml && graph codegen;",
+    "prep:goerli": "mustache templates/goerli.json subgraph.template.yaml > subgraph.yaml && graph codegen;",
+    "deploy:mainnet": "npm run prep:mainnet; graph deploy --studio known-origin",
+    "deploy:goerli": "npm run prep:goerli; graph deploy --studio known-origin-goerli",
+    "deploy:mainnet-hosted": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin",
+    "deploy:prod2-hosted": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/knownoriginprod2",
+    "deploy:staging-hosted": "yarn run prep:mainnet; graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ knownorigin/known-origin-staging",
+    "deploy:goerli-hosted": "yarn run prep:goerli; graph deploy --product hosted-service knownorigin/known-origin-goerli",
     "create-local": "graph create --node http://localhost:8020/ knownorigin/known-origin",
     "remove-local": "graph remove --node http://localhost:8020/ knownorigin/known-origin",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 knownorigin/known-origin",
@@ -20,11 +19,11 @@
     "test-docker": "graph test --docker"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.30.4",
-    "@graphprotocol/graph-ts": "0.27.0",
-    "mustache": "^4.2.0"
+    "@graphprotocol/graph-cli": "0.55.0",
+    "@graphprotocol/graph-ts": "0.31.0",
+    "mustache": "4.2.0"
   },
   "devDependencies": {
-    "matchstick-as": "0.5.1"
+    "matchstick-as": "0.5.2"
   }
 }
